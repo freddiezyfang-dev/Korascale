@@ -9,7 +9,7 @@ const imgProperty1Slide2 = "https://picsum.photos/1200/600?random=2";
 const imgProperty1Slide3 = "https://picsum.photos/1200/600?random=3";
 const imgProperty1Slide4 = "https://picsum.photos/1200/600?random=4";
 
-interface HeroBannerProps {
+export interface HeroBannerProps {
   autoSlide?: boolean;
   slideInterval?: number;
   showIndicators?: boolean;
