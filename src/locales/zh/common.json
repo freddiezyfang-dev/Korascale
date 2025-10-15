@@ -1,0 +1,14 @@
+{
+	"site": {
+		"title": "我的旅行网"
+	},
+	"nav": {
+		"home": "首页",
+		"destinations": "目的地",
+		"journeys": "行程",
+		"inspirations": "灵感",
+		"about": "关于",
+		"contact": "联系"
+	}
+}
+

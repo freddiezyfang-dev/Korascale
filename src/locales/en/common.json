@@ -1,0 +1,14 @@
+{
+	"site": {
+		"title": "My Travel Web"
+	},
+	"nav": {
+		"home": "Home",
+		"destinations": "Destinations",
+		"journeys": "Journeys",
+		"inspirations": "Inspirations",
+		"about": "About",
+		"contact": "Contact"
+	}
+}
+

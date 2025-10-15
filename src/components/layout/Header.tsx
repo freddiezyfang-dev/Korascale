@@ -1,0 +1,71 @@
+import Link from 'next/link';
+
+// 使用本地图片资源 - 你的logo图片
+const imgLogo = "/logo.png"; // 使用你的logo文件
+const imgMail = "/icons/mail.svg";
+const imgMessageCircle = "/icons/message.svg";
+const imgInstagram = "/icons/instagram.svg";
+const imgFacebook = "/icons/facebook.svg";
+const imgGlobe = "/globe.svg";
+const imgSearchOutlined = "/icons/search.svg";
+
+function HeaderLeft() {
+	return (
+		<Link href="/" className="flex items-center gap-2 lg:gap-[19px] h-[85px] overflow-hidden px-px shrink-0 hover:opacity-80 transition-opacity" data-name="Logo" data-node-id="770:178">
+			<div className="shrink-0 size-12 lg:size-[80px] flex items-center justify-center" data-name="Logo" data-node-id="770:179">
+				<img 
+					src={imgLogo} 
+					alt="Korascale Logo" 
+					className="w-full h-full object-contain"
+					style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+				/>
+			</div>
+			<div className="not-italic text-lg lg:text-[24px] !text-white w-[100px] lg:w-[135px] leading-none font-subheading shrink-0" data-node-id="770:180" style={{ color: 'white !important' }}>
+				<p className="leading-normal" style={{ color: 'white !important' }}>Korascale</p>
+			</div>
+		</Link>
+	);
+}
+
+function SocialAndSearch() {
+	return (
+		<div className="flex items-center justify-center gap-4 lg:gap-[35px] overflow-hidden px-4 lg:px-16 py-[25px] shrink-0" data-name="Scial Media" data-node-id="770:181">
+			{/* Social Media Icons - Hidden on mobile, visible on desktop */}
+			<div className="hidden lg:flex items-center gap-6">
+				<div className="shrink-0 size-6" data-name="mail" data-node-id="770:182">
+					<img aria-hidden className="block size-full" src={imgMail} alt="Email" />
+				</div>
+				<div className="shrink-0 size-6" data-name="message-circle" data-node-id="770:185">
+					<img aria-hidden className="block size-full" src={imgMessageCircle} alt="Message" />
+				</div>
+				<div className="shrink-0 size-6" data-name="instagram" data-node-id="770:187">
+					<img aria-hidden className="block size-full" src={imgInstagram} alt="Instagram" />
+				</div>
+				<div className="shrink-0 size-6" data-name="facebook" data-node-id="770:191">
+					<img aria-hidden className="block size-full" src={imgFacebook} alt="Facebook" />
+				</div>
+				<div className="shrink-0 size-6" data-name="globe" data-node-id="770:193">
+					<img aria-hidden className="block size-full" src={imgGlobe} alt="Language" />
+				</div>
+			</div>
+			{/* Search Section */}
+			<div className="bg-[#1e3b32] flex items-center justify-center overflow-hidden px-4 lg:px-[51px] py-[14px] shrink-0" data-name="Language" data-node-id="770:192">
+				<div className="shrink-0 size-6" data-name="SearchOutlined" data-node-id="771:244">
+					<img aria-hidden className="block size-full" src={imgSearchOutlined} alt="Search" />
+				</div>
+				<div className="bg-[#d9d9d9] h-[26px] rounded-[20px] shrink-0 w-[80px] lg:w-[115px]" data-name="Search" data-node-id="770:197" />
+			</div>
+		</div>
+	);
+}
+
+export default function Header() {
+	return (
+		<header className="w-full bg-[#1e3b32] text-white relative z-50" data-name="Header/Main" data-node-id="771:249">
+			<div className="flex items-center justify-between lg:gap-[600px] gap-4 px-4 lg:px-[50px] py-0">
+				<HeaderLeft />
+				<SocialAndSearch />
+			</div>
+		</header>
+	);
+}

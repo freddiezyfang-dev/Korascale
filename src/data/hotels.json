@@ -1,0 +1,475 @@
+{
+  "hotels": [
+    {
+      "id": "hotel-1",
+      "name": "Chongqing Jiefangbei Walking Street Intercity Hotel",
+      "city": "Chongqing",
+      "location": "Jiefangbei Walking Street, Chongqing",
+      "description": "Located in the heart of Chongqing's most famous commercial district, this luxury hotel offers premium accommodation with modern amenities and excellent service.",
+      "rating": "4.8",
+      "starRating": "luxury",
+      "images": [
+        "/images/hotels/chongqing-jiefangbei-1.png",
+        "/images/hotels/chongqing-jiefangbei-2.png",
+        "/images/hotels/chongqing-jiefangbei-3.png"
+      ],
+      "roomTypes": [
+        {
+          "name": "Intercity Deluxe King Room",
+          "description": "Spacious deluxe room with king-size bed (1.8m) for ultimate comfort.",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "City View"]
+        },
+        {
+          "name": "Intercity Deluxe Twin Room",
+          "description": "Deluxe room with two single beds (1.5m each) perfect for friends or family.",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "City View"]
+        },
+        {
+          "name": "Intercity Family Room",
+          "description": "Family-friendly room with one king bed (1.5m) and one single bed (1.2m).",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "Family Amenities"]
+        }
+      ]
+    },
+    {
+      "id": "hotel-2",
+      "name": "Chongqing Daji Pagoda Junting Design Hotel (Jiefangbei Hongyadong)",
+      "city": "Chongqing",
+      "location": "Jiefangbei Hongyadong, Chongqing",
+      "description": "A luxury design hotel featuring modern architecture and stunning river views, located near the famous Hongyadong area.",
+      "rating": "4.9",
+      "starRating": "luxury",
+      "images": [
+        "/images/hotels/chongqing-pagoda-1.png",
+        "/images/hotels/chongqing-pagoda-2.png",
+        "/images/hotels/chongqing-pagoda-3.png"
+      ],
+      "roomTypes": [
+        {
+          "name": "Cloud River View King Room",
+          "description": "Luxurious room with king-size bed (2m) and panoramic river views.",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "River View", "Balcony"]
+        },
+        {
+          "name": "Cloud River View Twin Room",
+          "description": "Elegant room with two single beds (1.5m each) and river views.",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "River View"]
+        },
+        {
+          "name": "Cloud River View Family Suite",
+          "description": "Spacious family suite with king bed (2m) and single bed (1.5m).",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "River View", "Family Amenities"]
+        }
+      ]
+    },
+    {
+      "id": "hotel-3",
+      "name": "Chongqing Luhai International Pagoda Junting Design Hotel",
+      "city": "Chongqing",
+      "location": "Luhai International, Chongqing",
+      "description": "Premium design hotel offering sophisticated accommodation with contemporary amenities and exceptional service.",
+      "rating": "4.7",
+      "starRating": "luxury",
+      "images": [
+        "/images/hotels/chongqing-luhai-1.png",
+        "/images/hotels/chongqing-luhai-2.png",
+        "/images/hotels/chongqing-luhai-3.png"
+      ],
+      "roomTypes": [
+        {
+          "name": "River View Deluxe King Room",
+          "description": "Deluxe room with king-size bed (2m) and stunning river views.",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "River View"]
+        },
+        {
+          "name": "River View Deluxe Twin Room",
+          "description": "Deluxe room with two single beds (1.5m each) and river views.",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "River View"]
+        }
+      ]
+    },
+    {
+      "id": "hotel-4",
+      "name": "Chongqing Nan'an Hilton Garden Inn",
+      "city": "Chongqing",
+      "location": "Nan'an District, Chongqing",
+      "description": "Modern upscale hotel offering comfortable accommodation with contemporary design and excellent facilities.",
+      "rating": "4.5",
+      "starRating": "upscale",
+      "images": [
+        "/images/hotels/chongqing-hilton-1.png",
+        "/images/hotels/chongqing-hilton-2.png",
+        "/images/hotels/chongqing-hilton-3.png"
+      ],
+      "roomTypes": [
+        {
+          "name": "Flexible Deluxe King Room",
+          "description": "Spacious room with king-size bed (1.8m) and modern amenities.",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe"]
+        },
+        {
+          "name": "Flexible Deluxe Twin Room",
+          "description": "Comfortable room with two single beds (1.5m each).",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe"]
+        },
+        {
+          "name": "Flexible Family Room",
+          "description": "Family room with king bed (1.8m) and single bed (1.5m).",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "Family Amenities"]
+        }
+      ]
+    },
+    {
+      "id": "hotel-5",
+      "name": "Chongqing Dashijie Junting Hotel (Jiefangbei Hongyadong)",
+      "city": "Chongqing",
+      "location": "Jiefangbei Hongyadong, Chongqing",
+      "description": "Upscale hotel offering elegant accommodation with traditional Chinese design elements and modern comfort.",
+      "rating": "4.4",
+      "starRating": "upscale",
+      "images": [
+        "/images/hotels/chongqing-junting-1.png",
+        "/images/hotels/chongqing-junting-2.png",
+        "/images/hotels/chongqing-junting-3.png"
+      ],
+      "roomTypes": [
+        {
+          "name": "Deluxe King Room",
+          "description": "Elegant room with king-size bed (1.8m) and traditional decor.",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe"]
+        },
+        {
+          "name": "Deluxe Twin Room",
+          "description": "Comfortable room with two single beds (1.2m each).",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe"]
+        },
+        {
+          "name": "Family Room",
+          "description": "Family-friendly room with king bed (1.8m) and single bed (1.35m).",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "Family Amenities"]
+        }
+      ]
+    },
+    {
+      "id": "hotel-6",
+      "name": "Chongqing Jiefangbei Mercure Hotel",
+      "city": "Chongqing",
+      "location": "Jiefangbei, Chongqing",
+      "description": "Modern upscale hotel in the heart of Chongqing's business district, offering contemporary accommodation with excellent service.",
+      "rating": "4.3",
+      "starRating": "upscale",
+      "images": [
+        "/images/hotels/chongqing-mercure-1.png",
+        "/images/hotels/chongqing-mercure-2.png",
+        "/images/hotels/chongqing-mercure-3.png"
+      ],
+      "roomTypes": [
+        {
+          "name": "Guest King Room",
+          "description": "Comfortable room with king-size bed (1.8m) and modern amenities.",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe"]
+        },
+        {
+          "name": "Guest Twin Room",
+          "description": "Spacious room with two single beds (1.5m each).",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe"]
+        }
+      ]
+    },
+    {
+      "id": "hotel-7",
+      "name": "Chengdu Tibet Hotel (Wenshuyuan)",
+      "city": "Chengdu",
+      "location": "Wenshuyuan, Chengdu",
+      "description": "Luxury hotel featuring Tibetan-inspired design and exceptional service, located in the historic Wenshuyuan area.",
+      "rating": "4.9",
+      "starRating": "luxury",
+      "images": [
+        "/images/hotels/chengdu-tibet-1.png",
+        "/images/hotels/chengdu-tibet-2.png",
+        "/images/hotels/chengdu-tibet-3.png"
+      ],
+      "roomTypes": [
+        {
+          "name": "Potala Starlight King Room",
+          "description": "Luxurious room with king-size bed (2m) featuring Tibetan-inspired decor.",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "Tibetan Decor", "City View"]
+        },
+        {
+          "name": "Potala Starlight Twin Room",
+          "description": "Elegant room with two single beds (1.2m each) and traditional Tibetan elements.",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "Tibetan Decor"]
+        },
+        {
+          "name": "Family Room",
+          "description": "Spacious family room with king bed (2m) and single bed (1.6m).",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "Family Amenities", "Tibetan Decor"]
+        }
+      ]
+    },
+    {
+      "id": "hotel-8",
+      "name": "Chengdu Pagoda Junting Design Hotel",
+      "city": "Chengdu",
+      "location": "Taikoo Li Chunxi, Chengdu",
+      "description": "Luxury design hotel in the heart of Chengdu's shopping district, offering modern accommodation with stunning city views.",
+      "rating": "4.8",
+      "starRating": "luxury",
+      "images": [
+        "/images/hotels/chengdu-pagoda-1.png",
+        "/images/hotels/chengdu-pagoda-2.png",
+        "/images/hotels/chengdu-pagoda-3.png"
+      ],
+      "roomTypes": [
+        {
+          "name": "Taikoo Chunxi Night View King Room",
+          "description": "Luxurious room with king-size bed (2m) and panoramic city night views.",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "City View", "Night View"]
+        },
+        {
+          "name": "Taikoo Chunxi Night View Twin Room",
+          "description": "Elegant room with two single beds (1.4m each) and city night views.",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "City View", "Night View"]
+        }
+      ]
+    },
+    {
+      "id": "hotel-9",
+      "name": "Chengdu Wanda YiHua Hotel",
+      "city": "Chengdu",
+      "location": "Wanda Plaza, Chengdu",
+      "description": "Luxury hotel offering premium accommodation with modern amenities and exceptional service in Chengdu's business district.",
+      "rating": "4.7",
+      "starRating": "luxury",
+      "images": [
+        "/images/hotels/chengdu-wanda-1.png",
+        "/images/hotels/chengdu-wanda-2.png",
+        "/images/hotels/chengdu-wanda-3.png"
+      ],
+      "roomTypes": [
+        {
+          "name": "Deluxe King Room",
+          "description": "Spacious deluxe room with king-size bed (2m) and modern amenities.",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "City View"]
+        },
+        {
+          "name": "Deluxe Twin Room",
+          "description": "Comfortable room with two single beds (1.2m each).",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "City View"]
+        }
+      ]
+    },
+    {
+      "id": "hotel-10",
+      "name": "Chengdu Kuanzhai Alley Intercity Hotel",
+      "city": "Chengdu",
+      "location": "Kuanzhai Alley, Chengdu",
+      "description": "Luxury hotel in the historic Kuanzhai Alley area, blending traditional Sichuan architecture with modern luxury.",
+      "rating": "4.6",
+      "starRating": "luxury",
+      "images": [
+        "/images/hotels/chengdu-kuanzhai-1.png",
+        "/images/hotels/chengdu-kuanzhai-2.png",
+        "/images/hotels/chengdu-kuanzhai-3.png"
+      ],
+      "roomTypes": [
+        {
+          "name": "Deluxe King Room",
+          "description": "Elegant room with king-size bed (2m) featuring traditional Sichuan design.",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "Traditional Decor"]
+        },
+        {
+          "name": "Deluxe Twin Room",
+          "description": "Comfortable room with two single beds (1.35m each) and traditional elements.",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "Traditional Decor"]
+        }
+      ]
+    },
+    {
+      "id": "hotel-11",
+      "name": "Chengdu Xijinge All-Suite Apartment (Chunxi Taikoo Li)",
+      "city": "Chengdu",
+      "location": "Chunxi Taikoo Li, Chengdu",
+      "description": "Upscale all-suite apartment hotel offering spacious accommodation with modern amenities in Chengdu's premier shopping district.",
+      "rating": "4.4",
+      "starRating": "upscale",
+      "images": [
+        "/images/hotels/chengdu-xijinge-1.png",
+        "/images/hotels/chengdu-xijinge-2.png",
+        "/images/hotels/chengdu-xijinge-3.png"
+      ],
+      "roomTypes": [
+        {
+          "name": "Deluxe King Suite",
+          "description": "Spacious suite with king-size bed (1.8m) and separate living area.",
+          "amenities": ["WiFi", "Air Conditioning", "Kitchenette", "Safe", "City View"]
+        },
+        {
+          "name": "Deluxe Twin Suite",
+          "description": "Comfortable suite with two single beds (1.2m each) and living space.",
+          "amenities": ["WiFi", "Air Conditioning", "Kitchenette", "Safe", "City View"]
+        },
+        {
+          "name": "Family Suite",
+          "description": "Family suite with king bed (1.8m) and single bed (1.2m) plus living area.",
+          "amenities": ["WiFi", "Air Conditioning", "Kitchenette", "Safe", "Family Amenities"]
+        }
+      ]
+    },
+    {
+      "id": "hotel-12",
+      "name": "Pushi Hotel (Chengdu Kuanzhai Alley Metro Station)",
+      "city": "Chengdu",
+      "location": "Kuanzhai Alley Metro Station, Chengdu",
+      "description": "Upscale hotel near the historic Kuanzhai Alley, offering modern accommodation with traditional Chinese design elements.",
+      "rating": "4.3",
+      "starRating": "upscale",
+      "images": [
+        "/images/hotels/chengdu-pushi-1.png",
+        "/images/hotels/chengdu-pushi-2.png",
+        "/images/hotels/chengdu-pushi-3.png"
+      ],
+      "roomTypes": [
+        {
+          "name": "Jade Palace King Room",
+          "description": "Elegant room with king-size bed (1.8m) featuring jade-inspired decor.",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "Traditional Decor"]
+        },
+        {
+          "name": "Phoenix Nest Twin Room",
+          "description": "Comfortable room with two single beds (1.35m each) and phoenix-themed design.",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "Traditional Decor"]
+        },
+        {
+          "name": "Family Room",
+          "description": "Family room with king bed (1.8m) and single bed (1.35m).",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "Family Amenities"]
+        }
+      ]
+    },
+    {
+      "id": "hotel-13",
+      "name": "Chengdu Tianfu Square Jinli East Road Mercure",
+      "city": "Chengdu",
+      "location": "Tianfu Square Jinli East Road, Chengdu",
+      "description": "Upscale hotel in Chengdu's central business district, offering modern accommodation with excellent city access.",
+      "rating": "4.2",
+      "starRating": "upscale",
+      "images": [
+        "/images/hotels/chengdu-tianfu-1.png",
+        "/images/hotels/chengdu-tianfu-2.png",
+        "/images/hotels/chengdu-tianfu-3.png"
+      ],
+      "roomTypes": [
+        {
+          "name": "Guest King Room",
+          "description": "Comfortable room with king-size bed (1.8m) and modern amenities.",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe"]
+        },
+        {
+          "name": "Guest Twin Room",
+          "description": "Spacious room with two single beds (1.35m each).",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe"]
+        },
+        {
+          "name": "Family Room",
+          "description": "Family room with king bed (1.8m) and single bed (1.2m).",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "Family Amenities"]
+        }
+      ]
+    },
+    {
+      "id": "hotel-14",
+      "name": "Chengdu Taikoo Li Riverside Atour Hotel",
+      "city": "Chengdu",
+      "location": "Taikoo Li Riverside, Chengdu",
+      "description": "Upscale lifestyle hotel offering contemporary accommodation with modern design and excellent service.",
+      "rating": "4.5",
+      "starRating": "upscale",
+      "images": [
+        "/images/hotels/chengdu-atour-1.png",
+        "/images/hotels/chengdu-atour-2.png",
+        "/images/hotels/chengdu-atour-3.png"
+      ],
+      "roomTypes": [
+        {
+          "name": "Superior King Room",
+          "description": "Modern room with king-size bed (1.8m) and contemporary design.",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "City View"]
+        },
+        {
+          "name": "Superior Twin Room",
+          "description": "Comfortable room with two single beds (1.2m each).",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "City View"]
+        },
+        {
+          "name": "Family Room",
+          "description": "Family room with king bed (1.5m) and single bed (1.2m).",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "Family Amenities"]
+        }
+      ]
+    },
+    {
+      "id": "hotel-15",
+      "name": "Xi'en International Hotel (Jinsha Museum Yipintianxia Metro Station)",
+      "city": "Chengdu",
+      "location": "Jinsha Museum Yipintianxia Metro Station, Chengdu",
+      "description": "Upscale hotel near cultural attractions, offering comfortable accommodation with modern amenities.",
+      "rating": "4.1",
+      "starRating": "upscale",
+      "images": [
+        "/images/hotels/chengdu-xien-1.png",
+        "/images/hotels/chengdu-xien-2.png",
+        "/images/hotels/chengdu-xien-3.png"
+      ],
+      "roomTypes": [
+        {
+          "name": "Sunshine King Room",
+          "description": "Bright room with king-size bed (1.8m) and natural lighting.",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "Natural Light"]
+        },
+        {
+          "name": "Tranquil Twin Room",
+          "description": "Peaceful room with two single beds (1.2m each) for relaxation.",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "Quiet Environment"]
+        },
+        {
+          "name": "Family Suite",
+          "description": "Spacious family suite with king bed (2m) and single bed (1.2m).",
+          "amenities": ["WiFi", "Air Conditioning", "Minibar", "Safe", "Family Amenities"]
+        }
+      ]
+    },
+    {
+      "id": "hotel-16",
+      "name": "Shangjinpin Hotel (Chengdu Yulin Wuhou Temple)",
+      "city": "Chengdu",
+      "location": "Yulin Wuhou Temple, Chengdu",
+      "description": "Comfortable hotel offering affordable accommodation with modern amenities in Chengdu's cultural district.",
+      "rating": "4.0",
+      "starRating": "comfortable",
+      "images": [
+        "/images/hotels/chengdu-shangjinpin-1.png",
+        "/images/hotels/chengdu-shangjinpin-2.png",
+        "/images/hotels/chengdu-shangjinpin-3.png"
+      ],
+      "roomTypes": [
+        {
+          "name": "Elegant King Room",
+          "description": "Comfortable room with king-size bed (1.8m) and basic amenities.",
+          "amenities": ["WiFi", "Air Conditioning", "Safe"]
+        },
+        {
+          "name": "Elegant Twin Room",
+          "description": "Standard room with two single beds (1.2m each).",
+          "amenities": ["WiFi", "Air Conditioning", "Safe"]
+        },
+        {
+          "name": "Family Room",
+          "description": "Family room with king bed (1.8m) and single bed (1.5m).",
+          "amenities": ["WiFi", "Air Conditioning", "Safe", "Family Amenities"]
+        }
+      ]
+    }
+  ]
+}

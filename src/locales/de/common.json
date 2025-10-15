@@ -1,0 +1,14 @@
+{
+	"site": {
+		"title": "Meine Reise-Webseite"
+	},
+	"nav": {
+		"home": "Startseite",
+		"destinations": "Reiseziele",
+		"journeys": "Routen",
+		"inspirations": "Inspirationen",
+		"about": "Über uns",
+		"contact": "Kontakt"
+	}
+}
+

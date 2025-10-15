@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Hero Banner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="min-h-screen bg-white">
+        <!-- Hero Section - Static Version -->
+        <section class="relative w-full h-[600px] bg-gradient-to-r from-[#1e3b32] to-[#c99a44] flex items-center justify-center">
+            <div class="text-center text-white px-4 max-w-4xl">
+                <h1 class="text-5xl md:text-6xl font-normal mb-8 font-[Montserrat] max-w-4xl">
+                    Unveil the beauty. Embrace the culture. Explore Western China like never before.
+                </h1>
+                <a 
+                    href="/destinations"
+                    class="bg-white text-black px-8 py-3 rounded-lg font-bold text-xl hover:bg-gray-100 transition-colors inline-block"
+                >
+                    Explore now
+                </a>
+            </div>
+        </section>
+
+        <!-- Main Action Cards -->
+        <section class="bg-[#1e3b32] py-16">
+            <div class="max-w-7xl mx-auto px-8">
+                <div class="flex flex-col lg:flex-row gap-8 items-center justify-center">
+                    <div class="bg-gradient-to-br from-[#c99a44] to-[#1e3b32] h-[463px] w-[400px] rounded-lg overflow-hidden flex items-end">
+                        <div class="p-4 text-white">
+                            <h3 class="text-4xl font-semibold mb-4">Destinations</h3>
+                            <p class="text-xl font-normal">Unfold Your Next Adventure</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-[#1e3b32] to-[#c99a44] h-[463px] w-[400px] rounded-lg overflow-hidden flex items-end">
+                        <div class="p-4 text-white">
+                            <h3 class="text-4xl font-semibold mb-4">Journeys</h3>
+                            <p class="text-xl font-normal">Craft Your Own Narrative</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-[#c99a44] to-[#f5f1e6] h-[463px] w-[400px] rounded-lg overflow-hidden flex items-end">
+                        <div class="p-4 text-black">
+                            <h3 class="text-4xl font-semibold mb-4">Inspirations</h3>
+                            <p class="text-xl font-normal">From Wonder to Wander</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
