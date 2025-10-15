@@ -79,7 +79,7 @@ export default function Home() {
                 <div className="absolute bottom-[99px] left-1/2 transform -translate-x-1/2 text-center text-white w-[222px] h-[140px] flex flex-col items-center justify-start">
                   <Heading level={3} color="inverse" className="text-2xl font-subheading mb-4 text-center">Inspirations</Heading>
                   <Text size="xs" color="inverse" className="leading-normal text-center">
-                    Find Your Spark: Uncover Stories, Culture, and China's Hidden Secrets.
+                    Find Your Spark: Uncover Stories, Culture, and China&apos;s Hidden Secrets.
                   </Text>
                 </div>
               </div>
@@ -218,7 +218,7 @@ export default function Home() {
                   className="text-lg mb-8 font-[Monda] text-white" 
                   style={{ color: 'white' }}
                 >
-                  Embark on the ultimate sensory adventure. Let your taste buds explode with flavors from China's diverse regions, guided by the wisdom of generations of culinary masters.
+                  Embark on the ultimate sensory adventure. Let your taste buds explode with flavors from China&apos;s diverse regions, guided by the wisdom of generations of culinary masters.
                 </p>
                 <Link 
                   href="/inspirations" 

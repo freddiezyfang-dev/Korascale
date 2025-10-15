@@ -119,7 +119,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
             <div className="text-center">
               <Text className="text-gray-600">
-                Don't have an account?{' '}
+                    Don&apos;t have an account?{' '}
                 <a href="/auth/register" className="text-primary-600 hover:text-primary-500">
                   Sign up here
                 </a>

@@ -180,7 +180,7 @@ export default function ChengduCityOneDayDeepDive() {
 
               {/* 概述文本 */}
               <Text size="xl" className="mb-8 leading-relaxed">
-                This one-day tour is specially designed for travelers who wish to deeply experience Chengdu's culinary charm and traditional culture. The tour combines adorable giant pandas, interactive food experiences, and captivating Sichuan opera, offering a perfect blend of nature, flavor, and art—all in a single fulfilling day.
+                This one-day tour is specially designed for travelers who wish to deeply experience Chengdu&apos;s culinary charm and traditional culture. The tour combines adorable giant pandas, interactive food experiences, and captivating Sichuan opera, offering a perfect blend of nature, flavor, and art—all in a single fulfilling day.
               </Text>
 
               {/* 特色亮点 */}
@@ -190,7 +190,7 @@ export default function ChengduCityOneDayDeepDive() {
                   <div>
                     <Text className="font-medium">Meet the Giant Pandas</Text>
                     <Text size="sm" className="text-gray-600">
-                      Get up close with China's national treasure at the Chengdu Research Base of Giant Panda Breeding.
+                      Get up close with China&apos;s national treasure at the Chengdu Research Base of Giant Panda Breeding.
                     </Text>
                   </div>
                 </div>

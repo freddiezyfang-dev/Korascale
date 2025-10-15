@@ -185,7 +185,7 @@ export default function Inspirations() {
                   Seasonal Highlights
                 </Heading>
                 <Text className="text-xs mb-6 leading-relaxed pr-6" style={{ color: '#000000' }}>
-                  From the cherry blossoms of a Wuhan spring to the ice festivals of a Harbin winter, discover the best times to visit and experience China's ever-changing beauty. Plan your journey around these unforgettable seasonal spectacles.
+                  From the cherry blossoms of a Wuhan spring to the ice festivals of a Harbin winter, discover the best times to visit and experience China&apos;s ever-changing beauty. Plan your journey around these unforgettable seasonal spectacles.
                 </Text>
                 <button className="text-xs font-body underline hover:no-underline transition-colors duration-300" style={{ color: '#000000' }}>
                   VIEW MORE

@@ -42,7 +42,7 @@ const journeys = [
 	{
 		id: 3,
 		title: "Full-Day Tour to the Ancient Dujiangyan Irrigation System",
-		description: "Explore one of China's most remarkable engineering achievements, a 2,000-year-old irrigation system that still functions today. Learn about ancient Chinese water management techniques and their impact on Sichuan's agriculture.",
+		description: "Explore one of China&apos;s most remarkable engineering achievements, a 2,000-year-old irrigation system that still functions today. Learn about ancient Chinese water management techniques and their impact on Sichuan&apos;s agriculture.",
 		image: imgJourney3,
 		duration: "1 Day",
 		price: "From $179",
@@ -64,7 +64,7 @@ const journeys = [
 	{
 		id: 5,
 		title: "Jiuzhaigou & Huanglong National Parks Tour from Chengdu",
-		description: "Experience two of China's most spectacular natural wonders. Visit the colorful travertine pools of Huanglong and the pristine lakes of Jiuzhaigou, both UNESCO World Heritage Sites.",
+		description: "Experience two of China&apos;s most spectacular natural wonders. Visit the colorful travertine pools of Huanglong and the pristine lakes of Jiuzhaigou, both UNESCO World Heritage Sites.",
 		image: imgJourney5,
 		duration: "4 Days",
 		price: "From $799",
@@ -159,7 +159,7 @@ export default function JourneysPage() {
 
 						{/* Description Text */}
 						<Text size="xl" className="text-2xl font-['Montaga'] leading-relaxed tracking-wide">
-							Explore our curated collection of journeys across China's most breathtaking landscapes. 
+							Explore our curated collection of journeys across China&apos;s most breathtaking landscapes. 
 							Whether you seek cultural immersion, culinary delights, or outdoor adventure, use the 
 							filters to discover your dream itinerary. Let your journey of a lifetime start now.
 						</Text>
