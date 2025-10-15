@@ -99,7 +99,7 @@ export default function WishlistDemoPage() {
             Experience Items
           </Heading>
           <Text className="mb-8 text-gray-600">
-            Click "Add to Wishlist" buttons to experience the feature
+            Click &quot;Add to Wishlist&quot; buttons to experience the feature
           </Text>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -142,7 +142,7 @@ export default function WishlistDemoPage() {
                 </div>
                 <Heading level={3} className="mb-2">Add Items</Heading>
                 <Text className="text-gray-600">
-                  Click "Add to Wishlist" button on any card
+                  Click &quot;Add to Wishlist&quot; button on any card
                 </Text>
               </div>
               <div className="text-center">
@@ -151,7 +151,7 @@ export default function WishlistDemoPage() {
                 </div>
                 <Heading level={3} className="mb-2">View List</Heading>
                 <Text className="text-gray-600">
-                  Click the "Wishlist" button in the top right to open the sidebar
+                  Click the &quot;Wishlist&quot; button in the top right to open the sidebar
                 </Text>
               </div>
               <div className="text-center">

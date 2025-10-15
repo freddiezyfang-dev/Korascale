@@ -7,28 +7,39 @@ import { AccommodationCard } from '@/components/cards/AccommodationCard';
 import { HotelDetailModal } from '@/components/modals/HotelDetailModal';
 import hotelsData from '@/data/hotels.json';
 
+// 定义酒店类型
+interface Hotel {
+  id: string;
+  name: string;
+  location: string;
+  city?: string;
+  starRating?: string;
+  images: string[];
+  rating: string;
+  description: string;
+  roomTypes: Array<{
+    name: string;
+    description: string;
+    amenities: string[];
+  }>;
+}
+
 // 图片资源 - 使用Figma设计中的图片
 const imgHeroBanner = "/images/hero/slide8-accommodation.png";
 const imgFrame33 = "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&h=400&fit=crop&crop=center";
 const imgFrame36 = "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&h=400&fit=crop&crop=center";
 const imgFrame37 = "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&h=400&fit=crop&crop=center";
-const img5 = "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=308&h=204&fit=crop&crop=center";
-const img6 = "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=308&h=204&fit=crop&crop=center";
-const img7 = "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=308&h=204&fit=crop&crop=center";
-const img8 = "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=308&h=204&fit=crop&crop=center";
-const img9 = "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=308&h=204&fit=crop&crop=center";
-const img10 = "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=308&h=204&fit=crop&crop=center";
-const img11 = "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=308&h=204&fit=crop&crop=center";
+// 移除未使用的图片常量
 
 export default function Accommodations() {
-  const [selectedHotel, setSelectedHotel] = useState<any | null>(null);
+  const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   // Filter states
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [selectedStarRating, setSelectedStarRating] = useState<string | null>(null);
 
-  const handleHotelClick = (hotel: any) => {
+  const handleHotelClick = (hotel: Hotel) => {
     console.log('Hotel clicked in accommodations page:', hotel);
     console.log('Setting selectedHotel to:', hotel);
     setSelectedHotel(hotel);
@@ -201,7 +212,7 @@ export default function Accommodations() {
                     then head to the Sichuan Cuisine Museum for a hands-on experience with snack
                     making and tasting. In the afternoon, enjoy a face-changing performance of
                     Sichuan Opera. The day concludes with a classic Chengdu hot pot dinner, offering
-                    a deep dive into Sichuan's culinary and artistic heritage.
+                    a deep dive into Sichuan&apos;s culinary and artistic heritage.
                   </Text>
                   <Link 
                     href="#" 
@@ -247,7 +258,7 @@ export default function Accommodations() {
                       lineHeight: '1.625'
                     }}
                   >
-                    See the best of Chongqing's magical and retro vibes in one day. Explore the
+                    See the best of Chongqing&apos;s magical and retro vibes in one day. Explore the
                     ancient Ciqikou Old Town in the morning. In the afternoon, experience the
                     Liziba Monorail passing through a residential building, ride the Yangtze River
                     Cableway, and stroll through Longmenhao Old Street. Admire the Hongyadong night
