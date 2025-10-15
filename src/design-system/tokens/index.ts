@@ -6,6 +6,12 @@ export { shadows, shadowUsage } from './shadows';
 export { borders, borderPresets, radiusPresets, borderUsage } from './borders';
 
 // 设计令牌类型定义
+import { colors } from './colors';
+import { typography } from './typography';
+import { spacing } from './spacing';
+import { shadows } from './shadows';
+import { borders } from './borders';
+
 export type ColorToken = keyof typeof colors;
 export type TypographyToken = keyof typeof typography;
 export type SpacingToken = keyof typeof spacing;
