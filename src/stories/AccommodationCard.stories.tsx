@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import { AccommodationCard } from '@/design-system';
+import type { Meta, StoryObj } from '@storybook/react';
+import { AccommodationCard } from '@/components/cards/AccommodationCard';
 
 const meta: Meta<typeof AccommodationCard> = {
   title: 'Design System/AccommodationCard',
