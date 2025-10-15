@@ -41,7 +41,7 @@ export function Heading({
   color = 'primary',
   style
 }: HeadingProps) {
-  const Tag = `h${level}` as keyof JSX.IntrinsicElements;
+  const Tag = `h${level}` as keyof React.JSX.IntrinsicElements;
   
   return (
     <Tag 
