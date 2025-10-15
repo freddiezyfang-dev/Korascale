@@ -19,6 +19,12 @@ export type ShadowToken = keyof typeof shadows;
 export type BorderToken = keyof typeof borders;
 
 // 设计令牌配置
+import { colorUsage } from './colors';
+import { textStyles } from './typography';
+import { spacingSemantic } from './spacing';
+import { shadowUsage } from './shadows';
+import { borderPresets, radiusPresets, borderUsage } from './borders';
+
 export const designTokens = {
   colors,
   colorUsage,
