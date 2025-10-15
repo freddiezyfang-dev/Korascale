@@ -46,7 +46,7 @@ const demoAccommodations = [
     location: 'CHENGDU, SICHUAN',
     image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop&crop=center',
     price: 'From ¥899/night',
-    rating: '5 Stars',
+    rating: 5,
     description: 'Experience traditional Sichuan architecture with modern luxury amenities in the heart of Chengdu.',
   },
   {
@@ -55,7 +55,7 @@ const demoAccommodations = [
     location: 'CHENGDU, SICHUAN',
     image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&h=300&fit=crop&crop=center',
     price: 'From ¥599/night',
-    rating: '4 Stars',
+    rating: 4,
     description: 'A peaceful retreat featuring traditional Chinese gardens and contemporary comfort.',
   },
 ];
