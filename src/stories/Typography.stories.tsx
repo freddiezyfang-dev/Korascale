@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Heading, Text } from '@/components/common';
 
-const meta: Meta<typeof Typography> = {
+const meta: Meta<typeof Heading> = {
   title: 'Design System/Typography',
-  component: Typography,
+  component: Heading,
   parameters: {
     layout: 'padded',
   },
