@@ -193,7 +193,7 @@ export default function JourneysPage() {
 										then head to the Sichuan Cuisine Museum for a hands-on experience with snack making 
 										and tasting. In the afternoon, enjoy a face-changing performance of Sichuan Opera. 
 										The day concludes with a classic Chengdu hot pot dinner, offering a deep dive into 
-										Sichuan's culinary and artistic heritage.
+										Sichuan&apos;s culinary and artistic heritage.
 									</p>
 									<Link href="/journeys/chengdu-city-one-day-deep-dive">
 										<Button variant="primary" className="text-xl font-['Monda']">
@@ -218,7 +218,7 @@ export default function JourneysPage() {
 										Chongqing City Highlights Day Tour
 									</h3>
 									<p className="text-base font-['Monda'] text-black mb-8 leading-relaxed">
-										See the best of Chongqing's magical and retro vibes in one day. Explore the ancient 
+										See the best of Chongqing&apos;s magical and retro vibes in one day. Explore the ancient 
 										Ciqikou Old Town in the morning. In the afternoon, experience the Liziba Monorail 
 										passing through a residential building, ride the Yangtze River Cableway, and stroll 
 										through Longmenhao Old Street. Admire the Hongyadong night view before enjoying a 

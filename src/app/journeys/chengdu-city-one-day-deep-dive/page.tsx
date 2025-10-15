@@ -260,7 +260,7 @@ export default function ChengduCityOneDayDeepDive() {
                     Visit Chengdu Panda Base
                   </Heading>
                   <Text className="text-gray-300 leading-relaxed">
-                    Spend the morning at the world-famous Chengdu Research Base of Giant Panda Breeding. Walk through lush bamboo forests and observe giant pandas and red pandas in habitats designed to mimic their natural environment. Learn about conservation efforts and watch these charismatic animals eat, play, and relax. Don't miss the chance to take photos and visit the panda nursery if available.
+                    Spend the morning at the world-famous Chengdu Research Base of Giant Panda Breeding. Walk through lush bamboo forests and observe giant pandas and red pandas in habitats designed to mimic their natural environment. Learn about conservation efforts and watch these charismatic animals eat, play, and relax. Don&apos;t miss the chance to take photos and visit the panda nursery if available.
                   </Text>
                 </div>
                 <div
@@ -278,7 +278,7 @@ export default function ChengduCityOneDayDeepDive() {
                     Explore Sichuan Cuisine Museum + snack tasting & DIY experience
                   </Heading>
                   <Text className="text-gray-300 leading-relaxed">
-                    Explore the only museum in the world dedicated to Sichuan cuisine. Participate in interactive exhibits where you can learn about the history, ingredients, and techniques of one of China's most beloved culinary traditions. Under the guidance of expert chefs, try your hand at making classic snacks such as dandan noodles or spicy wontons. Enjoy tastings of various local flavors and bring home recipes to impress your friends.
+                    Explore the only museum in the world dedicated to Sichuan cuisine. Participate in interactive exhibits where you can learn about the history, ingredients, and techniques of one of China&apos;s most beloved culinary traditions. Under the guidance of expert chefs, try your hand at making classic snacks such as dandan noodles or spicy wontons. Enjoy tastings of various local flavors and bring home recipes to impress your friends.
                   </Text>
                 </div>
                 <div
@@ -296,7 +296,7 @@ export default function ChengduCityOneDayDeepDive() {
                     Sichuan Opera Performance at Shufeng Yayuan Theatre
                   </Heading>
                   <Text className="text-gray-300 leading-relaxed">
-                    Experience the magic of traditional Sichuan opera, an art form dating back over 300 years. Be amazed by the rapid "face-changing" (bian lian) performance, where performers change colorful masks in the blink of an eye. The show also includes folk music, comedy acts, acrobatics, and fire-spitting. Seating is in first-class section for optimal viewing and cultural immersion.
+                    Experience the magic of traditional Sichuan opera, an art form dating back over 300 years. Be amazed by the rapid &quot;face-changing&quot; (bian lian) performance, where performers change colorful masks in the blink of an eye. The show also includes folk music, comedy acts, acrobatics, and fire-spitting. Seating is in first-class section for optimal viewing and cultural immersion.
                   </Text>
                 </div>
                 <div
@@ -316,7 +316,7 @@ export default function ChengduCityOneDayDeepDive() {
             ENHANCE YOUR JOURNEY WITH ADD-ON EXPERIENCES
           </Heading>
           <Text align="center" size="lg" className="mb-12 max-w-4xl mx-auto">
-            Don't let any unforgettable moments pass you by—explore all the incredible add-on experiences available for your entire journey. Whether you're looking to revisit a missed adventure or want a convenient overview of every offering, this is your chance to ensure your trip is packed with every amazing experience possible.
+            Don&apos;t let any unforgettable moments pass you by—explore all the incredible add-on experiences available for your entire journey. Whether you&apos;re looking to revisit a missed adventure or want a convenient overview of every offering, this is your chance to ensure your trip is packed with every amazing experience possible.
           </Text>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
