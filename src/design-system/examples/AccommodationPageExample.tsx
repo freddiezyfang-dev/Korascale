@@ -1,7 +1,6 @@
 import React from 'react';
 import { 
   HeroBanner, 
-  AccommodationCard, 
   Typography, 
   Button,
   Card,
@@ -9,6 +8,7 @@ import {
   CardHeader,
   CardTitle 
 } from '@/design-system';
+import { AccommodationCard } from '@/components/cards/AccommodationCard';
 
 // 使用设计系统重构的住宿页面示例
 export default function AccommodationPageExample() {

@@ -8,7 +8,6 @@ export * from './components/Typography';
 
 // 复合组件导出
 export * from './components/HeroBanner';
-export * from './components/AccommodationCard';
 
 // 工具函数导出
 export * from './utils/cn';
