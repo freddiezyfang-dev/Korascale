@@ -16,7 +16,8 @@ import {
   Search,
   Filter,
   Grid,
-  List
+  List,
+  Plus
 } from 'lucide-react';
 
 const statusConfig = {
@@ -140,6 +141,13 @@ export default function AdminHotelsPage() {
                 </Text>
               </div>
               <div className="flex gap-4">
+                <Button 
+                  onClick={() => router.push('/admin/hotels/add')}
+                  variant="primary"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Add New Hotel
+                </Button>
                 <Button 
                   onClick={() => router.push('/admin')}
                   variant="secondary"
