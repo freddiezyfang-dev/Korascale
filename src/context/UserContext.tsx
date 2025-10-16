@@ -6,6 +6,7 @@ import { User } from '@/types';
 interface UserContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
+  register: (userData: { firstName: string; lastName: string; email: string; password: string }) => Promise<boolean>;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
   isLoading: boolean;
@@ -64,6 +65,45 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       }
     } catch (error) {
       console.error('Error saving user to storage:', error);
+    }
+  };
+
+  const register = async (userData: { firstName: string; lastName: string; email: string; password: string }): Promise<boolean> => {
+    setIsLoading(true);
+    
+    try {
+      // 模拟 API 调用
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // 模拟注册验证（实际项目中这里会调用真实的 API）
+      if (userData.email && userData.password) {
+        const now = new Date();
+        const userId = `user_${userData.email.replace('@', '_').replace('.', '_')}`;
+        const fullName = `${userData.firstName} ${userData.lastName}`;
+        
+        const newUser: User = {
+          id: userId,
+          email: userData.email,
+          name: fullName,
+          isLoggedIn: true,
+          lastLoginAt: now,
+          loginCount: 1,
+        };
+        
+        setUser(newUser);
+        setLoginCount(1);
+        saveUserToStorage(newUser);
+        
+        console.log('User registered successfully:', newUser);
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('Registration error:', error);
+      return false;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -142,6 +182,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const value: UserContextType = {
     user,
     login,
+    register,
     logout,
     updateUser,
     isLoading,
