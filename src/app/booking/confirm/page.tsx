@@ -1,14 +1,17 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Container, Section, Heading, Text, Card, Button } from '@/components/common';
 import { useOrderManagement } from '@/context/OrderManagementContext';
+import { CheckCircle, X } from 'lucide-react';
 
 export default function BookingConfirmationPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { orders, updateOrderStatus } = useOrderManagement();
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
 
   const orderId = searchParams.get('orderId') || '';
   const order = useMemo(() => orders.find(o => o.id === orderId), [orders, orderId]);
@@ -24,10 +27,27 @@ export default function BookingConfirmationPage() {
     );
   }
 
-  const handleConfirm = () => {
-    // 用户确认产品 => 更新为 confirmed
-    updateOrderStatus(order.id, 'confirmed');
+  const handleConfirm = async () => {
+    setIsConfirming(true);
+    try {
+      // 用户确认产品 => 更新为 confirmed
+      await new Promise(resolve => setTimeout(resolve, 1000)); // 模拟处理时间
+      updateOrderStatus(order.id, 'confirmed');
+      setShowConfirmModal(true);
+    } catch (error) {
+      console.error('Confirmation error:', error);
+      alert('Confirmation failed. Please try again.');
+    } finally {
+      setIsConfirming(false);
+    }
+  };
+
+  const handleContinueToPayment = () => {
     router.push(`/checkout?orderId=${order.id}`);
+  };
+
+  const handleCloseModal = () => {
+    setShowConfirmModal(false);
   };
 
   return (
@@ -214,14 +234,62 @@ export default function BookingConfirmationPage() {
                 </div>
               </Card>
 
-              <div className="grid grid-cols-2 gap-3">
-                <Button variant="secondary" onClick={() => router.back()}>Back</Button>
-                <Button variant="primary" onClick={handleConfirm}>Confirm and Continue</Button>
+              <div className="space-y-3">
+                <Button 
+                  variant="primary" 
+                  onClick={handleConfirm}
+                  disabled={isConfirming}
+                  className="w-full"
+                >
+                  {isConfirming ? 'Confirming...' : 'Confirm Booking'}
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  onClick={() => router.back()}
+                  className="w-full"
+                >
+                  Back to Edit
+                </Button>
               </div>
             </div>
           </div>
         </Container>
       </Section>
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <div className="text-center">
+              <div className="flex justify-center mb-4">
+                <CheckCircle className="w-16 h-16 text-green-500" />
+              </div>
+              <Heading level={2} className="text-2xl font-bold mb-2 text-gray-900">
+                Booking Confirmed!
+              </Heading>
+              <Text className="text-gray-600 mb-6">
+                Your booking has been successfully confirmed. You can now proceed to payment to complete your reservation.
+              </Text>
+              <div className="space-y-3">
+                <Button 
+                  variant="primary" 
+                  onClick={handleContinueToPayment}
+                  className="w-full"
+                >
+                  Continue to Payment
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  onClick={handleCloseModal}
+                  className="w-full"
+                >
+                  Stay on This Page
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
