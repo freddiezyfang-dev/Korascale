@@ -281,7 +281,7 @@ export default function ChengduDeepDiveBooking() {
             <div className="lg:col-span-2 space-y-6">
               {/* 基础行程模块 */}
               <Card className="p-6">
-                <Heading level={2} className="text-xl font-semibold mb-4">
+                <Heading level={2} className="text-lg font-semibold mb-4 truncate">
                   Journey Modules (Included)
                 </Heading>
                 <div className="space-y-4">
@@ -317,74 +317,12 @@ export default function ChengduDeepDiveBooking() {
                 </div>
               </Card>
 
-              {/* 额外体验 */}
-              <Card className="p-6">
-                <Heading level={2} className="text-xl font-semibold mb-4">
-                  Additional Experiences
-                </Heading>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {additionalExperiences.map((experience) => (
-                    <div key={experience.id} className="border border-gray-200 rounded-lg p-4">
-                      <img 
-                        src={experience.image} 
-                        alt={experience.title}
-                        className="w-full h-32 object-cover rounded mb-3"
-                      />
-                      <Text className="font-medium mb-2">{experience.title}</Text>
-                      <Text size="sm" className="text-gray-600 mb-3">{experience.description}</Text>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <Text size="sm" className="text-gray-500">
-                            <Clock className="w-4 h-4 inline mr-1" />
-                            {experience.duration}
-                          </Text>
-                          <Text className="font-medium text-primary-600">
-                            ¥{experience.price}/person
-                          </Text>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => addExperience(experience)}
-                        >
-                          <Plus className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Card>
 
-              {/* 已选择的额外体验 */}
-              {selectedExperiences.length > 0 && (
-                <Card className="p-6">
-                  <Heading level={2} className="text-xl font-semibold mb-4">
-                    Selected Additional Experiences
-                  </Heading>
-                  <div className="space-y-3">
-                    {selectedExperiences.map((experience) => (
-                      <div key={experience.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div>
-                          <Text className="font-medium">{experience.title}</Text>
-                          <Text size="sm" className="text-gray-600">¥{experience.price}/person</Text>
-                        </div>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => removeExperience(experience.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </Card>
-              )}
 
               {/* 愿望清单 */}
               {wishlistItems.length > 0 && (
                 <Card className="p-6">
-                  <Heading level={2} className="text-xl font-semibold mb-4">
+                  <Heading level={2} className="text-lg font-semibold mb-4 truncate">
                     From Your Wishlist
                   </Heading>
                   <div className="space-y-3">
@@ -416,7 +354,7 @@ export default function ChengduDeepDiveBooking() {
 
               {/* 住宿选项 */}
               <Card className="p-6">
-                <Heading level={2} className="text-xl font-semibold mb-4">
+                <Heading level={2} className="text-lg font-semibold mb-4 truncate">
                   Accommodation Options
                 </Heading>
                 <div className="space-y-4">
@@ -468,36 +406,48 @@ export default function ChengduDeepDiveBooking() {
             <div className="space-y-6">
               {/* 预订摘要 */}
               <Card className="p-6 sticky top-6">
-                <Heading level={2} className="text-xl font-semibold mb-4">
+                <Heading level={2} className="text-lg font-semibold mb-4">
                   Booking Summary
                 </Heading>
                 
-                <div className="space-y-4">
-                  <div className="flex justify-between">
-                    <Text>Base Journey</Text>
-                    <Text>¥{selectedModules.reduce((sum, m) => sum + m.price, 0) * travelDates.travelers}</Text>
+                <div className="space-y-3">
+                  {/* 基础行程模块费用 */}
+                  <div className="space-y-2">
+                    <Text className="font-medium text-sm">Base Journey Modules</Text>
+                    {selectedModules.map(module => (
+                      <div key={module.id} className="flex justify-between text-sm text-gray-600">
+                        <Text className="truncate">{module.title}</Text>
+                        <Text>¥{module.price * travelDates.travelers}</Text>
+                      </div>
+                    ))}
                   </div>
                   
+                  {/* 额外体验费用 */}
                   {selectedExperiences.length > 0 && (
-                    <div>
-                      <Text className="font-medium mb-2">Additional Experiences</Text>
+                    <div className="space-y-2">
+                      <Text className="font-medium text-sm">Additional Experiences</Text>
                       {selectedExperiences.map(exp => (
                         <div key={exp.id} className="flex justify-between text-sm text-gray-600">
-                          <Text>{exp.title}</Text>
+                          <Text className="truncate">{exp.title}</Text>
                           <Text>¥{exp.price * travelDates.travelers}</Text>
                         </div>
                       ))}
                     </div>
                   )}
                   
+                  {/* 住宿费用 */}
                   {selectedAccommodation && (
-                    <div className="flex justify-between">
-                      <Text>Accommodation</Text>
-                      <Text>¥{selectedAccommodation.price}</Text>
+                    <div className="space-y-2">
+                      <Text className="font-medium text-sm">Accommodation</Text>
+                      <div className="flex justify-between text-sm text-gray-600">
+                        <Text className="truncate">{selectedAccommodation.title}</Text>
+                        <Text>¥{selectedAccommodation.price}</Text>
+                      </div>
                     </div>
                   )}
                   
-                  <div className="border-t pt-4">
+                  {/* 总费用 */}
+                  <div className="border-t pt-3">
                     <div className="flex justify-between text-lg font-bold">
                       <Text>Total</Text>
                       <Text>¥{calculateTotalPrice()}</Text>
@@ -508,7 +458,7 @@ export default function ChengduDeepDiveBooking() {
 
               {/* 个人信息表单 */}
               <Card className="p-6">
-                <Heading level={2} className="text-xl font-semibold mb-4">
+                <Heading level={2} className="text-lg font-semibold mb-4 truncate">
                   Traveler Information
                 </Heading>
                 
@@ -581,7 +531,7 @@ export default function ChengduDeepDiveBooking() {
 
               {/* 旅行日期 */}
               <Card className="p-6">
-                <Heading level={2} className="text-xl font-semibold mb-4">
+                <Heading level={2} className="text-lg font-semibold mb-4 truncate">
                   Travel Dates
                 </Heading>
                 
@@ -628,7 +578,7 @@ export default function ChengduDeepDiveBooking() {
 
               {/* 特殊要求 */}
               <Card className="p-6">
-                <Heading level={2} className="text-xl font-semibold mb-4">
+                <Heading level={2} className="text-lg font-semibold mb-4 truncate">
                   Special Requests
                 </Heading>
                 <textarea
