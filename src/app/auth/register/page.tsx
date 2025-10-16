@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
 import { useUser } from '@/context/UserContext';
+import { useOrderManagement } from '@/context/OrderManagementContext';
 
 export default function RegisterPage() {
 	const [formData, setFormData] = useState({
@@ -17,6 +18,7 @@ export default function RegisterPage() {
 	const [error, setError] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const { register } = useUser();
+	const { addLoginRecord } = useOrderManagement();
 	const router = useRouter();
 
 	const handleInputChange = (field: string, value: string | boolean) => {
@@ -67,6 +69,16 @@ export default function RegisterPage() {
 			});
 			
 			if (success) {
+				// Record login information for admin tracking
+				const userId = `user_${formData.email.replace('@', '_').replace('.', '_')}`;
+				addLoginRecord({
+					userId,
+					userEmail: formData.email,
+					loginAt: new Date(),
+					ipAddress: '127.0.0.1',
+					userAgent: navigator.userAgent,
+				});
+				
 				// Registration successful, redirect to home
 				router.push('/');
 			} else {

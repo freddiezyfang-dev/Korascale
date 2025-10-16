@@ -94,6 +94,18 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         setLoginCount(1);
         saveUserToStorage(newUser);
         
+        // 记录注册时的登录信息
+        const loginRecord = {
+          userId,
+          userEmail: userData.email,
+          loginAt: now,
+          ipAddress: '127.0.0.1',
+          userAgent: navigator.userAgent,
+        };
+        
+        // 这里可以调用 OrderManagementContext 的 addLoginRecord
+        // 但由于循环依赖，我们将在组件中处理
+        
         console.log('User registered successfully:', newUser);
         return true;
       }
