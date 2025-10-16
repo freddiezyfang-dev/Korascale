@@ -120,7 +120,7 @@ export default function HeroCarousel({
             {slides[currentSlide].title}
           </h1>
           <Link 
-            href="/destinations"
+            href="/journeys"
             className="bg-white text-black px-8 py-3 rounded-lg font-bold text-xl hover:bg-gray-100 transition-colors"
           >
             Explore now

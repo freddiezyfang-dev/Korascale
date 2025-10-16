@@ -82,3 +82,26 @@ export interface User {
   loginCount: number;
 }
 
+// 酒店状态类型
+export type HotelStatus = 'active' | 'inactive';
+
+// 酒店类型扩展
+export interface Hotel {
+  id: string;
+  name: string;
+  city: string;
+  location: string;
+  description: string;
+  rating: string;
+  starRating: string;
+  images: string[];
+  roomTypes: {
+    name: string;
+    description: string;
+    amenities: string[];
+  }[];
+  status: HotelStatus;
+  createdAt: Date;
+  updatedAt: Date;
+}
+

@@ -153,32 +153,40 @@ export default function Destinations() {
             {provinces.map((province, index) => (
               <div
                 key={province.id}
-                className="relative h-[380px] overflow-hidden rounded-lg group cursor-pointer"
+                className="relative h-[380px] overflow-hidden rounded-lg group cursor-pointer transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-2xl"
               >
                 <div
-                  className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-78 group-hover:opacity-90 transition-opacity duration-300"
+                  className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-500 ease-in-out group-hover:scale-110"
                   style={{ backgroundImage: `url('${province.image}')` }}
                 />
-                <div className="absolute inset-0 bg-black/20" />
+                {/* 渐变遮罩 - 从透明到半黑，让底部文字区域更易读 */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent group-hover:from-black/70 group-hover:via-black/30 transition-all duration-300"></div>
+                
+                {/* 添加额外的hover遮罩层 */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300"></div>
+                
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
+                  <div className="text-center transform group-hover:scale-105 transition-all duration-300">
                     <Heading 
                       level={3} 
-                      className="text-6xl font-heading mb-2 text-center" 
-                      style={{ color: '#000000', textAlign: 'center' }}
+                      className="text-6xl font-heading mb-2 text-center text-white font-bold drop-shadow-lg group-hover:drop-shadow-2xl transition-all duration-300" 
+                      style={{ color: 'white' }}
                     >
                       {province.name}
                     </Heading>
                     {province.id === 4 && (
                       <Text 
-                        className="text-3xl font-heading text-center" 
-                        style={{ color: '#000000', textAlign: 'center' }}
+                        className="text-3xl font-heading text-center text-white font-semibold drop-shadow-md group-hover:drop-shadow-xl transition-all duration-300" 
+                        style={{ color: 'white' }}
                       >
                         Uygur Autonomous Region
                       </Text>
                     )}
                   </div>
                 </div>
+                
+                {/* 添加hover时的边框效果 */}
+                <div className="absolute inset-0 border-2 border-transparent group-hover:border-white/30 rounded-lg transition-all duration-300"></div>
               </div>
             ))}
           </div>

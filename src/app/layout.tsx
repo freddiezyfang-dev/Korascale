@@ -8,6 +8,7 @@ import { WishlistProvider } from "@/context/WishlistContext";
 import { UserProvider } from "@/context/UserContext";
 import { OrderProvider } from "@/context/OrderContext";
 import { OrderManagementProvider } from "@/context/OrderManagementContext";
+import { HotelManagementProvider } from "@/context/HotelManagementContext";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -41,14 +42,16 @@ export default function RootLayout({
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
 				<UserProvider>
 					<OrderManagementProvider>
-						<WishlistProvider>
-							<OrderProvider>
-								<Header />
-								<NavMenu />
-								{children}
-								<Footer />
-							</OrderProvider>
-						</WishlistProvider>
+						<HotelManagementProvider>
+							<WishlistProvider>
+								<OrderProvider>
+									<Header />
+									<NavMenu />
+									{children}
+									<Footer />
+								</OrderProvider>
+							</WishlistProvider>
+						</HotelManagementProvider>
 					</OrderManagementProvider>
 				</UserProvider>
 			</body>

@@ -43,14 +43,20 @@ export default function Home() {
             {/* Destinations Card */}
             <Link href="/destinations" className="group">
               <div 
-                className="relative h-[463px] w-[284px] bg-center bg-cover bg-no-repeat overflow-hidden"
+                className="relative h-[463px] w-[284px] bg-center bg-cover bg-no-repeat overflow-hidden transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-2xl"
                 style={{ backgroundImage: `url('${imgDestinationsButton}')` }}
               >
-                <div className="absolute bottom-[99px] left-1/2 transform -translate-x-1/2 text-center text-white w-[222px] h-[140px] flex flex-col items-center justify-start">
-                  <Heading level={3} color="inverse" className="text-2xl font-subheading mb-4 text-center">Destinations</Heading>
-                  <Text size="xs" color="inverse" className="leading-normal text-center">
-                    Step into the Heart of China: From the Great Wall to Pandas, Your Adventure Begins.
-                  </Text>
+                {/* 渐变遮罩 - 从透明到半黑，让底部文字区域更易读 */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                
+                <div className="absolute bottom-[99px] left-1/2 transform -translate-x-1/2 text-center w-[222px] h-[140px] flex flex-col items-center justify-start">
+                  {/* 移除内层遮罩的背景色，依赖外层渐变遮罩 */}
+                  <div className="rounded-lg p-4 w-full h-full flex flex-col items-center justify-start">
+                    <Heading level={3} className="text-2xl font-subheading mb-4 text-center text-white font-bold drop-shadow-lg" style={{ color: 'white' }}>Destinations</Heading>
+                    <Text size="xs" className="leading-normal text-center text-white font-semibold drop-shadow-md" style={{ color: 'white' }}>
+                      Step into the Heart of China: From the Great Wall to Pandas, Your Adventure Begins.
+                    </Text>
+                  </div>
                 </div>
               </div>
             </Link>
@@ -58,14 +64,20 @@ export default function Home() {
             {/* Journeys Card */}
             <Link href="/journeys" className="group">
               <div 
-                className="relative h-[463px] w-[284px] bg-center bg-cover bg-no-repeat overflow-hidden"
+                className="relative h-[463px] w-[284px] bg-center bg-cover bg-no-repeat overflow-hidden transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-2xl"
                 style={{ backgroundImage: `url('${imgJourneysButton}')` }}
               >
-                <div className="absolute bottom-[99px] left-1/2 transform -translate-x-1/2 text-center text-white w-[222px] h-[140px] flex flex-col items-center justify-start">
-                  <Heading level={3} color="inverse" className="text-2xl font-subheading mb-4 text-center">Journeys</Heading>
-                  <Text size="xs" color="inverse" className="leading-normal text-center">
-                    Turn Your Travel Dreams into Reality: Curated Trips for Every Explorer.
-                  </Text>
+                {/* 渐变遮罩 - 从透明到半黑，让底部文字区域更易读 */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                
+                <div className="absolute bottom-[99px] left-1/2 transform -translate-x-1/2 text-center w-[222px] h-[140px] flex flex-col items-center justify-start">
+                  {/* 移除内层遮罩的背景色，依赖外层渐变遮罩 */}
+                  <div className="rounded-lg p-4 w-full h-full flex flex-col items-center justify-start">
+                    <Heading level={3} className="text-2xl font-subheading mb-4 text-center text-white font-bold drop-shadow-lg" style={{ color: 'white' }}>Journeys</Heading>
+                    <Text size="xs" className="leading-normal text-center text-white font-semibold drop-shadow-md" style={{ color: 'white' }}>
+                      Turn Your Travel Dreams into Reality: Curated Trips for Every Explorer.
+                    </Text>
+                  </div>
                 </div>
               </div>
             </Link>
@@ -73,14 +85,20 @@ export default function Home() {
             {/* Inspirations Card */}
             <Link href="/inspirations" className="group">
               <div 
-                className="relative h-[463px] w-[284px] bg-center bg-cover bg-no-repeat overflow-hidden"
+                className="relative h-[463px] w-[284px] bg-center bg-cover bg-no-repeat overflow-hidden transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-2xl"
                 style={{ backgroundImage: `url('${imgInspirationsButton}')` }}
               >
-                <div className="absolute bottom-[99px] left-1/2 transform -translate-x-1/2 text-center text-white w-[222px] h-[140px] flex flex-col items-center justify-start">
-                  <Heading level={3} color="inverse" className="text-2xl font-subheading mb-4 text-center">Inspirations</Heading>
-                  <Text size="xs" color="inverse" className="leading-normal text-center">
-                    Find Your Spark: Uncover Stories, Culture, and China&apos;s Hidden Secrets.
-                  </Text>
+                {/* 渐变遮罩 - 从透明到半黑，让底部文字区域更易读 */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent"></div>
+                
+                <div className="absolute bottom-[99px] left-1/2 transform -translate-x-1/2 text-center w-[222px] h-[140px] flex flex-col items-center justify-start">
+                  {/* 移除内层遮罩的背景色，依赖外层渐变遮罩 */}
+                  <div className="rounded-lg p-4 w-full h-full flex flex-col items-center justify-start">
+                    <Heading level={3} className="text-2xl font-subheading mb-4 text-center text-white font-bold drop-shadow-lg" style={{ color: 'white' }}>Inspirations</Heading>
+                    <Text size="xs" className="leading-normal text-center text-white font-semibold drop-shadow-md" style={{ color: 'white' }}>
+                      Find Your Spark: Uncover Stories, Culture, and China&apos;s Hidden Secrets.
+                    </Text>
+                  </div>
                 </div>
               </div>
             </Link>
@@ -88,14 +106,20 @@ export default function Home() {
             {/* Accommodations Card */}
             <Link href="/accommodations" className="group">
               <div 
-                className="relative h-[463px] w-[284px] bg-center bg-cover bg-no-repeat overflow-hidden"
+                className="relative h-[463px] w-[284px] bg-center bg-cover bg-no-repeat overflow-hidden transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-2xl"
                 style={{ backgroundImage: `url('${imgAccommodationsButton}')` }}
               >
-                <div className="absolute bottom-[99px] left-1/2 transform -translate-x-1/2 text-center text-white w-[222px] h-[140px] flex flex-col items-center justify-start">
-                  <Heading level={3} color="inverse" className="text-2xl font-subheading mb-4 text-center">Accommodations</Heading>
-                  <Text size="xs" color="inverse" className="leading-normal text-center">
-                    Rest Your Head in Authenticity: From Luxury Hotels to Ancient Inns.
-                  </Text>
+                {/* 渐变遮罩 - 从透明到半黑，让底部文字区域更易读 */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                
+                <div className="absolute bottom-[99px] left-1/2 transform -translate-x-1/2 text-center w-[222px] h-[140px] flex flex-col items-center justify-start">
+                  {/* 移除内层遮罩的背景色，依赖外层渐变遮罩 */}
+                  <div className="rounded-lg p-4 w-full h-full flex flex-col items-center justify-start">
+                    <Heading level={3} className="text-2xl font-subheading mb-4 text-center text-white font-bold drop-shadow-lg" style={{ color: 'white' }}>Accommodations</Heading>
+                    <Text size="xs" className="leading-normal text-center text-white font-semibold drop-shadow-md" style={{ color: 'white' }}>
+                      Rest Your Head in Authenticity: From Luxury Hotels to Ancient Inns.
+                    </Text>
+                  </div>
                 </div>
               </div>
             </Link>

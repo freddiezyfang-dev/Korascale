@@ -95,7 +95,7 @@ export default function AdminDashboard() {
     },
     {
       title: 'Hotel Management',
-      description: 'Add, edit, or remove hotels',
+      description: 'Manage hotel listings and availability',
       href: '/admin/hotels',
       icon: Hotel,
       color: 'bg-purple-100 text-purple-600'
