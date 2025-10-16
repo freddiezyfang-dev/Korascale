@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
 import { ExperienceCard } from '@/components/cards/ExperienceCard';
 import { AccommodationCard } from '@/components/cards/AccommodationCard';
@@ -87,6 +88,7 @@ const accommodations = [
 
 export default function ChengduCityOneDayDeepDive() {
   const { toggleWishlist, items } = useWishlist();
+  const router = useRouter();
 
   return (
     <div className="min-h-screen bg-white">
@@ -432,7 +434,11 @@ export default function ChengduCityOneDayDeepDive() {
                     </div>
                   </div>
 
-                  <Button variant="primary" className="w-full mt-6">
+                  <Button 
+                    variant="primary" 
+                    className="w-full mt-6"
+                    onClick={() => router.push('/booking/chengdu-deep-dive')}
+                  >
                     Book Now
                   </Button>
                 </div>
