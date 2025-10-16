@@ -1,15 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  phone?: string;
-  avatar?: string;
-  isLoggedIn: boolean;
-}
+import { User } from '@/types';
 
 interface UserContextType {
   user: User | null;
@@ -17,6 +9,7 @@ interface UserContextType {
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
   isLoading: boolean;
+  loginCount: number;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -36,6 +29,7 @@ interface UserProviderProps {
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loginCount, setLoginCount] = useState(0);
 
   // 从 localStorage 加载用户信息
   useEffect(() => {
@@ -44,7 +38,11 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
           const userData = JSON.parse(storedUser);
-          setUser(userData);
+          setUser({
+            ...userData,
+            lastLoginAt: userData.lastLoginAt ? new Date(userData.lastLoginAt) : undefined,
+          });
+          setLoginCount(userData.loginCount || 0);
         }
       } catch (error) {
         console.error('Error loading user from storage:', error);
@@ -80,16 +78,39 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       if (email && password) {
         // 检查是否为管理员账户
         const isAdmin = email === 'admin@korascale.com';
+        const now = new Date();
+        
+        // 获取或创建用户ID（基于邮箱生成固定ID）
+        const userId = `user_${email.replace('@', '_').replace('.', '_')}`;
+        
+        // 检查是否已存在用户
+        const existingUser = user?.email === email ? user : null;
+        const newLoginCount = (existingUser?.loginCount || 0) + 1;
         
         const userData: User = {
-          id: `user_${Date.now()}`,
+          id: userId,
           email,
-          name: isAdmin ? 'Admin' : email.split('@')[0], // 从邮箱提取用户名
+          name: isAdmin ? 'Admin' : email.split('@')[0],
           isLoggedIn: true,
+          lastLoginAt: now,
+          loginCount: newLoginCount,
         };
         
         setUser(userData);
+        setLoginCount(newLoginCount);
         saveUserToStorage(userData);
+        
+        // 记录登录信息
+        const loginRecord = {
+          userId,
+          userEmail: email,
+          loginAt: now,
+          ipAddress: '127.0.0.1', // 实际项目中从请求中获取
+          userAgent: navigator.userAgent,
+        };
+        
+        // 这里可以调用 OrderManagementContext 的 addLoginRecord
+        // 但由于循环依赖，我们将在组件中处理
         
         console.log('User logged in successfully:', userData);
         return true;
@@ -124,6 +145,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     logout,
     updateUser,
     isLoading,
+    loginCount,
   };
 
   return (

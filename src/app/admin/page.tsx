@@ -4,18 +4,15 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Container, Section, Heading, Text, Card } from '@/components/common';
-import { Users, ShoppingCart, Hotel, TrendingUp, Eye, Settings, LogOut } from 'lucide-react';
+import { Users, ShoppingCart, Hotel, TrendingUp, Eye, Settings, LogOut, Clock, CheckCircle } from 'lucide-react';
 import { useUser } from '@/context/UserContext';
+import { useOrderManagement } from '@/context/OrderManagementContext';
+import { OrderStatus } from '@/types';
 
 export default function AdminDashboard() {
   const { user, logout } = useUser();
+  const { orders, loginRecords } = useOrderManagement();
   const router = useRouter();
-  const [recentUsers, setRecentUsers] = useState([
-    { id: '1', name: 'John Smith', email: 'john@example.com', lastLogin: '2024-01-15', status: 'Active' },
-    { id: '2', name: 'Sarah Johnson', email: 'sarah@example.com', lastLogin: '2024-01-14', status: 'Active' },
-    { id: '3', name: 'Mike Chen', email: 'mike@example.com', lastLogin: '2024-01-13', status: 'Inactive' },
-    { id: '4', name: 'Admin User', email: 'admin@korascale.com', lastLogin: '2024-01-15', status: 'Active' },
-  ]);
 
   // 检查用户权限
   useEffect(() => {
@@ -35,10 +32,28 @@ export default function AdminDashboard() {
     router.push('/');
   };
 
+  // 计算统计数据
+  const totalRevenue = orders.reduce((sum, order) => sum + order.totalPrice, 0);
+  const uniqueUsers = new Set(loginRecords.map(record => record.userEmail)).size;
+  const pendingOrders = orders.filter(order => order.status === 'pending').length;
+  const completedOrders = orders.filter(order => order.status === 'completed').length;
+  
+  // 获取最近登录的用户
+  const recentUsers = loginRecords
+    .sort((a, b) => new Date(b.loginAt).getTime() - new Date(a.loginAt).getTime())
+    .slice(0, 5)
+    .map(record => ({
+      id: record.userId,
+      name: record.userEmail.split('@')[0],
+      email: record.userEmail,
+      lastLogin: record.loginAt.toLocaleDateString(),
+      status: record.logoutAt ? 'Inactive' : 'Active'
+    }));
+
   const stats = [
     {
       title: 'Total Orders',
-      value: '1,234',
+      value: orders.length.toString(),
       change: '+12%',
       changeType: 'positive',
       icon: ShoppingCart,
@@ -46,23 +61,23 @@ export default function AdminDashboard() {
     },
     {
       title: 'Total Revenue',
-      value: '$45,678',
+      value: `$${totalRevenue.toLocaleString()}`,
       change: '+8%',
       changeType: 'positive',
       icon: TrendingUp,
       color: 'bg-green-500'
     },
     {
-      title: 'Active Hotels',
-      value: '156',
+      title: 'Pending Orders',
+      value: pendingOrders.toString(),
       change: '+3%',
       changeType: 'positive',
-      icon: Hotel,
-      color: 'bg-purple-500'
+      icon: Clock,
+      color: 'bg-yellow-500'
     },
     {
       title: 'Total Customers',
-      value: recentUsers.length.toString(),
+      value: uniqueUsers.toString(),
       change: '+15%',
       changeType: 'positive',
       icon: Users,
@@ -237,40 +252,48 @@ export default function AdminDashboard() {
           <Card className="p-6">
             <div className="flex items-center justify-between mb-4">
               <Heading level={2} className="text-xl font-semibold">
-                最近订单
+                Recent Orders
               </Heading>
               <Link 
                 href="/admin/orders"
                 className="text-primary-600 hover:text-primary-500 flex items-center gap-1"
               >
-                查看全部
+                View All
                 <Eye className="w-4 h-4" />
               </Link>
             </div>
             
             <div className="space-y-3">
-              {[
-                { id: 'ORD-2024-001', customer: 'John Smith', hotel: 'Chongqing Intercity Hotel', amount: '$942', status: 'Completed' },
-                { id: 'ORD-2024-002', customer: 'Sarah Johnson', hotel: 'Chengdu Kuanzhai Alley Hotel', amount: '$360', status: 'Confirmed' },
-                { id: 'ORD-2024-003', customer: 'Mike Chen', hotel: 'Chongqing Pagoda Hotel', amount: '$720', status: 'Pending' }
-              ].map((order, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <Text className="font-medium text-gray-900">{order.id}</Text>
-                    <Text className="text-sm text-gray-600">{order.customer} - {order.hotel}</Text>
-                  </div>
-                  <div className="text-right">
-                    <Text className="font-semibold text-gray-900">{order.amount}</Text>
-                    <Text className={`text-sm ${
-                      order.status === 'Completed' ? 'text-green-600' :
-                      order.status === 'Confirmed' ? 'text-blue-600' : 'text-yellow-600'
-                    }`}>
-                      {order.status === 'Completed' ? '已完成' : 
-                       order.status === 'Confirmed' ? '已确认' : '待处理'}
-                    </Text>
-                  </div>
-                </div>
-              ))}
+              {orders.length === 0 ? (
+                <Text className="text-gray-500 text-center py-4">
+                  No orders yet. Orders will appear here when customers make bookings.
+                </Text>
+              ) : (
+                orders
+                  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                  .slice(0, 5)
+                  .map((order, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <Text className="font-medium text-gray-900">#{order.id.slice(-8)}</Text>
+                        <Text className="text-sm text-gray-600">{order.userName} - {order.accommodation.title}</Text>
+                        <Text className="text-xs text-gray-500">
+                          {order.createdAt.toLocaleDateString()}
+                        </Text>
+                      </div>
+                      <div className="text-right">
+                        <Text className="font-semibold text-gray-900">${order.totalPrice}</Text>
+                        <Text className={`text-sm ${
+                          order.status === 'completed' ? 'text-green-600' :
+                          order.status === 'paid' ? 'text-blue-600' : 
+                          order.status === 'confirmed' ? 'text-purple-600' : 'text-yellow-600'
+                        }`}>
+                          {order.status.charAt(0).toUpperCase() + order.status.slice(1).replace('_', ' ')}
+                        </Text>
+                      </div>
+                    </div>
+                  ))
+              )}
             </div>
           </Card>
         </Container>

@@ -1,169 +1,110 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
-import { Search, Filter, Download, Eye, Calendar, User, MapPin, CreditCard } from 'lucide-react';
-import { useOrders } from '@/context/OrderContext';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Container, Section, Heading, Text, Card, Button } from '@/components/common';
+import { useUser } from '@/context/UserContext';
+import { useOrderManagement } from '@/context/OrderManagementContext';
+import { Order, OrderStatus } from '@/types';
+import { CheckCircle, Clock, CreditCard, User, Calendar, DollarSign, Eye, Check } from 'lucide-react';
 
-interface Order {
-  id: string;
-  orderNumber: string;
-  customerName: string;
-  customerEmail: string;
-  hotelName: string;
-  location: string;
-  checkIn: string;
-  checkOut: string;
-  adults: number;
-  children: number;
-  roomType: string;
-  totalPrice: number;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
-  createdAt: string;
-  paymentStatus: 'pending' | 'paid' | 'refunded';
-}
-
-// 模拟订单数据
-const mockOrders: Order[] = [
-  {
-    id: '1',
-    orderNumber: 'ORD-2024-001',
-    customerName: 'John Smith',
-    customerEmail: 'john.smith@email.com',
-    hotelName: 'Chongqing Jiefangbei Walking Street Intercity Hotel',
-    location: 'Jiefangbei Walking Street, Chongqing',
-    checkIn: '2024-02-15',
-    checkOut: '2024-02-18',
-    adults: 2,
-    children: 1,
-    roomType: 'Intercity Deluxe King Room',
-    totalPrice: 942,
-    status: 'completed',
-    createdAt: '2024-01-15T10:30:00Z',
-    paymentStatus: 'paid'
+const statusConfig = {
+  pending: { 
+    label: 'Pending', 
+    color: 'bg-yellow-100 text-yellow-800', 
+    icon: Clock,
+    description: 'Waiting for user confirmation'
   },
-  {
-    id: '2',
-    orderNumber: 'ORD-2024-002',
-    customerName: 'Sarah Johnson',
-    customerEmail: 'sarah.j@email.com',
-    hotelName: 'Chengdu Kuanzhai Alley Intercity Hotel',
-    location: 'Kuanzhai Alley, Chengdu',
-    checkIn: '2024-02-20',
-    checkOut: '2024-02-22',
-    adults: 1,
-    children: 0,
-    roomType: 'Deluxe King Room',
-    totalPrice: 360,
-    status: 'confirmed',
-    createdAt: '2024-01-16T14:20:00Z',
-    paymentStatus: 'paid'
+  confirmed: { 
+    label: 'Confirmed', 
+    color: 'bg-blue-100 text-blue-800', 
+    icon: CheckCircle,
+    description: 'User confirmed product'
   },
-  {
-    id: '3',
-    orderNumber: 'ORD-2024-003',
-    customerName: 'Mike Chen',
-    customerEmail: 'mike.chen@email.com',
-    hotelName: 'Chongqing Daji Pagoda Junting Design Hotel',
-    location: 'Jiefangbei Hongyadong, Chongqing',
-    checkIn: '2024-02-25',
-    checkOut: '2024-02-28',
-    adults: 2,
-    children: 0,
-    roomType: 'Cloud River View King Room',
-    totalPrice: 720,
-    status: 'pending',
-    createdAt: '2024-01-17T09:15:00Z',
-    paymentStatus: 'pending'
-  }
-];
+  paid: { 
+    label: 'Paid', 
+    color: 'bg-green-100 text-green-800', 
+    icon: CreditCard,
+    description: 'Payment received'
+  },
+  staff_confirmed: { 
+    label: 'Staff Confirmed', 
+    color: 'bg-purple-100 text-purple-800', 
+    icon: Check,
+    description: 'Staff manually confirmed'
+  },
+  completed: { 
+    label: 'Completed', 
+    color: 'bg-gray-100 text-gray-800', 
+    icon: CheckCircle,
+    description: 'Order completed'
+  },
+};
 
 export default function AdminOrdersPage() {
-  const { orders: contextOrders } = useOrders();
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const { user, logout } = useUser();
+  const { orders, updateOrderStatus, loginRecords } = useOrderManagement();
+  const router = useRouter();
+  const [selectedStatus, setSelectedStatus] = useState<OrderStatus | 'all'>('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
-  // 合并模拟数据和真实数据
+  // 检查用户权限
   useEffect(() => {
-    const allOrders = [...mockOrders, ...contextOrders];
-    setOrders(allOrders);
-    setFilteredOrders(allOrders);
-  }, [contextOrders]);
-
-  // 搜索和过滤
-  useEffect(() => {
-    let filtered = orders;
-
-    if (searchTerm) {
-      filtered = filtered.filter(order =>
-        order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.customerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.hotelName.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+    if (!user) {
+      router.push('/auth/login');
+      return;
     }
-
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(order => order.status === statusFilter);
+    
+    if (user.email !== 'admin@korascale.com') {
+      router.push('/');
+      return;
     }
+  }, [user, router]);
 
-    setFilteredOrders(filtered);
-  }, [orders, searchTerm, statusFilter]);
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'confirmed': return 'bg-blue-100 text-blue-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+  const handleLogout = () => {
+    logout();
+    router.push('/');
   };
 
-  const getPaymentStatusColor = (status: string) => {
-    switch (status) {
-      case 'paid': return 'bg-green-100 text-green-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'refunded': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+  const handleStatusUpdate = (orderId: string, newStatus: OrderStatus) => {
+    updateOrderStatus(orderId, newStatus);
+    setSelectedOrder(null);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('zh-CN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+  const filteredOrders = selectedStatus === 'all' 
+    ? orders 
+    : orders.filter(order => order.status === selectedStatus);
+
+  const getStatusStats = () => {
+    const stats = {
+      pending: orders.filter(o => o.status === 'pending').length,
+      confirmed: orders.filter(o => o.status === 'confirmed').length,
+      paid: orders.filter(o => o.status === 'paid').length,
+      staff_confirmed: orders.filter(o => o.status === 'staff_confirmed').length,
+      completed: orders.filter(o => o.status === 'completed').length,
+    };
+    return stats;
   };
 
-  const exportOrders = () => {
-    const csvContent = [
-      ['Order Number', 'Customer Name', 'Email', 'Hotel', 'Check-in', 'Check-out', 'Total Price', 'Status', 'Payment Status'],
-      ...filteredOrders.map(order => [
-        order.orderNumber,
-        order.customerName,
-        order.customerEmail,
-        order.hotelName,
-        order.checkIn,
-        order.checkOut,
-        `$${order.totalPrice}`,
-        order.status,
-        order.paymentStatus
-      ])
-    ].map(row => row.join(',')).join('\n');
+  const stats = getStatusStats();
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `orders_${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-  };
+  if (!user || user.email !== 'admin@korascale.com') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Heading level={1} className="text-2xl font-bold mb-4">
+            Access Denied
+          </Heading>
+          <Text className="text-gray-600 mb-4">
+            You don't have permission to access the admin panel
+          </Text>
+          <Button onClick={() => router.push('/')}>
+            Return to Home
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -171,295 +112,187 @@ export default function AdminOrdersPage() {
         <Container size="xl">
           {/* Header */}
           <div className="mb-8">
-            <Heading level={1} className="text-3xl font-bold mb-2">
-              Order Management
-            </Heading>
-            <Text size="lg" className="text-gray-600">
-              View and manage customer orders
-            </Text>
+            <div className="flex items-center justify-between">
+              <div>
+                <Heading level={1} className="text-3xl font-bold mb-2">
+                  Order Management
+                </Heading>
+                <Text size="lg" className="text-gray-600">
+                  Manage customer orders and track progress
+                </Text>
+              </div>
+              <div className="flex gap-4">
+                <Button 
+                  onClick={() => router.push('/admin')}
+                  variant="secondary"
+                >
+                  Back to Dashboard
+                </Button>
+                <Button onClick={handleLogout} variant="secondary">
+                  Logout
+                </Button>
+              </div>
+            </div>
           </div>
 
-          {/* Filters and Search */}
-          <Card className="p-6 mb-6">
-            <div className="flex flex-col lg:flex-row gap-4">
-              {/* Search */}
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <input
-                    type="text"
-                    placeholder="Search orders by number, customer, or hotel..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                  />
+          {/* Status Statistics */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+            {Object.entries(stats).map(([status, count]) => (
+              <Card key={status} className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Text className="text-sm font-medium text-gray-600">
+                      {statusConfig[status as OrderStatus].label}
+                    </Text>
+                    <Text className="text-2xl font-bold text-gray-900">
+                      {count}
+                    </Text>
+                  </div>
+                  <div className={`p-2 rounded-full ${statusConfig[status as OrderStatus].color}`}>
+                    <statusConfig[status as OrderStatus].icon className="w-5 h-5" />
+                  </div>
                 </div>
-              </div>
+              </Card>
+            ))}
+          </div>
 
-              {/* Status Filter */}
-              <div className="lg:w-48">
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                >
-                  <option value="all">All Status</option>
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-              </div>
-
-              {/* Export Button */}
+          {/* Filter Buttons */}
+          <div className="mb-6">
+            <div className="flex flex-wrap gap-2">
               <Button
-                onClick={exportOrders}
-                variant="outline"
-                className="flex items-center gap-2"
+                variant={selectedStatus === 'all' ? 'primary' : 'secondary'}
+                onClick={() => setSelectedStatus('all')}
+                size="sm"
               >
-                <Download className="w-4 h-4" />
-                Export CSV
+                All Orders ({orders.length})
               </Button>
+              {Object.entries(statusConfig).map(([status, config]) => (
+                <Button
+                  key={status}
+                  variant={selectedStatus === status ? 'primary' : 'secondary'}
+                  onClick={() => setSelectedStatus(status as OrderStatus)}
+                  size="sm"
+                >
+                  {config.label} ({stats[status as OrderStatus]})
+                </Button>
+              ))}
             </div>
-          </Card>
+          </div>
 
-          {/* Orders Table */}
-          <Card className="overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Order
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Customer
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Hotel
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Dates
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Total
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Payment
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredOrders.map((order) => (
-                    <tr key={order.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <Text className="font-medium text-gray-900">
-                            {order.orderNumber}
+          {/* Orders List */}
+          <div className="space-y-4">
+            {filteredOrders.length === 0 ? (
+              <Card className="p-8 text-center">
+                <Text className="text-gray-500">
+                  No orders found for the selected status.
+                </Text>
+              </Card>
+            ) : (
+              filteredOrders.map((order) => {
+                const statusInfo = statusConfig[order.status];
+                const StatusIcon = statusInfo.icon;
+                
+                return (
+                  <Card key={order.id} className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-4 mb-3">
+                          <Text className="font-semibold text-lg">
+                            Order #{order.id.slice(-8)}
                           </Text>
-                          <Text className="text-sm text-gray-500">
-                            {formatDate(order.createdAt)}
-                          </Text>
+                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusInfo.color}`}>
+                            <StatusIcon className="w-4 h-4 inline mr-1" />
+                            {statusInfo.label}
+                          </span>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <Text className="font-medium text-gray-900">
-                            {order.customerName}
-                          </Text>
-                          <Text className="text-sm text-gray-500">
-                            {order.customerEmail}
-                          </Text>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                          <div className="flex items-center gap-2">
+                            <User className="w-4 h-4 text-gray-500" />
+                            <div>
+                              <Text className="text-sm text-gray-600">Customer</Text>
+                              <Text className="font-medium">{order.userName}</Text>
+                              <Text className="text-sm text-gray-500">{order.userEmail}</Text>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4 text-gray-500" />
+                            <div>
+                              <Text className="text-sm text-gray-600">Check-in/out</Text>
+                              <Text className="font-medium">
+                                {order.stayDetails.checkIn?.toLocaleDateString()} - {order.stayDetails.checkOut?.toLocaleDateString()}
+                              </Text>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-2">
+                            <DollarSign className="w-4 h-4 text-gray-500" />
+                            <div>
+                              <Text className="text-sm text-gray-600">Total Amount</Text>
+                              <Text className="font-medium text-lg">${order.totalPrice}</Text>
+                            </div>
+                          </div>
                         </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="max-w-xs">
-                          <Text className="font-medium text-gray-900 truncate">
-                            {order.hotelName}
-                          </Text>
-                          <Text className="text-sm text-gray-500 truncate">
-                            {order.location}
-                          </Text>
+                        
+                        <div className="mb-3">
+                          <Text className="text-sm text-gray-600">Accommodation</Text>
+                          <Text className="font-medium">{order.accommodation.title}</Text>
+                          <Text className="text-sm text-gray-500">{order.accommodation.location}</Text>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <Text className="text-sm text-gray-900">
-                            {formatDate(order.checkIn)} - {formatDate(order.checkOut)}
-                          </Text>
-                          <Text className="text-sm text-gray-500">
-                            {order.adults} adults, {order.children} children
-                          </Text>
+                        
+                        <div className="text-sm text-gray-500">
+                          <Text>Created: {order.createdAt.toLocaleString()}</Text>
+                          {order.paymentConfirmedAt && (
+                            <Text>Paid: {order.paymentConfirmedAt.toLocaleString()}</Text>
+                          )}
+                          {order.staffConfirmedAt && (
+                            <Text>Staff Confirmed: {order.staffConfirmedAt.toLocaleString()}</Text>
+                          )}
+                          {order.completedAt && (
+                            <Text>Completed: {order.completedAt.toLocaleString()}</Text>
+                          )}
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <Text className="font-medium text-gray-900">
-                          ${order.totalPrice}
-                        </Text>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(order.status)}`}>
-                          {order.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPaymentStatusColor(order.paymentStatus)}`}>
-                          {order.paymentStatus}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      </div>
+                      
+                      <div className="flex flex-col gap-2">
                         <Button
-                          variant="outline"
-                          size="sm"
                           onClick={() => setSelectedOrder(order)}
-                          className="flex items-center gap-1"
+                          variant="secondary"
+                          size="sm"
                         >
-                          <Eye className="w-4 h-4" />
-                          View
+                          <Eye className="w-4 h-4 mr-1" />
+                          View Details
                         </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
-
-          {/* Order Details Modal */}
-          {selectedOrder && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center">
-              <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setSelectedOrder(null)} />
-              <div className="relative bg-white rounded-lg shadow-2xl w-full max-w-2xl m-4 max-h-[90vh] overflow-y-auto">
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <Heading level={2} className="text-xl font-semibold">
-                      Order Details
-                    </Heading>
-                    <button
-                      onClick={() => setSelectedOrder(null)}
-                      className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                    >
-                      ×
-                    </button>
-                  </div>
-
-                  <div className="space-y-6">
-                    {/* Order Info */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Text className="text-sm font-medium text-gray-500">Order Number</Text>
-                        <Text className="text-lg font-semibold">{selectedOrder.orderNumber}</Text>
-                      </div>
-                      <div>
-                        <Text className="text-sm font-medium text-gray-500">Created Date</Text>
-                        <Text className="text-lg">{formatDate(selectedOrder.createdAt)}</Text>
+                        
+                        {/* Action Buttons based on status */}
+                        {order.status === 'paid' && (
+                          <Button
+                            onClick={() => handleStatusUpdate(order.id, 'staff_confirmed')}
+                            variant="primary"
+                            size="sm"
+                          >
+                            <Check className="w-4 h-4 mr-1" />
+                            Staff Confirm
+                          </Button>
+                        )}
+                        
+                        {order.status === 'staff_confirmed' && (
+                          <Button
+                            onClick={() => handleStatusUpdate(order.id, 'completed')}
+                            variant="primary"
+                            size="sm"
+                          >
+                            Mark Complete
+                          </Button>
+                        )}
                       </div>
                     </div>
-
-                    {/* Customer Info */}
-                    <div>
-                      <Heading level={3} className="text-lg font-semibold mb-3 flex items-center gap-2">
-                        <User className="w-5 h-5" />
-                        Customer Information
-                      </Heading>
-                      <div className="bg-gray-50 p-4 rounded-lg">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <Text className="text-sm font-medium text-gray-500">Name</Text>
-                            <Text className="text-lg">{selectedOrder.customerName}</Text>
-                          </div>
-                          <div>
-                            <Text className="text-sm font-medium text-gray-500">Email</Text>
-                            <Text className="text-lg">{selectedOrder.customerEmail}</Text>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Hotel Info */}
-                    <div>
-                      <Heading level={3} className="text-lg font-semibold mb-3 flex items-center gap-2">
-                        <MapPin className="w-5 h-5" />
-                        Hotel Information
-                      </Heading>
-                      <div className="bg-gray-50 p-4 rounded-lg">
-                        <div className="space-y-2">
-                          <div>
-                            <Text className="text-sm font-medium text-gray-500">Hotel Name</Text>
-                            <Text className="text-lg">{selectedOrder.hotelName}</Text>
-                          </div>
-                          <div>
-                            <Text className="text-sm font-medium text-gray-500">Location</Text>
-                            <Text className="text-lg">{selectedOrder.location}</Text>
-                          </div>
-                          <div>
-                            <Text className="text-sm font-medium text-gray-500">Room Type</Text>
-                            <Text className="text-lg">{selectedOrder.roomType}</Text>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Booking Details */}
-                    <div>
-                      <Heading level={3} className="text-lg font-semibold mb-3 flex items-center gap-2">
-                        <Calendar className="w-5 h-5" />
-                        Booking Details
-                      </Heading>
-                      <div className="bg-gray-50 p-4 rounded-lg">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <Text className="text-sm font-medium text-gray-500">Check-in Date</Text>
-                            <Text className="text-lg">{formatDate(selectedOrder.checkIn)}</Text>
-                          </div>
-                          <div>
-                            <Text className="text-sm font-medium text-gray-500">Check-out Date</Text>
-                            <Text className="text-lg">{formatDate(selectedOrder.checkOut)}</Text>
-                          </div>
-                          <div>
-                            <Text className="text-sm font-medium text-gray-500">Adults</Text>
-                            <Text className="text-lg">{selectedOrder.adults}</Text>
-                          </div>
-                          <div>
-                            <Text className="text-sm font-medium text-gray-500">Children</Text>
-                            <Text className="text-lg">{selectedOrder.children}</Text>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Payment Info */}
-                    <div>
-                      <Heading level={3} className="text-lg font-semibold mb-3 flex items-center gap-2">
-                        <CreditCard className="w-5 h-5" />
-                        Payment Information
-                      </Heading>
-                      <div className="bg-gray-50 p-4 rounded-lg">
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <Text className="text-sm font-medium text-gray-500">Total Amount</Text>
-                            <Text className="text-2xl font-bold text-green-600">${selectedOrder.totalPrice}</Text>
-                          </div>
-                          <div className="text-right">
-                            <Text className="text-sm font-medium text-gray-500">Payment Status</Text>
-                            <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getPaymentStatusColor(selectedOrder.paymentStatus)}`}>
-                              {selectedOrder.paymentStatus}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+                  </Card>
+                );
+              })
+            )}
+          </div>
         </Container>
       </Section>
     </div>

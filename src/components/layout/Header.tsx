@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useUser } from '@/context/UserContext';
+import { useOrderManagement } from '@/context/OrderManagementContext';
 import { LoginModal } from '@/components/modals/LoginModal';
 
 // 使用本地图片资源 - 你的logo图片
@@ -34,16 +35,30 @@ function HeaderLeft() {
 }
 
 function UserSection() {
-	const { user, logout } = useUser();
-	const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const { user, logout } = useUser();
+  const { addLoginRecord, updateLogoutRecord } = useOrderManagement();
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
-	const handleLoginSuccess = () => {
-		setIsLoginModalOpen(false);
-	};
+  const handleLoginSuccess = () => {
+    setIsLoginModalOpen(false);
+    // 记录登录信息
+    if (user) {
+      addLoginRecord({
+        userId: user.id,
+        userEmail: user.email,
+        loginAt: new Date(),
+        ipAddress: '127.0.0.1',
+        userAgent: navigator.userAgent,
+      });
+    }
+  };
 
-	const handleLogout = () => {
-		logout();
-	};
+  const handleLogout = () => {
+    if (user) {
+      updateLogoutRecord(user.id);
+    }
+    logout();
+  };
 
 	return (
 		<>
