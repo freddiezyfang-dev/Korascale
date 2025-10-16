@@ -52,7 +52,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <Heading level={2} className="text-xl font-semibold">
-            Sign In / Log In
+            Sign In
           </Heading>
           <button
             onClick={onClose}

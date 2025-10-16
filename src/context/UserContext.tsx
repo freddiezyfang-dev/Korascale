@@ -84,7 +84,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         const userData: User = {
           id: `user_${Date.now()}`,
           email,
-          name: isAdmin ? '管理员' : email.split('@')[0], // 从邮箱提取用户名
+          name: isAdmin ? 'Admin' : email.split('@')[0], // 从邮箱提取用户名
           isLoggedIn: true,
         };
         

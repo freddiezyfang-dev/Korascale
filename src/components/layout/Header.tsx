@@ -64,14 +64,14 @@ function UserSection() {
 							onClick={handleLogout}
 							className="text-white text-sm hover:text-gray-300 transition-colors"
 						>
-							登出
+							Logout
 						</button>
 						{user.email === 'admin@korascale.com' && (
 							<Link 
 								href="/admin"
 								className="text-white text-sm hover:text-gray-300 transition-colors bg-white bg-opacity-20 px-3 py-1 rounded"
 							>
-								管理后台
+								Admin
 							</Link>
 						)}
 					</div>
@@ -85,7 +85,7 @@ function UserSection() {
 							alt="Login" 
 							className="w-5 h-5"
 						/>
-						<span className="text-sm">登录</span>
+						<span className="text-sm">Login</span>
 					</button>
 				)}
 			</div>
