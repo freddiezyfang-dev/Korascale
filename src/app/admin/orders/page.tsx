@@ -149,7 +149,7 @@ export default function AdminOrdersPage() {
                     </Text>
                   </div>
                   <div className={`p-2 rounded-full ${statusConfig[status as OrderStatus].color}`}>
-                    <statusConfig[status as OrderStatus].icon className="w-5 h-5" />
+                    {React.createElement(statusConfig[status as OrderStatus].icon, { className: "w-5 h-5" })}
                   </div>
                 </div>
               </Card>
