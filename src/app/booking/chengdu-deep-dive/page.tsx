@@ -208,7 +208,7 @@ export default function ChengduDeepDiveBooking() {
     setIsLoading(true);
     
     try {
-      // 创建订单
+      // 创建订单（状态：pending）
       const order = addOrder({
         userId: user.id,
         userEmail: user.email,
@@ -237,8 +237,8 @@ export default function ChengduDeepDiveBooking() {
         status: 'pending'
       });
 
-      // 重定向到支付页面
-      router.push(`/checkout?orderId=${order.id}`);
+      // 重定向到确认页面
+      router.push(`/booking/confirm?orderId=${order.id}`);
     } catch (error) {
       console.error('Booking error:', error);
       alert('Booking failed. Please try again.');

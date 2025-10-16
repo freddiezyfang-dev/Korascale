@@ -2,50 +2,42 @@
 
 import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
 import { useUser } from '@/context/UserContext';
-import { useOrders } from '@/context/OrderContext';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useOrderManagement } from '@/context/OrderManagementContext';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useMemo, useState } from 'react';
 
 
 export default function CheckoutPage() {
-	const { user } = useUser();
-	const { addOrder } = useOrders();
-	const router = useRouter();
-	const [isProcessing, setIsProcessing] = useState(false);
+    const { user } = useUser();
+    const { orders, updateOrderStatus } = useOrderManagement();
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const [isProcessing, setIsProcessing] = useState(false);
 
-	const handleCompleteBooking = async () => {
+    const orderId = searchParams.get('orderId') || '';
+    const order = useMemo(() => orders.find(o => o.id === orderId), [orders, orderId]);
+
+    const handleCompleteBooking = async () => {
 		if (!user) {
 			alert('Please log in to complete your booking');
 			return;
 		}
 
+        if (!order) {
+            alert('Order not found');
+            return;
+        }
+
 		setIsProcessing(true);
 		
 		try {
-			// 模拟处理时间
+            // 模拟处理时间
 			await new Promise(resolve => setTimeout(resolve, 2000));
-			
-			// 创建订单
-			const orderId = addOrder({
-				customerName: user.name,
-				customerEmail: user.email,
-				hotelId: 'hotel-1', // 从URL参数或状态获取
-				hotelName: 'Chongqing Jiefangbei Walking Street Intercity Hotel',
-				location: 'Jiefangbei Walking Street, Chongqing',
-				checkIn: '2024-02-15',
-				checkOut: '2024-02-18',
-				adults: 2,
-				children: 1,
-				roomType: 'Intercity Deluxe King Room',
-				totalPrice: 942,
-				status: 'confirmed',
-				paymentStatus: 'paid',
-				specialRequests: 'High floor room preferred'
-			});
-
-			console.log('Order created successfully:', orderId);
-			alert('Booking completed successfully! Your order has been confirmed.');
-			router.push('/');
+            
+            // 支付成功 => 更新订单状态为 paid
+            updateOrderStatus(order.id, 'paid');
+            alert('Payment successful!');
+            router.push('/');
 		} catch (error) {
 			console.error('Error completing booking:', error);
 			alert('There was an error processing your booking. Please try again.');
@@ -73,25 +65,21 @@ export default function CheckoutPage() {
 							<Heading level={2} className="mb-6">
 								Booking Summary
 							</Heading>
-							<div className="space-y-4">
-								<div className="flex justify-between">
-									<Text>Accommodation</Text>
-									<Text className="font-semibold">$299/night</Text>
-								</div>
-								<div className="flex justify-between">
-									<Text>Duration</Text>
-									<Text>3 nights</Text>
-								</div>
-								<div className="flex justify-between">
-									<Text>Taxes & Fees</Text>
-									<Text>$45</Text>
-								</div>
-								<hr />
-								<div className="flex justify-between text-lg font-bold">
-									<Text>Total</Text>
-									<Text>$942</Text>
-								</div>
-							</div>
+                            {order ? (
+                                <div className="space-y-4">
+                                    <div className="flex justify-between">
+                                        <Text>Journey</Text>
+                                        <Text className="font-semibold">¥{order.totalPrice}</Text>
+                                    </div>
+                                    <hr />
+                                    <div className="flex justify-between text-lg font-bold">
+                                        <Text>Total</Text>
+                                        <Text>¥{order.totalPrice}</Text>
+                                    </div>
+                                </div>
+                            ) : (
+                                <Text className="text-gray-500">Order not found.</Text>
+                            )}
 						</Card>
 
 						{/* Payment Form */}
