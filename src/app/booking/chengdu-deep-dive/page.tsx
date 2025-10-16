@@ -591,14 +591,23 @@ export default function ChengduDeepDiveBooking() {
               </Card>
 
               {/* 预订按钮 */}
-              <Button
-                onClick={handleBooking}
-                disabled={isLoading || !travelDates.departureDate || !guestInfo.firstName || !guestInfo.lastName || !guestInfo.email}
-                className="w-full"
-                size="lg"
-              >
-                {isLoading ? 'Processing...' : 'Proceed to Payment'}
-              </Button>
+              <div className="space-y-3">
+                <Button
+                  onClick={handleBooking}
+                  disabled={isLoading || !travelDates.departureDate || !guestInfo.firstName || !guestInfo.lastName || !guestInfo.email}
+                  className="w-full"
+                  size="lg"
+                >
+                  {isLoading ? 'Processing...' : 'Submit Order'}
+                </Button>
+                
+                {/* 提示信息 */}
+                {(!travelDates.departureDate || !guestInfo.firstName || !guestInfo.lastName || !guestInfo.email) && (
+                  <Text size="sm" className="text-gray-500 text-center">
+                    Please fill in all required fields to submit your order
+                  </Text>
+                )}
+              </div>
             </div>
           </div>
         </Container>
