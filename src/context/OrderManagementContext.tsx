@@ -88,7 +88,7 @@ export const OrderManagementProvider: React.FC<OrderManagementProviderProps> = (
     }
   };
 
-  const addOrder = (orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>) => {
+  const addOrder = (orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>): Order => {
     const newOrder: Order = {
       ...orderData,
       id: `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -101,6 +101,7 @@ export const OrderManagementProvider: React.FC<OrderManagementProviderProps> = (
     saveOrders(updatedOrders);
     
     console.log('Order added:', newOrder);
+    return newOrder;
   };
 
   const updateOrderStatus = (orderId: string, status: OrderStatus, notes?: string) => {

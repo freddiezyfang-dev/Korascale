@@ -241,7 +241,7 @@ export default function ChengduDeepDiveBooking() {
       router.push(`/booking/confirm?orderId=${order.id}`);
     } catch (error) {
       console.error('Booking error:', error);
-      alert('Booking failed. Please try again.');
+      alert(`Booking failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
     } finally {
       setIsLoading(false);
     }
