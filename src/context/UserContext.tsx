@@ -78,10 +78,13 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       
       // 模拟登录验证（实际项目中这里会调用真实的 API）
       if (email && password) {
+        // 检查是否为管理员账户
+        const isAdmin = email === 'admin@korascale.com';
+        
         const userData: User = {
           id: `user_${Date.now()}`,
           email,
-          name: email.split('@')[0], // 从邮箱提取用户名
+          name: isAdmin ? '管理员' : email.split('@')[0], // 从邮箱提取用户名
           isLoggedIn: true,
         };
         

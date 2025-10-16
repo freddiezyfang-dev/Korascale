@@ -1,4 +1,9 @@
+'use client';
+
 import Link from 'next/link';
+import { useState } from 'react';
+import { useUser } from '@/context/UserContext';
+import { LoginModal } from '@/components/modals/LoginModal';
 
 // 使用本地图片资源 - 你的logo图片
 const imgLogo = "/logo.png"; // 使用你的logo文件
@@ -8,6 +13,7 @@ const imgInstagram = "/icons/instagram.svg";
 const imgFacebook = "/icons/facebook.svg";
 const imgGlobe = "/globe.svg";
 const imgSearchOutlined = "/icons/search.svg";
+const imgUser = "/icons/user.svg";
 
 function HeaderLeft() {
 	return (
@@ -24,6 +30,72 @@ function HeaderLeft() {
 				<p className="leading-normal" style={{ color: 'white !important' }}>Korascale</p>
 			</div>
 		</Link>
+	);
+}
+
+function UserSection() {
+	const { user, logout } = useUser();
+	const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+	const handleLoginSuccess = () => {
+		setIsLoginModalOpen(false);
+	};
+
+	const handleLogout = () => {
+		logout();
+	};
+
+	return (
+		<>
+			<div className="flex items-center gap-4">
+				{user ? (
+					<div className="flex items-center gap-3">
+						<div className="flex items-center gap-2">
+							<img 
+								src={imgUser} 
+								alt="User" 
+								className="w-5 h-5"
+							/>
+							<span className="text-white text-sm hidden lg:block">
+								{user.name}
+							</span>
+						</div>
+						<button
+							onClick={handleLogout}
+							className="text-white text-sm hover:text-gray-300 transition-colors"
+						>
+							登出
+						</button>
+						{user.email === 'admin@korascale.com' && (
+							<Link 
+								href="/admin"
+								className="text-white text-sm hover:text-gray-300 transition-colors bg-white bg-opacity-20 px-3 py-1 rounded"
+							>
+								管理后台
+							</Link>
+						)}
+					</div>
+				) : (
+					<button
+						onClick={() => setIsLoginModalOpen(true)}
+						className="flex items-center gap-2 text-white hover:text-gray-300 transition-colors"
+					>
+						<img 
+							src={imgUser} 
+							alt="Login" 
+							className="w-5 h-5"
+						/>
+						<span className="text-sm">登录</span>
+					</button>
+				)}
+			</div>
+
+			<LoginModal
+				isOpen={isLoginModalOpen}
+				onClose={() => setIsLoginModalOpen(false)}
+				onLoginSuccess={handleLoginSuccess}
+			/>
+		</>
 	);
 }
 
@@ -64,7 +136,10 @@ export default function Header() {
 		<header className="w-full bg-[#1e3b32] text-white relative z-50" data-name="Header/Main" data-node-id="771:249">
 			<div className="flex items-center justify-between lg:gap-[600px] gap-4 px-4 lg:px-[50px] py-0">
 				<HeaderLeft />
-				<SocialAndSearch />
+				<div className="flex items-center gap-4">
+					<SocialAndSearch />
+					<UserSection />
+				</div>
 			</div>
 		</header>
 	);

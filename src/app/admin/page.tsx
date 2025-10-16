@@ -1,11 +1,40 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Container, Section, Heading, Text, Card } from '@/components/common';
-import { Users, ShoppingCart, Hotel, TrendingUp, Eye, Settings } from 'lucide-react';
+import { Users, ShoppingCart, Hotel, TrendingUp, Eye, Settings, LogOut } from 'lucide-react';
+import { useUser } from '@/context/UserContext';
 
 export default function AdminDashboard() {
+  const { user, logout } = useUser();
+  const router = useRouter();
+  const [recentUsers, setRecentUsers] = useState([
+    { id: '1', name: 'John Smith', email: 'john@example.com', lastLogin: '2024-01-15', status: 'Active' },
+    { id: '2', name: 'Sarah Johnson', email: 'sarah@example.com', lastLogin: '2024-01-14', status: 'Active' },
+    { id: '3', name: 'Mike Chen', email: 'mike@example.com', lastLogin: '2024-01-13', status: 'Inactive' },
+    { id: '4', name: 'Admin User', email: 'admin@korascale.com', lastLogin: '2024-01-15', status: 'Active' },
+  ]);
+
+  // 检查用户权限
+  useEffect(() => {
+    if (!user) {
+      router.push('/auth/login');
+      return;
+    }
+    
+    if (user.email !== 'admin@korascale.com') {
+      router.push('/');
+      return;
+    }
+  }, [user, router]);
+
+  const handleLogout = () => {
+    logout();
+    router.push('/');
+  };
+
   const stats = [
     {
       title: 'Total Orders',
@@ -33,7 +62,7 @@ export default function AdminDashboard() {
     },
     {
       title: 'Total Customers',
-      value: '2,890',
+      value: recentUsers.length.toString(),
       change: '+15%',
       changeType: 'positive',
       icon: Users,
@@ -72,18 +101,47 @@ export default function AdminDashboard() {
     }
   ];
 
+  if (!user || user.email !== 'admin@korascale.com') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Heading level={1} className="text-2xl font-bold mb-4">
+            访问被拒绝
+          </Heading>
+          <Text className="text-gray-600 mb-4">
+            您没有权限访问管理后台
+          </Text>
+          <Link href="/" className="text-primary-600 hover:text-primary-500">
+            返回首页
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Section background="primary" padding="xl">
         <Container size="xl">
           {/* Header */}
           <div className="mb-8">
-            <Heading level={1} className="text-3xl font-bold mb-2">
-              Admin Dashboard
-            </Heading>
-            <Text size="lg" className="text-gray-600">
-              Manage your travel booking platform
-            </Text>
+            <div className="flex items-center justify-between">
+              <div>
+                <Heading level={1} className="text-3xl font-bold mb-2">
+                  管理后台
+                </Heading>
+                <Text size="lg" className="text-gray-600">
+                  欢迎回来，{user.name}！管理您的旅游预订平台
+                </Text>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                登出
+              </button>
+            </div>
           </div>
 
           {/* Stats Grid */}
@@ -140,17 +198,52 @@ export default function AdminDashboard() {
             </div>
           </div>
 
+          {/* Recent Users */}
+          <Card className="p-6 mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <Heading level={2} className="text-xl font-semibold">
+                最近用户
+              </Heading>
+              <Link 
+                href="/admin/customers"
+                className="text-primary-600 hover:text-primary-500 flex items-center gap-1"
+              >
+                查看全部
+                <Eye className="w-4 h-4" />
+              </Link>
+            </div>
+            
+            <div className="space-y-3">
+              {recentUsers.map((user, index) => (
+                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div>
+                    <Text className="font-medium text-gray-900">{user.name}</Text>
+                    <Text className="text-sm text-gray-600">{user.email}</Text>
+                    <Text className="text-xs text-gray-500">最后登录: {user.lastLogin}</Text>
+                  </div>
+                  <div className="text-right">
+                    <Text className={`text-sm px-2 py-1 rounded-full ${
+                      user.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {user.status === 'Active' ? '活跃' : '非活跃'}
+                    </Text>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
           {/* Recent Orders Preview */}
           <Card className="p-6">
             <div className="flex items-center justify-between mb-4">
               <Heading level={2} className="text-xl font-semibold">
-                Recent Orders
+                最近订单
               </Heading>
               <Link 
                 href="/admin/orders"
                 className="text-primary-600 hover:text-primary-500 flex items-center gap-1"
               >
-                View All
+                查看全部
                 <Eye className="w-4 h-4" />
               </Link>
             </div>
@@ -172,7 +265,8 @@ export default function AdminDashboard() {
                       order.status === 'Completed' ? 'text-green-600' :
                       order.status === 'Confirmed' ? 'text-blue-600' : 'text-yellow-600'
                     }`}>
-                      {order.status}
+                      {order.status === 'Completed' ? '已完成' : 
+                       order.status === 'Confirmed' ? '已确认' : '待处理'}
                     </Text>
                   </div>
                 </div>
