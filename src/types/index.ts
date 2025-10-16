@@ -34,6 +34,26 @@ export type BookingStep = 'stay-details' | 'guest-info' | 'confirmation' | 'succ
 // 订单状态类型
 export type OrderStatus = 'pending' | 'confirmed' | 'paid' | 'staff_confirmed' | 'completed';
 
+// 行程模块类型
+export interface JourneyModule {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  duration: string;
+  included: string[];
+}
+
+// 体验类型
+export interface Experience {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  duration: string;
+  type: 'experience' | 'accommodation';
+}
+
 // 订单类型
 export interface Order {
   id: string;
@@ -47,6 +67,9 @@ export interface Order {
     image: string;
     price: number;
   };
+  selectedModules?: JourneyModule[];
+  selectedExperiences?: Experience[];
+  selectedAccommodation?: Experience;
   stayDetails: StayDetails;
   guestInfo: GuestInfo;
   totalPrice: number;

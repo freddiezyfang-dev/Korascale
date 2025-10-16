@@ -220,6 +220,9 @@ export default function ChengduDeepDiveBooking() {
           image: '/images/journey-cards/chengdu-deep-dive.jpeg',
           price: calculateTotalPrice()
         },
+        selectedModules: selectedModules,
+        selectedExperiences: selectedExperiences,
+        selectedAccommodation: selectedAccommodation,
         stayDetails: {
           checkIn: new Date(travelDates.departureDate),
           checkOut: new Date(travelDates.returnDate || travelDates.departureDate),
