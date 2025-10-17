@@ -1,12 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
 import { ExperienceCard } from '@/components/cards/ExperienceCard';
 import { AccommodationCard } from '@/components/cards/AccommodationCard';
 import { WishlistSidebar } from '@/components/wishlist/WishlistSidebar';
+import { HotelDetailModal } from '@/components/modals/HotelDetailModal';
 import { useWishlist } from '@/context/WishlistContext';
 import { Heart, MapPin, Clock, Users, Car, Bed, User, Utensils } from 'lucide-react';
 
@@ -89,6 +90,43 @@ const accommodations = [
 export default function ChengduCityOneDayDeepDive() {
   const { toggleWishlist, items } = useWishlist();
   const router = useRouter();
+  
+  // 酒店详情弹窗状态
+  const [selectedHotel, setSelectedHotel] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // 处理酒店点击
+  const handleHotelClick = (accommodation: any) => {
+    console.log('Hotel clicked in journey page:', accommodation);
+    
+    // 转换为HotelDetailModal期望的格式
+    const hotelForModal = {
+      id: accommodation.id,
+      name: accommodation.title,
+      location: accommodation.location,
+      description: accommodation.description,
+      rating: accommodation.rating.toString(),
+      images: [accommodation.image],
+      roomTypes: [
+        {
+          name: 'Standard Room',
+          description: 'Comfortable room with modern amenities',
+          amenities: ['WiFi', 'Air Conditioning', 'TV', 'Private Bathroom'],
+          price: accommodation.price || '500'
+        }
+      ]
+    };
+    
+    console.log('Hotel for modal:', hotelForModal);
+    setSelectedHotel(hotelForModal);
+    setIsModalOpen(true);
+  };
+
+  // 关闭酒店详情弹窗
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedHotel(null);
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -341,14 +379,20 @@ export default function ChengduCityOneDayDeepDive() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
             {accommodations.map((accommodation) => (
-              <AccommodationCard key={accommodation.id} {...accommodation} />
+              <AccommodationCard 
+                key={accommodation.id} 
+                {...accommodation} 
+                onClick={() => handleHotelClick(accommodation)}
+              />
             ))}
           </div>
 
           <div className="text-center mt-8">
-            <Button variant="outline" className="border-white text-white hover:bg-white hover:text-tertiary">
-              View More
-            </Button>
+            <Link href="/accommodations">
+              <Button variant="outline" className="border-white text-white hover:bg-white hover:text-tertiary">
+                View More
+              </Button>
+            </Link>
           </div>
         </Container>
       </Section>
@@ -501,6 +545,13 @@ export default function ChengduCityOneDayDeepDive() {
           </div>
         </Container>
       </Section>
+
+      {/* 酒店详情弹窗 */}
+      <HotelDetailModal
+        hotel={selectedHotel}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 }
