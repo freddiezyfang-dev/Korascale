@@ -3,7 +3,7 @@
 import React from 'react';
 import { useWishlist } from '@/context/WishlistContext';
 import { Button, Card, Heading, Text } from '@/components/common';
-import { X, Trash2, Heart, Calendar, Users, Eye } from 'lucide-react';
+import { X, Trash2, Heart, Calendar, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export const WishlistSidebar: React.FC = () => {
@@ -116,25 +116,19 @@ export const WishlistSidebar: React.FC = () => {
                           {/* 操作按钮 */}
                           <div className="flex flex-col gap-1">
                             <Button
-                              variant="ghost"
+                              variant="outline"
                               size="sm"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 console.log('View Details clicked for:', item.title, item.type);
-                                if (item.type === 'accommodation') {
-                                  // 酒店类型跳转到预订页面
-                                  console.log('Navigating to booking page');
-                                  router.push('/booking/chengdu-deep-dive');
-                                } else {
-                                  // 体验类型跳转到详情页面
-                                  console.log('Navigating to journey page');
-                                  router.push('/journeys/chengdu-city-one-day-deep-dive');
-                                }
+                                // 所有项目都跳转到预订页面
+                                console.log('Navigating to booking page');
+                                router.push('/booking/chengdu-deep-dive');
                               }}
-                              className="p-1 text-gray-400 hover:text-primary-500"
+                              className="px-2 py-1 text-xs text-gray-600 hover:text-primary-500 hover:border-primary-500"
                               title="View Details"
                             >
-                              <Eye className="w-4 h-4" />
+                              View Details
                             </Button>
                             <Button
                               variant="ghost"
