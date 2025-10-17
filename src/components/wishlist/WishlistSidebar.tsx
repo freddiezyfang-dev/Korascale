@@ -167,6 +167,10 @@ export const WishlistSidebar: React.FC = () => {
                 <Button
                   variant="primary"
                   className="flex-1"
+                  onClick={() => {
+                    console.log('Bottom View Details clicked, navigating to booking page');
+                    router.push('/booking/chengdu-deep-dive');
+                  }}
                 >
                   View Details
                 </Button>
