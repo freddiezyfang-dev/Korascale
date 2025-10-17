@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/components/common';
 import { AccommodationCard } from '@/components/cards/AccommodationCard';
 import { HotelDetailModal } from '@/components/modals/HotelDetailModal';
+import { WishlistSidebar } from '@/components/wishlist/WishlistSidebar';
 import hotelsData from '@/data/hotels.json';
 
 // 定义酒店类型
@@ -454,20 +455,31 @@ export default function Accommodations() {
                 See Where We Can Take You
               </Heading>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredHotels.map((hotel) => (
-                  <AccommodationCard
-                    key={hotel.id}
-                    id={hotel.id}
-                    title={hotel.name}
-                    location={hotel.location}
-                    image={hotel.images[0]}
-                    price={`$${100 + (hotel.id.charCodeAt(6) % 100)}/night`}
-                    rating={Number(hotel.rating)}
-                    description={hotel.description}
-                    onClick={() => handleHotelClick(hotel)}
-                  />
-                ))}
+              {/* 主要内容区域 - 使用flex布局 */}
+              <div className="flex gap-8">
+                {/* 左侧：酒店列表 */}
+                <div className="flex-1">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredHotels.map((hotel) => (
+                      <AccommodationCard
+                        key={hotel.id}
+                        id={hotel.id}
+                        title={hotel.name}
+                        location={hotel.location}
+                        image={hotel.images[0]}
+                        price={`$${100 + (hotel.id.charCodeAt(6) % 100)}/night`}
+                        rating={Number(hotel.rating)}
+                        description={hotel.description}
+                        onClick={() => handleHotelClick(hotel)}
+                      />
+                    ))}
+                  </div>
+                </div>
+                
+                {/* 右侧：Wishlist侧边栏 */}
+                <div className="w-80 flex-shrink-0">
+                  <WishlistSidebar />
+                </div>
               </div>
             </div>
           </div>
