@@ -517,21 +517,7 @@ export default function ChengduDeepDiveBooking() {
                             )}
                           </div>
                         </div>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => addFromWishlist(item)}
-                          >
-                            <Plus className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => router.push('/booking/chengdu-deep-dive')}
-                          >
-                            View Details
-                          </Button>
+                        <div className="flex justify-end">
                           <Button
                             variant="outline"
                             size="sm"
