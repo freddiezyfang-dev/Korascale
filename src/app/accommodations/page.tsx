@@ -5,7 +5,10 @@ import { useState } from 'react';
 import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/components/common';
 import { AccommodationCard } from '@/components/cards/AccommodationCard';
 import { HotelDetailModal } from '@/components/modals/HotelDetailModal';
+import { WishlistSidebar } from '@/components/wishlist/WishlistSidebar';
+import { useWishlist } from '@/context/WishlistContext';
 import hotelsData from '@/data/hotels.json';
+import { Heart } from 'lucide-react';
 
 // 定义酒店类型
 interface Hotel {
@@ -34,6 +37,7 @@ const imgFrame37 = "https://images.unsplash.com/photo-1571896349842-33c89424de2d
 export default function Accommodations() {
   const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { toggleWishlist } = useWishlist();
   
   // Filter states
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
@@ -86,6 +90,19 @@ export default function Accommodations() {
           display: none;
         }
       `}</style>
+      
+      {/* Wishlist Sidebar */}
+      <WishlistSidebar />
+      
+      {/* Wishlist Toggle Button */}
+      <Button
+        onClick={toggleWishlist}
+        className="fixed top-4 right-4 z-50 bg-primary-500 hover:bg-primary-600 text-white shadow-lg"
+        size="sm"
+      >
+        <Heart className="w-4 h-4 mr-2" />
+        My Wishlist
+      </Button>
       {/* Hero Banner - 按照Figma设计的左右分栏布局 */}
       <section className="flex h-[800px] w-full overflow-hidden relative">
         {/* 左侧图片区域 */}
