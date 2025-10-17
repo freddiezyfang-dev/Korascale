@@ -7,6 +7,7 @@ import { Container, Section, Heading, Text, Button, Card } from '@/components/co
 import { useUser } from '@/context/UserContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useOrderManagement } from '@/context/OrderManagementContext';
+import { HotelDetailModal } from '@/components/modals/HotelDetailModal';
 import { 
   X, 
   Plus, 
@@ -144,6 +145,10 @@ export default function ChengduDeepDiveBooking() {
     travelers: 1
   });
   const [isLoading, setIsLoading] = useState(false);
+  
+  // 酒店详情弹窗状态
+  const [selectedHotel, setSelectedHotel] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // 检查用户登录状态
   useEffect(() => {
@@ -198,6 +203,38 @@ export default function ChengduDeepDiveBooking() {
       setSelectedAccommodation(item);
     }
     removeFromWishlist(item.id);
+  };
+
+  // 处理酒店点击
+  const handleHotelClick = (hotel) => {
+    console.log('Hotel clicked in booking page:', hotel);
+    
+    // 转换为HotelDetailModal期望的格式
+    const hotelForModal = {
+      id: hotel.id,
+      name: hotel.title,
+      location: hotel.location || 'Chengdu, Sichuan',
+      description: hotel.description,
+      rating: hotel.rating.toString(),
+      images: [hotel.image],
+      roomTypes: [
+        {
+          name: 'Standard Room',
+          description: 'Comfortable room with modern amenities',
+          amenities: ['WiFi', 'Air Conditioning', 'TV', 'Private Bathroom'],
+          price: hotel.price
+        }
+      ]
+    };
+    
+    setSelectedHotel(hotelForModal);
+    setIsModalOpen(true);
+  };
+
+  // 关闭酒店详情弹窗
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedHotel(null);
   };
 
   // 处理预订
@@ -490,9 +527,7 @@ export default function ChengduDeepDiveBooking() {
                             onClick={(e) => {
                               e.stopPropagation();
                               console.log('Book now clicked for:', hotel.title);
-                              // Book now logic - could redirect to booking or show modal
-                              // For now, just select the hotel
-                              setSelectedAccommodation(hotel);
+                              handleHotelClick(hotel);
                             }}
                           >
                             Book Now
@@ -715,6 +750,13 @@ export default function ChengduDeepDiveBooking() {
           </div>
         </Container>
       </Section>
+
+      {/* 酒店详情弹窗 */}
+      <HotelDetailModal
+        hotel={selectedHotel}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 }
