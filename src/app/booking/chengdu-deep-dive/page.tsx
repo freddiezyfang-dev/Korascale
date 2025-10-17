@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
 import { useUser } from '@/context/UserContext';
@@ -126,11 +126,12 @@ export default function ChengduDeepDiveBooking() {
   const { items: wishlistItems, removeFromWishlist, addToWishlist } = useWishlist();
   const { addOrder } = useOrderManagement();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // 状态管理
   const [selectedModules, setSelectedModules] = useState(journeyModules);
-  const [selectedExperiences, setSelectedExperiences] = useState([]);
-  const [selectedAccommodation, setSelectedAccommodation] = useState(null);
+  const [selectedExperiences, setSelectedExperiences] = useState<any[]>([]);
+  const [selectedAccommodation, setSelectedAccommodation] = useState<any>(null);
   const [guestInfo, setGuestInfo] = useState({
     firstName: user?.name?.split(' ')[0] || '',
     lastName: user?.name?.split(' ')[1] || '',
@@ -157,6 +158,43 @@ export default function ChengduDeepDiveBooking() {
     }
   }, [user, router]);
 
+  // 处理从BookingDetailsModal传递的URL参数
+  useEffect(() => {
+    const checkIn = searchParams.get('checkIn');
+    const checkOut = searchParams.get('checkOut');
+    const adults = searchParams.get('adults');
+    const children = searchParams.get('children');
+    const roomType = searchParams.get('roomType');
+    const hotelId = searchParams.get('hotelId');
+    const hotelName = searchParams.get('hotelName');
+
+    if (checkIn) {
+      setTravelDates(prev => ({
+        ...prev,
+        departureDate: checkIn
+      }));
+    }
+    if (checkOut) {
+      setTravelDates(prev => ({
+        ...prev,
+        returnDate: checkOut
+      }));
+    }
+    if (adults) {
+      setTravelDates(prev => ({
+        ...prev,
+        travelers: parseInt(adults) + (children ? parseInt(children) : 0)
+      }));
+    }
+    if (hotelId && hotelName) {
+      // 查找对应的酒店并设置为选中状态
+      const hotel = accommodationOptions.find(h => h.id === hotelId);
+      if (hotel) {
+        setSelectedAccommodation(hotel);
+      }
+    }
+  }, [searchParams]);
+
 
   // 计算总价格
   const calculateTotalPrice = () => {
@@ -181,22 +219,22 @@ export default function ChengduDeepDiveBooking() {
   };
 
   // 移除模块
-  const removeModule = (moduleId) => {
+  const removeModule = (moduleId: any) => {
     setSelectedModules(prev => prev.filter(module => module.id !== moduleId));
   };
 
   // 添加额外体验
-  const addExperience = (experience) => {
+  const addExperience = (experience: any) => {
     setSelectedExperiences(prev => [...prev, experience]);
   };
 
   // 移除额外体验
-  const removeExperience = (experienceId) => {
+  const removeExperience = (experienceId: any) => {
     setSelectedExperiences(prev => prev.filter(exp => exp.id !== experienceId));
   };
 
   // 从愿望清单添加
-  const addFromWishlist = (item) => {
+  const addFromWishlist = (item: any) => {
     if (item.type === 'experience') {
       addExperience(item);
     } else if (item.type === 'accommodation') {
@@ -206,7 +244,7 @@ export default function ChengduDeepDiveBooking() {
   };
 
   // 处理酒店点击
-  const handleHotelClick = (hotel) => {
+  const handleHotelClick = (hotel: any) => {
     console.log('Hotel clicked in booking page:', hotel);
     console.log('Setting modal to open...');
     
@@ -516,7 +554,8 @@ export default function ChengduDeepDiveBooking() {
                                 title: hotel.title,
                                 type: 'accommodation',
                                 image: hotel.image,
-                                price: hotel.price
+                                price: hotel.price,
+                                location: hotel.location || 'Chengdu, Sichuan'
                               };
                               addToWishlist(wishlistItem);
                               console.log('Added to wishlist:', wishlistItem);

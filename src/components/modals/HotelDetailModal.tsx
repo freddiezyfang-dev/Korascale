@@ -109,8 +109,23 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
 
   const handleBookingDetailsContinue = (details: BookingDetails) => {
     setIsBookingDetailsModalOpen(false);
-    // 跳转到结账页面，可以传递预订详情
-    router.push('/checkout');
+    
+    // 将预订详情编码为URL参数
+    const params = new URLSearchParams();
+    if (details.checkIn) {
+      params.set('checkIn', details.checkIn.toISOString().split('T')[0]);
+    }
+    if (details.checkOut) {
+      params.set('checkOut', details.checkOut.toISOString().split('T')[0]);
+    }
+    params.set('adults', details.adults.toString());
+    params.set('children', details.children.toString());
+    params.set('roomType', details.selectedRoomType);
+    params.set('hotelId', hotel?.id || '');
+    params.set('hotelName', hotel?.name || '');
+    
+    // 跳转到Chengdu Deep Dive预订页面，传递预订详情
+    router.push(`/booking/chengdu-deep-dive?${params.toString()}`);
   };
 
   return (
