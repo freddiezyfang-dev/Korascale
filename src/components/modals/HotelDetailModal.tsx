@@ -91,14 +91,14 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
     if (isInWishlist(hotel.id)) {
       removeFromWishlist(hotel.id);
     } else {
-      addToWishlist({
-        id: hotel.id,
-        title: hotel.name,
-        type: 'accommodation',
-        image: hotel.images[0],
-        location: hotel.location,
-        price: '$120/night'
-      });
+      // 检查用户是否已登录
+      if (user) {
+        // 用户已登录，打开预订详情弹窗来收集预订信息
+        setIsBookingDetailsModalOpen(true);
+      } else {
+        // 用户未登录，打开登录弹窗
+        setIsLoginModalOpen(true);
+      }
     }
   };
 
