@@ -148,7 +148,7 @@ export default function ChengduDeepDiveBooking() {
   const [isLoading, setIsLoading] = useState(false);
   
   // 酒店详情弹窗状态
-  const [selectedHotel, setSelectedHotel] = useState(null);
+  const [selectedHotel, setSelectedHotel] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // 检查用户登录状态
@@ -194,6 +194,9 @@ export default function ChengduDeepDiveBooking() {
       }
     }
   }, [searchParams]);
+
+  // 检查是否从BookingDetailsModal进入（有URL参数）
+  const isFromBookingDetails = searchParams.get('hotelId') && searchParams.get('hotelName');
 
 
   // 计算总价格
@@ -290,8 +293,8 @@ export default function ChengduDeepDiveBooking() {
     try {
       // 创建订单（状态：pending）
       const order = addOrder({
-        userId: user.id,
-        userEmail: user.email,
+        userId: user?.id || '',
+        userEmail: user?.email || '',
         userName: `${guestInfo.firstName} ${guestInfo.lastName}`,
         accommodation: {
           id: selectedAccommodation?.id || 'journey-only',
@@ -300,20 +303,19 @@ export default function ChengduDeepDiveBooking() {
           image: '/images/journey-cards/chengdu-deep-dive.jpeg',
           price: calculateTotalPrice()
         },
-        selectedModules: selectedModules,
+        selectedModules: selectedModules as any,
         selectedExperiences: selectedExperiences,
         selectedAccommodation: selectedAccommodation,
         stayDetails: {
           checkIn: new Date(travelDates.departureDate),
           checkOut: new Date(travelDates.returnDate || travelDates.departureDate),
-          guests: travelDates.travelers
+          adults: travelDates.travelers,
+          children: 0
         },
         guestInfo: {
-          firstName: guestInfo.firstName,
-          lastName: guestInfo.lastName,
+          fullName: `${guestInfo.firstName} ${guestInfo.lastName}`,
           email: guestInfo.email,
-          phone: guestInfo.phone,
-          nationality: guestInfo.nationality,
+          phoneNumber: guestInfo.phone,
           specialRequests: guestInfo.specialRequests
         },
         totalPrice: calculateTotalPrice(),
@@ -389,9 +391,10 @@ export default function ChengduDeepDiveBooking() {
                         </div>
                       </div>
                       <Button
-                        variant="destructive"
+                        variant="outline"
                         size="sm"
                         onClick={() => removeModule(module.id)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
                         <X className="w-4 h-4" />
                       </Button>
@@ -427,9 +430,10 @@ export default function ChengduDeepDiveBooking() {
                           </div>
                         </div>
                         <Button
-                          variant="destructive"
+                          variant="outline"
                           size="sm"
                           onClick={() => removeExperience(exp.id)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
                         >
                           <X className="w-4 h-4" />
                         </Button>
@@ -475,9 +479,10 @@ export default function ChengduDeepDiveBooking() {
                             View Details
                           </Button>
                           <Button
-                            variant="destructive"
+                            variant="outline"
                             size="sm"
                             onClick={() => removeFromWishlist(item.id)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
                           >
                             <X className="w-4 h-4" />
                           </Button>
@@ -488,98 +493,166 @@ export default function ChengduDeepDiveBooking() {
                 </Card>
               )}
 
-              {/* 住宿选项 */}
-              <Card className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <Heading level={2} className="text-lg font-semibold truncate">
-                    Accommodation Options
+              {/* 酒店预订信息或住宿选项 */}
+              {isFromBookingDetails && selectedAccommodation ? (
+                <Card className="p-6">
+                  <Heading level={2} className="text-lg font-semibold mb-4 truncate">
+                    Hotel Booking Details
                   </Heading>
-                  <Link href="/accommodations">
-                    <Button 
-                      variant="secondary" 
-                      size="sm"
-                      onClick={() => console.log('View All clicked')}
-                    >
-                      View All
-                    </Button>
-                  </Link>
-                </div>
-                <div className="space-y-4">
-                  {accommodationOptions.map((hotel) => (
-                    <div 
-                      key={hotel.id} 
-                      className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedAccommodation?.id === hotel.id 
-                          ? 'border-primary-500 bg-primary-50' 
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                      onClick={() => setSelectedAccommodation(hotel)}
-                    >
-                      <div className="flex items-center gap-4">
-                        <img 
-                          src={hotel.image} 
-                          alt={hotel.title}
-                          className="w-16 h-16 object-cover rounded"
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Text className="font-medium">{hotel.title}</Text>
-                            {selectedAccommodation?.id === hotel.id && (
-                              <CheckCircle className="w-5 h-5 text-primary-500" />
-                            )}
-                          </div>
-                          <Text size="sm" className="text-gray-600 mb-2">{hotel.description}</Text>
+                  <div className="border border-primary-200 bg-primary-50 rounded-lg p-4">
+                    <div className="flex items-center gap-4">
+                      <img 
+                        src={selectedAccommodation.image} 
+                        alt={selectedAccommodation.title}
+                        className="w-16 h-16 object-cover rounded"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Text className="font-medium">{selectedAccommodation.title}</Text>
+                          <CheckCircle className="w-5 h-5 text-primary-500" />
+                        </div>
+                        <Text size="sm" className="text-gray-600 mb-2">{selectedAccommodation.description}</Text>
+                        <div className="space-y-2">
                           <div className="flex items-center gap-4">
                             <div className="flex items-center gap-1">
                               {[...Array(5)].map((_, i) => (
-                                <span key={i} className={`text-sm ${i < hotel.rating ? 'text-yellow-400' : 'text-gray-300'}`}>
+                                <span key={i} className={`text-sm ${i < selectedAccommodation.rating ? 'text-yellow-400' : 'text-gray-300'}`}>
                                   ★
                                 </span>
                               ))}
                             </div>
                             <Text className="font-medium text-primary-600">
-                              ¥{hotel.price}/night
+                              ¥{selectedAccommodation.price}/night
                             </Text>
                           </div>
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <Text className="text-gray-500">Check-in:</Text>
+                              <Text className="font-medium">{travelDates.departureDate}</Text>
+                            </div>
+                            <div>
+                              <Text className="text-gray-500">Check-out:</Text>
+                              <Text className="font-medium">{travelDates.returnDate || travelDates.departureDate}</Text>
+                            </div>
+                            <div>
+                              <Text className="text-gray-500">Guests:</Text>
+                              <Text className="font-medium">{travelDates.travelers} {travelDates.travelers === 1 ? 'person' : 'people'}</Text>
+                            </div>
+                            <div>
+                              <Text className="text-gray-500">Room Type:</Text>
+                              <Text className="font-medium">{searchParams.get('roomType') || 'Standard Room'}</Text>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              console.log('Add to wishlist clicked for:', hotel.title);
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          // 清除选中的酒店，回到选择模式
+                          setSelectedAccommodation(null);
+                          // 清除URL参数
+                          router.push('/booking/chengdu-deep-dive');
+                        }}
+                      >
+                        Change Hotel
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ) : (
+                <Card className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <Heading level={2} className="text-lg font-semibold truncate">
+                      Accommodation Options
+                    </Heading>
+                    <Link href="/accommodations">
+                      <Button 
+                        variant="secondary" 
+                        size="sm"
+                        onClick={() => console.log('View All clicked')}
+                      >
+                        View All
+                      </Button>
+                    </Link>
+                  </div>
+                  <div className="space-y-4">
+                    {accommodationOptions.map((hotel) => (
+                      <div 
+                        key={hotel.id} 
+                        className={`border rounded-lg p-4 cursor-pointer transition-colors ${
+                          selectedAccommodation?.id === hotel.id 
+                            ? 'border-primary-500 bg-primary-50' 
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                        onClick={() => setSelectedAccommodation(hotel)}
+                      >
+                        <div className="flex items-center gap-4">
+                          <img 
+                            src={hotel.image} 
+                            alt={hotel.title}
+                            className="w-16 h-16 object-cover rounded"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Text className="font-medium">{hotel.title}</Text>
+                              {selectedAccommodation?.id === hotel.id && (
+                                <CheckCircle className="w-5 h-5 text-primary-500" />
+                              )}
+                            </div>
+                            <Text size="sm" className="text-gray-600 mb-2">{hotel.description}</Text>
+                            <div className="flex items-center gap-4">
+                              <div className="flex items-center gap-1">
+                                {[...Array(5)].map((_, i) => (
+                                  <span key={i} className={`text-sm ${i < hotel.rating ? 'text-yellow-400' : 'text-gray-300'}`}>
+                                    ★
+                                  </span>
+                                ))}
+                              </div>
+                              <Text className="font-medium text-primary-600">
+                                ¥{hotel.price}/night
+                              </Text>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                console.log('Add to wishlist clicked for:', hotel.title);
                               const wishlistItem = {
                                 id: hotel.id,
                                 title: hotel.title,
-                                type: 'accommodation',
+                                type: 'accommodation' as const,
                                 image: hotel.image,
-                                price: hotel.price,
-                                location: hotel.location || 'Chengdu, Sichuan'
+                                price: hotel.price.toString(),
+                                location: 'Chengdu, Sichuan'
                               };
-                              addToWishlist(wishlistItem);
-                              console.log('Added to wishlist:', wishlistItem);
-                            }}
-                          >
-                            <Plus className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="primary"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              console.log('Book now clicked for:', hotel.title);
-                              handleHotelClick(hotel);
-                            }}
-                          >
-                            Book Now
-                          </Button>
+                                addToWishlist(wishlistItem);
+                                console.log('Added to wishlist:', wishlistItem);
+                              }}
+                            >
+                              <Plus className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                console.log('Book now clicked for:', hotel.title);
+                                handleHotelClick(hotel);
+                              }}
+                            >
+                              Book Now
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </Card>
+                    ))}
+                  </div>
+                </Card>
+              )}
             </div>
 
             {/* 右侧：个人信息和预订详情 */}
@@ -796,7 +869,7 @@ export default function ChengduDeepDiveBooking() {
       {/* 调试信息 */}
       <div className="fixed bottom-4 right-4 bg-black text-white p-2 rounded text-xs z-50">
         <div>Modal Open: {isModalOpen ? 'Yes' : 'No'}</div>
-        <div>Selected Hotel: {selectedHotel ? selectedHotel.name : 'None'}</div>
+        <div>Selected Hotel: {selectedHotel ? (selectedHotel as any).name : 'None'}</div>
       </div>
 
       {/* 酒店详情弹窗 */}

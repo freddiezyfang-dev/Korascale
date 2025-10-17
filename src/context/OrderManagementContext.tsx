@@ -6,7 +6,7 @@ import { Order, OrderStatus, UserLoginRecord } from '@/types';
 interface OrderManagementContextType {
   orders: Order[];
   loginRecords: UserLoginRecord[];
-  addOrder: (order: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  addOrder: (order: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>) => Order;
   updateOrderStatus: (orderId: string, status: OrderStatus, notes?: string) => void;
   addLoginRecord: (record: Omit<UserLoginRecord, 'id'>) => void;
   updateLogoutRecord: (userId: string) => void;
