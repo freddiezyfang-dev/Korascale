@@ -188,7 +188,26 @@ export default function ChengduDeepDiveBooking() {
     }
     if (hotelId && hotelName) {
       // 查找对应的酒店并设置为选中状态
-      const hotel = accommodationOptions.find(h => h.id === hotelId);
+      // 首先尝试在accommodationOptions中查找
+      let hotel = accommodationOptions.find(h => h.id === hotelId);
+      
+      // 如果没找到，尝试根据hotelName匹配
+      if (!hotel) {
+        hotel = accommodationOptions.find(h => h.title === hotelName);
+      }
+      
+      // 如果还是没找到，创建一个临时的酒店对象
+      if (!hotel) {
+        hotel = {
+          id: hotelId,
+          title: hotelName,
+          description: 'Selected hotel from accommodations',
+          price: 0,
+          rating: 5,
+          image: '/images/hotels/chengdu-tibet-1.png' // 默认图片
+        };
+      }
+      
       if (hotel) {
         setSelectedAccommodation(hotel);
       }
@@ -197,6 +216,19 @@ export default function ChengduDeepDiveBooking() {
 
   // 检查是否从BookingDetailsModal进入（有URL参数）
   const isFromBookingDetails = searchParams.get('hotelId') && searchParams.get('hotelName');
+  
+  // 调试信息
+  console.log('Booking page debug info:', {
+    isFromBookingDetails,
+    hotelId: searchParams.get('hotelId'),
+    hotelName: searchParams.get('hotelName'),
+    selectedAccommodation,
+    checkIn: searchParams.get('checkIn'),
+    checkOut: searchParams.get('checkOut'),
+    adults: searchParams.get('adults'),
+    children: searchParams.get('children'),
+    roomType: searchParams.get('roomType')
+  });
 
 
   // 计算总价格
