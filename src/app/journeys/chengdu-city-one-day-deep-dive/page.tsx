@@ -273,8 +273,78 @@ export default function ChengduCityOneDayDeepDive() {
               </div>
             </div>
 
-            {/* 右侧图片 */}
-            <div className="lg:w-96 md:w-full">
+            {/* 右侧内容 */}
+            <div className="lg:w-96 md:w-full space-y-6">
+              {/* Dates and Price */}
+              <Card className="p-6">
+                <Heading level={3} className="text-lg font-semibold mb-4">
+                  Dates & Price
+                </Heading>
+                
+                {/* 发团日期 */}
+                <div className="mb-4">
+                  <Text className="font-medium text-gray-700 mb-2">Departure Dates</Text>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded">
+                      <Text size="sm">March 15, 2024</Text>
+                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Available</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded">
+                      <Text size="sm">March 22, 2024</Text>
+                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Available</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded">
+                      <Text size="sm">March 29, 2024</Text>
+                      <span className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">Fully Booked</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded">
+                      <Text size="sm">April 5, 2024</Text>
+                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Available</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 价格信息 */}
+                <div className="mb-4">
+                  <Text className="font-medium text-gray-700 mb-2">Price per Person</Text>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <Text size="sm">Adult (12+)</Text>
+                      <Text className="font-semibold text-primary-600">¥899</Text>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <Text size="sm">Child (3-11)</Text>
+                      <Text className="font-semibold text-primary-600">¥599</Text>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <Text size="sm">Infant (0-2)</Text>
+                      <Text className="font-semibold text-primary-600">Free</Text>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 包含内容 */}
+                <div className="mb-4">
+                  <Text className="font-medium text-gray-700 mb-2">What's Included</Text>
+                  <ul className="space-y-1 text-sm text-gray-600">
+                    <li>• Professional English-speaking guide</li>
+                    <li>• All entrance fees</li>
+                    <li>• Transportation</li>
+                    <li>• Lunch and dinner</li>
+                    <li>• All activities and materials</li>
+                  </ul>
+                </div>
+
+                {/* 预订按钮 */}
+                <Button 
+                  className="w-full bg-primary-500 hover:bg-primary-600 text-white"
+                  onClick={() => router.push('/booking/chengdu-deep-dive')}
+                >
+                  Book Now
+                </Button>
+              </Card>
+
+              {/* 右侧图片 */}
               <div
                 className="h-[400px] lg:h-[600px] bg-center bg-cover bg-no-repeat rounded-lg"
                 style={{ backgroundImage: `url('${imgItinerary}')` }}
