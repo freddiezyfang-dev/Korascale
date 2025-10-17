@@ -253,6 +253,7 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
               variant="primary" 
               className="flex-1"
               onClick={() => {
+                // 检查用户是否已登录
                 if (user) {
                   // 用户已登录，直接打开预订详情弹窗
                   setIsBookingDetailsModalOpen(true);
