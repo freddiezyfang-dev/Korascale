@@ -630,7 +630,15 @@ export default function ChengduDeepDiveBooking() {
                     </Link>
                   </div>
                   <div className="space-y-4">
-                    {accommodationOptions.map((hotel) => (
+                    {accommodationOptions
+                      .filter(hotel => {
+                        // 过滤掉已经在wishlist中的酒店
+                        return !wishlistItems.some(item => 
+                          item.type === 'accommodation' && 
+                          item.title === hotel.title
+                        );
+                      })
+                      .map((hotel) => (
                       <div 
                         key={hotel.id} 
                         className={`border rounded-lg p-4 cursor-pointer transition-colors ${

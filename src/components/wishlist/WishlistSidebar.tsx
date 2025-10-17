@@ -113,7 +113,7 @@ export const WishlistSidebar: React.FC = () => {
                             )}
                           </div>
                           
-                          {/* 操作按钮 */}
+                          {/* 操作按钮 - 只保留删除按钮 */}
                           <div className="flex justify-end">
                             <Button
                               variant="ghost"
