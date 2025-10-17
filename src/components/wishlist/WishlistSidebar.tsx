@@ -3,7 +3,8 @@
 import React from 'react';
 import { useWishlist } from '@/context/WishlistContext';
 import { Button, Card, Heading, Text } from '@/components/common';
-import { X, Trash2, Heart } from 'lucide-react';
+import { X, Trash2, Heart, Calendar, Users, Eye } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export const WishlistSidebar: React.FC = () => {
   const { 
@@ -13,6 +14,7 @@ export const WishlistSidebar: React.FC = () => {
     removeFromWishlist, 
     clearWishlist 
   } = useWishlist();
+  const router = useRouter();
 
   if (!isOpen) return null;
 
@@ -73,11 +75,37 @@ export const WishlistSidebar: React.FC = () => {
                             <Text size="xs" className="text-gray-500 mb-2">
                               {item.location}
                             </Text>
-                            {item.duration && (
+                            
+                            {/* 酒店预订详情 */}
+                            {item.type === 'accommodation' && item.bookingDetails && (
+                              <div className="space-y-1 mb-2">
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="w-3 h-3 text-gray-400" />
+                                  <Text size="xs" className="text-gray-600">
+                                    {item.bookingDetails.checkIn?.toLocaleDateString()} - {item.bookingDetails.checkOut?.toLocaleDateString()}
+                                  </Text>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Users className="w-3 h-3 text-gray-400" />
+                                  <Text size="xs" className="text-gray-600">
+                                    {item.bookingDetails.adults} adult{item.bookingDetails.adults > 1 ? 's' : ''}
+                                    {item.bookingDetails.children > 0 && `, ${item.bookingDetails.children} child${item.bookingDetails.children > 1 ? 'ren' : ''}`}
+                                  </Text>
+                                </div>
+                                <Text size="xs" className="text-gray-500">
+                                  {item.bookingDetails.roomType}
+                                </Text>
+                              </div>
+                            )}
+                            
+                            {/* 体验时长 */}
+                            {item.type === 'experience' && item.duration && (
                               <Text size="xs" className="text-gray-500">
                                 {item.duration}
                               </Text>
                             )}
+                            
+                            {/* 价格 */}
                             {item.price && (
                               <Text size="sm" className="text-primary-600 font-medium mt-1">
                                 {item.price}
@@ -85,15 +113,35 @@ export const WishlistSidebar: React.FC = () => {
                             )}
                           </div>
                           
-                          {/* 删除按钮 */}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeFromWishlist(item.id)}
-                            className="p-1 text-gray-400 hover:text-red-500"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          {/* 操作按钮 */}
+                          <div className="flex flex-col gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                if (item.type === 'accommodation') {
+                                  // 酒店类型跳转到预订页面
+                                  router.push('/booking/chengdu-deep-dive');
+                                } else {
+                                  // 体验类型跳转到详情页面
+                                  router.push('/journeys/chengdu-city-one-day-deep-dive');
+                                }
+                              }}
+                              className="p-1 text-gray-400 hover:text-primary-500"
+                              title="View Details"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeFromWishlist(item.id)}
+                              className="p-1 text-gray-400 hover:text-red-500"
+                              title="Remove"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>

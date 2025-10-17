@@ -490,9 +490,31 @@ export default function ChengduDeepDiveBooking() {
                             alt={item.title}
                             className="w-12 h-12 object-cover rounded"
                           />
-                          <div>
+                          <div className="flex-1">
                             <Text className="font-medium">{item.title}</Text>
                             <Text size="sm" className="text-gray-600">{item.type}</Text>
+                            
+                            {/* 酒店预订详情 */}
+                            {item.type === 'accommodation' && item.bookingDetails && (
+                              <div className="mt-1 space-y-1">
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="w-3 h-3 text-gray-400" />
+                                  <Text size="xs" className="text-gray-600">
+                                    {item.bookingDetails.checkIn?.toLocaleDateString()} - {item.bookingDetails.checkOut?.toLocaleDateString()}
+                                  </Text>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Users className="w-3 h-3 text-gray-400" />
+                                  <Text size="xs" className="text-gray-600">
+                                    {item.bookingDetails.adults} adult{item.bookingDetails.adults > 1 ? 's' : ''}
+                                    {item.bookingDetails.children > 0 && `, ${item.bookingDetails.children} child${item.bookingDetails.children > 1 ? 'ren' : ''}`}
+                                  </Text>
+                                </div>
+                                <Text size="xs" className="text-gray-500">
+                                  {item.bookingDetails.roomType}
+                                </Text>
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className="flex gap-2">
