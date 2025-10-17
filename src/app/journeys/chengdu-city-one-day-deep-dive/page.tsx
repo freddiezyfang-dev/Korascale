@@ -274,81 +274,202 @@ export default function ChengduCityOneDayDeepDive() {
             </div>
 
             {/* 右侧内容 */}
-            <div className="lg:w-96 md:w-full space-y-6">
+            <div className="lg:w-96 md:w-full">
               {/* Dates and Price */}
               <Card className="p-6">
                 <Heading level={3} className="text-lg font-semibold mb-4">
-                  Dates & Price
+                  Select Your Date
                 </Heading>
                 
-                {/* 发团日期 */}
-                <div className="mb-4">
-                  <Text className="font-medium text-gray-700 mb-2">Departure Dates</Text>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded">
-                      <Text size="sm">March 15, 2024</Text>
-                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Available</span>
-                    </div>
-                    <div className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded">
-                      <Text size="sm">March 22, 2024</Text>
-                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Available</span>
-                    </div>
-                    <div className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded">
-                      <Text size="sm">March 29, 2024</Text>
-                      <span className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">Fully Booked</span>
-                    </div>
-                    <div className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded">
-                      <Text size="sm">April 5, 2024</Text>
-                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Available</span>
+                {/* 日期表格 */}
+                <div className="mb-6">
+                  <div className="grid grid-cols-7 gap-1 mb-2">
+                    {/* 星期标题 */}
+                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                      <div key={day} className="text-center text-xs font-medium text-gray-500 py-2">
+                        {day}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* 日期网格 */}
+                  <div className="grid grid-cols-7 gap-1">
+                    {/* 空白天数 */}
+                    {Array.from({ length: 3 }, (_, i) => (
+                      <div key={`empty-${i}`} className="h-10"></div>
+                    ))}
+                    
+                    {/* 3月日期 */}
+                    {Array.from({ length: 31 }, (_, i) => {
+                      const day = i + 1;
+                      const isAvailable = [15, 22, 29].includes(day);
+                      const isFullyBooked = day === 29;
+                      const isPast = day < 15;
+                      
+                      return (
+                        <div
+                          key={`march-${day}`}
+                          className={`h-10 flex items-center justify-center text-sm rounded cursor-pointer transition-all duration-200 relative group ${
+                            isPast 
+                              ? 'text-gray-300 cursor-not-allowed' 
+                              : isFullyBooked
+                              ? 'text-gray-400 cursor-not-allowed'
+                              : isAvailable
+                              ? 'bg-primary-100 text-primary-700 hover:bg-primary-200'
+                              : 'text-gray-400 hover:bg-gray-100'
+                          }`}
+                        >
+                          {day}
+                          
+                          {/* Hover Tooltip */}
+                          {isAvailable && (
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block z-10">
+                              <div className="bg-gray-900 text-white text-xs rounded-lg p-3 shadow-lg min-w-[200px]">
+                                <div className="text-center mb-2">
+                                  <div className="font-semibold">March {day}, 2024</div>
+                                  <div className="text-green-400">Available</div>
+                                </div>
+                                
+                                {/* 价格选项 */}
+                                <div className="space-y-2">
+                                  <div className="flex justify-between items-center">
+                                    <span>Adult (12+)</span>
+                                    <span className="font-semibold">¥899</span>
+                                  </div>
+                                  <div className="flex justify-between items-center">
+                                    <span>Child (3-11)</span>
+                                    <span className="font-semibold">¥599</span>
+                                  </div>
+                                  <div className="flex justify-between items-center">
+                                    <span>Infant (0-2)</span>
+                                    <span className="font-semibold">Free</span>
+                                  </div>
+                                </div>
+                                
+                                {/* 人数选择 */}
+                                <div className="mt-3 pt-2 border-t border-gray-700">
+                                  <div className="text-center mb-2">Select Guests</div>
+                                  <div className="flex justify-center gap-2">
+                                    <button className="w-6 h-6 bg-gray-700 hover:bg-gray-600 rounded text-xs">-</button>
+                                    <span className="px-2 text-sm">2</span>
+                                    <button className="w-6 h-6 bg-gray-700 hover:bg-gray-600 rounded text-xs">+</button>
+                                  </div>
+                                </div>
+                                
+                                {/* 预订按钮 */}
+                                <button 
+                                  className="w-full mt-3 bg-primary-500 hover:bg-primary-600 text-white text-xs py-1 rounded"
+                                  onClick={() => router.push('/booking/chengdu-deep-dive')}
+                                >
+                                  Book Now
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                  {/* 4月日期 */}
+                  <div className="mt-4">
+                    <div className="text-sm font-medium text-gray-700 mb-2">April 2024</div>
+                    <div className="grid grid-cols-7 gap-1">
+                      {/* 空白天数 */}
+                      {Array.from({ length: 1 }, (_, i) => (
+                        <div key={`empty-april-${i}`} className="h-10"></div>
+                      ))}
+                      
+                      {Array.from({ length: 30 }, (_, i) => {
+                        const day = i + 1;
+                        const isAvailable = [5, 12, 19, 26].includes(day);
+                        const isFullyBooked = [19].includes(day);
+                        
+                        return (
+                          <div
+                            key={`april-${day}`}
+                            className={`h-10 flex items-center justify-center text-sm rounded cursor-pointer transition-all duration-200 relative group ${
+                              isFullyBooked
+                                ? 'text-gray-400 cursor-not-allowed'
+                                : isAvailable
+                                ? 'bg-primary-100 text-primary-700 hover:bg-primary-200'
+                                : 'text-gray-400 hover:bg-gray-100'
+                            }`}
+                          >
+                            {day}
+                            
+                            {/* Hover Tooltip */}
+                            {isAvailable && (
+                              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block z-10">
+                                <div className="bg-gray-900 text-white text-xs rounded-lg p-3 shadow-lg min-w-[200px]">
+                                  <div className="text-center mb-2">
+                                    <div className="font-semibold">April {day}, 2024</div>
+                                    <div className="text-green-400">Available</div>
+                                  </div>
+                                  
+                                  {/* 价格选项 */}
+                                  <div className="space-y-2">
+                                    <div className="flex justify-between items-center">
+                                      <span>Adult (12+)</span>
+                                      <span className="font-semibold">¥899</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                      <span>Child (3-11)</span>
+                                      <span className="font-semibold">¥599</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                      <span>Infant (0-2)</span>
+                                      <span className="font-semibold">Free</span>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* 人数选择 */}
+                                  <div className="mt-3 pt-2 border-t border-gray-700">
+                                    <div className="text-center mb-2">Select Guests</div>
+                                    <div className="flex justify-center gap-2">
+                                      <button className="w-6 h-6 bg-gray-700 hover:bg-gray-600 rounded text-xs">-</button>
+                                      <span className="px-2 text-sm">2</span>
+                                      <button className="w-6 h-6 bg-gray-700 hover:bg-gray-600 rounded text-xs">+</button>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* 预订按钮 */}
+                                  <button 
+                                    className="w-full mt-3 bg-primary-500 hover:bg-primary-600 text-white text-xs py-1 rounded"
+                                    onClick={() => router.push('/booking/chengdu-deep-dive')}
+                                  >
+                                    Book Now
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
 
-                {/* 价格信息 */}
-                <div className="mb-4">
-                  <Text className="font-medium text-gray-700 mb-2">Price per Person</Text>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <Text size="sm">Adult (12+)</Text>
-                      <Text className="font-semibold text-primary-600">¥899</Text>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <Text size="sm">Child (3-11)</Text>
-                      <Text className="font-semibold text-primary-600">¥599</Text>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <Text size="sm">Infant (0-2)</Text>
-                      <Text className="font-semibold text-primary-600">Free</Text>
-                    </div>
+                {/* 图例 */}
+                <div className="flex items-center justify-center gap-4 text-xs text-gray-600">
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 bg-primary-100 rounded"></div>
+                    <span>Available</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 bg-gray-100 rounded"></div>
+                    <span>Unavailable</span>
                   </div>
                 </div>
-
-                {/* 包含内容 */}
-                <div className="mb-4">
-                  <Text className="font-medium text-gray-700 mb-2">What's Included</Text>
-                  <ul className="space-y-1 text-sm text-gray-600">
-                    <li>• Professional English-speaking guide</li>
-                    <li>• All entrance fees</li>
-                    <li>• Transportation</li>
-                    <li>• Lunch and dinner</li>
-                    <li>• All activities and materials</li>
-                  </ul>
-                </div>
-
-                {/* 预订按钮 */}
-                <Button 
-                  className="w-full bg-primary-500 hover:bg-primary-600 text-white"
-                  onClick={() => router.push('/booking/chengdu-deep-dive')}
-                >
-                  Book Now
-                </Button>
               </Card>
 
               {/* 右侧图片 */}
-              <div
-                className="h-[400px] lg:h-[600px] bg-center bg-cover bg-no-repeat rounded-lg"
-                style={{ backgroundImage: `url('${imgItinerary}')` }}
-              />
+              <div className="mt-6">
+                <div
+                  className="h-[400px] lg:h-[600px] bg-center bg-cover bg-no-repeat rounded-lg"
+                  style={{ backgroundImage: `url('${imgItinerary}')` }}
+                />
+              </div>
             </div>
           </div>
         </Container>
