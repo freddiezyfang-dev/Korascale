@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Card, Heading, Text } from '@/components/common';
 import { useWishlist } from '@/context/WishlistContext';
+import { useUser } from '@/context/UserContext';
 import { BookingModal } from './BookingModal';
 import { LoginModal } from './LoginModal';
 import { BookingDetailsModal, BookingDetails } from './BookingDetailsModal';
@@ -40,6 +41,7 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isBookingDetailsModalOpen, setIsBookingDetailsModalOpen] = useState(false);
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { user } = useUser();
   const router = useRouter();
 
   // 管理浏览器历史，确保返回按钮返回到 accommodation 页面
@@ -251,8 +253,13 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
               variant="primary" 
               className="flex-1"
               onClick={() => {
-                // 打开登录弹窗
-                setIsLoginModalOpen(true);
+                if (user) {
+                  // 用户已登录，直接打开预订详情弹窗
+                  setIsBookingDetailsModalOpen(true);
+                } else {
+                  // 用户未登录，打开登录弹窗
+                  setIsLoginModalOpen(true);
+                }
               }}
             >
               Book Now
