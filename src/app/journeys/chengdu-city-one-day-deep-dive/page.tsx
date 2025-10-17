@@ -127,6 +127,7 @@ export default function ChengduCityOneDayDeepDive() {
     limit.setFullYear(limit.getFullYear() + 1);
     return d > limit;
   };
+  const isAvailable = (d: Date | null) => d && !isPastDate(d) && !isBeyondOneYear(d);
 
   // 悬浮可交互弹层状态（保持打开以便点击）
   const [activePopoverDate, setActivePopoverDate] = useState<Date | null>(null);
@@ -542,12 +543,14 @@ export default function ChengduCityOneDayDeepDive() {
                     const disabled = isPastDate(cell) || isBeyondOneYear(cell);
                     const isDate = !!cell;
                     const isActive = activePopoverDate && cell && activePopoverDate.toDateString() === cell.toDateString();
+                    const available = isAvailable(cell);
+                    
                     return (
                       <div
                         key={idx}
-                        className={`h-10 relative ${!isDate ? '' : 'group'}`}
-                        onMouseEnter={() => (cell ? openPopover(cell) : undefined)}
-                        onMouseLeave={scheduleClosePopover}
+                        className={`h-10 relative ${!isDate ? '' : available ? 'group' : ''}`}
+                        onMouseEnter={() => (available ? openPopover(cell) : undefined)}
+                        onMouseLeave={available ? scheduleClosePopover : undefined}
                       >
                         <div
                           className={`h-10 flex items-center justify-center text-sm rounded ${
@@ -555,14 +558,16 @@ export default function ChengduCityOneDayDeepDive() {
                               ? ''
                               : disabled
                               ? 'text-gray-300 cursor-not-allowed'
-                              : 'text-gray-700 hover:bg-primary-100 cursor-pointer'
+                              : available
+                              ? 'text-gray-700 hover:bg-primary-100 cursor-pointer'
+                              : 'text-gray-400'
                           }`}
                         >
                           {cell ? cell.getDate() : ''}
                         </div>
 
-                        {/* 悬浮/保持可点击的弹层 */}
-                        {isDate && activePopoverDate && isActive && (
+                        {/* 悬浮/保持可点击的弹层 - 只对可用日期显示 */}
+                        {isDate && available && activePopoverDate && isActive && (
                           <div
                             className="absolute z-20 bottom-full left-1/2 -translate-x-1/2 mb-2"
                             onMouseEnter={() => openPopover(cell)}
