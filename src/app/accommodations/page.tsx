@@ -37,7 +37,7 @@ const imgFrame37 = "https://images.unsplash.com/photo-1571896349842-33c89424de2d
 export default function Accommodations() {
   const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { toggleWishlist } = useWishlist();
+  const { toggleWishlist, items } = useWishlist();
   
   // Filter states
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
@@ -94,15 +94,17 @@ export default function Accommodations() {
       {/* Wishlist Sidebar */}
       <WishlistSidebar />
       
-      {/* Wishlist Toggle Button */}
-      <Button
-        onClick={toggleWishlist}
-        className="fixed top-4 right-4 z-50 bg-primary-500 hover:bg-primary-600 text-white shadow-lg"
-        size="sm"
-      >
-        <Heart className="w-4 h-4 mr-2" />
-        My Wishlist
-      </Button>
+      {/* Wishlist Button - 固定定位跟随屏幕 */}
+      <div className="fixed top-6 right-6 z-40">
+        <Button
+          variant="secondary"
+          onClick={toggleWishlist}
+          className="flex items-center gap-2 bg-white text-tertiary hover:bg-gray-100 shadow-lg hover:shadow-xl transition-all duration-300"
+        >
+          <Heart className="w-5 h-5" />
+          Wishlist ({items.length})
+        </Button>
+      </div>
       {/* Hero Banner - 按照Figma设计的左右分栏布局 */}
       <section className="flex h-[800px] w-full overflow-hidden relative">
         {/* 左侧图片区域 */}

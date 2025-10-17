@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface WishlistItem {
   id: string;
@@ -47,6 +47,33 @@ interface WishlistProviderProps {
 export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) => {
   const [items, setItems] = useState<WishlistItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+
+  // 从localStorage加载wishlist数据
+  useEffect(() => {
+    const savedItems = localStorage.getItem('wishlist-items');
+    if (savedItems) {
+      try {
+        const parsedItems = JSON.parse(savedItems);
+        // 处理日期字段的反序列化
+        const processedItems = parsedItems.map((item: any) => ({
+          ...item,
+          bookingDetails: item.bookingDetails ? {
+            ...item.bookingDetails,
+            checkIn: item.bookingDetails.checkIn ? new Date(item.bookingDetails.checkIn) : null,
+            checkOut: item.bookingDetails.checkOut ? new Date(item.bookingDetails.checkOut) : null,
+          } : undefined
+        }));
+        setItems(processedItems);
+      } catch (error) {
+        console.error('Error loading wishlist from localStorage:', error);
+      }
+    }
+  }, []);
+
+  // 保存wishlist数据到localStorage
+  useEffect(() => {
+    localStorage.setItem('wishlist-items', JSON.stringify(items));
+  }, [items]);
 
   const addToWishlist = (item: WishlistItem) => {
     setItems(prev => {
