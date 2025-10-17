@@ -114,22 +114,7 @@ export const WishlistSidebar: React.FC = () => {
                           </div>
                           
                           {/* 操作按钮 */}
-                          <div className="flex flex-col gap-1">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                console.log('View Details clicked for:', item.title, item.type);
-                                // 所有项目都跳转到预订页面
-                                console.log('Navigating to booking page');
-                                router.push('/booking/chengdu-deep-dive');
-                              }}
-                              className="px-2 py-1 text-xs text-gray-600 hover:text-primary-500 hover:border-primary-500"
-                              title="View Details"
-                            >
-                              View Details
-                            </Button>
+                          <div className="flex justify-end">
                             <Button
                               variant="ghost"
                               size="sm"
