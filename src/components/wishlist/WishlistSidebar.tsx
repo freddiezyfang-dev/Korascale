@@ -118,12 +118,16 @@ export const WishlistSidebar: React.FC = () => {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                console.log('View Details clicked for:', item.title, item.type);
                                 if (item.type === 'accommodation') {
                                   // 酒店类型跳转到预订页面
+                                  console.log('Navigating to booking page');
                                   router.push('/booking/chengdu-deep-dive');
                                 } else {
                                   // 体验类型跳转到详情页面
+                                  console.log('Navigating to journey page');
                                   router.push('/journeys/chengdu-city-one-day-deep-dive');
                                 }
                               }}
@@ -135,7 +139,11 @@ export const WishlistSidebar: React.FC = () => {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => removeFromWishlist(item.id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                console.log('Remove clicked for:', item.title);
+                                removeFromWishlist(item.id);
+                              }}
                               className="p-1 text-gray-400 hover:text-red-500"
                               title="Remove"
                             >
