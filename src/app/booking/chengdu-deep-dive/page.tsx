@@ -151,6 +151,21 @@ export default function ChengduDeepDiveBooking() {
     }
   }, [user, router]);
 
+  // 检查是否有从accommodation页面选择的酒店
+  useEffect(() => {
+    const selectedHotelData = localStorage.getItem('selectedHotelForBooking');
+    if (selectedHotelData) {
+      try {
+        const hotel = JSON.parse(selectedHotelData);
+        setSelectedAccommodation(hotel);
+        // 清除localStorage中的数据
+        localStorage.removeItem('selectedHotelForBooking');
+      } catch (error) {
+        console.error('Error parsing selected hotel data:', error);
+      }
+    }
+  }, []);
+
   // 计算总价格
   const calculateTotalPrice = () => {
     let total = 0;
@@ -357,9 +372,18 @@ export default function ChengduDeepDiveBooking() {
 
               {/* 住宿选项 */}
               <Card className="p-6">
-                <Heading level={2} className="text-lg font-semibold mb-4 truncate">
-                  Accommodation Options
-                </Heading>
+                <div className="flex items-center justify-between mb-4">
+                  <Heading level={2} className="text-lg font-semibold truncate">
+                    Accommodation Options
+                  </Heading>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => router.push('/accommodations?returnTo=booking&journeyId=chengdu-deep-dive')}
+                  >
+                    Browse More Hotels
+                  </Button>
+                </div>
                 <div className="space-y-4">
                   {accommodationOptions.map((hotel) => (
                     <div 

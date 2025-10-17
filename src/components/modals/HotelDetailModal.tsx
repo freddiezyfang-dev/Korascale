@@ -28,12 +28,16 @@ interface HotelDetailModalProps {
   hotel: Hotel | null;
   isOpen: boolean;
   onClose: () => void;
+  isBookingFlow?: boolean;
+  onSelectForBooking?: (hotel: Hotel) => void;
 }
 
 export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
   hotel,
   isOpen,
   onClose,
+  isBookingFlow = false,
+  onSelectForBooking,
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
@@ -244,19 +248,44 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
 
           {/* Action Buttons */}
           <div className="flex gap-3">
-            <Button variant="outline" className="flex-1">
-              View Details
-            </Button>
-            <Button 
-              variant="primary" 
-              className="flex-1"
-              onClick={() => {
-                // 打开登录弹窗
-                setIsLoginModalOpen(true);
-              }}
-            >
-              Book Now
-            </Button>
+            {isBookingFlow ? (
+              <>
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={onClose}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  variant="primary" 
+                  className="flex-1"
+                  onClick={() => {
+                    if (hotel && onSelectForBooking) {
+                      onSelectForBooking(hotel);
+                    }
+                  }}
+                >
+                  Select This Hotel
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" className="flex-1">
+                  View Details
+                </Button>
+                <Button 
+                  variant="primary" 
+                  className="flex-1"
+                  onClick={() => {
+                    // 打开登录弹窗
+                    setIsLoginModalOpen(true);
+                  }}
+                >
+                  Book Now
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>

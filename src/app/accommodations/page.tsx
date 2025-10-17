@@ -1,10 +1,12 @@
 'use client';
 
 import Link from "next/link";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/components/common';
 import { AccommodationCard } from '@/components/cards/AccommodationCard';
 import { HotelDetailModal } from '@/components/modals/HotelDetailModal';
+import { useUser } from '@/context/UserContext';
 import hotelsData from '@/data/hotels.json';
 
 // 定义酒店类型
@@ -32,12 +34,31 @@ const imgFrame37 = "https://images.unsplash.com/photo-1571896349842-33c89424de2d
 // 移除未使用的图片常量
 
 export default function Accommodations() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { user } = useUser();
+  
   const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   // Filter states
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [selectedStarRating, setSelectedStarRating] = useState<string | null>(null);
+  
+  // Booking flow states
+  const [isBookingFlow, setIsBookingFlow] = useState(false);
+  const [journeyId, setJourneyId] = useState<string | null>(null);
+
+  // Check if this is part of a booking flow
+  useEffect(() => {
+    const returnTo = searchParams.get('returnTo');
+    const journey = searchParams.get('journeyId');
+    
+    if (returnTo === 'booking' && journey) {
+      setIsBookingFlow(true);
+      setJourneyId(journey);
+    }
+  }, [searchParams]);
 
   const handleHotelClick = (hotel: Hotel) => {
     console.log('Hotel clicked in accommodations page:', hotel);
@@ -50,6 +71,32 @@ export default function Accommodations() {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedHotel(null);
+  };
+
+  const handleSelectHotelForBooking = (hotel: Hotel) => {
+    // Store selected hotel in localStorage for the booking flow
+    const hotelData = {
+      id: hotel.id,
+      title: hotel.name,
+      description: hotel.description,
+      price: 500, // Default price, could be dynamic
+      duration: '1 night',
+      type: 'accommodation' as const,
+      image: hotel.images[0] || '/images/hotels/default.jpg',
+      location: hotel.location,
+      city: hotel.city,
+      starRating: hotel.starRating,
+      rating: hotel.rating
+    };
+    
+    localStorage.setItem('selectedHotelForBooking', JSON.stringify(hotelData));
+    
+    // Return to booking page
+    if (journeyId === 'chengdu-deep-dive') {
+      router.push('/booking/chengdu-deep-dive');
+    } else {
+      router.push('/');
+    }
   };
 
   // Filter hotels based on selected criteria
@@ -158,6 +205,32 @@ export default function Accommodations() {
           </div>
         </div>
       </section>
+
+      {/* Booking Flow Banner */}
+      {isBookingFlow && (
+        <div className="bg-primary-50 border-b border-primary-200 py-4">
+          <Container size="xl">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">1</span>
+                </div>
+                <div>
+                  <Text className="font-semibold text-primary-900">Select Your Hotel</Text>
+                  <Text className="text-sm text-primary-700">Choose your accommodation for the Chengdu Deep Dive journey</Text>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push('/booking/chengdu-deep-dive')}
+              >
+                Back to Booking
+              </Button>
+            </div>
+          </Container>
+        </div>
+      )}
 
       {/* Recommended Accommodations - 响应式布局 */}
       <Section id="accommodations" background="secondary">
@@ -477,6 +550,8 @@ export default function Accommodations() {
         hotel={selectedHotel}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
+        isBookingFlow={isBookingFlow}
+        onSelectForBooking={handleSelectHotelForBooking}
       />
     </div>
   );
