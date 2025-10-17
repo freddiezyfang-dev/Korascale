@@ -9,7 +9,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 interface BookingDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onContinue: (details: BookingDetails) => void;
+  onAddToWishlist: (details: BookingDetails) => void;
   hotel: {
     id: string;
     name: string;
@@ -34,7 +34,7 @@ export interface BookingDetails {
 export const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
   isOpen,
   onClose,
-  onContinue,
+  onAddToWishlist,
   hotel,
 }) => {
   const [bookingDetails, setBookingDetails] = useState<BookingDetails>({
@@ -80,9 +80,9 @@ export const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
     }));
   };
 
-  const handleContinue = () => {
+  const handleAddToWishlist = () => {
     if (isValid) {
-      onContinue(bookingDetails);
+      onAddToWishlist(bookingDetails);
     }
   };
 
@@ -283,11 +283,11 @@ export const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
             </Button>
             <Button
               variant="primary"
-              onClick={handleContinue}
+              onClick={handleAddToWishlist}
               disabled={!isValid}
               className="flex-1"
             >
-              Continue to Checkout
+              Add to Wishlist
             </Button>
           </div>
         </div>

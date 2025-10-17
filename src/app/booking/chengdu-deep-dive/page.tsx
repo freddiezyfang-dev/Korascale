@@ -581,13 +581,12 @@ export default function ChengduDeepDiveBooking() {
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                          // 清除选中的酒店，回到选择模式
+                          // 清除选中的酒店
                           setSelectedAccommodation(null);
-                          // 清除URL参数
-                          router.push('/booking/chengdu-deep-dive');
                         }}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
-                        Change Hotel
+                        <X className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>

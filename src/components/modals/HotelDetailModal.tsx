@@ -107,25 +107,31 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
     setIsBookingDetailsModalOpen(true);
   };
 
-  const handleBookingDetailsContinue = (details: BookingDetails) => {
+  const handleBookingDetailsAddToWishlist = (details: BookingDetails) => {
     setIsBookingDetailsModalOpen(false);
     
-    // 将预订详情编码为URL参数
-    const params = new URLSearchParams();
-    if (details.checkIn) {
-      params.set('checkIn', details.checkIn.toISOString().split('T')[0]);
-    }
-    if (details.checkOut) {
-      params.set('checkOut', details.checkOut.toISOString().split('T')[0]);
-    }
-    params.set('adults', details.adults.toString());
-    params.set('children', details.children.toString());
-    params.set('roomType', details.selectedRoomType);
-    params.set('hotelId', hotel?.id || '');
-    params.set('hotelName', hotel?.name || '');
+    // 创建wishlist项目
+    const wishlistItem = {
+      id: `${hotel?.id}-${Date.now()}`,
+      title: hotel?.name || '',
+      type: 'accommodation' as const,
+      image: hotel?.images?.[0] || '',
+      price: '0', // 价格将在预订时确定
+      location: hotel?.location || '',
+      bookingDetails: {
+        checkIn: details.checkIn,
+        checkOut: details.checkOut,
+        adults: details.adults,
+        children: details.children,
+        roomType: details.selectedRoomType
+      }
+    };
     
-    // 跳转到Chengdu Deep Dive预订页面，传递预订详情
-    router.push(`/booking/chengdu-deep-dive?${params.toString()}`);
+    // 添加到wishlist
+    addToWishlist(wishlistItem);
+    
+    // 关闭模态框
+    onClose();
   };
 
   return (
@@ -295,7 +301,7 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
       <BookingDetailsModal
         isOpen={isBookingDetailsModalOpen}
         onClose={() => setIsBookingDetailsModalOpen(false)}
-        onContinue={handleBookingDetailsContinue}
+        onAddToWishlist={handleBookingDetailsAddToWishlist}
         hotel={hotel}
       />
 

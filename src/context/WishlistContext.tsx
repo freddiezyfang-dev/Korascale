@@ -10,6 +10,13 @@ export interface WishlistItem {
   image: string;
   price?: string;
   duration?: string;
+  bookingDetails?: {
+    checkIn: Date | null;
+    checkOut: Date | null;
+    adults: number;
+    children: number;
+    roomType: string;
+  };
 }
 
 interface WishlistContextType {
