@@ -208,6 +208,7 @@ export default function ChengduDeepDiveBooking() {
   // 处理酒店点击
   const handleHotelClick = (hotel) => {
     console.log('Hotel clicked in booking page:', hotel);
+    console.log('Setting modal to open...');
     
     // 转换为HotelDetailModal期望的格式
     const hotelForModal = {
@@ -227,8 +228,10 @@ export default function ChengduDeepDiveBooking() {
       ]
     };
     
+    console.log('Hotel for modal:', hotelForModal);
     setSelectedHotel(hotelForModal);
     setIsModalOpen(true);
+    console.log('Modal should be open now');
   };
 
   // 关闭酒店详情弹窗
@@ -750,6 +753,12 @@ export default function ChengduDeepDiveBooking() {
           </div>
         </Container>
       </Section>
+
+      {/* 调试信息 */}
+      <div className="fixed bottom-4 right-4 bg-black text-white p-2 rounded text-xs z-50">
+        <div>Modal Open: {isModalOpen ? 'Yes' : 'No'}</div>
+        <div>Selected Hotel: {selectedHotel ? selectedHotel.name : 'None'}</div>
+      </div>
 
       {/* 酒店详情弹窗 */}
       <HotelDetailModal
