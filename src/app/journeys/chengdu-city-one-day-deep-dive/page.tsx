@@ -145,8 +145,15 @@ export default function ChengduCityOneDayDeepDive() {
     popoverTimer.current = window.setTimeout(() => setActivePopoverDate(null), 120);
   };
 
+  const formatLocalYmd = (date: Date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${dd}`;
+  };
+
   const submitBookingForDate = (d: Date) => {
-    const checkIn = d.toISOString().slice(0,10);
+    const checkIn = formatLocalYmd(d);
     const travelers = guestAdults + guestChildren;
     router.push(`/booking/chengdu-deep-dive?checkIn=${encodeURIComponent(checkIn)}&adults=${guestAdults}&children=${guestChildren}&travelers=${travelers}`);
   };
