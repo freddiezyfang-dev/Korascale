@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
 import { useUser } from '@/context/UserContext';
 import { useWishlist } from '@/context/WishlistContext';
@@ -151,20 +152,6 @@ export default function ChengduDeepDiveBooking() {
     }
   }, [user, router]);
 
-  // 检查是否有从accommodation页面选择的酒店
-  useEffect(() => {
-    const selectedHotelData = localStorage.getItem('selectedHotelForBooking');
-    if (selectedHotelData) {
-      try {
-        const hotel = JSON.parse(selectedHotelData);
-        setSelectedAccommodation(hotel);
-        // 清除localStorage中的数据
-        localStorage.removeItem('selectedHotelForBooking');
-      } catch (error) {
-        console.error('Error parsing selected hotel data:', error);
-      }
-    }
-  }, []);
 
   // 计算总价格
   const calculateTotalPrice = () => {
@@ -357,13 +344,22 @@ export default function ChengduDeepDiveBooking() {
                             <Text size="sm" className="text-gray-600">{item.type}</Text>
                           </div>
                         </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => addFromWishlist(item)}
-                        >
-                          <Plus className="w-4 h-4" />
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => addFromWishlist(item)}
+                          >
+                            <Plus className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => router.push('/booking/chengdu-deep-dive')}
+                          >
+                            View Details
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -376,13 +372,11 @@ export default function ChengduDeepDiveBooking() {
                   <Heading level={2} className="text-lg font-semibold truncate">
                     Accommodation Options
                   </Heading>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => router.push('/accommodations?returnTo=booking&journeyId=chengdu-deep-dive')}
-                  >
-                    Browse More Hotels
-                  </Button>
+                  <Link href="/accommodations">
+                    <Button variant="secondary" size="sm">
+                      View All
+                    </Button>
+                  </Link>
                 </div>
                 <div className="space-y-4">
                   {accommodationOptions.map((hotel) => (
