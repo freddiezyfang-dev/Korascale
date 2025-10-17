@@ -322,7 +322,44 @@ export default function ChengduDeepDiveBooking() {
                 </div>
               </Card>
 
-
+              {/* 额外体验 */}
+              {selectedExperiences.length > 0 && (
+                <Card className="p-6">
+                  <Heading level={2} className="text-lg font-semibold mb-4 truncate">
+                    Additional Experiences
+                  </Heading>
+                  <div className="space-y-4">
+                    {selectedExperiences.map((exp) => (
+                      <div key={exp.id} className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg">
+                        <img 
+                          src={exp.image} 
+                          alt={exp.title}
+                          className="w-16 h-16 object-cover rounded"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Text className="font-medium">{exp.title}</Text>
+                            <CheckCircle className="w-5 h-5 text-primary-500" />
+                          </div>
+                          <Text size="sm" className="text-gray-600 mb-2">{exp.description}</Text>
+                          <div className="flex items-center gap-4">
+                            <Text className="font-medium text-primary-600">
+                              ¥{exp.price}/person
+                            </Text>
+                          </div>
+                        </div>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => removeExperience(exp.id)}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
 
               {/* 愿望清单 */}
               {wishlistItems.length > 0 && (
@@ -358,6 +395,13 @@ export default function ChengduDeepDiveBooking() {
                             onClick={() => router.push('/booking/chengdu-deep-dive')}
                           >
                             View Details
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => removeFromWishlist(item.id)}
+                          >
+                            <X className="w-4 h-4" />
                           </Button>
                         </div>
                       </div>
