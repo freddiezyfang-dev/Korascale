@@ -122,7 +122,7 @@ const accommodationOptions = [
 
 export default function ChengduDeepDiveBooking() {
   const { user } = useUser();
-  const { items: wishlistItems, removeFromWishlist } = useWishlist();
+  const { items: wishlistItems, removeFromWishlist, addToWishlist } = useWishlist();
   const { addOrder } = useOrderManagement();
   const router = useRouter();
 
@@ -417,7 +417,11 @@ export default function ChengduDeepDiveBooking() {
                     Accommodation Options
                   </Heading>
                   <Link href="/accommodations">
-                    <Button variant="secondary" size="sm">
+                    <Button 
+                      variant="secondary" 
+                      size="sm"
+                      onClick={() => console.log('View All clicked')}
+                    >
                       View All
                     </Button>
                   </Link>
@@ -459,6 +463,40 @@ export default function ChengduDeepDiveBooking() {
                               ¥{hotel.price}/night
                             </Text>
                           </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              console.log('Add to wishlist clicked for:', hotel.title);
+                              const wishlistItem = {
+                                id: hotel.id,
+                                title: hotel.title,
+                                type: 'accommodation',
+                                image: hotel.image,
+                                price: hotel.price
+                              };
+                              addToWishlist(wishlistItem);
+                              console.log('Added to wishlist:', wishlistItem);
+                            }}
+                          >
+                            <Plus className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              console.log('Book now clicked for:', hotel.title);
+                              // Book now logic - could redirect to booking or show modal
+                              // For now, just select the hotel
+                              setSelectedAccommodation(hotel);
+                            }}
+                          >
+                            Book Now
+                          </Button>
                         </div>
                       </div>
                     </div>
