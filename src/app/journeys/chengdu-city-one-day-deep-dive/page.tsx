@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
@@ -94,6 +94,61 @@ export default function ChengduCityOneDayDeepDive() {
   // 酒店详情弹窗状态
   const [selectedHotel, setSelectedHotel] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // =============== Select Your Date: 动态月历（未来一年） =================
+  const today = useMemo(() => new Date(), []);
+  const [monthOffset, setMonthOffset] = useState(0); // 相对当前月份的偏移，0..11
+  const baseDate = useMemo(() => {
+    const d = new Date(today);
+    d.setMonth(d.getMonth() + monthOffset, 1);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, [today, monthOffset]);
+
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const weekDays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  const getMonthMatrix = (year: number, month: number) => {
+    const first = new Date(year, month, 1);
+    const last = new Date(year, month + 1, 0);
+    const daysInMonth = last.getDate();
+    const startWeekday = first.getDay();
+    const blanks = Array.from({ length: startWeekday }, () => null);
+    const days = Array.from({ length: daysInMonth }, (_, i) => new Date(year, month, i + 1));
+    return [...blanks, ...days];
+  };
+
+  const monthMatrix = useMemo(() => getMonthMatrix(baseDate.getFullYear(), baseDate.getMonth()), [baseDate]);
+
+  const isPastDate = (d: Date | null) => !d || d < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const isBeyondOneYear = (d: Date | null) => {
+    if (!d) return false;
+    const limit = new Date(today);
+    limit.setFullYear(limit.getFullYear() + 1);
+    return d > limit;
+  };
+
+  // 悬浮可交互弹层状态（保持打开以便点击）
+  const [activePopoverDate, setActivePopoverDate] = useState<Date | null>(null);
+  const [guestAdults, setGuestAdults] = useState<number>(2);
+  const [guestChildren, setGuestChildren] = useState<number>(0);
+  const popoverTimer = useRef<number | null>(null);
+
+  const openPopover = (d: Date | null) => {
+    if (!d) return;
+    if (popoverTimer.current) window.clearTimeout(popoverTimer.current);
+    setActivePopoverDate(d);
+  };
+  const scheduleClosePopover = () => {
+    if (popoverTimer.current) window.clearTimeout(popoverTimer.current);
+    popoverTimer.current = window.setTimeout(() => setActivePopoverDate(null), 120);
+  };
+
+  const submitBookingForDate = (d: Date) => {
+    const checkIn = d.toISOString().slice(0,10);
+    const travelers = guestAdults + guestChildren;
+    router.push(`/booking/chengdu-deep-dive?checkIn=${encodeURIComponent(checkIn)}&adults=${guestAdults}&children=${guestChildren}&travelers=${travelers}`);
+  };
 
   // 处理酒店点击
   const handleHotelClick = (accommodation: any) => {
@@ -453,50 +508,69 @@ export default function ChengduCityOneDayDeepDive() {
               </div>
             </div>
 
-            {/* Select Your Date（替换原Dates & Prices区域） */}
+            {/* Select Your Date（替换原Dates & Prices区域，动态未来一年） */}
             <div>
               <Heading level={3} className="mb-8">
                 Select Your Date
               </Heading>
               <Card className="p-6">
+                {/* 顶部月份导航（限制未来一年） */}
+                <div className="flex items-center justify-between mb-3">
+                  <button
+                    className="px-2 py-1 text-sm rounded border disabled:opacity-40"
+                    onClick={() => setMonthOffset(v => Math.max(0, v - 1))}
+                    disabled={monthOffset === 0}
+                  >Prev</button>
+                  <div className="text-sm font-medium">{monthNames[baseDate.getMonth()]} {baseDate.getFullYear()}</div>
+                  <button
+                    className="px-2 py-1 text-sm rounded border disabled:opacity-40"
+                    onClick={() => setMonthOffset(v => Math.min(11, v + 1))}
+                    disabled={monthOffset === 11}
+                  >Next</button>
+                </div>
+
                 {/* 星期标题 */}
                 <div className="grid grid-cols-7 gap-1 mb-2">
-                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                    <div key={day} className="text-center text-xs font-medium text-gray-500 py-2">
-                      {day}
-                    </div>
+                  {weekDays.map((day) => (
+                    <div key={day} className="text-center text-xs font-medium text-gray-500 py-2">{day}</div>
                   ))}
                 </div>
 
-                {/* 3月网格 */}
-                <div className="grid grid-cols-7 gap-1">
-                  {Array.from({ length: 3 }, (_, i) => (
-                    <div key={`empty-bottom-${i}`} className="h-10"></div>
-                  ))}
-                  {Array.from({ length: 31 }, (_, i) => {
-                    const day = i + 1;
-                    const isAvailable = [15, 22, 29].includes(day);
-                    const isFullyBooked = day === 29;
-                    const isPast = day < 15;
+                {/* 当月网格 */}
+                <div className="grid grid-cols-7 gap-1 relative">
+                  {monthMatrix.map((cell, idx) => {
+                    const disabled = isPastDate(cell) || isBeyondOneYear(cell);
+                    const isDate = !!cell;
+                    const isActive = activePopoverDate && cell && activePopoverDate.toDateString() === cell.toDateString();
                     return (
                       <div
-                        key={`march-bottom-${day}`}
-                        className={`h-10 flex items-center justify-center text-sm rounded cursor-pointer transition-all duration-200 relative group ${
-                          isPast
-                            ? 'text-gray-300 cursor-not-allowed'
-                            : isFullyBooked
-                            ? 'text-gray-400 cursor-not-allowed'
-                            : isAvailable
-                            ? 'bg-primary-100 text-primary-700 hover:bg-primary-200'
-                            : 'text-gray-400 hover:bg-gray-100'
-                        }`}
+                        key={idx}
+                        className={`h-10 relative ${!isDate ? '' : 'group'}`}
+                        onMouseEnter={() => (cell ? openPopover(cell) : undefined)}
+                        onMouseLeave={scheduleClosePopover}
                       >
-                        {day}
-                        {isAvailable && (
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block z-10">
-                            <div className="bg-gray-900 text-white text-xs rounded-lg p-3 shadow-lg min-w-[200px]">
+                        <div
+                          className={`h-10 flex items-center justify-center text-sm rounded ${
+                            !isDate
+                              ? ''
+                              : disabled
+                              ? 'text-gray-300 cursor-not-allowed'
+                              : 'text-gray-700 hover:bg-primary-100 cursor-pointer'
+                          }`}
+                        >
+                          {cell ? cell.getDate() : ''}
+                        </div>
+
+                        {/* 悬浮/保持可点击的弹层 */}
+                        {isDate && activePopoverDate && isActive && (
+                          <div
+                            className="absolute z-20 bottom-full left-1/2 -translate-x-1/2 mb-2"
+                            onMouseEnter={() => openPopover(cell)}
+                            onMouseLeave={scheduleClosePopover}
+                          >
+                            <div className="bg-gray-900 text-white text-xs rounded-lg p-3 shadow-lg min-w-[220px] pointer-events-auto">
                               <div className="text-center mb-2">
-                                <div className="font-semibold">March {day}, 2024</div>
+                                <div className="font-semibold">{monthNames[cell.getMonth()]} {cell.getDate()}, {cell.getFullYear()}</div>
                                 <div className="text-green-400">Available</div>
                               </div>
                               <div className="space-y-2">
@@ -506,61 +580,28 @@ export default function ChengduCityOneDayDeepDive() {
                               </div>
                               <div className="mt-3 pt-2 border-t border-gray-700">
                                 <div className="text-center mb-2">Select Guests</div>
-                                <div className="flex justify-center gap-2">
-                                  <button className="w-6 h-6 bg-gray-700 hover:bg-gray-600 rounded text-xs">-</button>
-                                  <span className="px-2 text-sm">2</span>
-                                  <button className="w-6 h-6 bg-gray-700 hover:bg-gray-600 rounded text-xs">+</button>
+                                <div className="flex items-center justify-center gap-4">
+                                  <div className="flex items-center gap-1">
+                                    <span className="w-10 inline-block text-right mr-1">Adults</span>
+                                    <button className="w-6 h-6 bg-gray-700 hover:bg-gray-600 rounded text-xs" onClick={() => setGuestAdults(v => Math.max(1, v - 1))}>-</button>
+                                    <span className="px-2 text-sm">{guestAdults}</span>
+                                    <button className="w-6 h-6 bg-gray-700 hover:bg-gray-600 rounded text-xs" onClick={() => setGuestAdults(v => Math.min(9, v + 1))}>+</button>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <span className="w-10 inline-block text-right mr-1">Child</span>
+                                    <button className="w-6 h-6 bg-gray-700 hover:bg-gray-600 rounded text-xs" onClick={() => setGuestChildren(v => Math.max(0, v - 1))}>-</button>
+                                    <span className="px-2 text-sm">{guestChildren}</span>
+                                    <button className="w-6 h-6 bg-gray-700 hover:bg-gray-600 rounded text-xs" onClick={() => setGuestChildren(v => Math.min(9, v + 1))}>+</button>
+                                  </div>
                                 </div>
                               </div>
-                              <button className="w-full mt-3 bg-primary-500 hover:bg-primary-600 text-white text-xs py-1 rounded" onClick={() => router.push('/booking/chengdu-deep-dive')}>Book Now</button>
+                              <button className="w-full mt-3 bg-primary-500 hover:bg-primary-600 text-white text-xs py-1 rounded" onClick={() => submitBookingForDate(cell)}>Book Now</button>
                             </div>
                           </div>
                         )}
                       </div>
                     );
                   })}
-                </div>
-
-                {/* 4月网格 */}
-                <div className="mt-4">
-                  <div className="text-sm font-medium text-gray-700 mb-2">April 2024</div>
-                  <div className="grid grid-cols-7 gap-1">
-                    <div className="h-10"></div>
-                    {Array.from({ length: 30 }, (_, i) => {
-                      const day = i + 1;
-                      const isAvailable = [5, 12, 19, 26].includes(day);
-                      const isFullyBooked = [19].includes(day);
-                      return (
-                        <div key={`april-bottom-${day}`} className={`h-10 flex items-center justify-center text-sm rounded cursor-pointer transition-all duration-200 relative group ${isFullyBooked ? 'text-gray-400 cursor-not-allowed' : isAvailable ? 'bg-primary-100 text-primary-700 hover:bg-primary-200' : 'text-gray-400 hover:bg-gray-100'}`}>
-                          {day}
-                          {isAvailable && (
-                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block z-10">
-                              <div className="bg-gray-900 text-white text-xs rounded-lg p-3 shadow-lg min-w-[200px]">
-                                <div className="text-center mb-2">
-                                  <div className="font-semibold">April {day}, 2024</div>
-                                  <div className="text-green-400">Available</div>
-                                </div>
-                                <div className="space-y-2">
-                                  <div className="flex justify-between items-center"><span>Adult (12+)</span><span className="font-semibold">¥899</span></div>
-                                  <div className="flex justify-between items-center"><span>Child (3-11)</span><span className="font-semibold">¥599</span></div>
-                                  <div className="flex justify-between items-center"><span>Infant (0-2)</span><span className="font-semibold">Free</span></div>
-                                </div>
-                                <div className="mt-3 pt-2 border-t border-gray-700">
-                                  <div className="text-center mb-2">Select Guests</div>
-                                  <div className="flex justify-center gap-2">
-                                    <button className="w-6 h-6 bg-gray-700 hover:bg-gray-600 rounded text-xs">-</button>
-                                    <span className="px-2 text-sm">2</span>
-                                    <button className="w-6 h-6 bg-gray-700 hover:bg-gray-600 rounded text-xs">+</button>
-                                  </div>
-                                </div>
-                                <button className="w-full mt-3 bg-primary-500 hover:bg-primary-600 text-white text-xs py-1 rounded" onClick={() => router.push('/booking/chengdu-deep-dive')}>Book Now</button>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
                 </div>
               </Card>
             </div>
