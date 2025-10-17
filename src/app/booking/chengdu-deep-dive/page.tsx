@@ -146,6 +146,7 @@ export default function ChengduDeepDiveBooking() {
     travelers: 1
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [guestBreakdown, setGuestBreakdown] = useState<{ adults: number; children: number }>({ adults: 1, children: 0 });
   
   // 酒店详情弹窗状态
   const [selectedHotel, setSelectedHotel] = useState<any>(null);
@@ -185,6 +186,7 @@ export default function ChengduDeepDiveBooking() {
         ...prev,
         travelers: parseInt(adults) + (children ? parseInt(children) : 0)
       }));
+      setGuestBreakdown({ adults: parseInt(adults), children: children ? parseInt(children) : 0 });
     }
     if (hotelId && hotelName) {
       // 查找对应的酒店并设置为选中状态
@@ -850,27 +852,29 @@ export default function ChengduDeepDiveBooking() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Number of Travelers
-                    </label>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setTravelDates(prev => ({ ...prev, travelers: Math.max(1, prev.travelers - 1) }))}
-                      >
-                        <Minus className="w-4 h-4" />
-                      </Button>
-                      <span className="px-4 py-2 border border-gray-300 rounded-md min-w-[60px] text-center">
-                        {travelDates.travelers}
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setTravelDates(prev => ({ ...prev, travelers: prev.travelers + 1 }))}
-                      >
-                        <Plus className="w-4 h-4" />
-                      </Button>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Guests</label>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="w-16 text-sm text-gray-600">Adults</span>
+                        <Button variant="outline" size="sm" onClick={() => setGuestBreakdown(prev => { const v=Math.max(1, prev.adults-1); setTravelDates(t=>({...t, travelers: v+prev.children})); return {...prev, adults: v}; })}>
+                          <Minus className="w-4 h-4" />
+                        </Button>
+                        <span className="px-4 py-2 border border-gray-300 rounded-md min-w-[40px] text-center">{guestBreakdown.adults}</span>
+                        <Button variant="outline" size="sm" onClick={() => setGuestBreakdown(prev => { const v=Math.min(9, prev.adults+1); setTravelDates(t=>({...t, travelers: v+prev.children})); return {...prev, adults: v}; })}>
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-16 text-sm text-gray-600">Children</span>
+                        <Button variant="outline" size="sm" onClick={() => setGuestBreakdown(prev => { const v=Math.max(0, prev.children-1); setTravelDates(t=>({...t, travelers: prev.adults+v})); return {...prev, children: v}; })}>
+                          <Minus className="w-4 h-4" />
+                        </Button>
+                        <span className="px-4 py-2 border border-gray-300 rounded-md min-w-[40px] text-center">{guestBreakdown.children}</span>
+                        <Button variant="outline" size="sm" onClick={() => setGuestBreakdown(prev => { const v=Math.min(9, prev.children+1); setTravelDates(t=>({...t, travelers: prev.adults+v})); return {...prev, children: v}; })}>
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <div className="text-xs text-gray-500">Total: {travelDates.travelers} {travelDates.travelers === 1 ? 'person' : 'people'}</div>
                     </div>
                   </div>
                 </div>
