@@ -3,18 +3,23 @@
 import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
 import { useUser } from '@/context/UserContext';
 import { useOrderManagement } from '@/context/OrderManagementContext';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 
 
 export default function CheckoutPage() {
     const { user } = useUser();
     const { orders, updateOrderStatus } = useOrderManagement();
     const router = useRouter();
-    const searchParams = useSearchParams();
     const [isProcessing, setIsProcessing] = useState(false);
 
-    const orderId = searchParams.get('orderId') || '';
+    // 从 URL 解析 orderId，避免 SSR 阶段使用 useSearchParams
+    const [orderId, setOrderId] = useState<string>('');
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const sp = new URLSearchParams(window.location.search);
+        setOrderId(sp.get('orderId') || '');
+    }, []);
     const order = useMemo(() => orders.find(o => o.id === orderId), [orders, orderId]);
 
     const handleCompleteBooking = async () => {
