@@ -1,19 +1,24 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Container, Section, Heading, Text, Card, Button } from '@/components/common';
 import { useOrderManagement } from '@/context/OrderManagementContext';
 import { CheckCircle, X } from 'lucide-react';
 
 export default function BookingConfirmationPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { orders, updateOrderStatus } = useOrderManagement();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
 
-  const orderId = searchParams.get('orderId') || '';
+  // 从浏览器地址栏解析 orderId，避免在 SSR 阶段使用 useSearchParams
+  const [orderId, setOrderId] = useState<string>('');
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const sp = new URLSearchParams(window.location.search);
+    setOrderId(sp.get('orderId') || '');
+  }, []);
   const order = useMemo(() => orders.find(o => o.id === orderId), [orders, orderId]);
 
   if (!order) {
