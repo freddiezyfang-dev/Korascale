@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
 import UrlParamsReader from './UrlParamsReader';
@@ -25,6 +25,11 @@ import {
   Phone,
   CheckCircle
 } from 'lucide-react';
+
+// 禁用此页面的预渲染，避免在构建时触发 useSearchParams 的 CSR 限制
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
 // 行程模块数据
 const journeyModules = [
@@ -367,10 +372,17 @@ export default function ChengduDeepDiveBooking() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* 首屏阻止在未解析参数前的渲染，确保仅在客户端完成 */}
+      {!urlParamsReady && (
+        <>
+          <Suspense fallback={null}>
+            <UrlParamsReader onParsed={(p) => { setUrlParams(p); setUrlParamsReady(true); }} />
+          </Suspense>
+          <div className="invisible" />
+        </>
+      )}
+      {urlParamsReady && (
       {/* 用 Suspense 包裹，保证在 CSR 阶段读取 searchParams */}
-      <Suspense>
-        <UrlParamsReader onParsed={(p) => { setUrlParams(p); setUrlParamsReady(true); }} />
-      </Suspense>
       <Section background="primary" padding="xl">
         <Container size="xl">
           {/* Header */}
@@ -570,7 +582,7 @@ export default function ChengduDeepDiveBooking() {
                             </div>
                             <div>
                               <Text className="text-gray-500">Room Type:</Text>
-                              <Text className="font-medium">{searchParams.get('roomType') || 'Standard Room'}</Text>
+                              <Text className="font-medium">{urlParams['roomType'] || 'Standard Room'}</Text>
                             </div>
                           </div>
                         </div>
@@ -917,6 +929,7 @@ export default function ChengduDeepDiveBooking() {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
       />
+      )}
     </div>
   );
 }
