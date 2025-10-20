@@ -917,13 +917,11 @@ export default function ChengduDeepDiveBooking() {
         </Container>
       </Section>
 
-      {/* 调试信息 */}
       <div className="fixed bottom-4 right-4 bg-black text-white p-2 rounded text-xs z-50">
         <div>Modal Open: {isModalOpen ? 'Yes' : 'No'}</div>
         <div>Selected Hotel: {selectedHotel ? (selectedHotel as any).name : 'None'}</div>
       </div>
 
-      {/* 酒店详情弹窗 */}
       <HotelDetailModal
         hotel={selectedHotel}
         isOpen={isModalOpen}
