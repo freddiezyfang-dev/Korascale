@@ -382,7 +382,6 @@ export default function ChengduDeepDiveBooking() {
         </>
       )}
       {urlParamsReady && (
-      {/* 用 Suspense 包裹，保证在 CSR 阶段读取 searchParams */}
       <Section background="primary" padding="xl">
         <Container size="xl">
           {/* Header */}
