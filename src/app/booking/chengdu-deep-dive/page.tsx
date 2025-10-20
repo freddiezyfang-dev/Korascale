@@ -382,6 +382,7 @@ export default function ChengduDeepDiveBooking() {
         </>
       )}
       {urlParamsReady && (
+      <>
       <Section background="primary" padding="xl">
         <Container size="xl">
           {/* Header */}
@@ -928,6 +929,7 @@ export default function ChengduDeepDiveBooking() {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
       />
+      </>
       )}
     </div>
   );
