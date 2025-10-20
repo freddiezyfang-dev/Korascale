@@ -581,7 +581,7 @@ export default function ChengduDeepDiveBooking() {
                               <Text className="font-medium">{travelDates.travelers} {travelDates.travelers === 1 ? 'person' : 'people'}</Text>
                             </div>
                             <div>
-                              <Text className="text-gray-500">Room Type:</Text>
+                              <Text className="text-gray-500">Room Type(from URL):</Text>
                               <Text className="font-medium">{urlParams['roomType'] || 'Standard Room'}</Text>
                             </div>
                           </div>
