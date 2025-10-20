@@ -26,10 +26,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 
-// 禁用此页面的预渲染，避免在构建时触发 useSearchParams 的 CSR 限制
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-export const fetchCache = 'force-no-store';
+// 注意：此页面为 Client 组件；不要在 Client 文件中导出 route segment 配置（dynamic/revalidate/fetchCache）
 
 // 行程模块数据
 const journeyModules = [
