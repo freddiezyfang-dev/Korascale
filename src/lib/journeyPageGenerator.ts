@@ -234,10 +234,10 @@ export function generateJourneyPageFields(journey: Journey, allJourneys: Journey
     heroStats: journey.heroStats || generateHeroStats(journey),
     navigation: journey.navigation || generateNavigation(journey),
     overview: journey.overview || {
-      breadcrumb: journey.overview?.breadcrumb || generateBreadcrumb(journey),
-      description: journey.overview?.description || journey.description,
-      highlights: journey.overview?.highlights || generateOverviewHighlights(journey),
-      sideImage: journey.overview?.sideImage || journey.images[1] || journey.image
+      breadcrumb: generateBreadcrumb(journey),
+      description: journey.description,
+      highlights: generateOverviewHighlights(journey),
+      sideImage: journey.images[1] || journey.image
     },
     inclusions: journey.inclusions || generateInclusions(journey),
     relatedTrips: journey.relatedTrips || generateRelatedTrips(journey, allJourneys)

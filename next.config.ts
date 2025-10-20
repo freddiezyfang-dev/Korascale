@@ -1,18 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // 临时放宽以先通过部署，后续逐步修复类型与 lint
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  /* config options here */
   eslint: {
+    // 先临时放宽构建限制，避免因 ESLint 错误阻塞 Vercel 部署
     ignoreDuringBuilds: true,
-  },
-  experimental: {
-    turbopack: {
-      // 避免锁文件根目录推断错误
-      root: __dirname,
-    },
   },
 };
 

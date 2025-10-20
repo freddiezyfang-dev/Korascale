@@ -281,7 +281,7 @@ export default function DynamicJourneyPage() {
 
               {/* 特色亮点 */}
               <div className="space-y-4">
-                {pageConfig.overview.highlights.map((highlight, index) => (
+                {(pageConfig.overview?.highlights || []).map((highlight, index) => (
                   <div key={index} className="flex items-start gap-3">
                     <span className="text-2xl">{highlight.icon}</span>
                     <div className="flex-1">
@@ -289,9 +289,9 @@ export default function DynamicJourneyPage() {
                       <Text size="sm" className="text-gray-600">
                         {highlight.description}
                       </Text>
-                      {highlight.image && (
+                      {'image' in highlight && (highlight as any).image && (
                         <img
-                          src={highlight.image}
+                          src={(highlight as any).image}
                           alt={highlight.title}
                           className="mt-2 w-full h-32 object-cover rounded-lg"
                         />
@@ -362,7 +362,8 @@ export default function DynamicJourneyPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
               {relatedExperiences.map((experience) => (
                 <ExperienceCard 
-                  key={experience.id} 
+                  key={experience.id}
+                  id={experience.id}
                   title={experience.title}
                   location={experience.location}
                   image={experience.image}
@@ -389,7 +390,7 @@ export default function DynamicJourneyPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
               {relatedAccommodations.map((accommodation) => {
-                const imageUrl = accommodation.images?.[0] || accommodation.image || '/images/placeholder-hotel.jpg';
+                const imageUrl = accommodation.images?.[0] || '/images/placeholder-hotel.jpg';
                 return (
                   <div 
                     key={accommodation.id}
@@ -415,7 +416,7 @@ export default function DynamicJourneyPage() {
                     </p>
                     <p className="text-gray-700 text-sm mb-4 line-clamp-3">{accommodation.description}</p>
                     <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold text-primary-600">¥{accommodation.price}/night</span>
+                      <span className="text-2xl font-bold text-primary-600">¥{accommodation.roomTypes?.[0]?.basePrice ?? journey.price}/night</span>
                       <span className="text-sm text-gray-500">View Details</span>
                     </div>
                   </div>

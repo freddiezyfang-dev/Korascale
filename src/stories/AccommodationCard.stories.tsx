@@ -9,9 +9,6 @@ const meta: Meta<typeof AccommodationCard> = {
   },
   tags: ['autodocs'],
   argTypes: {
-    rating: {
-      control: { type: 'number', min: 0, max: 5, step: 0.1 },
-    },
     featured: {
       control: { type: 'boolean' },
     },
@@ -29,7 +26,6 @@ export const Default: Story = {
     location: 'Chengdu, Sichuan',
     image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&h=400&fit=crop&crop=center',
     price: '$299/night',
-    rating: 4.8,
     description: 'Designed for food and culture enthusiasts. Visit the Panda Base in the morning, then head to the Sichuan Cuisine Museum for a hands-on experience with snack making and tasting.',
   },
 };
@@ -38,7 +34,6 @@ export const Default: Story = {
 export const HighRating: Story = {
   args: {
     ...Default.args,
-    rating: 4.9,
     featured: true,
   },
 };
@@ -50,7 +45,6 @@ export const WithoutPrice: Story = {
     title: 'Chongqing City Highlights Day Tour',
     location: 'Chongqing',
     image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&h=400&fit=crop&crop=center',
-    rating: 4.5,
     description: 'See the best of Chongqing\'s magical and retro vibes in one day. Explore the ancient Ciqikou Old Town in the morning.',
   },
 };

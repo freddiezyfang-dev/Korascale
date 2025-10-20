@@ -16,6 +16,26 @@ export default function AdminArticlesPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
+  const categories: ArticleCategory[] = [
+    'Food Journey',
+    'Great Outdoors',
+    'Immersive Encounters',
+    'Spiritual Retreat',
+    'Vibrant Nightscapes',
+    'Seasonal Highlights'
+  ];
+
+  // Hooks must be called unconditionally; compute filtered before any early return
+  const filtered = useMemo(() => {
+    return articles
+      .filter(a => {
+        const categoryOk = categoryFilter === 'all' || a.category === categoryFilter;
+        const statusOk = statusFilter === 'all' || a.status === statusFilter;
+        return categoryOk && statusOk;
+      })
+      .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+  }, [articles, categoryFilter, statusFilter]);
+
   if (!user || user.email !== 'admin@korascale.com') {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -27,23 +47,6 @@ export default function AdminArticlesPage() {
       </div>
     );
   }
-
-  const categories: ArticleCategory[] = [
-    'Food Journey',
-    'Great Outdoors',
-    'Immersive Encounters',
-    'Spiritual Retreat',
-    'Vibrant Nightscapes',
-    'Seasonal Highlights'
-  ];
-
-  const filtered = useMemo(() => {
-    return articles.filter(a => {
-      const categoryOk = categoryFilter === 'all' || a.category === categoryFilter;
-      const statusOk = statusFilter === 'all' || a.status === statusFilter;
-      return categoryOk && statusOk;
-    }).sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
-  }, [articles, categoryFilter, statusFilter]);
 
   return (
     <div className="min-h-screen bg-gray-50">

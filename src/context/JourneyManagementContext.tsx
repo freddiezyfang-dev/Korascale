@@ -271,11 +271,31 @@ const defaultJourneys: Journey[] = [
     status: 'active',
     featured: false,
     tags: ['buddha', 'unesco', 'history', 'culture', 'one-day'],
-    // 页面生成相关字段
+    // 页面生成相关字段（补齐必需字段的占位）
     slug: 'leshan-giant-buddha',
     pageTitle: 'Leshan Giant Buddha Day Trip from Chengdu',
     metaDescription: 'Visit the world\'s largest stone Buddha statue, a UNESCO World Heritage Site. Marvel at this 71-meter tall statue carved into the cliff face over 1,200 years ago.',
     heroImage: '/images/journey-cards/leshan-giant-buddha.jpg',
+    heroStats: { days: 1, destinations: 2, maxGuests: 16 },
+    navigation: [
+      { name: 'Overview', href: '#overview' },
+      { name: 'Itinerary', href: '#itinerary' },
+      { name: 'Details', href: '#details' }
+    ],
+    overview: {
+      breadcrumb: ['Home','Journey','Culture & History','Leshan Giant Buddha'],
+      description: 'See the Giant Buddha and surrounding temples',
+      highlights: [
+        { icon: '🙏', title: 'UNESCO Site', description: 'World-famous stone Buddha' },
+        { icon: '🏛️', title: 'Ancient Craftsmanship', description: 'Marvel at ancient engineering' }
+      ],
+      sideImage: '/images/journey-cards/leshan-giant-buddha.jpg'
+    },
+    inclusions: [
+      { icon: 'Car', title: 'Transportation', description: 'Round-trip from Chengdu' },
+      { icon: 'User', title: 'Guide', description: 'Professional guide included' }
+    ],
+    relatedTrips: [],
     createdAt: new Date(),
     updatedAt: new Date()
   },
@@ -373,6 +393,11 @@ const defaultJourneys: Journey[] = [
     status: 'active',
     featured: true,
     tags: ['nature', 'unesco', 'lakes', 'mountains', 'tibetan', 'multi-day'],
+    // 页面生成字段占位，避免类型缺失
+    slug: 'jiuzhaigou-valley',
+    pageTitle: 'Jiuzhaigou Valley Multi-Color Lake Adventure',
+    metaDescription: 'Discover the stunning natural beauty of Jiuzhaigou\'s crystal-clear lakes and waterfalls.',
+    heroImage: '/images/journey-cards/jiuzhaigou-valley-multi-color-lake.jpeg',
     createdAt: new Date(),
     updatedAt: new Date()
   }

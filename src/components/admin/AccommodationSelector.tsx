@@ -20,7 +20,7 @@ export const AccommodationSelector: React.FC<AccommodationSelectorProps> = ({
   onAvailableAccommodationsChange,
   isEditing = false
 }) => {
-  const { hotels, addHotel } = useHotelManagement();
+  const { hotels } = useHotelManagement();
   const [showAddForm, setShowAddForm] = useState(false);
 
   const activeHotels = hotels.filter(hotel => hotel.status === 'active');
@@ -78,7 +78,7 @@ export const AccommodationSelector: React.FC<AccommodationSelectorProps> = ({
               />
               <label htmlFor={`available-hotel-${hotel.id}`} className="flex-1 cursor-pointer">
                 <div className="flex items-center gap-2">
-                  <img src={hotel.image} alt={hotel.name} className="w-8 h-8 rounded object-cover" />
+                  <img src={hotel.images?.[0] || '/images/hotels/fallback.png'} alt={hotel.name} className="w-8 h-8 rounded object-cover" />
                   <div>
                     <Text className="font-medium text-sm">{hotel.name}</Text>
                     <Text className="text-xs text-gray-500">{hotel.location} • {hotel.rating}★</Text>
@@ -93,13 +93,7 @@ export const AccommodationSelector: React.FC<AccommodationSelectorProps> = ({
                 >
                   <Edit className="w-3 h-3" />
                 </Button>
-                <Button
-                  onClick={() => window.open(`/accommodations/${hotel.slug}`, '_blank')}
-                  variant="secondary"
-                  size="sm"
-                >
-                  <Eye className="w-3 h-3" />
-                </Button>
+                {/* 预览链接移除 slug 依赖 */}
               </div>
             </div>
           ))}
@@ -116,20 +110,14 @@ export const AccommodationSelector: React.FC<AccommodationSelectorProps> = ({
           {selectedHotelObjects.map((hotel) => (
             <div key={hotel.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
               <div className="flex items-center gap-3">
-                <img src={hotel.image} alt={hotel.name} className="w-10 h-10 rounded object-cover" />
+                <img src={hotel.images?.[0] || '/images/hotels/fallback.png'} alt={hotel.name} className="w-10 h-10 rounded object-cover" />
                 <div>
                   <Text className="font-medium">{hotel.name}</Text>
-                  <Text className="text-sm text-gray-500">{hotel.location} • {hotel.rating}★ • From ¥{hotel.price}/night</Text>
+                  <Text className="text-sm text-gray-500">{hotel.location} • {hotel.rating}★</Text>
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button
-                  onClick={() => window.open(`/accommodations/${hotel.slug}`, '_blank')}
-                  variant="secondary"
-                  size="sm"
-                >
-                  <Eye className="w-4 h-4" />
-                </Button>
+                {/* 预览链接移除 slug 依赖 */}
                 <Button
                   onClick={() => handleRemoveFromSelected(hotel.id)}
                   variant="secondary"

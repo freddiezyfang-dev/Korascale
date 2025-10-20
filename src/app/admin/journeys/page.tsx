@@ -68,6 +68,7 @@ export default function AdminJourneysPage() {
   const { 
     journeys, 
     updateJourneyStatus, 
+    updateJourney,
     deleteJourney,
     getJourneysByStatus, 
     getJourneysByCategory, 

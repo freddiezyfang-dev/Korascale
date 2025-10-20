@@ -35,12 +35,10 @@ export function migrateExistingPage(existingJourney: Journey): Partial<Journey> 
     
     // 概述区域
     overview: existingJourney.overview || {
-      breadcrumb: existingJourney.overview?.breadcrumb || [
-        'Home', 'Journey', existingJourney.category, existingJourney.title
-      ],
-      description: existingJourney.overview?.description || existingJourney.description,
-      highlights: existingJourney.overview?.highlights || generateHighlightsFromArray(existingJourney.highlights),
-      sideImage: existingJourney.overview?.sideImage || existingJourney.images[1] || existingJourney.image
+      breadcrumb: ['Home', 'Journey', existingJourney.category, existingJourney.title],
+      description: existingJourney.description,
+      highlights: generateHighlightsFromArray(existingJourney.highlights),
+      sideImage: existingJourney.images[1] || existingJourney.image
     },
     
     // 包含项目

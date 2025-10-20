@@ -83,7 +83,7 @@ export default function BookingConfirmationPage() {
                       <div key={module.id || index} className="border border-gray-200 rounded-lg p-4">
                         <div className="flex justify-between items-start mb-2">
                           <Text className="font-medium">{module.title}</Text>
-                          <Text className="text-sm text-gray-600">¥{module.price} × {order.stayDetails.guests}</Text>
+                          <Text className="text-sm text-gray-600">¥{module.price} × {(order.stayDetails.guests ?? (order.stayDetails.adults + order.stayDetails.children))}</Text>
                         </div>
                         <Text className="text-sm text-gray-600 mb-2">{module.description}</Text>
                         <Text className="text-xs text-gray-500">Duration: {module.duration}</Text>
@@ -112,7 +112,7 @@ export default function BookingConfirmationPage() {
                       <div key={experience.id || index} className="border border-gray-200 rounded-lg p-4">
                         <div className="flex justify-between items-start mb-2">
                           <Text className="font-medium">{experience.title}</Text>
-                          <Text className="text-sm text-gray-600">¥{experience.price} × {order.stayDetails.guests}</Text>
+                          <Text className="text-sm text-gray-600">¥{experience.price} × {(order.stayDetails.guests ?? (order.stayDetails.adults + order.stayDetails.children))}</Text>
                         </div>
                         <Text className="text-sm text-gray-600 mb-2">{experience.description}</Text>
                         <Text className="text-xs text-gray-500">Duration: {experience.duration}</Text>
@@ -167,7 +167,7 @@ export default function BookingConfirmationPage() {
                   </div>
                   <div>
                     <Text className="text-gray-600">Travelers</Text>
-                    <Text className="font-medium">{order.stayDetails.guests}</Text>
+                    <Text className="font-medium">{order.stayDetails.guests ?? (order.stayDetails.adults + order.stayDetails.children)}</Text>
                   </div>
                   {order.guestInfo.specialRequests && (
                     <div className="md:col-span-2">
@@ -191,7 +191,7 @@ export default function BookingConfirmationPage() {
                       {order.selectedModules.map((module, index) => (
                         <div key={module.id || index} className="flex justify-between text-gray-600 mb-1">
                           <Text className="truncate">{module.title}</Text>
-                          <Text>¥{module.price * order.stayDetails.guests}</Text>
+                          <Text>¥{module.price * (order.stayDetails.guests ?? (order.stayDetails.adults + order.stayDetails.children))}</Text>
                         </div>
                       ))}
                     </div>
@@ -204,7 +204,7 @@ export default function BookingConfirmationPage() {
                       {order.selectedExperiences.map((experience, index) => (
                         <div key={experience.id || index} className="flex justify-between text-gray-600 mb-1">
                           <Text className="truncate">{experience.title}</Text>
-                          <Text>¥{experience.price * order.stayDetails.guests}</Text>
+                          <Text>¥{experience.price * (order.stayDetails.guests ?? (order.stayDetails.adults + order.stayDetails.children))}</Text>
                         </div>
                       ))}
                     </div>
@@ -228,7 +228,7 @@ export default function BookingConfirmationPage() {
                       <Text>¥{order.totalPrice}</Text>
                     </div>
                     <Text className="text-xs text-gray-500 mt-1">
-                      For {order.stayDetails.guests} traveler{order.stayDetails.guests > 1 ? 's' : ''}
+                      {(() => { const g = order.stayDetails.guests ?? (order.stayDetails.adults + order.stayDetails.children); return `For ${g} traveler${g > 1 ? 's' : ''}`; })()}
                     </Text>
                   </div>
                 </div>

@@ -6,12 +6,15 @@ export interface StayDetails {
   checkOut: Date | null;
   adults: number;
   children: number;
+  guests?: number;
 }
 
 export interface GuestInfo {
   fullName: string;
   email: string;
   phoneNumber: string;
+  phone?: string;
+  nationality?: string;
   specialRequests: string;
 }
 
@@ -158,16 +161,16 @@ export interface Journey {
   pageTitle: string; // 页面标题
   metaDescription: string; // SEO描述
   heroImage: string; // 主横幅图片
-  heroStats: {
+  heroStats?: {
     days: number;
     destinations: number;
     maxGuests: number;
   };
-  navigation: {
+  navigation?: {
     name: string;
     href: string;
   }[];
-  overview: {
+  overview?: {
     breadcrumb: string[];
     description: string;
     highlights: {
@@ -178,12 +181,12 @@ export interface Journey {
     }[];
     sideImage: string;
   };
-  inclusions: {
+  inclusions?: {
     icon: string;
     title: string;
     description: string;
   }[];
-  relatedTrips: {
+  relatedTrips?: {
     title: string;
     duration: string;
     price: string;

@@ -16,7 +16,12 @@ export default function ArticleDetailPage() {
   const { getArticleBySlug } = useArticleManagement();
   const { journeys } = useJourneyManagement();
 
+  // Hooks must be called unconditionally
   const article = getArticleBySlug(slug || '');
+  const related = useMemo(() => {
+    if (!article) return [];
+    return journeys.filter(j => article.relatedJourneyIds.includes(j.id));
+  }, [journeys, article]);
 
   if (!category || !article || article.category !== category) {
     return (
@@ -27,7 +32,6 @@ export default function ArticleDetailPage() {
   }
 
   const hero = ArticleCategoryToHeroImage[category];
-  const related = useMemo(() => journeys.filter(j => article.relatedJourneyIds.includes(j.id)), [journeys, article.relatedJourneyIds]);
 
   return (
     <main>

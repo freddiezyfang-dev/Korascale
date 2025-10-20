@@ -1,6 +1,7 @@
 "use client";
 
 import Dropdown, { DestinationsDropdown, InspirationsDropdown } from "@/components/ui/Dropdown";
+import Link from "next/link";
 import { useUser } from "@/context/UserContext";
 
 const imgVector = "/icons/user.svg";
@@ -14,29 +15,29 @@ export default function NavMenu() {
 				{/* 左侧导航菜单 */}
 				<div className="flex items-center gap-[26px] text-[16px] text-black font-[Inknut_Antiqua]">
 					<Dropdown
-						trigger={
-							<a href="/destinations" className="hover:opacity-80 h-[34px] flex items-center">
-								Destinations
-							</a>
-						}
+                    trigger={
+                            <Link href="/destinations" className="hover:opacity-80 h-[34px] flex items-center">
+                                Destinations
+                            </Link>
+                        }
 					>
 						<DestinationsDropdown />
 					</Dropdown>
-					<a href="/journeys" className="hover:opacity-80 h-[34px] flex items-center">
-						Journeys
-					</a>
+                    <Link href="/journeys" className="hover:opacity-80 h-[34px] flex items-center">
+                        Journeys
+                    </Link>
 					<Dropdown
-						trigger={
-							<a href="/inspirations" className="hover:opacity-80 h-[34px] flex items-center">
-								Inspirations
-							</a>
-						}
+                    trigger={
+                            <Link href="/inspirations" className="hover:opacity-80 h-[34px] flex items-center">
+                                Inspirations
+                            </Link>
+                        }
 					>
 						<InspirationsDropdown />
 					</Dropdown>
-					<a href="/accommodations" className="hover:opacity-80 h-[34px] flex items-center">
-						Accommodations
-					</a>
+                    <Link href="/accommodations" className="hover:opacity-80 h-[34px] flex items-center">
+                        Accommodations
+                    </Link>
 
 				</div>
 
@@ -58,9 +59,9 @@ export default function NavMenu() {
 							</button>
 						</div>
 					) : (
-						<a href="/auth/login" className="text-[16px] text-black font-[Inknut_Antiqua] hover:opacity-80">
-							Sign in / Log in
-						</a>
+                        <Link href="/auth/login" className="text-[16px] text-black font-[Inknut_Antiqua] hover:opacity-80">
+                            Sign in / Log in
+                        </Link>
 					)}
 				</div>
 			</div>

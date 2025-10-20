@@ -12,17 +12,11 @@ export default function InspirationCategoryPage() {
   const { articles } = useArticleManagement();
   const slug = Array.isArray(params?.category) ? params?.category[0] : (params?.category as string);
   const category = ArticleSlugToCategory(slug || '');
-
-  if (!category) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Text>分类不存在</Text>
-      </div>
-    );
-  }
-
-  const hero = ArticleCategoryToHeroImage[category];
-  const list = useMemo(() => articles.filter(a => a.category === category && a.status === 'active'), [articles, category]);
+  const list = useMemo(() => {
+    if (!category) return [];
+    return articles.filter(a => a.category === category && a.status === 'active');
+  }, [articles, category]);
+  const hero = category ? ArticleCategoryToHeroImage[category] : '';
 
   return (
     <main>
@@ -30,7 +24,7 @@ export default function InspirationCategoryPage() {
         <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${hero}')` }} />
         <div className="absolute inset-0 bg-black/35" />
         <div className="relative z-10 h-full flex items-center justify-center">
-          <Heading level={1} className="text-5xl text-white">{category}</Heading>
+          <Heading level={1} className="text-5xl text-white">{category || 'Unknown Category'}</Heading>
         </div>
       </Section>
 
