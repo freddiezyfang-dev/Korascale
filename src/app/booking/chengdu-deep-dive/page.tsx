@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
+import UrlParamsReader from './UrlParamsReader';
 import { useUser } from '@/context/UserContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useOrderManagement } from '@/context/OrderManagementContext';
@@ -126,7 +127,9 @@ export default function ChengduDeepDiveBooking() {
   const { items: wishlistItems, removeFromWishlist, addToWishlist } = useWishlist();
   const { addOrder } = useOrderManagement();
   const router = useRouter();
-  const searchParams = useSearchParams();
+  // 搜索参数通过子组件读取，避免在预渲染阶段直接调用
+  const [urlParamsReady, setUrlParamsReady] = useState(false);
+  const [urlParams, setUrlParams] = useState<{[k: string]: string | null}>({});
 
   // 状态管理
   const [selectedModules, setSelectedModules] = useState(journeyModules);
@@ -159,46 +162,30 @@ export default function ChengduDeepDiveBooking() {
     }
   }, [user, router]);
 
-  // 处理从BookingDetailsModal传递的URL参数
+  // 根据已解析的 URL 参数初始化页面状态
   useEffect(() => {
-    const checkIn = searchParams.get('checkIn');
-    const checkOut = searchParams.get('checkOut');
-    const adults = searchParams.get('adults');
-    const children = searchParams.get('children');
-    const roomType = searchParams.get('roomType');
-    const hotelId = searchParams.get('hotelId');
-    const hotelName = searchParams.get('hotelName');
+    if (!urlParamsReady) return;
+    const checkIn = urlParams['checkIn'];
+    const checkOut = urlParams['checkOut'];
+    const adults = urlParams['adults'];
+    const children = urlParams['children'];
+    const hotelId = urlParams['hotelId'];
+    const hotelName = urlParams['hotelName'];
 
     if (checkIn) {
-      setTravelDates(prev => ({
-        ...prev,
-        departureDate: checkIn
-      }));
+      setTravelDates(prev => ({ ...prev, departureDate: checkIn }));
     }
     if (checkOut) {
-      setTravelDates(prev => ({
-        ...prev,
-        returnDate: checkOut
-      }));
+      setTravelDates(prev => ({ ...prev, returnDate: checkOut }));
     }
     if (adults) {
-      setTravelDates(prev => ({
-        ...prev,
-        travelers: parseInt(adults) + (children ? parseInt(children) : 0)
-      }));
-      setGuestBreakdown({ adults: parseInt(adults), children: children ? parseInt(children) : 0 });
+      const a = parseInt(adults);
+      const c = children ? parseInt(children) : 0;
+      setTravelDates(prev => ({ ...prev, travelers: a + c }));
+      setGuestBreakdown({ adults: a, children: c });
     }
     if (hotelId && hotelName) {
-      // 查找对应的酒店并设置为选中状态
-      // 首先尝试在accommodationOptions中查找
-      let hotel = accommodationOptions.find(h => h.id === hotelId);
-      
-      // 如果没找到，尝试根据hotelName匹配
-      if (!hotel) {
-        hotel = accommodationOptions.find(h => h.title === hotelName);
-      }
-      
-      // 如果还是没找到，创建一个临时的酒店对象
+      let hotel = accommodationOptions.find(h => h.id === hotelId) || accommodationOptions.find(h => h.title === hotelName);
       if (!hotel) {
         hotel = {
           id: hotelId,
@@ -206,30 +193,27 @@ export default function ChengduDeepDiveBooking() {
           description: 'Selected hotel from accommodations',
           price: 0,
           rating: 5,
-          image: '/images/hotels/chengdu-tibet-1.png' // 默认图片
-        };
+          image: '/images/hotels/chengdu-tibet-1.png'
+        } as any;
       }
-      
-      if (hotel) {
-        setSelectedAccommodation(hotel);
-      }
+      setSelectedAccommodation(hotel);
     }
-  }, [searchParams]);
+  }, [urlParamsReady, urlParams]);
 
   // 检查是否从BookingDetailsModal进入（有URL参数）
-  const isFromBookingDetails = searchParams.get('hotelId') && searchParams.get('hotelName');
+  const isFromBookingDetails = Boolean(urlParams['hotelId'] && urlParams['hotelName']);
   
   // 调试信息
   console.log('Booking page debug info:', {
     isFromBookingDetails,
-    hotelId: searchParams.get('hotelId'),
-    hotelName: searchParams.get('hotelName'),
+    hotelId: urlParams['hotelId'],
+    hotelName: urlParams['hotelName'],
     selectedAccommodation,
-    checkIn: searchParams.get('checkIn'),
-    checkOut: searchParams.get('checkOut'),
-    adults: searchParams.get('adults'),
-    children: searchParams.get('children'),
-    roomType: searchParams.get('roomType')
+    checkIn: urlParams['checkIn'],
+    checkOut: urlParams['checkOut'],
+    adults: urlParams['adults'],
+    children: urlParams['children'],
+    roomType: urlParams['roomType']
   });
 
 
@@ -383,6 +367,10 @@ export default function ChengduDeepDiveBooking() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* 用 Suspense 包裹，保证在 CSR 阶段读取 searchParams */}
+      <Suspense>
+        <UrlParamsReader onParsed={(p) => { setUrlParams(p); setUrlParamsReady(true); }} />
+      </Suspense>
       <Section background="primary" padding="xl">
         <Container size="xl">
           {/* Header */}
