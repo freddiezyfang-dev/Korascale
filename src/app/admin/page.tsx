@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Container, Section, Heading, Text, Card } from '@/components/common';
-import { Users, ShoppingCart, Hotel, TrendingUp, Eye, Settings, LogOut, Clock, CheckCircle } from 'lucide-react';
+import { Users, ShoppingCart, Hotel, TrendingUp, Eye, Settings, LogOut, Clock, CheckCircle, MapPin, Star, Compass, BookText } from 'lucide-react';
 import { useUser } from '@/context/UserContext';
 import { useOrderManagement } from '@/context/OrderManagementContext';
 import { OrderStatus } from '@/types';
@@ -94,11 +94,32 @@ export default function AdminDashboard() {
       color: 'bg-blue-100 text-blue-600'
     },
     {
+      title: 'Article Management',
+      description: 'Manage inspiration articles and SEO',
+      href: '/admin/articles',
+      icon: BookText,
+      color: 'bg-pink-100 text-pink-600'
+    },
+    {
       title: 'Hotel Management',
       description: 'Manage hotel listings and availability',
       href: '/admin/hotels',
       icon: Hotel,
       color: 'bg-purple-100 text-purple-600'
+    },
+    {
+      title: 'Journey Management',
+      description: 'Manage travel experiences and journeys',
+      href: '/admin/journeys',
+      icon: MapPin,
+      color: 'bg-emerald-100 text-emerald-600'
+    },
+    {
+      title: 'Experience Management',
+      description: 'Manage individual experiences and activities',
+      href: '/admin/experiences',
+      icon: Compass,
+      color: 'bg-indigo-100 text-indigo-600'
     },
     {
       title: 'Customer Management',

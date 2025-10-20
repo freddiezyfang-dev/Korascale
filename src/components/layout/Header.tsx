@@ -5,6 +5,8 @@ import { useState, useEffect } from 'react';
 import { useUser } from '@/context/UserContext';
 import { useOrderManagement } from '@/context/OrderManagementContext';
 import { LoginModal } from '@/components/modals/LoginModal';
+import Dropdown from '@/components/ui/Dropdown';
+import { UserDropdown } from '@/components/ui/UserDropdown';
 
 // 使用本地图片资源 - 你的logo图片
 const imgLogo = "/logo.png"; // 使用你的logo文件
@@ -65,22 +67,23 @@ function UserSection() {
 			<div className="flex items-center gap-4">
 				{user ? (
 					<div className="flex items-center gap-3">
-						<div className="flex items-center gap-2">
-							<img 
-								src={imgUser} 
-								alt="User" 
-								className="w-5 h-5"
-							/>
-							<span className="text-white text-sm hidden lg:block">
-								{user.name}
-							</span>
-						</div>
-						<button
-							onClick={handleLogout}
-							className="text-white text-sm hover:text-gray-300 transition-colors"
+						<Dropdown
+							trigger={
+								<div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
+									<img 
+										src={imgUser} 
+										alt="User" 
+										className="w-5 h-5"
+									/>
+									<span className="text-white text-sm hidden lg:block">
+										{user.name}
+									</span>
+								</div>
+							}
+							className="right-0"
 						>
-							Logout
-						</button>
+							<UserDropdown />
+						</Dropdown>
 						{user.email === 'admin@korascale.com' && (
 							<Link 
 								href="/admin"

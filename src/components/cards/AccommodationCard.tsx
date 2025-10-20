@@ -12,8 +12,6 @@ export interface AccommodationCardProps {
   location: string;
   image: string;
   price?: string;
-  rating?: number;
-  reviewCount?: number;
   description?: string;
   amenities?: string[];
   featured?: boolean;
@@ -26,8 +24,6 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
   location,
   image,
   price,
-  rating,
-  reviewCount,
   description,
   amenities = [],
   featured = false,
@@ -122,19 +118,12 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
           </Text>
         )}
 
-        {/* 价格和评分 */}
-        {(price || rating) && (
+        {/* 价格 */}
+        {price && (
           <div className="flex items-center gap-4 mb-4">
-            {rating && (
-              <Text size="sm" className="text-black" style={{ color: '#000000' }}>
-                {rating}
-              </Text>
-            )}
-            {price && (
-              <Text size="sm" className="text-black font-medium" style={{ color: '#000000' }}>
-                {price}
-              </Text>
-            )}
+            <Text size="sm" className="text-black font-medium" style={{ color: '#000000' }}>
+              {price}
+            </Text>
           </div>
         )}
 

@@ -482,7 +482,6 @@ export default function Accommodations() {
                     location={hotel.location}
                     image={hotel.images[0]}
                     price={`$${100 + (hotel.id.charCodeAt(6) % 100)}/night`}
-                    rating={Number(hotel.rating)}
                     description={hotel.description}
                     onClick={() => handleHotelClick(hotel)}
                   />

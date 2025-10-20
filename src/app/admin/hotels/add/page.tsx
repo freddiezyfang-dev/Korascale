@@ -18,7 +18,6 @@ export default function AddHotelPage() {
     city: '',
     location: '',
     description: '',
-    rating: '4.0',
     starRating: 'comfortable',
     images: [''],
     roomTypes: [
@@ -204,21 +203,6 @@ export default function AddHotelPage() {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Rating
-                    </label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      min="1"
-                      max="5"
-                      value={formData.rating}
-                      onChange={(e) => handleInputChange('rating', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      placeholder="4.0"
-                    />
-                  </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">

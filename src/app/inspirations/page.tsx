@@ -126,12 +126,12 @@ export default function Inspirations() {
                   >
                     {inspirations[0].description}
                   </Text>
-                  <button 
+                  <Link href={`/inspirations/${'food-journey'}`} 
                     className="text-xs font-body underline hover:no-underline mx-auto block group-hover:text-yellow-300 transition-colors duration-300 text-white" 
                     style={{ color: '#FFFFFF' }}
                   >
                     VIEW MORE
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -162,12 +162,12 @@ export default function Inspirations() {
                   >
                     {inspiration.description}
                   </Text>
-                  <button 
+                  <Link href={`/inspirations/${inspiration.title.toLowerCase().replace(/\s+/g,'-')}`} 
                     className="text-xs font-body underline hover:no-underline group-hover:text-yellow-300 transition-colors duration-300" 
                     style={{ color: '#000000' }}
                   >
                     VIEW MORE
-                  </button>
+                  </Link>
                 </div>
               </div>
             ))}
@@ -187,9 +187,9 @@ export default function Inspirations() {
                 <Text className="text-xs mb-6 leading-relaxed pr-6" style={{ color: '#000000' }}>
                   From the cherry blossoms of a Wuhan spring to the ice festivals of a Harbin winter, discover the best times to visit and experience China&apos;s ever-changing beauty. Plan your journey around these unforgettable seasonal spectacles.
                 </Text>
-                <button className="text-xs font-body underline hover:no-underline transition-colors duration-300" style={{ color: '#000000' }}>
+                <Link href={`/inspirations/${'seasonal-highlights'}`} className="text-xs font-body underline hover:no-underline transition-colors duration-300" style={{ color: '#000000' }}>
                   VIEW MORE
-                </button>
+                </Link>
               </div>
             </div>
 
@@ -205,9 +205,9 @@ export default function Inspirations() {
                 <Text className="text-xs mb-6 leading-relaxed px-2" style={{ color: '#000000' }}>
                   As the sun sets, a new energy emerges. Experience the pulse of modern China through rooftop bars in Shanghai, sizzling street food markets in Chengdu, traditional opera performances, and dazzling light shows on the Victoria Harbour. Your night is just beginning.
                 </Text>
-                <button className="text-xs font-body underline hover:no-underline transition-colors duration-300" style={{ color: '#000000' }}>
+                <Link href={`/inspirations/${'vibrant-nightscapes'}`} className="text-xs font-body underline hover:no-underline transition-colors duration-300" style={{ color: '#000000' }}>
                   VIEW MORE
-                </button>
+                </Link>
               </div>
             </div>
           </div>

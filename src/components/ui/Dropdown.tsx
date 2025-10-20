@@ -21,7 +21,9 @@ export default function Dropdown({ trigger, children, className = "" }: Dropdown
         {trigger}
       </div>
       {isOpen && (
-        <div className="absolute top-full left-0 z-[1001] mt-0 border-t border-[#f5f1e6]">
+        <div className={`absolute top-full z-[1001] mt-2 ${
+          className.includes('right-0') ? 'right-0' : 'left-0'
+        }`}>
           {children}
         </div>
       )}

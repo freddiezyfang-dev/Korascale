@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/components/common';
 import { PlanningSectionNew } from '@/components/sections';
+import { useJourneyManagement } from '@/context/JourneyManagementContext';
 
 // 使用本地图片资源
 const imgHeroBanner = "/images/hero/slide5-chongqing.jpg";
@@ -97,6 +98,7 @@ const journeys = [
 ];
 
 export default function JourneysPage() {
+	const { journeys, isLoading } = useJourneyManagement();
 	const [selectedCategory, setSelectedCategory] = useState('All');
 	const [searchTerm, setSearchTerm] = useState('');
 
@@ -113,15 +115,29 @@ export default function JourneysPage() {
 		'July', 'August', 'September', 'October', 'November', 'December'
 	];
 
-	const filteredJourneys = journeys.filter(journey => {
-		const matchesCategory = selectedCategory === 'All' || 
-								journey.category === selectedCategory || 
-								journey.region === selectedCategory ||
-								journey.duration === selectedCategory;
-		const matchesSearch = journey.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-							 journey.description.toLowerCase().includes(searchTerm.toLowerCase());
-		return matchesCategory && matchesSearch;
-	});
+	const filteredJourneys = useMemo(() => {
+		return journeys.filter(journey => {
+			const isActive = journey.status === 'active';
+			const matchesCategory = selectedCategory === 'All' || 
+									journey.category === selectedCategory || 
+									journey.region === selectedCategory ||
+									journey.duration === selectedCategory;
+			const matchesSearch = journey.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+								 journey.description.toLowerCase().includes(searchTerm.toLowerCase());
+			return isActive && matchesCategory && matchesSearch;
+		});
+	}, [journeys, selectedCategory, searchTerm]);
+
+	// 加载状态
+	if (isLoading) {
+		return (
+			<div className="min-h-screen bg-white flex items-center justify-center">
+				<div className="text-center">
+					<Text className="text-gray-600">Loading journeys...</Text>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="min-h-screen bg-white">
@@ -380,7 +396,7 @@ export default function JourneysPage() {
 												<span className="font-['Monda'] font-bold text-primary-600">{journey.price}</span>
 											</div>
 											<div className="mt-auto pt-3">
-												<Link href={journey.link} className="block">
+												<Link href={`/journeys/${journey.slug}`} className="block">
 													<Button variant="outline" size="sm" className="w-full">
 														View Details
 													</Button>

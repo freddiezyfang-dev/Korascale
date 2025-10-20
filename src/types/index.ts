@@ -108,6 +108,101 @@ export interface User {
 // 酒店状态类型
 export type HotelStatus = 'active' | 'inactive';
 
+// 旅行卡片状态类型
+export type JourneyStatus = 'active' | 'inactive' | 'draft';
+
+// 旅行卡片类型
+export interface Journey {
+  id: string;
+  title: string;
+  description: string;
+  shortDescription: string;
+  image: string;
+  images: string[];
+  duration: string;
+  price: number;
+  originalPrice?: number;
+  category: 'Food' | 'Culture & History' | 'Adventure' | 'City' | 'Nature' | 'Spiritual';
+  region: string;
+  city: string;
+  location: string;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+  maxParticipants: number;
+  minParticipants: number;
+  included: string[];
+  excluded: string[];
+  highlights: string[];
+  itinerary: {
+    day: number;
+    title: string;
+    description: string;
+    activities: string[];
+    meals: string[];
+    accommodation?: string;
+    image?: string;
+  }[];
+  modules: JourneyModule[];
+  experiences: string[]; // 存储体验ID数组
+  accommodations: string[]; // 存储住宿ID数组
+  availableExperiences: string[]; // 可选择的体验ID数组
+  availableAccommodations: string[]; // 可选择的住宿ID数组
+  requirements: string[];
+  bestTimeToVisit: string[];
+  rating: number;
+  reviewCount: number;
+  status: JourneyStatus;
+  featured: boolean;
+  tags: string[];
+  // 页面生成相关字段
+  slug: string; // URL路径，如 "chengdu-city-one-day-deep-dive"
+  pageTitle: string; // 页面标题
+  metaDescription: string; // SEO描述
+  heroImage: string; // 主横幅图片
+  heroStats: {
+    days: number;
+    destinations: number;
+    maxGuests: number;
+  };
+  navigation: {
+    name: string;
+    href: string;
+  }[];
+  overview: {
+    breadcrumb: string[];
+    description: string;
+    highlights: {
+      icon: string;
+      title: string;
+      description: string;
+      image?: string;
+    }[];
+    sideImage: string;
+  };
+  inclusions: {
+    icon: string;
+    title: string;
+    description: string;
+  }[];
+  relatedTrips: {
+    title: string;
+    duration: string;
+    price: string;
+    image: string;
+    slug: string;
+  }[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// 酒店房间价格和可用性类型
+export interface RoomAvailability {
+  roomTypeName: string;
+  date: string; // YYYY-MM-DD format
+  available: boolean;
+  price: number;
+  maxOccupancy: number;
+}
+
 // 酒店类型扩展
 export interface Hotel {
   id: string;
@@ -122,7 +217,10 @@ export interface Hotel {
     name: string;
     description: string;
     amenities: string[];
+    basePrice: number;
+    maxOccupancy: number;
   }[];
+  availability: RoomAvailability[];
   status: HotelStatus;
   createdAt: Date;
   updatedAt: Date;

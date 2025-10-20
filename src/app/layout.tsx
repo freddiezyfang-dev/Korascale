@@ -9,6 +9,9 @@ import { UserProvider } from "@/context/UserContext";
 import { OrderProvider } from "@/context/OrderContext";
 import { OrderManagementProvider } from "@/context/OrderManagementContext";
 import { HotelManagementProvider } from "@/context/HotelManagementContext";
+import { JourneyManagementProvider } from "@/context/JourneyManagementContext";
+import { ExperienceManagementProvider } from "@/context/ExperienceManagementContext";
+import { ArticleManagementProvider } from "@/context/ArticleManagementContext";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -43,14 +46,20 @@ export default function RootLayout({
 				<UserProvider>
 					<OrderManagementProvider>
 						<HotelManagementProvider>
-							<WishlistProvider>
-								<OrderProvider>
-									<Header />
-									<NavMenu />
-									{children}
-									<Footer />
-								</OrderProvider>
-							</WishlistProvider>
+							<JourneyManagementProvider>
+								<ExperienceManagementProvider>
+									<ArticleManagementProvider>
+										<WishlistProvider>
+										<OrderProvider>
+											<Header />
+											<NavMenu />
+											{children}
+											<Footer />
+										</OrderProvider>
+										</WishlistProvider>
+									</ArticleManagementProvider>
+								</ExperienceManagementProvider>
+							</JourneyManagementProvider>
 						</HotelManagementProvider>
 					</OrderManagementProvider>
 				</UserProvider>

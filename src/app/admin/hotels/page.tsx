@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Container, Section, Heading, Text, Card, Button } from '@/components/common';
 import { useUser } from '@/context/UserContext';
 import { useHotelManagement } from '@/context/HotelManagementContext';
+import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { Hotel, HotelStatus } from '@/types';
 import { 
   Hotel as HotelIcon, 
@@ -17,7 +18,9 @@ import {
   Filter,
   Grid,
   List,
-  Plus
+  Plus,
+  Calendar,
+  DollarSign
 } from 'lucide-react';
 
 const statusConfig = {
@@ -42,13 +45,13 @@ const starRatingConfig = {
 export default function AdminHotelsPage() {
   const { user, logout } = useUser();
   const { hotels, updateHotelStatus, getHotelsByStatus, getHotelsByCity, isLoading } = useHotelManagement();
+  const { journeys } = useJourneyManagement();
   const router = useRouter();
   
   const [selectedStatus, setSelectedStatus] = useState<HotelStatus | 'all'>('all');
   const [selectedCity, setSelectedCity] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
 
   // 检查用户权限
   useEffect(() => {
@@ -71,6 +74,14 @@ export default function AdminHotelsPage() {
   const handleStatusToggle = (hotelId: string, currentStatus: HotelStatus) => {
     const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
     updateHotelStatus(hotelId, newStatus);
+  };
+
+  // 获取酒店所属的旅程
+  const getJourneysForHotel = (hotelId: string) => {
+    return journeys.filter(journey => 
+      journey.accommodations?.includes(hotelId) || 
+      journey.availableAccommodations?.includes(hotelId)
+    );
   };
 
   // 获取所有城市列表
@@ -142,8 +153,15 @@ export default function AdminHotelsPage() {
               </div>
               <div className="flex gap-4">
                 <Button 
-                  onClick={() => router.push('/admin/hotels/add')}
+                  onClick={() => router.push('/admin/hotels/availability')}
                   variant="primary"
+                >
+                  <Calendar className="w-4 h-4 mr-1" />
+                  Manage Availability
+                </Button>
+                <Button 
+                  onClick={() => router.push('/admin/hotels/add')}
+                  variant="secondary"
                 >
                   <Plus className="w-4 h-4 mr-1" />
                   Add New Hotel
@@ -330,10 +348,6 @@ export default function AdminHotelsPage() {
                       </div>
                       
                       <div className="flex items-center gap-4 mb-4">
-                        <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                          <Text className="text-sm font-medium">{hotel.rating}</Text>
-                        </div>
                         <span className={`px-2 py-1 rounded text-xs font-medium ${starInfo.color}`}>
                           {starInfo.label}
                         </span>
@@ -342,21 +356,51 @@ export default function AdminHotelsPage() {
                       <Text className="text-sm text-gray-600 mb-4 line-clamp-2">
                         {hotel.description}
                       </Text>
+
+                      {/* Journey Tags */}
+                      {getJourneysForHotel(hotel.id).length > 0 && (
+                        <div className="mb-4">
+                          <Text className="text-xs text-gray-500 mb-2">Used in Journeys:</Text>
+                          <div className="flex flex-wrap gap-1">
+                            {getJourneysForHotel(hotel.id).map((journey) => (
+                              <span
+                                key={journey.id}
+                                className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full"
+                              >
+                                {journey.title}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                       
-                      <div className="flex items-center justify-between">
-                        <Button
-                          onClick={() => setSelectedHotel(hotel)}
-                          variant="secondary"
-                          size="sm"
-                        >
-                          <Eye className="w-4 h-4 mr-1" />
-                          View Details
-                        </Button>
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={() => router.push(`/admin/hotels/availability?hotel=${hotel.id}`)}
+                            variant="primary"
+                            size="sm"
+                            className="flex-1"
+                          >
+                            <Calendar className="w-4 h-4 mr-1" />
+                            Manage
+                          </Button>
+                          <Button
+                            onClick={() => router.push(`/admin/hotels/edit/${hotel.id}`)}
+                            variant="secondary"
+                            size="sm"
+                            className="flex-1"
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            Edit
+                          </Button>
+                        </div>
                         
                         <Button
                           onClick={() => handleStatusToggle(hotel.id, hotel.status)}
                           variant={hotel.status === 'active' ? 'secondary' : 'primary'}
                           size="sm"
+                          className="w-full"
                         >
                           {hotel.status === 'active' ? (
                             <>

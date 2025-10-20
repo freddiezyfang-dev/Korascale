@@ -65,7 +65,6 @@ export const CardGrid: Story = {
         location="Chengdu, Sichuan"
         image="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&h=400&fit=crop&crop=center"
         price="$299/night"
-        rating={4.8}
         description="Experience the authentic culture and cuisine of Chengdu."
       />
       <AccommodationCard
@@ -74,7 +73,6 @@ export const CardGrid: Story = {
         location="Chongqing"
         image="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&h=400&fit=crop&crop=center"
         price="$199/night"
-        rating={4.5}
         description="Discover the cyberpunk city with its unique architecture."
       />
       <AccommodationCard
@@ -83,7 +81,6 @@ export const CardGrid: Story = {
         location="Jiuzhaigou, Sichuan"
         image="https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&h=400&fit=crop&crop=center"
         price="$399/night"
-        rating={4.9}
         description="Explore the stunning natural beauty of Jiuzhaigou Valley."
       />
     </div>
