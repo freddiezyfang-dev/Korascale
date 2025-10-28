@@ -77,7 +77,9 @@ export default function AddJourneyPage() {
     featured: false,
     tags: [],
     overview: {
+      breadcrumb: [],
       description: '',
+      highlights: [],
       sideImage: ''
     },
     inclusions: {
