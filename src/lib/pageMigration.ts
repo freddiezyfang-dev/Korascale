@@ -218,7 +218,7 @@ export function validateMigratedPage(journey: Journey): { isValid: boolean; warn
   if (!journey.heroStats) warnings.push('Missing hero stats');
   if (!journey.navigation || journey.navigation.length === 0) warnings.push('Missing navigation');
   if (!journey.overview) warnings.push('Missing overview');
-  if (!journey.inclusions || journey.inclusions.length === 0) warnings.push('Missing inclusions');
+  if (!journey.inclusions || Object.keys(journey.inclusions).length === 0) warnings.push('Missing inclusions');
   
   return {
     isValid: warnings.length === 0,
