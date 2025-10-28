@@ -222,7 +222,8 @@ export default function InteractiveJourneyBookingPage() {
           price: calculateTotalPrice()
         },
         selectedModules: journey.modules?.filter(m => selectedModules.includes(m.id)) || [],
-        selectedExperiences: experiences.filter(e => selectedExperiences.includes(e.id)),
+        // 解决类型不兼容：将所选体验以宽松类型提交
+        selectedExperiences: (experiences.filter(e => selectedExperiences.includes(e.id)) as unknown as any[]),
         selectedAccommodation: selectedAccommodation,
         stayDetails: {
           checkIn: new Date(travelDates.departureDate),
