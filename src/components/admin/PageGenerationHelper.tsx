@@ -20,7 +20,8 @@ export function PageGenerationHelper({ journey, onUpdateJourney, allJourneys }: 
 
   const handlePreviewPage = () => {
     if (journey.slug) {
-      window.open(`/journeys/${journey.slug}`, '_blank');
+      // 使用当前窗口打开，而不是新窗口
+      window.location.href = `/journeys/${journey.slug}`;
     }
   };
 

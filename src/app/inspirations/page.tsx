@@ -79,7 +79,7 @@ export default function Inspirations() {
             items={[{ label: 'Home', href: '/' }, { label: 'Inspirations' }]}
             color="#FFFFFF"
             fontFamily="Montserrat, sans-serif"
-            sizeClassName="text-lg md:text-2xl"
+            sizeClassName="text-lg md:text-xl"
           />
         </div>
         

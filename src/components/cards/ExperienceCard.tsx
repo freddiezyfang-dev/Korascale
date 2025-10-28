@@ -31,6 +31,10 @@ export const ExperienceCard: React.FC<ExperienceCardProps> = ({
     if (inWishlist) {
       removeFromWishlist(id);
     } else {
+      let journeySlug: string | undefined;
+      try {
+        journeySlug = localStorage.getItem('last_selected_journey_slug') || undefined;
+      } catch {}
       addToWishlist({
         id,
         type: 'experience',
@@ -39,6 +43,7 @@ export const ExperienceCard: React.FC<ExperienceCardProps> = ({
         image,
         price,
         duration,
+        journeySlug,
       });
     }
   };

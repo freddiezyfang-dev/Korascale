@@ -7,6 +7,8 @@ import { useUser } from '@/context/UserContext';
 import { useExperienceManagement } from '@/context/ExperienceManagementContext';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { Experience, ExperienceStatus, ExperienceType } from '@/types/experience';
+import { DeleteConfirmationModal } from '@/components/modals/DeleteConfirmationModal';
+import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation';
 import { 
   MapPin, 
   Star, 
@@ -76,6 +78,14 @@ export default function AdminExperiencesPage() {
   } = useExperienceManagement();
   const { journeys } = useJourneyManagement();
   const router = useRouter();
+  const { 
+    isModalOpen, 
+    isDeleting, 
+    deleteOptions, 
+    confirmDelete, 
+    handleConfirm, 
+    handleClose 
+  } = useDeleteConfirmation();
   
   const [selectedStatus, setSelectedStatus] = useState<ExperienceStatus | 'all'>('all');
   const [selectedType, setSelectedType] = useState<ExperienceType | 'all'>('all');
@@ -106,10 +116,14 @@ export default function AdminExperiencesPage() {
     updateExperienceStatus(experienceId, newStatus);
   };
 
-  const handleDeleteExperience = (experienceId: string) => {
-    if (confirm('确定要删除这个体验吗？此操作无法撤销。')) {
-      deleteExperience(experienceId);
-    }
+  const handleDeleteExperience = (experience: Experience) => {
+    confirmDelete({
+      title: 'Delete Experience',
+      description: 'This will permanently remove the experience and all associated data.',
+      itemName: experience.title,
+      itemType: 'experience',
+      onConfirm: () => deleteExperience(experience.id)
+    });
   };
 
   // 获取体验所属的旅程
@@ -478,7 +492,7 @@ export default function AdminExperiencesPage() {
                             Edit
                           </Button>
                           <Button
-                            onClick={() => handleDeleteExperience(experience.id)}
+                            onClick={() => handleDeleteExperience(experience)}
                             variant="secondary"
                             size="sm"
                             className="flex-1"
@@ -515,6 +529,20 @@ export default function AdminExperiencesPage() {
           </div>
         </Container>
       </Section>
+
+      {/* Delete Confirmation Modal */}
+      {deleteOptions && (
+        <DeleteConfirmationModal
+          isOpen={isModalOpen}
+          onClose={handleClose}
+          onConfirm={handleConfirm}
+          title={deleteOptions.title}
+          description={deleteOptions.description}
+          itemName={deleteOptions.itemName}
+          itemType={deleteOptions.itemType}
+          isLoading={isDeleting}
+        />
+      )}
     </div>
   );
 }

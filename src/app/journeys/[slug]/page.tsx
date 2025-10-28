@@ -3,42 +3,46 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
-import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
+import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/components/common';
 import { ExperienceCard } from '@/components/cards/ExperienceCard';
 import { AccommodationCard } from '@/components/cards/AccommodationCard';
 import { WishlistSidebar } from '@/components/wishlist/WishlistSidebar';
-import { HotelDetailModal } from '@/components/modals/HotelDetailModal';
+// import { HotelDetailModal } from '@/components/modals/HotelDetailModal';
 import { useWishlist } from '@/context/WishlistContext';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { useExperienceManagement } from '@/context/ExperienceManagementContext';
 import { useHotelManagement } from '@/context/HotelManagementContext';
 import { generateStandardPageConfig, JOURNEY_PAGE_TEMPLATE } from '@/lib/journeyPageTemplate';
-import { Heart, MapPin, Clock, Users, Car, Bed, User, Utensils } from 'lucide-react';
+import { useCart } from '@/context/CartContext';
+import { Heart, MapPin, Clock, Users, Car, Bed, User, Utensils, Ticket } from 'lucide-react';
 
 export default function DynamicJourneyPage() {
   const { toggleWishlist, items } = useWishlist();
   const { journeys, isLoading: journeysLoading } = useJourneyManagement();
   const { experiences } = useExperienceManagement();
   const { hotels } = useHotelManagement();
-  
-  console.log('DynamicJourneyPage Debug:', {
-    journeysLoading,
-    journeysCount: journeys.length,
-    experiencesCount: experiences.length,
-    hotelsCount: hotels.length
-  });
   const router = useRouter();
   const params = useParams();
   const slug = params.slug as string;
 
-  // 酒店详情弹窗状态
-  const [selectedHotel, setSelectedHotel] = useState<any>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // 已移除酒店详情弹窗状态
 
   // 根据slug查找对应的旅行卡片
   const journey = useMemo(() => {
     return journeys.find(j => j.slug === slug);
   }, [journeys, slug]);
+  
+  console.log('DynamicJourneyPage Debug:', {
+    journeysLoading,
+    journeysCount: journeys.length,
+    experiencesCount: experiences.length,
+    hotelsCount: hotels.length,
+    slug,
+    journeyFound: !!journey,
+    journeyTitle: journey?.title,
+    allSlugs: journeys.map(j => j.slug),
+    localStorageJourneys: typeof window !== 'undefined' ? localStorage.getItem('journeys') : 'N/A'
+  });
 
   // 获取相关的体验和住宿 - 基于availableExperiences和availableAccommodations
   const relatedExperiences = useMemo(() => {
@@ -49,9 +53,14 @@ export default function DynamicJourneyPage() {
   }, [journey, experiences]);
 
   const relatedAccommodations = useMemo(() => {
-    if (!journey || !journey.availableAccommodations) return [];
+    if (!journey) return [];
+    // 优先使用accommodations，如果没有则使用availableAccommodations
+    const accommodationIds = journey.accommodations && journey.accommodations.length > 0 
+      ? journey.accommodations 
+      : (journey.availableAccommodations || []);
+    
     return hotels.filter(hotel => 
-      journey.availableAccommodations.includes(hotel.id) && hotel.status === 'active'
+      accommodationIds.includes(hotel.id) && hotel.status === 'active'
     );
   }, [journey, hotels]);
 
@@ -93,13 +102,142 @@ export default function DynamicJourneyPage() {
   const [activePopoverDate, setActivePopoverDate] = useState<Date | null>(null);
   const [guestAdults, setGuestAdults] = useState<number>(2);
   const [guestChildren, setGuestChildren] = useState<number>(0);
+  const [confirmedDate, setConfirmedDate] = useState<Date | null>(null);
   const popoverTimer = useRef<number | null>(null);
 
   // 生成标准化的页面配置
   const pageConfig = useMemo(() => {
     if (!journey) return null;
-    return generateStandardPageConfig(journey);
+    
+    // 直接使用 journey 的页面内容，而不是模板生成
+    return {
+      // Hero区域 - 使用后台设置的内容
+      hero: {
+        image: journey.heroImage || journey.image,
+        title: journey.pageTitle || journey.title,
+        stats: journey.heroStats || {
+          days: parseInt(journey.duration.split(' ')[0]) || 1,
+          destinations: journey.destinationCount || journey.itinerary.length || 1,
+          maxGuests: journey.maxGuests || journey.maxParticipants || 12
+        }
+      },
+
+      // 导航 - 使用后台设置的导航
+      navigation: journey.navigation || [
+        { name: 'Overview', href: '#overview' },
+        { name: 'Itinerary', href: '#itinerary' },
+        ...(journey.accommodations && journey.accommodations.length > 0 
+          ? [{ name: 'Stays', href: '#stays' }] 
+          : []),
+        { name: 'Details', href: '#details' }
+      ],
+
+      // 概述区域 - 使用后台设置的 overview 内容
+      overview: {
+        breadcrumb: journey.overview?.breadcrumb || [
+          'Home', 'Journey', journey.category, journey.title
+        ],
+        description: journey.overview?.description || journey.description,
+        highlights: journey.overview?.highlights || journey.highlights.map(h => ({
+          icon: '⭐',
+          title: h,
+          description: `Experience ${h.toLowerCase()} during your journey.`
+        })),
+        sideImage: journey.overview?.sideImage || journey.images[1] || journey.image
+      },
+
+      // 行程区域 - 使用后台设置的 itinerary
+      itinerary: journey.itinerary.map(day => ({
+        ...day,
+        image: day.image || journey.images[0] || journey.image
+      })),
+
+      // 体验区域 - 使用后台设置的 experiences（仅作为可选项清单）
+      experiences: journey.experiences || [],
+
+      // 住宿区域 - 使用后台设置的 accommodations
+      accommodations: journey.accommodations || [],
+
+      // 包含项目 - 使用后台设置的 inclusions
+      inclusions: journey.inclusions || {
+        transportation: {
+          icon: 'Car',
+          title: 'Transportation',
+          description: 'Transportation throughout your journey as specified.'
+        },
+        guide: {
+          icon: 'User',
+          title: 'Guide',
+          description: 'Professional local guides available.'
+        },
+        meals: {
+          icon: 'Utensils',
+          title: 'Meals',
+          description: 'Meal arrangements as specified.'
+        },
+        accommodation: {
+          icon: 'Bed',
+          title: 'Accommodation',
+          description: 'Accommodation details as specified in the itinerary.'
+        },
+        others: journey.included?.map(item => ({
+          icon: '*',
+          title: item,
+          description: `Included: ${item}`
+        })) || []
+      },
+
+      // 包含和排除项目
+      included: journey.included || [],
+      excluded: journey.excluded || [],
+
+      // 相关推荐
+      relatedTrips: journey.relatedTrips || [],
+
+      // 旅行模块 - 用于预订页面的互动选择
+      modules: journey.modules || []
+    };
   }, [journey]);
+
+  // 加入预订
+  const { addJourney, addExperienceToJourney } = useCart();
+  const handleAddToCart = () => {
+    if (!journey) return;
+    try {
+      localStorage.setItem('last_selected_journey_slug', journey.slug);
+    } catch {}
+    addJourney({
+      journeyId: journey.id,
+      slug: journey.slug,
+      title: journey.title,
+      image: journey.image,
+      basePrice: journey.price,
+      travelers: { adults: 2, children: 0 },
+    });
+    router.push('/booking/cart');
+  };
+
+  // 直接预订：加入购物车后跳转到 Your Booking 页面
+  const handleDirectBooking = () => {
+    if (!journey) return;
+    try {
+      localStorage.setItem('last_selected_journey_slug', journey.slug);
+    } catch {}
+    const days = getDurationDays();
+    const start = confirmedDate ? confirmedDate : new Date();
+    const end = addDays(start, Math.max(0, days - 1));
+
+    addJourney({
+      journeyId: journey.id,
+      slug: journey.slug,
+      title: journey.title,
+      image: journey.image,
+      basePrice: journey.price,
+      travelers: { adults: guestAdults, children: guestChildren },
+      dates: confirmedDate ? { start: formatLocalYmd(start), end: formatLocalYmd(end) } : undefined,
+    });
+    router.push('/booking/cart');
+  };
 
   // 如果找不到对应的旅行卡片，显示404
   useEffect(() => {
@@ -144,6 +282,17 @@ export default function DynamicJourneyPage() {
     const dd = String(date.getDate()).padStart(2, '0');
     return `${y}-${m}-${dd}`;
   };
+  const addDays = (date: Date, days: number) => {
+    const d = new Date(date);
+    d.setDate(d.getDate() + days);
+    return d;
+  };
+  const getDurationDays = (): number => {
+    if (!journey?.duration) return 1;
+    const match = journey.duration.match(/\d+/);
+    const n = match ? parseInt(match[0], 10) : 1;
+    return Math.max(1, n);
+  };
 
   const submitBookingForDate = (d: Date) => {
     const checkIn = formatLocalYmd(d);
@@ -151,38 +300,9 @@ export default function DynamicJourneyPage() {
     router.push(`/booking/${journey.slug}?checkIn=${encodeURIComponent(checkIn)}&adults=${guestAdults}&children=${guestChildren}&travelers=${travelers}`);
   };
 
-  // 处理酒店点击
-  const handleHotelClick = (accommodation: any) => {
-    console.log('Hotel clicked in journey page:', accommodation);
-    
-    // 转换为HotelDetailModal期望的格式
-    const hotelForModal = {
-      id: accommodation.id,
-      name: accommodation.name,
-      location: accommodation.location || journey.location,
-      description: accommodation.description || '',
-      rating: accommodation.rating.toString(),
-      images: [accommodation.image || journey.image],
-      roomTypes: [
-        {
-          name: 'Standard Room',
-          description: 'Comfortable room with modern amenities',
-          amenities: ['WiFi', 'Air Conditioning', 'TV', 'Private Bathroom'],
-          price: accommodation.price || journey.price
-        }
-      ]
-    };
-    
-    console.log('Hotel for modal:', hotelForModal);
-    setSelectedHotel(hotelForModal);
-    setIsModalOpen(true);
-  };
+  // 已移除酒店点击弹窗逻辑
 
-  // 关闭酒店详情弹窗
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedHotel(null);
-  };
+  // 已移除酒店详情弹窗关闭逻辑
 
   return (
     <div className="min-h-screen bg-white">
@@ -259,23 +379,20 @@ export default function DynamicJourneyPage() {
             {/* 左侧内容 */}
             <div className="flex-1">
               {/* 面包屑导航 */}
-              <nav className="flex items-center gap-2 text-lg mb-8">
-                {pageConfig.overview.breadcrumb.map((item, index) => (
-                  <React.Fragment key={index}>
-                    {index > 0 && <span>/</span>}
-                    {index === pageConfig.overview.breadcrumb.length - 1 ? (
-                      <span>{item}</span>
-                    ) : (
-                      <Link href={index === 0 ? "/" : index === 1 ? "/journeys" : "#"} className="hover:opacity-80">
-                        {item}
-                      </Link>
-                    )}
-                  </React.Fragment>
-                ))}
-              </nav>
+              <Breadcrumb 
+                items={pageConfig.overview.breadcrumb.map((item, index) => ({
+                  label: item,
+                  href: index === pageConfig.overview.breadcrumb.length - 1 ? undefined : 
+                        index === 0 ? "/" : index === 1 ? "/journeys" : "#"
+                }))}
+                color="#000000"
+                fontFamily="Montserrat, sans-serif"
+                sizeClassName="text-lg md:text-xl"
+                className="mb-8"
+              />
 
-              {/* 概述文本 */}
-              <Text size="xl" className="mb-8 leading-relaxed">
+            {/* 概述文本 */}
+            <Text size="xl" className="mb-8 leading-relaxed">
                 {pageConfig.overview.description}
               </Text>
 
@@ -305,11 +422,17 @@ export default function DynamicJourneyPage() {
             {/* 右侧内容 */}
             <div className="lg:w-96 md:w-full">
               {/* 右侧图片 */}
-              <div className="mt-6">
+              <div className="mt-6 relative">
                 <div
                   className="h-[400px] lg:h-[600px] bg-center bg-cover bg-no-repeat rounded-lg"
                   style={{ backgroundImage: `url('${pageConfig.overview.sideImage}')` }}
                 />
+                {/* Book Now 固定在左侧图像的底部左侧 */}
+                <div className="absolute left-4 bottom-4">
+                  <Button variant="primary" onClick={handleDirectBooking}>
+                    Book Now
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
@@ -317,21 +440,21 @@ export default function DynamicJourneyPage() {
       </Section>
 
       {/* Itinerary */}
-      <Section id="itinerary" background="secondary" padding="xl">
+      <Section id="itinerary" background="tertiary" padding="xl">
         <Container size="xl">
-          <Heading level={2} align="center" className="mb-12">
+          <Heading level={2} align="center" className="mb-12" style={{ color: '#ffffff' }}>
             Daily Itinerary
           </Heading>
 
-          <div className="space-y-8">
+          <div className="space-y-6">
             {pageConfig.itinerary.map((day, index) => (
-              <div key={index} className="bg-tertiary rounded-lg p-6">
+              <div key={index} className="bg-white rounded-lg p-6 border-2 border-black">
                 <div className="flex gap-6 lg:flex-row md:flex-col">
                   <div className="flex-1">
-                    <Heading level={3} className="text-white mb-4">
+                    <Heading level={3} className="mb-4 text-black">
                       {day.title}
                     </Heading>
-                    <Text className="text-gray-300 leading-relaxed">
+                    <Text className="text-gray-700 leading-relaxed">
                       {day.description}
                     </Text>
                   </div>
@@ -389,40 +512,13 @@ export default function DynamicJourneyPage() {
             </Text>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
-              {relatedAccommodations.map((accommodation) => {
-                const imageUrl = accommodation.images?.[0] || '/images/placeholder-hotel.jpg';
-                return (
-                  <div 
-                    key={accommodation.id}
-                    className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer"
-                    onClick={() => {
-                      setSelectedHotel(accommodation);
-                      setIsModalOpen(true);
-                    }}
-                  >
-                    <div 
-                      className="h-48 bg-center bg-cover bg-no-repeat bg-gray-200 relative"
-                      style={{ 
-                        backgroundImage: `url('${imageUrl}')`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center'
-                      }}
-                    />
-                  <div className="p-6">
-                    <h3 className="text-xl font-semibold mb-2 text-gray-900">{accommodation.name}</h3>
-                    <p className="text-gray-600 mb-3 flex items-center">
-                      <MapPin className="w-4 h-4 mr-1" />
-                      {accommodation.location}
-                    </p>
-                    <p className="text-gray-700 text-sm mb-4 line-clamp-3">{accommodation.description}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold text-primary-600">¥{accommodation.roomTypes?.[0]?.basePrice ?? journey.price}/night</span>
-                      <span className="text-sm text-gray-500">View Details</span>
-                    </div>
-                  </div>
-                </div>
-                );
-              })}
+              {relatedAccommodations.map((accommodation) => (
+                <AccommodationCard 
+                  key={accommodation.id} 
+                  {...accommodation} 
+                  onClick={() => handleHotelClick(accommodation)}
+                />
+              ))}
             </div>
 
             <div className="text-center mt-8">
@@ -440,53 +536,148 @@ export default function DynamicJourneyPage() {
       <Section id="details" background="secondary" padding="xl">
         <Container size="xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Inclusions & Exclusions */}
+            {/* Inclusions */}
             <div>
               <Heading level={3} className="mb-8">
-                What's Included & Not Included
+                Inclusions & Offers
               </Heading>
               
-              {/* Included Items */}
-              {pageConfig.included && pageConfig.included.length > 0 && (
-                <div className="mb-8">
-                  <Heading level={4} className="text-lg font-semibold mb-4 text-green-600">
-                    What's Included
-                  </Heading>
-                  <ul className="space-y-3">
-                    {pageConfig.included.map((item, index) => (
-                      <li key={index} className="flex items-start gap-3">
-                        <span className="text-green-500 text-xl font-bold mt-0.5">✓</span>
-                        <Text className="text-gray-700 text-base">{item}</Text>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              <div className="space-y-6">
+                {/* 使用新的inclusions结构 */}
+                {journey.inclusions ? (
+                  <>
+                    {/* Transportation */}
+                    {journey.inclusions.transportation && (
+                      <div className="flex gap-4">
+                        <Car className="w-10 h-10 text-primary-500 flex-shrink-0" />
+                        <div>
+                          <Text className="font-medium mb-2">
+                            {journey.inclusions.transportation.title}
+                          </Text>
+                          <Text size="sm" className="text-gray-600">
+                            {journey.inclusions.transportation.description}
+                          </Text>
+                        </div>
+                      </div>
+                    )}
 
-              {/* Excluded Items */}
-              {pageConfig.excluded && pageConfig.excluded.length > 0 && (
-                <div>
-                  <Heading level={4} className="text-lg font-semibold mb-4 text-red-600">
-                    What's Not Included
-                  </Heading>
-                  <ul className="space-y-3">
-                    {pageConfig.excluded.map((item, index) => (
-                      <li key={index} className="flex items-start gap-3">
-                        <span className="text-red-500 text-xl font-bold mt-0.5">✗</span>
-                        <Text className="text-gray-700 text-base">{item}</Text>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+                    {/* Guide */}
+                    {journey.inclusions.guide && (
+                      <div className="flex gap-4">
+                        <User className="w-10 h-10 text-primary-500 flex-shrink-0" />
+                        <div>
+                          <Text className="font-medium mb-2">
+                            {journey.inclusions.guide.title}
+                          </Text>
+                          <Text size="sm" className="text-gray-600">
+                            {journey.inclusions.guide.description}
+                          </Text>
+                        </div>
+                      </div>
+                    )}
 
-              {/* Show message if no items */}
-              {(!pageConfig.included || pageConfig.included.length === 0) && 
-               (!pageConfig.excluded || pageConfig.excluded.length === 0) && (
-                <div className="text-center py-8">
-                  <Text className="text-gray-500">No inclusion details available for this journey.</Text>
-                </div>
-              )}
+                    {/* Meals */}
+                    {journey.inclusions.meals && (
+                      <div className="flex gap-4">
+                        <Utensils className="w-10 h-10 text-primary-500 flex-shrink-0" />
+                        <div>
+                          <Text className="font-medium mb-2">
+                            {journey.inclusions.meals.title}
+                          </Text>
+                          <Text size="sm" className="text-gray-600">
+                            {journey.inclusions.meals.description}
+                          </Text>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Accommodation */}
+                    {journey.inclusions.accommodation && (
+                      <div className="flex gap-4">
+                        <Bed className="w-10 h-10 text-primary-500 flex-shrink-0" />
+                        <div>
+                          <Text className="font-medium mb-2">
+                            {journey.inclusions.accommodation.title}
+                          </Text>
+                          <Text size="sm" className="text-gray-600">
+                            {journey.inclusions.accommodation.description}
+                          </Text>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Others */}
+                    {journey.inclusions.others && journey.inclusions.others.map((item, index) => {
+                      // 根据图标名称选择对应的图标组件
+                      let IconComponent = Car;
+                      if (item.icon === 'Ticket') {
+                        IconComponent = Ticket;
+                      } else if (item.icon === 'User') {
+                        IconComponent = User;
+                      } else if (item.icon === 'Utensils') {
+                        IconComponent = Utensils;
+                      } else if (item.icon === 'Bed') {
+                        IconComponent = Bed;
+                      } else if (item.icon === 'Car') {
+                        IconComponent = Car;
+                      }
+
+                      return (
+                        <div key={index} className="flex gap-4">
+                          <IconComponent className="w-10 h-10 text-primary-500 flex-shrink-0" />
+                          <div>
+                            <Text className="font-medium mb-2">
+                              {item.title}
+                            </Text>
+                            <Text size="sm" className="text-gray-600">
+                              {item.description}
+                            </Text>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </>
+                ) : (
+                  /* 回退到旧的included数组显示 */
+                  journey.included && journey.included.map((item, index) => {
+                    // 根据包含项目类型选择图标
+                    let IconComponent = Car;
+                    if (item.toLowerCase().includes('transport') || item.toLowerCase().includes('vehicle')) {
+                      IconComponent = Car;
+                    } else if (item.toLowerCase().includes('accommodation') || item.toLowerCase().includes('hotel') || item.toLowerCase().includes('stay')) {
+                      IconComponent = Bed;
+                    } else if (item.toLowerCase().includes('guide') || item.toLowerCase().includes('guide')) {
+                      IconComponent = User;
+                    } else if (item.toLowerCase().includes('meal') || item.toLowerCase().includes('food') || item.toLowerCase().includes('dining')) {
+                      IconComponent = Utensils;
+                    }
+
+                    return (
+                      <div key={index} className="flex gap-4">
+                        <IconComponent className="w-10 h-10 text-primary-500 flex-shrink-0" />
+                        <div>
+                          <Text className="font-medium mb-2">
+                            {item.split(':')[0] || item.split(' - ')[0] || item.split('(')[0] || item}
+                          </Text>
+                          <Text size="sm" className="text-gray-600">
+                            {item.includes(':') ? item.split(':')[1] : 
+                             item.includes(' - ') ? item.split(' - ')[1] : 
+                             item.includes('(') ? item.split('(')[1].replace(')', '') : 
+                             item}
+                          </Text>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+
+                {/* Show message if no items */}
+                {(!journey.inclusions && (!journey.included || journey.included.length === 0)) && (
+                  <div className="text-center py-8">
+                    <Text className="text-gray-500">No inclusion details available for this journey.</Text>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Select Your Date（替换原Dates & Prices区域，动态未来一年） */}
@@ -524,6 +715,12 @@ export default function DynamicJourneyPage() {
                     const isDate = !!cell;
                     const isActive = activePopoverDate && cell && activePopoverDate.toDateString() === cell.toDateString();
                     const available = isAvailable(cell);
+                    const isRange = (() => {
+                      if (!confirmedDate || !cell) return false;
+                      const days = getDurationDays();
+                      const rangeEnd = addDays(confirmedDate, Math.max(0, days - 1));
+                      return cell >= confirmedDate && cell <= rangeEnd;
+                    })();
                     
                     return (
                       <div
@@ -533,11 +730,15 @@ export default function DynamicJourneyPage() {
                         onMouseLeave={available ? scheduleClosePopover : undefined}
                       >
                         <div
-                          className={`h-10 flex items-center justify-center text-sm rounded ${
+                          className={`h-10 flex items-center justify-center text-sm rounded transition-colors ${
                             !isDate
                               ? ''
                               : disabled
                               ? 'text-gray-300 cursor-not-allowed'
+                              : confirmedDate && cell && confirmedDate.toDateString() === cell.toDateString()
+                              ? 'bg-black text-white'
+                              : isRange
+                              ? 'bg-primary-200 text-gray-900 ring-1 ring-primary-400'
                               : available
                               ? 'text-gray-700 hover:bg-primary-100 cursor-pointer'
                               : 'text-gray-400'
@@ -580,13 +781,31 @@ export default function DynamicJourneyPage() {
                                   </div>
                                 </div>
                               </div>
-                              <button className="w-full mt-3 bg-primary-500 hover:bg-primary-600 text-white text-xs py-1 rounded" onClick={() => submitBookingForDate(cell)}>Book Now</button>
+                              <button
+                                className="w-full mt-3 bg-primary-500 hover:bg-primary-600 text-white text-xs py-1 rounded"
+                                onClick={() => {
+                                  setConfirmedDate(cell as Date);
+                                  setActivePopoverDate(null);
+                                }}
+                              >
+                                Confirm
+                              </button>
                             </div>
                           </div>
                         )}
                       </div>
                     );
                   })}
+                </div>
+                {/* 全局 Book Now 按钮 */}
+                <div className="mt-4 text-right">
+                  <Button
+                    variant="primary"
+                    onClick={handleDirectBooking}
+                    disabled={!confirmedDate}
+                  >
+                    Book Now
+                  </Button>
                 </div>
               </Card>
             </div>
@@ -604,21 +823,23 @@ export default function DynamicJourneyPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {pageConfig.relatedTrips.map((trip, index) => (
-                <Card key={index} className="overflow-hidden p-0 hover:shadow-lg transition-shadow duration-300">
-                  <div
-                    className="h-48 bg-center bg-cover bg-no-repeat"
-                    style={{ backgroundImage: `url('${trip.image}')` }}
-                  />
-                  <div className="p-4 bg-white">
-                    <Text className="font-medium mb-2 line-clamp-2 text-gray-900">
-                      {trip.title}
-                    </Text>
-                    <div className="flex justify-between items-center text-sm text-gray-600">
-                      <span>{trip.duration}</span>
-                      <span className="font-medium text-primary-600">{trip.price}</span>
+                <Link key={index} href={`/journeys/${trip.slug}`}>
+                  <Card className="overflow-hidden p-0 hover:shadow-lg transition-shadow duration-300 cursor-pointer">
+                    <div
+                      className="h-48 bg-center bg-cover bg-no-repeat"
+                      style={{ backgroundImage: `url('${trip.image}')` }}
+                    />
+                    <div className="p-4 bg-white">
+                      <Text className="font-medium mb-2 line-clamp-2 text-gray-900">
+                        {trip.title}
+                      </Text>
+                      <div className="flex justify-between items-center text-sm text-gray-600">
+                        <span>{trip.duration}</span>
+                        <span className="font-medium text-primary-600">{trip.price}</span>
+                      </div>
                     </div>
-                  </div>
-                </Card>
+                  </Card>
+                </Link>
               ))}
             </div>
           </Container>

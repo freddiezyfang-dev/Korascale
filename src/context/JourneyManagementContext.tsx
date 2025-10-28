@@ -89,9 +89,9 @@ const defaultJourneys: Journey[] = [
     ],
     modules: [],
     experiences: ['exp-1', 'exp-2'],
-    accommodations: ['hotel-1', 'hotel-2'],
+    accommodations: ['hotel-7', 'hotel-8'],
     availableExperiences: ['exp-1', 'exp-2', 'exp-3'],
-    availableAccommodations: ['hotel-1', 'hotel-2', 'hotel-3'],
+    availableAccommodations: ['hotel-7', 'hotel-8', 'hotel-9'],
     requirements: [
       'Comfortable walking shoes',
       'Camera for photos',
@@ -104,7 +104,7 @@ const defaultJourneys: Journey[] = [
     featured: true,
     tags: ['food', 'culture', 'pandas', 'sichuan', 'one-day'],
     // 页面生成相关字段
-    slug: 'chengdu-city-one-day-deep-dive-dynamic',
+    slug: 'chengdu-city-one-day-deep-dive',
     pageTitle: 'Chengdu City One Day Deep Dive',
     metaDescription: 'Experience the best of Chengdu in one day: pandas, Sichuan cuisine, and traditional opera. A perfect blend of nature, flavor, and art.',
     heroImage: '/images/journey-cards/chengdu-daytour/hero-bannner.jpeg',
@@ -151,28 +151,35 @@ const defaultJourneys: Journey[] = [
       ],
       sideImage: '/images/journey-cards/chengdu-daytour/itinerary-image.png'
     },
-    inclusions: [
-      {
+    inclusions: {
+      transportation: {
         icon: 'Car',
         title: 'Transportation',
         description: 'Transportation throughout in private bus. The departure time and meeting point will be arranged by our staff based on your hotel location and schedule.'
       },
-      {
+      guide: {
+        icon: 'User',
+        title: 'Guide',
+        description: 'Services of an experienced English-speaking guide (other languages like Japanese, Korean, Spanish, German, and French available upon request).'
+      },
+      meals: {
+        icon: 'Utensils',
+        title: 'Meals',
+        description: 'Leshan snack experience and a Chengdu Hot Pot dinner.'
+      },
+      accommodation: {
         icon: 'Bed',
         title: 'Accommodation',
         description: 'Accommodation is not included in this trip.'
       },
-      {
-        icon: 'User',
-        title: 'Guide',
-        description: 'Multilingual local guides are available to serve you.'
-      },
-      {
-        icon: 'Utensils',
-        title: 'Meals',
-        description: 'Authentic Sichuan cuisine experiences included.'
-      }
-    ],
+      others: [
+        {
+          icon: 'Ticket',
+          title: 'All entrance fees',
+          description: 'All entrance fees to attractions and sites are included.'
+        }
+      ]
+    },
     relatedTrips: [
       {
         title: 'Leshan Giant Buddha Day Trip from Chengdu',
@@ -291,10 +298,35 @@ const defaultJourneys: Journey[] = [
       ],
       sideImage: '/images/journey-cards/leshan-giant-buddha.jpg'
     },
-    inclusions: [
-      { icon: 'Car', title: 'Transportation', description: 'Round-trip from Chengdu' },
-      { icon: 'User', title: 'Guide', description: 'Professional guide included' }
-    ],
+    inclusions: {
+      transportation: {
+        icon: 'Car',
+        title: 'Transportation',
+        description: 'Round-trip transportation from Chengdu.'
+      },
+      guide: {
+        icon: 'User',
+        title: 'Guide',
+        description: 'Services of an experienced English-speaking guide (other languages like Japanese, Korean, Spanish, German, and French available upon request).'
+      },
+      meals: {
+        icon: 'Utensils',
+        title: 'Meals',
+        description: 'Lunch at local restaurant.'
+      },
+      accommodation: {
+        icon: 'Bed',
+        title: 'Accommodation',
+        description: 'Accommodation is not included in this trip.'
+      },
+      others: [
+        {
+          icon: 'Ticket',
+          title: 'All entrance fees',
+          description: 'All entrance fees to attractions and sites are included.'
+        }
+      ]
+    },
     relatedTrips: [],
     createdAt: new Date(),
     updatedAt: new Date()
@@ -412,6 +444,7 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
     const loadJourneys = () => {
       try {
         const storedJourneys = localStorage.getItem('journeys');
+        console.log('JourneyManagementContext: Loading journeys from localStorage:', storedJourneys ? 'Found data' : 'No data');
         
         if (storedJourneys) {
           const parsedJourneys = JSON.parse(storedJourneys).map((journey: any) => ({
@@ -419,8 +452,10 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
             createdAt: new Date(journey.createdAt),
             updatedAt: new Date(journey.updatedAt),
           }));
+          console.log('JourneyManagementContext: Loaded journeys count:', parsedJourneys.length);
           setJourneys(parsedJourneys);
         } else {
+          console.log('JourneyManagementContext: No stored journeys, using default data');
           setJourneys(defaultJourneys);
           saveJourneys(defaultJourneys);
         }

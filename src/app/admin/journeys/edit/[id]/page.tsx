@@ -9,6 +9,8 @@ import { useExperienceManagement } from '@/context/ExperienceManagementContext';
 import { useHotelManagement } from '@/context/HotelManagementContext';
 import { Journey, JourneyStatus } from '@/types';
 import { PageGenerationHelper } from '@/components/admin/PageGenerationHelper';
+import { DeleteConfirmationModal } from '@/components/modals/DeleteConfirmationModal';
+import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation';
 import { 
   ArrowLeft,
   Save,
@@ -22,7 +24,12 @@ import {
   Clock,
   Users,
   DollarSign,
-  Star
+  Star,
+  Car,
+  Bed,
+  User,
+  Utensils,
+  Ticket
 } from 'lucide-react';
 
 const categoryOptions = [
@@ -43,12 +50,20 @@ const statusOptions = [
 
 export default function EditJourneyPage() {
   const { user } = useUser();
-  const { journeys, updateJourney, isLoading } = useJourneyManagement();
+  const { journeys, updateJourney, deleteJourney, isLoading } = useJourneyManagement();
   const { experiences } = useExperienceManagement();
   const { hotels } = useHotelManagement();
   const router = useRouter();
   const params = useParams();
   const journeyId = params.id as string;
+  const { 
+    isModalOpen, 
+    isDeleting, 
+    deleteOptions, 
+    confirmDelete, 
+    handleConfirm, 
+    handleClose 
+  } = useDeleteConfirmation();
 
   const [journey, setJourney] = useState<Journey | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -124,6 +139,59 @@ export default function EditJourneyPage() {
     setFormData(prev => ({
       ...prev,
       [field]: (prev[field as keyof Journey] as string[]).filter((_, i) => i !== index)
+    }));
+  };
+
+  // 处理inclusions结构的变化
+  const handleInclusionChange = (category: 'transportation' | 'guide' | 'meals' | 'accommodation', field: 'title' | 'description', value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      inclusions: {
+        ...prev.inclusions,
+        [category]: {
+          ...prev.inclusions?.[category],
+          icon: prev.inclusions?.[category]?.icon || (category === 'transportation' ? 'Car' : category === 'guide' ? 'User' : category === 'meals' ? 'Utensils' : 'Bed'),
+          [field]: value
+        }
+      }
+    }));
+  };
+
+  // 处理其他inclusions的变化
+  const handleOtherInclusionChange = (index: number, field: 'title' | 'description', value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      inclusions: {
+        ...prev.inclusions,
+        others: prev.inclusions?.others?.map((item, i) => 
+          i === index ? { ...item, [field]: value } : item
+        ) || []
+      }
+    }));
+  };
+
+  // 添加其他inclusion
+  const handleAddOtherInclusion = () => {
+    setFormData(prev => ({
+      ...prev,
+      inclusions: {
+        ...prev.inclusions,
+        others: [
+          ...(prev.inclusions?.others || []),
+          { icon: 'Ticket', title: '', description: '' }
+        ]
+      }
+    }));
+  };
+
+  // 移除其他inclusion
+  const handleRemoveOtherInclusion = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      inclusions: {
+        ...prev.inclusions,
+        others: prev.inclusions?.others?.filter((_, i) => i !== index) || []
+      }
     }));
   };
 
@@ -249,17 +317,6 @@ export default function EditJourneyPage() {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                    <textarea
-                      value={isEditing ? formData.description || '' : journey.description}
-                      onChange={(e) => handleInputChange('description', e.target.value)}
-                      disabled={!isEditing}
-                      rows={4}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                    />
-                  </div>
-
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
@@ -271,20 +328,6 @@ export default function EditJourneyPage() {
                       >
                         {categoryOptions.map(category => (
                           <option key={category} value={category}>{category}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Difficulty</label>
-                      <select
-                        value={isEditing ? formData.difficulty || '' : journey.difficulty}
-                        onChange={(e) => handleInputChange('difficulty', e.target.value)}
-                        disabled={!isEditing}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                      >
-                        {difficultyOptions.map(difficulty => (
-                          <option key={difficulty} value={difficulty}>{difficulty}</option>
                         ))}
                       </select>
                     </div>
@@ -315,17 +358,6 @@ export default function EditJourneyPage() {
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
                       />
                     </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                      <input
-                        type="text"
-                        value={isEditing ? formData.location || '' : journey.location}
-                        onChange={(e) => handleInputChange('location', e.target.value)}
-                        disabled={!isEditing}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                      />
-                    </div>
                   </div>
                 </div>
               </Card>
@@ -333,7 +365,7 @@ export default function EditJourneyPage() {
               {/* Pricing and Duration */}
               <Card className="p-6">
                 <Heading level={2} className="text-xl font-semibold mb-4">Pricing & Duration</Heading>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Duration</label>
                     <input
@@ -362,6 +394,28 @@ export default function EditJourneyPage() {
                       type="number"
                       value={isEditing ? formData.originalPrice || 0 : journey.originalPrice || 0}
                       onChange={(e) => handleInputChange('originalPrice', parseInt(e.target.value))}
+                      disabled={!isEditing}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Destination Count</label>
+                    <input
+                      type="number"
+                      value={isEditing ? formData.destinationCount || 0 : journey.destinationCount || 0}
+                      onChange={(e) => handleInputChange('destinationCount', parseInt(e.target.value))}
+                      disabled={!isEditing}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Max Guests</label>
+                    <input
+                      type="number"
+                      value={isEditing ? formData.maxGuests || 0 : journey.maxGuests || 0}
+                      onChange={(e) => handleInputChange('maxGuests', parseInt(e.target.value))}
                       disabled={!isEditing}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
                     />
@@ -510,45 +564,195 @@ export default function EditJourneyPage() {
                 </div>
               </Card>
 
-              {/* Included/Excluded */}
+              {/* Inclusions & Excluded */}
               <Card className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* New Inclusions Structure */}
                   <div>
-                    <Heading level={3} className="text-lg font-semibold mb-4">Included</Heading>
-                    <div className="space-y-2">
-                      {(isEditing ? formData.included || [] : journey.included).map((item, index) => (
-                        <div key={index} className="flex gap-2">
-                          <input
-                            type="text"
-                            value={item}
-                            onChange={(e) => handleArrayInputChange('included', index, e.target.value)}
-                            disabled={!isEditing}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                          />
+                    <Heading level={3} className="text-lg font-semibold mb-4">Inclusions & Offers</Heading>
+                    <div className="space-y-6">
+                      {/* Transportation */}
+                      <div className="border border-gray-200 rounded-lg p-4">
+                        <Heading level={4} className="text-md font-medium mb-3 flex items-center gap-2">
+                          <Car className="w-5 h-5 text-primary-500" />
+                          Transportation
+                        </Heading>
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                            <input
+                              type="text"
+                              value={isEditing ? (formData.inclusions?.transportation?.title || '') : (journey.inclusions?.transportation?.title || '')}
+                              onChange={(e) => handleInclusionChange('transportation', 'title', e.target.value)}
+                              disabled={!isEditing}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                              placeholder="Transportation"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                            <textarea
+                              value={isEditing ? (formData.inclusions?.transportation?.description || '') : (journey.inclusions?.transportation?.description || '')}
+                              onChange={(e) => handleInclusionChange('transportation', 'description', e.target.value)}
+                              disabled={!isEditing}
+                              rows={3}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                              placeholder="Transportation details..."
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Guide */}
+                      <div className="border border-gray-200 rounded-lg p-4">
+                        <Heading level={4} className="text-md font-medium mb-3 flex items-center gap-2">
+                          <User className="w-5 h-5 text-primary-500" />
+                          Guide
+                        </Heading>
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                            <input
+                              type="text"
+                              value={isEditing ? (formData.inclusions?.guide?.title || '') : (journey.inclusions?.guide?.title || '')}
+                              onChange={(e) => handleInclusionChange('guide', 'title', e.target.value)}
+                              disabled={!isEditing}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                              placeholder="Guide"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                            <textarea
+                              value={isEditing ? (formData.inclusions?.guide?.description || '') : (journey.inclusions?.guide?.description || '')}
+                              onChange={(e) => handleInclusionChange('guide', 'description', e.target.value)}
+                              disabled={!isEditing}
+                              rows={3}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                              placeholder="Guide details..."
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Meals */}
+                      <div className="border border-gray-200 rounded-lg p-4">
+                        <Heading level={4} className="text-md font-medium mb-3 flex items-center gap-2">
+                          <Utensils className="w-5 h-5 text-primary-500" />
+                          Meals
+                        </Heading>
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                            <input
+                              type="text"
+                              value={isEditing ? (formData.inclusions?.meals?.title || '') : (journey.inclusions?.meals?.title || '')}
+                              onChange={(e) => handleInclusionChange('meals', 'title', e.target.value)}
+                              disabled={!isEditing}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                              placeholder="Meals"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                            <textarea
+                              value={isEditing ? (formData.inclusions?.meals?.description || '') : (journey.inclusions?.meals?.description || '')}
+                              onChange={(e) => handleInclusionChange('meals', 'description', e.target.value)}
+                              disabled={!isEditing}
+                              rows={3}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                              placeholder="Meals details..."
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Accommodation */}
+                      <div className="border border-gray-200 rounded-lg p-4">
+                        <Heading level={4} className="text-md font-medium mb-3 flex items-center gap-2">
+                          <Bed className="w-5 h-5 text-primary-500" />
+                          Accommodation
+                        </Heading>
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                            <input
+                              type="text"
+                              value={isEditing ? (formData.inclusions?.accommodation?.title || '') : (journey.inclusions?.accommodation?.title || '')}
+                              onChange={(e) => handleInclusionChange('accommodation', 'title', e.target.value)}
+                              disabled={!isEditing}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                              placeholder="Accommodation"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                            <textarea
+                              value={isEditing ? (formData.inclusions?.accommodation?.description || '') : (journey.inclusions?.accommodation?.description || '')}
+                              onChange={(e) => handleInclusionChange('accommodation', 'description', e.target.value)}
+                              disabled={!isEditing}
+                              rows={3}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                              placeholder="Accommodation details..."
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Others */}
+                      <div className="border border-gray-200 rounded-lg p-4">
+                        <Heading level={4} className="text-md font-medium mb-3">Other Inclusions</Heading>
+                        <div className="space-y-3">
+                          {(isEditing ? (formData.inclusions?.others || []) : (journey.inclusions?.others || [])).map((item, index) => (
+                            <div key={index} className="flex gap-2 p-3 border border-gray-200 rounded-lg">
+                              <div className="flex-1 space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-primary-500 font-bold">*</span>
+                                  <input
+                                    type="text"
+                                    value={item.title}
+                                    onChange={(e) => handleOtherInclusionChange(index, 'title', e.target.value)}
+                                    disabled={!isEditing}
+                                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                                    placeholder="Title"
+                                  />
+                                </div>
+                                <textarea
+                                  value={item.description}
+                                  onChange={(e) => handleOtherInclusionChange(index, 'description', e.target.value)}
+                                  disabled={!isEditing}
+                                  rows={2}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                                  placeholder="Description"
+                                />
+                              </div>
+                              {isEditing && (
+                                <Button
+                                  onClick={() => handleRemoveOtherInclusion(index)}
+                                  variant="secondary"
+                                  size="sm"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              )}
+                            </div>
+                          ))}
                           {isEditing && (
                             <Button
-                              onClick={() => handleRemoveArrayItem('included', index)}
+                              onClick={handleAddOtherInclusion}
                               variant="secondary"
                               size="sm"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Plus className="w-4 h-4 mr-1" />
+                              Add Other Inclusion
                             </Button>
                           )}
                         </div>
-                      ))}
-                      {isEditing && (
-                        <Button
-                          onClick={() => handleAddArrayItem('included')}
-                          variant="secondary"
-                          size="sm"
-                        >
-                          <Plus className="w-4 h-4 mr-1" />
-                          Add Item
-                        </Button>
-                      )}
+                      </div>
                     </div>
                   </div>
 
+                  {/* Excluded */}
                   <div>
                     <Heading level={3} className="text-lg font-semibold mb-4">Excluded</Heading>
                     <div className="space-y-2">
@@ -730,27 +934,45 @@ export default function EditJourneyPage() {
                       Select Available Accommodations
                     </label>
                     <div className="space-y-2 max-h-60 overflow-y-auto border border-gray-200 rounded-lg p-4">
-                      {hotels.filter(hotel => hotel.status === 'active').map((hotel) => (
-                        <div key={hotel.id} className="flex items-center space-x-3">
-                          <input
-                            type="checkbox"
-                            id={`hotel-${hotel.id}`}
-                            checked={(journey.availableAccommodations || []).includes(hotel.id)}
-                            onChange={(e) => {
-                              handleAccommodationSelection(hotel.id, e.target.checked);
-                            }}
-                            className="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500"
-                          />
-                          <label htmlFor={`hotel-${hotel.id}`} className="flex-1 cursor-pointer">
-                            <div className="flex items-center justify-between">
-                              <Text className="font-medium text-sm">{hotel.name}</Text>
-                              <span className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
-                                {hotel.city}
-                              </span>
-                            </div>
-                          </label>
-                        </div>
-                      ))}
+                      {hotels.filter(hotel => hotel.status === 'active').map((hotel) => {
+                        const isInAvailable = (journey.availableAccommodations || []).includes(hotel.id);
+                        const isSelected = isEditing ? (formData.accommodations || []).includes(hotel.id) : (journey.accommodations || []).includes(hotel.id);
+                        return (
+                          <div key={hotel.id} className="flex items-center space-x-3">
+                            <input
+                              type="checkbox"
+                              id={`hotel-${hotel.id}`}
+                              checked={isInAvailable}
+                              onChange={(e) => {
+                                handleAccommodationSelection(hotel.id, e.target.checked);
+                              }}
+                              className="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500"
+                            />
+                            <label htmlFor={`hotel-${hotel.id}`} className="flex-1 cursor-pointer">
+                              <div className="flex items-center justify-between">
+                                <Text className="font-medium text-sm">{hotel.name}</Text>
+                                <span className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
+                                  {hotel.city}
+                                </span>
+                              </div>
+                            </label>
+                            {isInAvailable && !isSelected && (
+                              <Button
+                                onClick={() => {
+                                  const currentSelected = isEditing ? (formData.accommodations || []) : (journey.accommodations || []);
+                                  handleInputChange('accommodations', [...currentSelected, hotel.id]);
+                                }}
+                                variant="primary"
+                                size="sm"
+                                className="ml-2"
+                                disabled={!isEditing}
+                              >
+                                <Plus className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                   
@@ -796,23 +1018,85 @@ export default function EditJourneyPage() {
               {/* Page Management */}
               <Card className="p-6">
                 <Heading level={2} className="text-xl font-semibold mb-4">Page Management</Heading>
-                <div className="space-y-4">
+                <div className="space-y-6">
+                  {/* URL Configuration */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Page Slug</label>
-                    <input
-                      type="text"
-                      value={isEditing ? formData.slug || '' : journey.slug}
-                      onChange={(e) => handleInputChange('slug', e.target.value)}
-                      disabled={!isEditing}
-                      placeholder="e.g., chengdu-city-one-day-deep-dive"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                    />
-                    <Text size="sm" className="text-gray-500 mt-1">
-                      This will be the URL path: /journeys/[slug]
-                    </Text>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">URL Configuration</label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Journey Slug</label>
+                        <input
+                          type="text"
+                          value={isEditing ? formData.slug || '' : journey.slug}
+                          onChange={(e) => handleInputChange('slug', e.target.value)}
+                          disabled={!isEditing}
+                          placeholder="e.g., chengdu-city-one-day-deep-dive"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                        />
+                        <Text size="sm" className="text-gray-500 mt-1">
+                          Journey URL: /journeys/[slug]
+                        </Text>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Region for Destinations</label>
+                        <select
+                          value={isEditing ? formData.region || '' : journey.region}
+                          onChange={(e) => handleInputChange('region', e.target.value)}
+                          disabled={!isEditing}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                        >
+                          <option value="">Select Region</option>
+                          <option value="Sichuan">Sichuan</option>
+                          <option value="Gansu">Gansu</option>
+                          <option value="Shaanxi">Shaanxi</option>
+                          <option value="Xinjiang">Xinjiang</option>
+                        </select>
+                        <Text size="sm" className="text-gray-500 mt-1">
+                          Destination URL: /destinations/[region]
+                        </Text>
+                      </div>
+                    </div>
                   </div>
 
+                  {/* URL Preview */}
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <Text size="sm" className="text-gray-600 mb-2 font-medium">URL Preview:</Text>
+                    <div className="space-y-2">
+                      {(isEditing ? formData.slug : journey.slug) && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-green-600">✓</span>
+                          <Text size="sm" className="text-gray-700">
+                            Journey: <code className="bg-white px-2 py-1 rounded text-blue-600">/journeys/{isEditing ? formData.slug : journey.slug}</code>
+                          </Text>
+                        </div>
+                      )}
+                      {(isEditing ? formData.region : journey.region) && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-green-600">✓</span>
+                          <Text size="sm" className="text-gray-700">
+                            Destination: <code className="bg-white px-2 py-1 rounded text-blue-600">/destinations/{(isEditing ? formData.region : journey.region)?.toLowerCase()}</code>
+                          </Text>
+                        </div>
+                      )}
+                      {!(isEditing ? formData.slug : journey.slug) && !(isEditing ? formData.region : journey.region) && (
+                        <Text size="sm" className="text-gray-500 italic">
+                          Configure slug and region to see URL previews
+                        </Text>
+                      )}
+                    </div>
+                  </div>
 
+                  {/* URL Validation */}
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <Text size="sm" className="text-blue-800 mb-2 font-medium">URL Strategy:</Text>
+                    <ul className="text-sm text-blue-700 space-y-1">
+                      <li>• Journey slug creates: <code>/journeys/[slug]</code></li>
+                      <li>• Region creates: <code>/destinations/[region]</code></li>
+                      <li>• Both URLs will show the same journey content</li>
+                      <li>• Region-based filtering happens automatically</li>
+                    </ul>
+                  </div>
                 </div>
               </Card>
 

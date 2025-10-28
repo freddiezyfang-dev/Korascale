@@ -3,8 +3,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useWishlist } from '@/context/WishlistContext';
 import { Button, Card, Heading, Text } from '@/components/common';
-import { BookingModal } from '@/components/modals/BookingModal';
 import { Plus, Heart, Calendar, Star, MapPin, Wifi, Car, Coffee } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export interface AccommodationCardProps {
   id: string;
@@ -16,6 +16,8 @@ export interface AccommodationCardProps {
   amenities?: string[];
   featured?: boolean;
   onClick?: () => void;
+  variant?: 'default' | 'light';
+  showWishlist?: boolean;
 }
 
 export const AccommodationCard: React.FC<AccommodationCardProps> = ({
@@ -28,12 +30,14 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
   amenities = [],
   featured = false,
   onClick,
+  variant = 'default',
+  showWishlist = true,
 }) => {
   console.log("|" + image + "|");
   
   const { addToWishlist, isInWishlist, removeFromWishlist } = useWishlist();
-  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const router = useRouter();
   
   const inWishlist = isInWishlist(id);
 
@@ -52,8 +56,10 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
     }
   }, [id, inWishlist, title, location, image, price, addToWishlist, removeFromWishlist]);
 
-  const openBookingModal = useCallback(() => setIsBookingModalOpen(true), []);
-  const closeBookingModal = useCallback(() => setIsBookingModalOpen(false), []);
+  const handleBookNow = useCallback(() => {
+    // 跳转到 accommodation 预订页面
+    router.push(`/booking/accommodation?hotelId=${id}&adults=2&children=0`);
+  }, [router, id]);
 
   const handleCardClick = () => {
     console.log('AccommodationCard clicked:', { id, title, onClick: !!onClick });
@@ -62,9 +68,11 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
     }
   };
 
+  const isLight = variant === 'light';
+
   return (
     <Card 
-      className="overflow-hidden p-0 group bg-tertiary h-full flex flex-col cursor-pointer hover:shadow-lg transition-shadow duration-300"
+      className={`overflow-hidden p-0 group h-full flex flex-col cursor-pointer hover:shadow-lg transition-shadow duration-300 ${isLight ? 'bg-white border-2 border-black' : 'bg-tertiary'}`}
       onClick={handleCardClick}
     >
       {/* 图片部分 - 简化版本 */}
@@ -96,24 +104,24 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
       </div>
 
       {/* 内容 */}
-      <div className="p-4 bg-tertiary flex-1 flex flex-col">
+      <div className={`p-4 flex-1 flex flex-col ${isLight ? 'bg-white' : 'bg-tertiary'}`}>
         {/* 位置 */}
         <Text 
           size="sm" 
-          className="text-black mb-1 font-body" 
-          style={{ color: '#000000', fontFamily: 'Monda, sans-serif', lineHeight: '1.625' }}
+          className={`${isLight ? 'text-black' : 'text-white'} mb-1 font-body`} 
+          style={{ color: isLight ? '#000000' : '#ffffff', fontFamily: 'Monda, sans-serif', lineHeight: '1.625' }}
         >
           {location}
         </Text>
 
         {/* 标题 */}
-        <Heading level={4} className="text-lg font-medium mb-3 line-clamp-2 text-black" style={{ color: '#000000' }}>
+        <Heading level={4} className={`text-lg font-medium mb-3 line-clamp-2 ${isLight ? 'text-black' : 'text-white'}`} style={{ color: isLight ? '#000000' : '#ffffff' }}>
           {title}
         </Heading>
 
         {/* 描述 */}
         {description && (
-          <Text size="sm" className="text-black mb-4 line-clamp-3" style={{ color: '#000000' }}>
+          <Text size="sm" className={`${isLight ? 'text-black' : 'text-white'} mb-4 line-clamp-3`} style={{ color: isLight ? '#000000' : '#ffffff' }}>
             {description}
           </Text>
         )}
@@ -121,7 +129,7 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
         {/* 价格 */}
         {price && (
           <div className="flex items-center gap-4 mb-4">
-            <Text size="sm" className="text-black font-medium" style={{ color: '#000000' }}>
+            <Text size="sm" className={`${isLight ? 'text-black' : 'text-white'} font-medium`} style={{ color: isLight ? '#000000' : '#ffffff' }}>
               {price}
             </Text>
           </div>
@@ -133,53 +141,42 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
           <Button
             onClick={(e) => {
               e.stopPropagation();
-              // 让父级页面打开酒店详情弹窗
-              if (onClick) onClick();
+              handleBookNow();
             }}
-            className="w-full flex items-center justify-center gap-2 bg-primary-500 hover:bg-primary-600 text-black font-semibold py-3 px-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+            className="w-full flex items-center justify-center gap-2 bg-white hover:bg-gray-100 text-black font-semibold py-3 px-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
             style={{ color: '#000000' }}
           >
             <Calendar className="w-5 h-5" />
             Book Now
           </Button>
           
-          {/* 添加到愿望清单按钮 */}
-          <Button
-            variant={inWishlist ? "secondary" : "outline"}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleWishlistToggle();
-            }}
-            className="w-full flex items-center justify-center gap-2 border-2 border-black text-black hover:text-black font-semibold py-3 px-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
-            style={{ color: '#000000', borderColor: '#000000' }}
-          >
-          {inWishlist ? (
-            <>
-              <Heart className="w-5 h-5 fill-current" />
-              Added to Wishlist
-            </>
-          ) : (
-            <>
-              <Plus className="w-5 h-5" />
-              Add to Wishlist
-            </>
+          {/* 添加到愿望清单按钮 - 仅在showWishlist为true时显示 */}
+          {showWishlist && (
+            <Button
+              variant={inWishlist ? "secondary" : "outline"}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleWishlistToggle();
+              }}
+              className={`w-full flex items-center justify-center gap-2 font-semibold py-3 px-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 ${isLight ? 'border-2 border-black text-black hover:text-black' : 'border-2 border-white text-white hover:text-white'}`}
+              style={{ color: isLight ? '#000000' : '#ffffff', borderColor: isLight ? '#000000' : '#ffffff' }}
+            >
+            {inWishlist ? (
+              <>
+                <Heart className="w-5 h-5 fill-current" />
+                Added to Wishlist
+              </>
+            ) : (
+              <>
+                <Plus className="w-5 h-5" />
+                Add to Wishlist
+              </>
+            )}
+            </Button>
           )}
-          </Button>
         </div>
       </div>
 
-      {/* 预订弹窗 */}
-      <BookingModal
-        isOpen={isBookingModalOpen}
-        onClose={closeBookingModal}
-        accommodation={{
-          id,
-          title,
-          location,
-          image,
-          price,
-        }}
-      />
     </Card>
   );
 };

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/components/common';
-import { InspirationsSection, PlanningSectionNew } from '@/components/sections';
+import { InspirationsSection, PlanningSectionNew, JourneyCarousel } from '@/components/sections';
 import { useState, useEffect } from 'react';
 
 // 图片资源 - 使用本地图片
@@ -91,7 +91,7 @@ export default function Destinations() {
               items={[{ label: 'Home', href: '/' }, { label: 'Destinations' }]}
               color="#FFFFFF"
               fontFamily="Montserrat, sans-serif"
-              sizeClassName="text-lg md:text-2xl"
+              sizeClassName="text-lg md:text-xl"
             />
           </div>
           
@@ -194,51 +194,22 @@ export default function Destinations() {
       </Section>
 
       {/* Featured Offers Section */}
-      <Section background="tertiary" padding="xl" className="py-24">
+      <div className="bg-tertiary py-24">
         <Container size="xl">
-          <div className="text-center mb-16">
-            <Text 
-              className="text-2xl mb-4" 
-              style={{ color: '#FFFFFF' }}
-            >
-              Our Featured Offers
-            </Text>
-            <Heading 
-              level={2} 
-              className="text-5xl font-heading" 
-              style={{ color: '#FFFFFF' }}
-            >
-              China guides and inspirations
-            </Heading>
-          </div>
-
-          <div className="bg-secondary p-5 rounded-lg">
-            <div className="flex gap-5 overflow-x-auto pb-5">
-              {featuredOffers.map((offer) => (
-                <Card key={offer.id} className="min-w-[615px] h-[300px] border-2 border-black border-solid bg-white overflow-hidden">
-                  <div className="flex h-full">
-                    <div className="w-[344px] h-[225px] my-auto ml-4">
-                      <img
-                        src={offer.image}
-                        alt={offer.title}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="flex-1 flex flex-col justify-center items-center p-8">
-                      <Heading level={3} className="text-2xl font-subheading text-black text-center mb-8">
-                        {offer.title}
-                      </Heading>
-                      <button className="text-sm font-body text-black underline hover:no-underline">
-                        VIEW MORE
-                      </button>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </div>
+          <JourneyCarousel
+            subtitle="Our Featured Offers"
+            title="China guides and inspirations"
+            items={featuredOffers.map(offer => ({
+              id: offer.id,
+              title: offer.title,
+              image: offer.image,
+              href: "/journeys"
+            }))}
+            autoPlay={true}
+            interval={3000}
+          />
         </Container>
-      </Section>
+      </div>
 
       {/* Inspirations Section */}
       <InspirationsSection />

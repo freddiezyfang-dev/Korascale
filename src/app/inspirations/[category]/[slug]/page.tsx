@@ -45,7 +45,16 @@ export default function ArticleDetailPage() {
         <div className="absolute inset-0 bg-black/40" />
         <div className="relative z-10 h-full flex items-end">
           <div className="p-8 w-full max-w-5xl mx-auto">
-            <Breadcrumb items={[{label:'Home',href:'/'},{label:'Inspirations',href:'/inspirations'},{label:category}]} color="#FFFFFF" sizeClassName="text-sm" />
+            <Breadcrumb 
+              items={[
+                {label:'Home',href:'/'},
+                {label:'Inspirations',href:'/inspirations'},
+                {label:category}
+              ]} 
+              color="#FFFFFF" 
+              fontFamily="Montserrat, sans-serif"
+              sizeClassName="text-lg md:text-xl" 
+            />
             <Heading level={1} className="text-4xl text-white mt-4">{article.title}</Heading>
             <Text className="text-white/90 mt-2">作者：{article.author}</Text>
           </div>

@@ -13,7 +13,7 @@ export default function NavMenu() {
 		<nav className="w-full bg-[#f5f1e6] relative z-40" data-name="Navi Bar" data-node-id="819:685">
 			<div className="relative mx-auto flex max-w-screen-2xl items-center justify-between px-[50px] py-0 h-[62px]">
 				{/* 左侧导航菜单 */}
-				<div className="flex items-center gap-[26px] text-[16px] text-black font-[Inknut_Antiqua]">
+				<div className="flex items-center gap-[26px] text-[16px] text-black font-subheading">
 					<Dropdown
                     trigger={
                             <Link href="/destinations" className="hover:opacity-80 h-[34px] flex items-center">
@@ -48,18 +48,18 @@ export default function NavMenu() {
 					</div>
 					{user ? (
 						<div className="flex items-center gap-3">
-							<span className="text-[16px] text-black font-[Inknut_Antiqua]">
+							<span className="text-[16px] text-black font-subheading">
 								Welcome, {user.name}
 							</span>
 							<button 
 								onClick={logout}
-								className="text-[16px] text-black font-[Inknut_Antiqua] hover:opacity-80"
+								className="text-[16px] text-black font-subheading hover:opacity-80"
 							>
 								Logout
 							</button>
 						</div>
 					) : (
-                        <Link href="/auth/login" className="text-[16px] text-black font-[Inknut_Antiqua] hover:opacity-80">
+                        <Link href="/auth/login" className="text-[16px] text-black font-subheading hover:opacity-80">
                             Sign in / Log in
                         </Link>
 					)}

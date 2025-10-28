@@ -12,6 +12,7 @@ import { HotelManagementProvider } from "@/context/HotelManagementContext";
 import { JourneyManagementProvider } from "@/context/JourneyManagementContext";
 import { ExperienceManagementProvider } from "@/context/ExperienceManagementContext";
 import { ArticleManagementProvider } from "@/context/ArticleManagementContext";
+import { CartProvider } from "@/context/CartContext";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -50,12 +51,14 @@ export default function RootLayout({
 								<ExperienceManagementProvider>
 									<ArticleManagementProvider>
 										<WishlistProvider>
-										<OrderProvider>
-											<Header />
-											<NavMenu />
-											{children}
-											<Footer />
-										</OrderProvider>
+											<CartProvider>
+												<OrderProvider>
+													<Header />
+													<NavMenu />
+													{children}
+													<Footer />
+												</OrderProvider>
+											</CartProvider>
 										</WishlistProvider>
 									</ArticleManagementProvider>
 								</ExperienceManagementProvider>

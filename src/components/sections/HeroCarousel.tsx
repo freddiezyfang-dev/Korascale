@@ -57,11 +57,11 @@ export default function HeroCarousel({
     if (!autoSlide) return;
     
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
+      setCurrentSlide((prev) => (prev + 1) % 4); // 固定为4个slides
     }, slideInterval);
 
     return () => clearInterval(timer);
-  }, [autoSlide, slideInterval, slides.length]);
+  }, [autoSlide, slideInterval]);
 
   const goToSlide = (index: number) => {
     setCurrentSlide(index);

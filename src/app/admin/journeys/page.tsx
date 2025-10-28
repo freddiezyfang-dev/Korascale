@@ -7,6 +7,8 @@ import { useUser } from '@/context/UserContext';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { Journey, JourneyStatus } from '@/types';
 import { migrateExistingPage, validateMigratedPage } from '@/lib/pageMigration';
+import { DeleteConfirmationModal } from '@/components/modals/DeleteConfirmationModal';
+import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation';
 import { 
   MapPin, 
   Star, 
@@ -76,6 +78,14 @@ export default function AdminJourneysPage() {
     isLoading 
   } = useJourneyManagement();
   const router = useRouter();
+  const { 
+    isModalOpen, 
+    isDeleting, 
+    deleteOptions, 
+    confirmDelete, 
+    handleConfirm, 
+    handleClose 
+  } = useDeleteConfirmation();
   
   const [selectedStatus, setSelectedStatus] = useState<JourneyStatus | 'all'>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -106,10 +116,14 @@ export default function AdminJourneysPage() {
     updateJourneyStatus(journeyId, newStatus);
   };
 
-  const handleDeleteJourney = (journeyId: string) => {
-    if (confirm('确定要删除这个旅行卡片吗？此操作无法撤销。')) {
-      deleteJourney(journeyId);
-    }
+  const handleDeleteJourney = (journey: Journey) => {
+    confirmDelete({
+      title: 'Delete Journey',
+      description: 'This will permanently remove the journey and all associated data.',
+      itemName: journey.title,
+      itemType: 'journey',
+      onConfirm: () => deleteJourney(journey.id)
+    });
   };
 
   const handleMigrateJourney = (journey: Journey) => {
@@ -459,7 +473,7 @@ export default function AdminJourneysPage() {
                             Edit
                           </Button>
                           <Button
-                            onClick={() => handleDeleteJourney(journey.id)}
+                            onClick={() => handleDeleteJourney(journey)}
                             variant="secondary"
                             size="sm"
                             className="flex-1"
@@ -529,6 +543,20 @@ export default function AdminJourneysPage() {
           </div>
         </Container>
       </Section>
+
+      {/* Delete Confirmation Modal */}
+      {deleteOptions && (
+        <DeleteConfirmationModal
+          isOpen={isModalOpen}
+          onClose={handleClose}
+          onConfirm={handleConfirm}
+          title={deleteOptions.title}
+          description={deleteOptions.description}
+          itemName={deleteOptions.itemName}
+          itemType={deleteOptions.itemType}
+          isLoading={isDeleting}
+        />
+      )}
     </div>
   );
 }

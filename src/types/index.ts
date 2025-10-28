@@ -130,6 +130,8 @@ export interface Journey {
   city: string;
   location: string;
   difficulty: 'Easy' | 'Medium' | 'Hard';
+  destinationCount?: number; // 目的地数量，用于hero banner显示
+  maxGuests?: number; // 最大客人数量，用于hero banner显示
   maxParticipants: number;
   minParticipants: number;
   included: string[];
@@ -182,10 +184,32 @@ export interface Journey {
     sideImage: string;
   };
   inclusions?: {
-    icon: string;
-    title: string;
-    description: string;
-  }[];
+    transportation?: {
+      icon: string;
+      title: string;
+      description: string;
+    };
+    guide?: {
+      icon: string;
+      title: string;
+      description: string;
+    };
+    meals?: {
+      icon: string;
+      title: string;
+      description: string;
+    };
+    accommodation?: {
+      icon: string;
+      title: string;
+      description: string;
+    };
+    others?: {
+      icon: string;
+      title: string;
+      description: string;
+    }[];
+  };
   relatedTrips?: {
     title: string;
     duration: string;

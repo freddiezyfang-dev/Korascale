@@ -24,7 +24,7 @@ const journeys = [
 		description: "Designed for food and culture enthusiasts. Visit the Panda Base in the morning, then head to the Sichuan Cuisine Museum for a hands-on experience with snack making and tasting. In the afternoon, enjoy a face-changing performance of Sichuan Opera. The day concludes with a classic Chengdu hot pot dinner, offering a deep dive into Sichuan's culinary and artistic heritage.",
 		image: imgJourney1,
 		duration: "1 Day",
-		price: "From $299",
+		price: "From ¥299",
 		category: "Food",
 		region: "Sichuan",
 		link: "/journeys/chengdu-city-one-day-deep-dive"
@@ -99,7 +99,10 @@ const journeys = [
 
 export default function JourneysPage() {
 	const { journeys, isLoading } = useJourneyManagement();
-	const [selectedCategory, setSelectedCategory] = useState('All');
+	const [selectedRegion, setSelectedRegion] = useState('All');
+	const [selectedDuration, setSelectedDuration] = useState('All');
+	const [selectedInterest, setSelectedInterest] = useState('All');
+	const [selectedMonth, setSelectedMonth] = useState('All');
 	const [searchTerm, setSearchTerm] = useState('');
 
 	const categories = [
@@ -118,15 +121,16 @@ export default function JourneysPage() {
 	const filteredJourneys = useMemo(() => {
 		return journeys.filter(journey => {
 			const isActive = journey.status === 'active';
-			const matchesCategory = selectedCategory === 'All' || 
-									journey.category === selectedCategory || 
-									journey.region === selectedCategory ||
-									journey.duration === selectedCategory;
+			const matchesRegion = selectedRegion === 'All' || journey.region === selectedRegion;
+			const matchesDuration = selectedDuration === 'All' || journey.duration === selectedDuration;
+			const matchesInterest = selectedInterest === 'All' || journey.category === selectedInterest;
+			// Note: Month filtering would need additional data in journey objects
+			const matchesMonth = selectedMonth === 'All'; // For now, always true
 			const matchesSearch = journey.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
 								 journey.description.toLowerCase().includes(searchTerm.toLowerCase());
-			return isActive && matchesCategory && matchesSearch;
+			return isActive && matchesRegion && matchesDuration && matchesInterest && matchesMonth && matchesSearch;
 		});
-	}, [journeys, selectedCategory, searchTerm]);
+	}, [journeys, selectedRegion, selectedDuration, selectedInterest, selectedMonth, searchTerm]);
 
 	// 加载状态
 	if (isLoading) {
@@ -169,7 +173,7 @@ export default function JourneysPage() {
                             items={[{ label: 'Home', href: '/' }, { label: 'Journeys' }]}
                             color="#000000"
                             fontFamily="Montserrat, sans-serif"
-                            sizeClassName="text-xl md:text-2xl"
+                            sizeClassName="text-lg md:text-xl"
                             className="mb-8"
                         />
 
@@ -186,97 +190,37 @@ export default function JourneysPage() {
 			{/* Recommended Journeys Section */}
 			<div className="bg-[#1e3b32] py-16">
 				<Container size="xl">
-					<h2 className="text-4xl font-['Montaga'] text-white text-center mb-16">
+					<h2 className="text-4xl font-['Montaga'] text-center mb-16" style={{ color: '#ffffff' }}>
 						Recommended Journeys
 					</h2>
 					
 					<div className="space-y-8">
-						{/* Journey Card 1 - Chengdu */}
-						<div className="bg-white rounded-lg overflow-hidden shadow-lg">
-							<div className="flex">
-								<div className="w-1/2">
-									<div 
-										className="h-[400px] bg-cover bg-center bg-no-repeat"
-										style={{ backgroundImage: `url('${imgJourney1}')` }}
-									/>
-								</div>
-								<div className="w-1/2 p-8">
-									<h3 className="text-2xl font-['Montaga'] text-black mb-4">
-										Chengdu City: One-Day Food & Culture Deep Dive
-									</h3>
-									<p className="text-base font-['Monda'] text-black mb-8 leading-relaxed">
-										Designed for food and culture enthusiasts. Visit the Panda Base in the morning, 
-										then head to the Sichuan Cuisine Museum for a hands-on experience with snack making 
-										and tasting. In the afternoon, enjoy a face-changing performance of Sichuan Opera. 
-										The day concludes with a classic Chengdu hot pot dinner, offering a deep dive into 
-										Sichuan&apos;s culinary and artistic heritage.
-									</p>
-									<Link href="/journeys/chengdu-city-one-day-deep-dive">
-										<Button variant="primary" className="text-xl font-['Monda']">
-											View Details
-										</Button>
-									</Link>
+						{/* Filter featured journeys - take first 3 featured active journeys */}
+						{journeys.filter(j => j.featured && j.status === 'active').slice(0, 3).map((journey) => (
+							<div key={journey.id} className="bg-white rounded-lg overflow-hidden shadow-lg">
+								<div className="flex">
+									<div className="w-1/2">
+										<div 
+											className="h-[400px] bg-cover bg-center bg-no-repeat"
+											style={{ backgroundImage: `url('${journey.image}')` }}
+										/>
+									</div>
+									<div className="w-1/2 p-8">
+										<h3 className="text-2xl font-['Montaga'] text-black mb-4">
+											{journey.title}
+										</h3>
+										<p className="text-base font-['Monda'] text-black mb-8 leading-relaxed line-clamp-4">
+											{journey.overview?.description || journey.shortDescription || journey.description}
+										</p>
+										<Link href={journey.slug ? `/journeys/${journey.slug}` : '#'}>
+											<Button variant="primary" className="text-xl font-['Monda']">
+												View Details
+											</Button>
+										</Link>
+									</div>
 								</div>
 							</div>
-						</div>
-
-						{/* Journey Card 2 - Chongqing */}
-						<div className="bg-white rounded-lg overflow-hidden shadow-lg">
-							<div className="flex">
-								<div className="w-1/2">
-									<div 
-										className="h-[400px] bg-cover bg-center bg-no-repeat"
-										style={{ backgroundImage: `url('${imgJourney2}')` }}
-									/>
-								</div>
-								<div className="w-1/2 p-8">
-									<h3 className="text-2xl font-['Montaga'] text-black mb-4">
-										Chongqing City Highlights Day Tour
-									</h3>
-									<p className="text-base font-['Monda'] text-black mb-8 leading-relaxed">
-										See the best of Chongqing&apos;s magical and retro vibes in one day. Explore the ancient 
-										Ciqikou Old Town in the morning. In the afternoon, experience the Liziba Monorail 
-										passing through a residential building, ride the Yangtze River Cableway, and stroll 
-										through Longmenhao Old Street. Admire the Hongyadong night view before enjoying a 
-										dinner of authentic Chongqing hot pot after a lunch of local noodles. Feel the unique 
-										charm of this 8D city.
-									</p>
-									<Link href="/journeys/chongqing-city-highlights">
-										<Button variant="primary" className="text-xl font-['Monda']">
-											View Details
-										</Button>
-									</Link>
-								</div>
-							</div>
-						</div>
-
-						{/* Journey Card 3 - Jiuzhaigou */}
-						<div className="bg-white rounded-lg overflow-hidden shadow-lg">
-							<div className="flex">
-								<div className="w-1/2">
-									<div 
-										className="h-[400px] bg-cover bg-center bg-no-repeat"
-										style={{ backgroundImage: `url('${imgJourney3}')` }}
-									/>
-								</div>
-								<div className="w-1/2 p-8">
-									<h3 className="text-2xl font-['Montaga'] text-black mb-4">
-										Jiuzhaigou, Panda & Zhongzhagou 4-Days In-Depth Tour
-									</h3>
-									<p className="text-base font-['Monda'] text-black mb-8 leading-relaxed">
-										A 4-day deep dive into Jiuzhaigou and its surrounding secrets. Beyond the main parks, 
-										this tour includes a visit to the Jiawu Hai Panda Garden and a horse riding experience 
-										in Zhongzhagou Valley to experience Tibetan culture and natural adventure. Perfect for 
-										travelers who enjoy in-depth exploration and outdoor activities.
-									</p>
-									<Link href="/journeys/jiuzhaigou-panda-zhongzhagou">
-										<Button variant="primary" className="text-xl font-['Monda']">
-											View Details
-										</Button>
-									</Link>
-								</div>
-							</div>
-						</div>
+						))}
 					</div>
 				</Container>
 			</div>
@@ -298,9 +242,13 @@ export default function JourneysPage() {
 											<button
 												key={region}
 												className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
-													selectedCategory === region ? 'bg-primary-500 text-white' : 'bg-white text-black'
+													selectedRegion === region ? 'bg-gray-200' : 'bg-white'
 												}`}
-												onClick={() => setSelectedCategory(region)}
+												style={{
+													color: 'black',
+													backgroundColor: selectedRegion === region ? '#e5e7eb' : 'white'
+												}}
+												onClick={() => setSelectedRegion(region)}
 											>
 												{region}
 											</button>
@@ -316,9 +264,13 @@ export default function JourneysPage() {
 											<button
 												key={duration}
 												className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
-													selectedCategory === duration ? 'bg-primary-500 text-white' : 'bg-white text-black'
+													selectedDuration === duration ? 'bg-gray-200' : 'bg-white'
 												}`}
-												onClick={() => setSelectedCategory(duration)}
+												style={{
+													color: 'black',
+													backgroundColor: selectedDuration === duration ? '#e5e7eb' : 'white'
+												}}
+												onClick={() => setSelectedDuration(duration)}
 											>
 												{duration}
 											</button>
@@ -334,9 +286,13 @@ export default function JourneysPage() {
 											<button
 												key={interest}
 												className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
-													selectedCategory === interest ? 'bg-primary-500 text-white' : 'bg-white text-black'
+													selectedInterest === interest ? 'bg-gray-200' : 'bg-white'
 												}`}
-												onClick={() => setSelectedCategory(interest)}
+												style={{
+													color: 'black',
+													backgroundColor: selectedInterest === interest ? '#e5e7eb' : 'white'
+												}}
+												onClick={() => setSelectedInterest(interest)}
 											>
 												{interest}
 											</button>
@@ -352,9 +308,13 @@ export default function JourneysPage() {
 											<button
 												key={month}
 												className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
-													selectedCategory === month ? 'bg-primary-500 text-white' : 'bg-white text-black'
+													selectedMonth === month ? 'bg-gray-200' : 'bg-white'
 												}`}
-												onClick={() => setSelectedCategory(month)}
+												style={{
+													color: 'black',
+													backgroundColor: selectedMonth === month ? '#e5e7eb' : 'white'
+												}}
+												onClick={() => setSelectedMonth(month)}
 											>
 												{month}
 											</button>

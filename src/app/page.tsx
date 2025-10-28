@@ -1,5 +1,6 @@
 import Link from "next/link";
 import HeroCarousel from "@/components/sections/HeroCarousel";
+import JourneyCarousel from "@/components/sections/JourneyCarousel";
 import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
 import { InspirationsSection } from '@/components/sections';
 
@@ -44,10 +45,14 @@ export default function Home() {
             <Link href="/destinations" className="group">
               <div 
                 className="relative h-[463px] w-[284px] bg-center bg-cover bg-no-repeat overflow-hidden transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-2xl"
-                style={{ backgroundImage: `url('${imgDestinationsButton}')` }}
+                style={{ 
+                  backgroundImage: `url('${imgDestinationsButton}')`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center'
+                }}
               >
                 {/* 渐变遮罩 - 从透明到半黑，让底部文字区域更易读 */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent group-hover:from-black/70 group-hover:via-black/30 transition-all duration-300"></div>
                 
                 <div className="absolute bottom-[99px] left-1/2 transform -translate-x-1/2 text-center w-[222px] h-[140px] flex flex-col items-center justify-start">
                   {/* 移除内层遮罩的背景色，依赖外层渐变遮罩 */}
@@ -65,10 +70,14 @@ export default function Home() {
             <Link href="/journeys" className="group">
               <div 
                 className="relative h-[463px] w-[284px] bg-center bg-cover bg-no-repeat overflow-hidden transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-2xl"
-                style={{ backgroundImage: `url('${imgJourneysButton}')` }}
+                style={{ 
+                  backgroundImage: `url('${imgJourneysButton}')`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center'
+                }}
               >
                 {/* 渐变遮罩 - 从透明到半黑，让底部文字区域更易读 */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent group-hover:from-black/70 group-hover:via-black/30 transition-all duration-300"></div>
                 
                 <div className="absolute bottom-[99px] left-1/2 transform -translate-x-1/2 text-center w-[222px] h-[140px] flex flex-col items-center justify-start">
                   {/* 移除内层遮罩的背景色，依赖外层渐变遮罩 */}
@@ -86,10 +95,14 @@ export default function Home() {
             <Link href="/inspirations" className="group">
               <div 
                 className="relative h-[463px] w-[284px] bg-center bg-cover bg-no-repeat overflow-hidden transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-2xl"
-                style={{ backgroundImage: `url('${imgInspirationsButton}')` }}
+                style={{ 
+                  backgroundImage: `url('${imgInspirationsButton}')`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center'
+                }}
               >
                 {/* 渐变遮罩 - 从透明到半黑，让底部文字区域更易读 */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent group-hover:from-black/50 group-hover:via-black/20 transition-all duration-300"></div>
                 
                 <div className="absolute bottom-[99px] left-1/2 transform -translate-x-1/2 text-center w-[222px] h-[140px] flex flex-col items-center justify-start">
                   {/* 移除内层遮罩的背景色，依赖外层渐变遮罩 */}
@@ -107,10 +120,14 @@ export default function Home() {
             <Link href="/accommodations" className="group">
               <div 
                 className="relative h-[463px] w-[284px] bg-center bg-cover bg-no-repeat overflow-hidden transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-2xl"
-                style={{ backgroundImage: `url('${imgAccommodationsButton}')` }}
+                style={{ 
+                  backgroundImage: `url('${imgAccommodationsButton}')`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center'
+                }}
               >
                 {/* 渐变遮罩 - 从透明到半黑，让底部文字区域更易读 */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent group-hover:from-black/70 group-hover:via-black/30 transition-all duration-300"></div>
                 
                 <div className="absolute bottom-[99px] left-1/2 transform -translate-x-1/2 text-center w-[222px] h-[140px] flex flex-col items-center justify-start">
                   {/* 移除内层遮罩的背景色，依赖外层渐变遮罩 */}
@@ -128,49 +145,28 @@ export default function Home() {
       </Section>
 
       {/* Journey Section */}
-      <Section background="secondary" padding="xl">
-        <Container size="xl">
-          <div className="text-center mb-16">
-            <Text size="xl" className="mb-4 font-[Monda] text-center text-black">Journey</Text>
-            <Heading level={2} className="text-5xl font-[Montaga] text-center text-black">What do you want to travel</Heading>
-          </div>
-
-          {/* Slide Cards */}
-          <div className="flex gap-8 overflow-x-auto pb-8">
-            {[
-              { id: 1, title: "Chengdu One-Day Deep Dive", image: imgJourneyCard1 },
-              { id: 2, title: "Chongqing Cyber City", image: imgJourneyCard2 },
-              { id: 3, title: "Tibet Buddhist Journey", image: imgJourneyCard3 },
-              { id: 4, title: "Chinese Food Tour", image: imgJourneyCard4 },
-              { id: 5, title: "Chongqing Wulong Karst National Park", image: imgJourneyCard5 },
-              { id: 6, title: "Jiuzhaigou Huanglong National Park Tour", image: imgJourneyCard6 }
-            ].map((item) => (
-              <div key={item.id} className="bg-white h-[300px] w-[615px] flex-shrink-0 border-2 border-black rounded-lg overflow-hidden">
-                <div className="flex h-full">
-                  <div 
-                    className="w-[344px] h-[225px] bg-center bg-cover bg-no-repeat m-4"
-                    style={{ backgroundImage: `url('${item.image}')` }}
-                  />
-                  <div className="flex-1 p-4 flex flex-col justify-center">
-                    <h3 className="text-2xl font-[Inknut_Antiqua] text-black mb-4">{item.title}</h3>
-                    <Link href="/journeys" className="text-black underline text-sm font-[Monda] hover:opacity-80">
-                      VIEW MORE
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Container>
-      </Section>
+      <JourneyCarousel
+        subtitle="Journey"
+        title="What do you want to travel"
+        items={[
+          { id: 1, title: "Chengdu One-Day Deep Dive", image: imgJourneyCard1, href: "/journeys" },
+          { id: 2, title: "Chongqing Cyber City", image: imgJourneyCard2, href: "/journeys" },
+          { id: 3, title: "Tibet Buddhist Journey", image: imgJourneyCard3, href: "/journeys" },
+          { id: 4, title: "Chinese Food Tour", image: imgJourneyCard4, href: "/journeys" },
+          { id: 5, title: "Chongqing Wulong Karst National Park", image: imgJourneyCard5, href: "/journeys" },
+          { id: 6, title: "Jiuzhaigou Huanglong National Park Tour", image: imgJourneyCard6, href: "/journeys" }
+        ]}
+        autoPlay={true}
+        interval={3000}
+      />
 
       {/* Content Articles */}
       <Section background="tertiary" padding="xl">
         <Container size="xl">
           {/* Article 1 */}
-          <div className="bg-[#1e3b32] flex flex-col lg:flex-row items-center gap-8 mb-16 rounded-lg overflow-hidden">
+          <div className="bg-[#1e3b32] flex flex-col lg:flex-row items-center gap-8 mb-16 rounded-lg overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]">
             <div 
-              className="lg:w-1/2 h-[601px] bg-center bg-cover bg-no-repeat"
+              className="lg:w-1/2 h-[601px] bg-center bg-cover bg-no-repeat transition-transform duration-300 group-hover:scale-110"
               style={{ backgroundImage: `url('${imgArticle1}')` }}
             />
             <div className="lg:w-1/2 p-8 text-white" style={{ color: 'white' }}>
@@ -181,14 +177,14 @@ export default function Home() {
                 Adventures Custom Made For You
               </h3>
               <p 
-                className="text-lg mb-8 font-[Monda] text-white" 
+                className="text-lg mb-8 font-body text-white" 
                 style={{ color: 'white' }}
               >
                 Korascale offers fully tailored expeditions. Curate your own adventure by selecting from our unique experiences to build a handcrafted itinerary that is uniquely yours.
               </p>
               <Link 
                 href="/journeys" 
-                className="text-white underline font-[Monda] hover:opacity-80"
+                className="text-white underline font-body hover:opacity-80"
                 style={{ color: 'white' }}
               >
                 VIEW MORE
@@ -198,11 +194,13 @@ export default function Home() {
 
           {/* Article 2 & 3 */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-            <div className="bg-[#1e3b32] rounded-lg overflow-hidden">
-              <div 
-                className="h-[475px] bg-center bg-cover bg-no-repeat"
-                style={{ backgroundImage: `url('${imgArticle2}')` }}
-              />
+            <div className="bg-[#1e3b32] rounded-lg overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]">
+              <Link href="/destinations">
+                <div 
+                  className="h-[475px] bg-center bg-cover bg-no-repeat transition-transform duration-300 group-hover:scale-110"
+                  style={{ backgroundImage: `url('${imgArticle2}')` }}
+                />
+              </Link>
               <div className="p-8 text-white" style={{ color: 'white' }}>
                 <h3 
                   className="text-4xl font-[Barlow_Semi_Condensed] mb-6 text-white" 
@@ -218,7 +216,7 @@ export default function Home() {
                 </p>
                 <Link 
                   href="/destinations" 
-                  className="text-white underline font-[Monda] hover:opacity-80"
+                  className="text-white underline font-body hover:opacity-80 group-hover:text-yellow-300 transition-colors duration-300"
                   style={{ color: 'white' }}
                 >
                   VIEW MORE
@@ -226,11 +224,13 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="bg-[#1e3b32] rounded-lg overflow-hidden">
-              <div 
-                className="h-[479px] bg-center bg-cover bg-no-repeat"
-                style={{ backgroundImage: `url('${imgArticle3}')` }}
-              />
+            <div className="bg-[#1e3b32] rounded-lg overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]">
+              <Link href="/inspirations">
+                <div 
+                  className="h-[479px] bg-center bg-cover bg-no-repeat transition-transform duration-300 group-hover:scale-110"
+                  style={{ backgroundImage: `url('${imgArticle3}')` }}
+                />
+              </Link>
               <div className="p-8 text-white" style={{ color: 'white' }}>
                 <h3 
                   className="text-4xl font-[Barlow_Semi_Condensed] mb-6 text-white" 
@@ -246,7 +246,7 @@ export default function Home() {
                 </p>
                 <Link 
                   href="/inspirations" 
-                  className="text-white underline font-[Monda] hover:opacity-80"
+                  className="text-white underline font-body hover:opacity-80 group-hover:text-yellow-300 transition-colors duration-300"
                   style={{ color: 'white' }}
                 >
                   VIEW MORE
@@ -257,11 +257,13 @@ export default function Home() {
 
           {/* Article 4 & 5 */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="bg-[#1e3b32] rounded-lg overflow-hidden">
-              <div 
-                className="h-[479px] bg-center bg-cover bg-no-repeat"
-                style={{ backgroundImage: `url('${imgArticle4}')` }}
-              />
+            <div className="bg-[#1e3b32] rounded-lg overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]">
+              <Link href="/journeys">
+                <div 
+                  className="h-[479px] bg-center bg-cover bg-no-repeat transition-transform duration-300 group-hover:scale-110"
+                  style={{ backgroundImage: `url('${imgArticle4}')` }}
+                />
+              </Link>
               <div className="p-8 text-white text-center" style={{ color: 'white' }}>
                 <h3 
                   className="text-4xl font-[Barlow_Semi_Condensed] mb-6 text-white" 
@@ -277,7 +279,7 @@ export default function Home() {
                 </p>
                 <Link 
                   href="/journeys" 
-                  className="text-white underline font-[Monda] hover:opacity-80"
+                  className="text-white underline font-body hover:opacity-80 group-hover:text-yellow-300 transition-colors duration-300"
                   style={{ color: 'white' }}
                 >
                   VIEW MORE
@@ -285,11 +287,13 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="bg-[#1e3b32] rounded-lg overflow-hidden">
-              <div 
-                className="h-[479px] bg-center bg-cover bg-no-repeat"
-                style={{ backgroundImage: `url('${imgArticle5}')` }}
-              />
+            <div className="bg-[#1e3b32] rounded-lg overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]">
+              <Link href="/inspirations">
+                <div 
+                  className="h-[479px] bg-center bg-cover bg-no-repeat transition-transform duration-300 group-hover:scale-110"
+                  style={{ backgroundImage: `url('${imgArticle5}')` }}
+                />
+              </Link>
               <div className="p-8 text-white text-center" style={{ color: 'white' }}>
                 <h3 
                   className="text-4xl font-[Barlow_Semi_Condensed] mb-6 text-white" 
@@ -305,7 +309,7 @@ export default function Home() {
                 </p>
                 <Link 
                   href="/inspirations" 
-                  className="text-white underline font-[Monda] hover:opacity-80"
+                  className="text-white underline font-body hover:opacity-80 group-hover:text-yellow-300 transition-colors duration-300"
                   style={{ color: 'white' }}
                 >
                   VIEW MORE
@@ -323,7 +327,7 @@ export default function Home() {
       <Section background="tertiary" padding="xl">
         <Container size="xl">
           <div className="text-center mb-16">
-            <Text size="xl" className="mb-4 font-[Monda]">About Us</Text>
+            <Text size="xl" className="mb-4 font-body">About Us</Text>
             <Heading level={2} className="text-5xl font-[Montaga]">Who will you travel with</Heading>
           </div>
         </Container>

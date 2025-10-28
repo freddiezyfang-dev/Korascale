@@ -133,8 +133,8 @@ export function generateStandardPageConfig(journey: Journey) {
       title: journey.pageTitle || journey.title,
       stats: journey.heroStats || {
         days: parseInt(journey.duration.split(' ')[0]) || 1,
-        destinations: journey.itinerary.length || 1,
-        maxGuests: journey.maxParticipants || 12
+        destinations: journey.destinationCount || journey.itinerary.length || 1,
+        maxGuests: journey.maxGuests || journey.maxParticipants || 12
       }
     },
 

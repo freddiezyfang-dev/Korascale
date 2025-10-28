@@ -10,6 +10,8 @@ export interface WishlistItem {
   image: string;
   price?: string;
   duration?: string;
+  // 关联到某个 journey（当从某个详情页添加时）
+  journeySlug?: string;
   bookingDetails?: {
     checkIn: Date | null;
     checkOut: Date | null;
@@ -72,7 +74,13 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
 
   // 保存wishlist数据到localStorage
   useEffect(() => {
-    localStorage.setItem('wishlist-items', JSON.stringify(items));
+    if (items.length > 0) {
+      try {
+        localStorage.setItem('wishlist-items', JSON.stringify(items));
+      } catch (error) {
+        console.error('Error saving wishlist to localStorage:', error);
+      }
+    }
   }, [items]);
 
   const addToWishlist = (item: WishlistItem) => {

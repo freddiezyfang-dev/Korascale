@@ -7,6 +7,8 @@ import { Heading, Text, Card, Button, Container, Section } from '@/components/co
 import { useUser } from '@/context/UserContext';
 import { useArticleManagement } from '@/context/ArticleManagementContext';
 import { Article, ArticleCategory, ArticleCategoryToSlug } from '@/types/article';
+import { DeleteConfirmationModal } from '@/components/modals/DeleteConfirmationModal';
+import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation';
 import { Plus, Edit, Trash2, Eye, Filter } from 'lucide-react';
 
 export default function AdminArticlesPage() {
@@ -15,6 +17,14 @@ export default function AdminArticlesPage() {
   const { articles, deleteArticle } = useArticleManagement();
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const { 
+    isModalOpen, 
+    isDeleting, 
+    deleteOptions, 
+    confirmDelete, 
+    handleConfirm, 
+    handleClose 
+  } = useDeleteConfirmation();
 
   const categories: ArticleCategory[] = [
     'Food Journey',
@@ -24,6 +34,16 @@ export default function AdminArticlesPage() {
     'Vibrant Nightscapes',
     'Seasonal Highlights'
   ];
+
+  const handleDeleteArticle = (article: Article) => {
+    confirmDelete({
+      title: 'Delete Article',
+      description: 'This will permanently remove the article and all associated data.',
+      itemName: article.title,
+      itemType: 'article',
+      onConfirm: () => deleteArticle(article.id)
+    });
+  };
 
   // Hooks must be called unconditionally; compute filtered before any early return
   const filtered = useMemo(() => {
@@ -103,7 +123,7 @@ export default function AdminArticlesPage() {
                     <Link href={`/admin/articles/edit/${article.id}`} className="inline-flex">
                       <Button variant="secondary" size="sm"><Edit className="w-4 h-4 mr-1" />编辑</Button>
                     </Link>
-                    <Button variant="secondary" size="sm" onClick={() => deleteArticle(article.id)}>
+                    <Button variant="secondary" size="sm" onClick={() => handleDeleteArticle(article)}>
                       <Trash2 className="w-4 h-4 mr-1" />删除
                     </Button>
                     <Link href={`/inspirations/${ArticleCategoryToSlug[article.category]}/${article.slug}`} className="inline-flex ml-auto">
@@ -116,6 +136,20 @@ export default function AdminArticlesPage() {
           </div>
         </Container>
       </Section>
+
+      {/* Delete Confirmation Modal */}
+      {deleteOptions && (
+        <DeleteConfirmationModal
+          isOpen={isModalOpen}
+          onClose={handleClose}
+          onConfirm={handleConfirm}
+          title={deleteOptions.title}
+          description={deleteOptions.description}
+          itemName={deleteOptions.itemName}
+          itemType={deleteOptions.itemType}
+          isLoading={isDeleting}
+        />
+      )}
     </div>
   );
 }

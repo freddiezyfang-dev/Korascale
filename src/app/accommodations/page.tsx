@@ -1,10 +1,9 @@
 'use client';
 
 import Link from "next/link";
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/components/common';
 import { AccommodationCard } from '@/components/cards/AccommodationCard';
-import { HotelDetailModal } from '@/components/modals/HotelDetailModal';
 import { WishlistSidebar } from '@/components/wishlist/WishlistSidebar';
 import { useWishlist } from '@/context/WishlistContext';
 import hotelsData from '@/data/hotels.json';
@@ -35,26 +34,46 @@ const imgFrame37 = "https://images.unsplash.com/photo-1571896349842-33c89424de2d
 // 移除未使用的图片常量
 
 export default function Accommodations() {
-  const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // 已移除酒店详情弹窗
   const { toggleWishlist, items } = useWishlist();
+  
+  // 自动轮播状态
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
   // Filter states
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [selectedStarRating, setSelectedStarRating] = useState<string | null>(null);
 
-  const handleHotelClick = (hotel: Hotel) => {
-    console.log('Hotel clicked in accommodations page:', hotel);
-    console.log('Setting selectedHotel to:', hotel);
-    setSelectedHotel(hotel);
-    setIsModalOpen(true);
-    console.log('Modal should now be open');
-  };
+  // 自动轮播逻辑
+  useEffect(() => {
+    if (isHovered) return;
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedHotel(null);
-  };
+    intervalRef.current = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % 3); // 3张卡片
+    }, 3000);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [isHovered]);
+
+  // 滚动到当前索引
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = currentIndex * (615 + 32); // 卡片宽度 + gap
+      scrollContainerRef.current.scrollTo({
+        left: scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  }, [currentIndex]);
+
+  // 已移除点击卡片弹出酒店详情的交互
 
 
   // Filter hotels based on selected criteria
@@ -92,10 +111,10 @@ export default function Accommodations() {
       `}</style>
       
       {/* Wishlist Sidebar */}
-      <WishlistSidebar />
+      {/* <WishlistSidebar /> */}
       
       {/* Wishlist Button - 固定定位跟随屏幕 */}
-      <div className="fixed top-6 right-6 z-40">
+      {/* <div className="fixed top-6 right-6 z-40">
         <Button
           variant="secondary"
           onClick={toggleWishlist}
@@ -104,7 +123,7 @@ export default function Accommodations() {
           <Heart className="w-5 h-5" />
           Wishlist ({items.length})
         </Button>
-      </div>
+      </div> */}
       {/* Hero Banner - 按照Figma设计的左右分栏布局 */}
       <section className="flex h-[800px] w-full overflow-hidden relative">
         {/* 左侧图片区域 */}
@@ -122,7 +141,8 @@ export default function Accommodations() {
                 fontFamily: 'Montaga, serif',
                 fontWeight: 400,
                 letterSpacing: '-0.025em',
-                lineHeight: '1.1'
+                lineHeight: '1.1',
+                color: '#ffffff'
               }}
             >
               Stay Extraordinary
@@ -149,8 +169,8 @@ export default function Accommodations() {
             <Breadcrumb 
               items={[{ label: 'Home', href: '/' }, { label: 'Accommodations' }]}
               color="#000000"
-              fontFamily="Montaga, serif"
-              sizeClassName="text-lg md:text-2xl"
+              fontFamily="Montserrat, sans-serif"
+              sizeClassName="text-lg md:text-xl"
             />
           </div>
 
@@ -180,176 +200,104 @@ export default function Accommodations() {
       </section>
 
 
-      {/* Recommended Accommodations - 响应式布局 */}
-      <Section id="accommodations" background="secondary">
-        <Container size="xl">
-          <Heading 
-            level={2} 
-            align="center" 
-            className="mb-16 text-4xl lg:text-4xl md:text-3xl text-2xl font-heading text-black"
-            style={{
-              fontFamily: 'Montaga, serif',
-              fontWeight: 400,
-              letterSpacing: '-0.025em',
-              lineHeight: '1.1'
+      {/* Recommended Accommodations - 自动轮播布局 */}
+      <Section id="accommodations" background="tertiary" padding="xl" className="overflow-hidden">
+        <div className="max-w-screen-2xl mx-auto">
+          <div className="text-center mb-16 px-4">
+            <Heading 
+              level={2} 
+              className="text-5xl font-heading text-center text-white"
+              style={{
+                fontFamily: 'Montaga, serif',
+                fontWeight: 400,
+                letterSpacing: '-0.025em',
+                lineHeight: '1.1',
+                color: '#ffffff'
+              }}
+            >
+              Discover our curated collection of hotels and guesthouses
+            </Heading>
+          </div>
+          
+          {/* 自动轮播容器 */}
+          <div 
+            ref={scrollContainerRef}
+            className="flex gap-8 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide pl-4"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            style={{ 
+              scrollSnapType: 'x mandatory',
+              WebkitOverflowScrolling: 'touch'
             }}
           >
-            Discover our curated collection of hotels and guesthouses
-          </Heading>
-          
-          {/* 响应式卡片容器 - 优化布局和间距 */}
-          <div className="flex gap-8 overflow-x-auto pb-8 lg:flex-row md:flex-col flex-col scrollbar-hide">
             {/* Accommodation Card 1 */}
-            <Card className="h-[400px] w-[1200px] flex-shrink-0 overflow-hidden lg:w-[1200px] md:w-full w-full p-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <div className="flex h-full lg:flex-row md:flex-col flex-col">
-                <div
-                  className="w-[600px] h-[400px] bg-center bg-cover bg-no-repeat lg:w-[600px] lg:h-[400px] md:w-full md:h-64 w-full h-48 relative"
+            <div className="bg-white h-[300px] w-[615px] flex-shrink-0 border-2 border-black rounded-lg overflow-hidden snap-start transition-all duration-300 hover:scale-105 hover:shadow-2xl group">
+              <div className="flex h-full">
+                <div 
+                  className="w-[344px] h-[225px] bg-center bg-cover bg-no-repeat m-4 transition-transform duration-300 group-hover:scale-110"
                   style={{ backgroundImage: `url('${imgFrame33}')` }}
-                >
-                  {/* 图片渐变遮罩 */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent"></div>
-                </div>
-                <div className="flex-1 p-8 flex flex-col justify-center bg-white">
-                  <Heading 
-                    level={3} 
-                    className="mb-4 text-2xl lg:text-2xl md:text-xl text-lg font-heading text-black"
-                    style={{
-                      fontFamily: 'Montaga, serif',
-                      fontWeight: 400,
-                      letterSpacing: '-0.025em',
-                      lineHeight: '1.2'
-                    }}
-                  >
+                />
+                <div className="flex-1 p-4 flex flex-col justify-center">
+                  <h3 className="text-2xl font-subheading text-black mb-4 group-hover:text-primary-500 transition-colors duration-300">
                     Chengdu City: One-Day Food & Culture Deep Dive
-                  </Heading>
-                  <Text 
-                    className="text-gray-700 mb-8 lg:text-base md:text-sm text-xs font-body leading-relaxed"
-                    style={{
-                      fontFamily: 'Monda, sans-serif',
-                      lineHeight: '1.625'
-                    }}
-                  >
-                    Designed for food and culture enthusiasts. Visit the Panda Base in the morning,
-                    then head to the Sichuan Cuisine Museum for a hands-on experience with snack
-                    making and tasting. In the afternoon, enjoy a face-changing performance of
-                    Sichuan Opera. The day concludes with a classic Chengdu hot pot dinner, offering
-                    a deep dive into Sichuan&apos;s culinary and artistic heritage.
-                  </Text>
-                  <Link 
-                    href="#" 
-                    className="text-2xl font-body text-black underline hover:opacity-80 self-end lg:text-2xl md:text-lg text-base transition-all duration-300 hover:no-underline"
-                    style={{
-                      fontFamily: 'Monda, sans-serif',
-                      fontWeight: 400
-                    }}
-                  >
-                    View Details
-                  </Link>
+                  </h3>
+                  <span className="text-black underline text-sm font-body hover:opacity-80 group-hover:text-primary-500 transition-colors duration-300">
+                    VIEW MORE
+                  </span>
                 </div>
               </div>
-            </Card>
+            </div>
 
             {/* Accommodation Card 2 */}
-            <Card className="h-[400px] w-[1200px] flex-shrink-0 overflow-hidden lg:w-[1200px] md:w-full w-full p-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <div className="flex h-full lg:flex-row md:flex-col flex-col">
-                <div
-                  className="w-[600px] h-[400px] bg-center bg-cover bg-no-repeat lg:w-[600px] lg:h-[400px] md:w-full md:h-64 w-full h-48 relative"
+            <div className="bg-white h-[300px] w-[615px] flex-shrink-0 border-2 border-black rounded-lg overflow-hidden snap-start transition-all duration-300 hover:scale-105 hover:shadow-2xl group">
+              <div className="flex h-full">
+                <div 
+                  className="w-[344px] h-[225px] bg-center bg-cover bg-no-repeat m-4 transition-transform duration-300 group-hover:scale-110"
                   style={{ backgroundImage: `url('${imgFrame36}')` }}
-                >
-                  {/* 图片渐变遮罩 */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent"></div>
-                </div>
-                <div className="flex-1 p-8 flex flex-col justify-center bg-white">
-                  <Heading 
-                    level={3} 
-                    className="mb-4 text-2xl lg:text-2xl md:text-xl text-lg font-heading text-black"
-                    style={{
-                      fontFamily: 'Montaga, serif',
-                      fontWeight: 400,
-                      letterSpacing: '-0.025em',
-                      lineHeight: '1.2'
-                    }}
-                  >
+                />
+                <div className="flex-1 p-4 flex flex-col justify-center">
+                  <h3 className="text-2xl font-subheading text-black mb-4 group-hover:text-primary-500 transition-colors duration-300">
                     Chongqing City Highlights Day Tour
-                  </Heading>
-                  <Text 
-                    className="text-gray-700 mb-8 lg:text-base md:text-sm text-xs font-body leading-relaxed"
-                    style={{
-                      fontFamily: 'Monda, sans-serif',
-                      lineHeight: '1.625'
-                    }}
-                  >
-                    See the best of Chongqing&apos;s magical and retro vibes in one day. Explore the
-                    ancient Ciqikou Old Town in the morning. In the afternoon, experience the
-                    Liziba Monorail passing through a residential building, ride the Yangtze River
-                    Cableway, and stroll through Longmenhao Old Street. Admire the Hongyadong night
-                    view before enjoying a dinner of authentic Chongqing hot pot.
-                  </Text>
-                  <Link 
-                    href="#" 
-                    className="text-2xl font-body text-black underline hover:opacity-80 self-end lg:text-2xl md:text-lg text-base transition-all duration-300 hover:no-underline"
-                    style={{
-                      fontFamily: 'Monda, sans-serif',
-                      fontWeight: 400
-                    }}
-                  >
-                    View Details
-                  </Link>
+                  </h3>
+                  <span className="text-black underline text-sm font-body hover:opacity-80 group-hover:text-primary-500 transition-colors duration-300">
+                    VIEW MORE
+                  </span>
                 </div>
               </div>
-            </Card>
+            </div>
 
             {/* Accommodation Card 3 */}
-            <Card className="h-[400px] w-[1200px] flex-shrink-0 overflow-hidden lg:w-[1200px] md:w-full w-full p-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <div className="flex h-full lg:flex-row md:flex-col flex-col">
-                <div
-                  className="w-[600px] h-[400px] bg-center bg-cover bg-no-repeat lg:w-[600px] lg:h-[400px] md:w-full md:h-64 w-full h-48 relative"
+            <div className="bg-white h-[300px] w-[615px] flex-shrink-0 border-2 border-black rounded-lg overflow-hidden snap-start transition-all duration-300 hover:scale-105 hover:shadow-2xl group mr-4">
+              <div className="flex h-full">
+                <div 
+                  className="w-[344px] h-[225px] bg-center bg-cover bg-no-repeat m-4 transition-transform duration-300 group-hover:scale-110"
                   style={{ backgroundImage: `url('${imgFrame37}')` }}
-                >
-                  {/* 图片渐变遮罩 */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent"></div>
-                </div>
-                <div className="flex-1 p-8 flex flex-col justify-center bg-white">
-                  <Heading 
-                    level={3} 
-                    className="mb-4 text-2xl lg:text-2xl md:text-xl text-lg font-heading text-black"
-                    style={{
-                      fontFamily: 'Montaga, serif',
-                      fontWeight: 400,
-                      letterSpacing: '-0.025em',
-                      lineHeight: '1.2'
-                    }}
-                  >
+                />
+                <div className="flex-1 p-4 flex flex-col justify-center">
+                  <h3 className="text-2xl font-subheading text-black mb-4 group-hover:text-primary-500 transition-colors duration-300">
                     Jiuzhaigou, Panda & Zhongzhagou 4-Days In-Depth Tour
-                  </Heading>
-                  <Text 
-                    className="text-gray-700 mb-8 lg:text-base md:text-sm text-xs font-body leading-relaxed"
-                    style={{
-                      fontFamily: 'Monda, sans-serif',
-                      lineHeight: '1.625'
-                    }}
-                  >
-                    A 4-day deep dive into Jiuzhaigou and its surrounding secrets. Beyond the main
-                    parks, this tour includes a visit to the Jiawu Hai Panda Garden and a horse
-                    riding experience in Zhongzhagou Valley to experience Tibetan culture and natural
-                    adventure. Perfect for travelers who enjoy in-depth exploration and outdoor activities.
-                  </Text>
-                  <Link 
-                    href="#" 
-                    className="text-2xl font-body text-black underline hover:opacity-80 self-end lg:text-2xl md:text-lg text-base transition-all duration-300 hover:no-underline"
-                    style={{
-                      fontFamily: 'Monda, sans-serif',
-                      fontWeight: 400
-                    }}
-                  >
-                    View Details
-                  </Link>
+                  </h3>
+                  <span className="text-black underline text-sm font-body hover:opacity-80 group-hover:text-primary-500 transition-colors duration-300">
+                    VIEW MORE
+                  </span>
                 </div>
               </div>
-            </Card>
+            </div>
           </div>
 
-        </Container>
+          {/* 轮播指示器 */}
+          <div className="flex justify-center gap-2 mt-8 px-4">
+            {[0, 1, 2].map((index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  index === currentIndex ? 'w-8 bg-white' : 'w-2 bg-gray-300'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
       </Section>
 
       {/* Filter and Results Section - 响应式左右分栏布局 */}
@@ -358,12 +306,13 @@ export default function Accommodations() {
           <div className="text-center mb-16">
             <Heading 
               level={3} 
-              className="text-4xl lg:text-4xl md:text-3xl text-2xl font-heading text-black"
+              className="text-4xl lg:text-4xl md:text-3xl text-2xl font-heading text-white"
               style={{
                 fontFamily: 'Montaga, serif',
                 fontWeight: 400,
                 letterSpacing: '-0.025em',
-                lineHeight: '1.1'
+                lineHeight: '1.1',
+                color: '#ffffff'
               }}
             >
               Recommended Accommodations
@@ -462,12 +411,13 @@ export default function Accommodations() {
             <div className="flex-1">
               <Heading 
                 level={3} 
-                className="text-3xl font-heading text-black mb-8 lg:text-3xl md:text-2xl text-xl"
+                className="text-3xl font-heading text-white mb-8 lg:text-3xl md:text-2xl text-xl"
                 style={{
                   fontFamily: 'Montaga, serif',
                   fontWeight: 400,
                   letterSpacing: '-0.025em',
-                  lineHeight: '1.2'
+                  lineHeight: '1.2',
+                  color: '#ffffff'
                 }}
               >
                 See Where We Can Take You
@@ -483,7 +433,9 @@ export default function Accommodations() {
                     image={hotel.images[0]}
                     price={`$${100 + (hotel.id.charCodeAt(6) % 100)}/night`}
                     description={hotel.description}
-                    onClick={() => handleHotelClick(hotel)}
+                    
+                    variant="light"
+                    showWishlist={false}
                   />
                 ))}
               </div>
@@ -492,12 +444,7 @@ export default function Accommodations() {
         </Container>
       </Section>
 
-      {/* 酒店详情弹窗 */}
-      <HotelDetailModal
-        hotel={selectedHotel}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-      />
+      {/* 已移除酒店详情弹窗 */}
     </div>
   );
 }
