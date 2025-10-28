@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
 import { useUser } from '@/context/UserContext';
@@ -8,7 +8,7 @@ import { useCart } from '@/context/CartContext';
 import { useHotelManagement } from '@/context/HotelManagementContext';
 import { Calendar, Users, MapPin, Star, Wifi, Car, Utensils, Dumbbell } from 'lucide-react';
 
-export default function AccommodationBookingPage() {
+function AccommodationBookingContent() {
   const { user } = useUser();
   const { addJourney } = useCart();
   const { hotels } = useHotelManagement();
@@ -501,5 +501,13 @@ export default function AccommodationBookingPage() {
         </div>
       </Container>
     </main>
+  );
+}
+
+export default function AccommodationBookingPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AccommodationBookingContent />
+    </Suspense>
   );
 }
