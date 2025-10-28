@@ -852,12 +852,7 @@ export default function DynamicJourneyPage() {
         </Section>
       )}
 
-      {/* 酒店详情弹窗 */}
-      <HotelDetailModal
-        hotel={selectedHotel}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-      />
+      {/* 已移除酒店详情弹窗 */}
     </div>
   );
 }
