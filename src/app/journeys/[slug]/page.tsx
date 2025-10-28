@@ -515,8 +515,15 @@ export default function DynamicJourneyPage() {
               {relatedAccommodations.map((accommodation) => (
                 <AccommodationCard 
                   key={accommodation.id} 
-                  {...accommodation} 
+                  id={accommodation.id}
+                  title={accommodation.name}
+                  location={accommodation.location}
+                  image={accommodation.images?.[0] || accommodation.image || ''}
+                  price={`¥${accommodation.price || 500}/night`}
+                  description={accommodation.description}
                   onClick={() => handleHotelClick(accommodation)}
+                  variant="default"
+                  showWishlist={true}
                 />
               ))}
             </div>
