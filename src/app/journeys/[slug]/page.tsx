@@ -518,7 +518,7 @@ export default function DynamicJourneyPage() {
                   id={accommodation.id}
                   title={accommodation.name}
                   location={accommodation.location}
-                  image={accommodation.images?.[0] || accommodation.image || ''}
+                  image={accommodation.images?.[0] || ''}
                   price={`¥${accommodation.price || 500}/night`}
                   description={accommodation.description}
                   onClick={() => handleHotelClick(accommodation)}
