@@ -239,7 +239,7 @@ export function generateJourneyPageFields(journey: Journey, allJourneys: Journey
       highlights: generateOverviewHighlights(journey),
       sideImage: journey.images[1] || journey.image
     },
-    inclusions: journey.inclusions || generateInclusions(journey),
+    inclusions: journey.inclusions || (generateInclusions(journey) as any),
     relatedTrips: journey.relatedTrips || generateRelatedTrips(journey, allJourneys)
   };
 }
