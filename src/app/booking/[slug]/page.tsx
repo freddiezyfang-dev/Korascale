@@ -444,7 +444,7 @@ export default function InteractiveJourneyBookingPage() {
                         <Button
                           variant={selectedModules.includes(module.id) || module.included ? "primary" : "outline"}
                           onClick={() => toggleModule(module.id)}
-                          disabled={module.included}
+                          disabled={!!module.included}
                         >
                           {selectedModules.includes(module.id) || module.included ? 'Selected' : 'Add'}
                         </Button>
