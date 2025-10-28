@@ -42,7 +42,7 @@ export function migrateExistingPage(existingJourney: Journey): Partial<Journey> 
     },
     
     // 包含项目
-    inclusions: existingJourney.inclusions || generateInclusionsFromJourney(existingJourney),
+    inclusions: existingJourney.inclusions || (generateInclusionsFromJourney(existingJourney) as any),
     
     // 相关推荐
     relatedTrips: existingJourney.relatedTrips || []
