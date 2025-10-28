@@ -521,7 +521,6 @@ export default function DynamicJourneyPage() {
                   image={accommodation.images?.[0] || ''}
                   price="¥500/night"
                   description={accommodation.description}
-                  onClick={() => handleHotelClick(accommodation)}
                   variant="default"
                   showWishlist={true}
                 />
