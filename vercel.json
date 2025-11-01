@@ -1,0 +1,16 @@
+{
+  "functions": {
+    "src/app/api/data/route.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/journeys/**/*.ts": {
+      "maxDuration": 10
+    },
+    "src/app/api/upload/route.ts": {
+      "maxDuration": 30
+    }
+  }
+}
+
+
+

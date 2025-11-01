@@ -14,6 +14,7 @@ import { useExperienceManagement } from '@/context/ExperienceManagementContext';
 import { useHotelManagement } from '@/context/HotelManagementContext';
 import { generateStandardPageConfig, JOURNEY_PAGE_TEMPLATE } from '@/lib/journeyPageTemplate';
 import { useCart } from '@/context/CartContext';
+import { Journey } from '@/types';
 import { Heart, MapPin, Clock, Users, Car, Bed, User, Utensils, Ticket } from 'lucide-react';
 
 export default function DynamicJourneyPage() {
@@ -24,13 +25,51 @@ export default function DynamicJourneyPage() {
   const router = useRouter();
   const params = useParams();
   const slug = params.slug as string;
+  
+  // 直接从API获取journey（如果context中没有）
+  const [journeyFromApi, setJourneyFromApi] = useState<Journey | null>(null);
+  const [isLoadingFromApi, setIsLoadingFromApi] = useState(false);
 
   // 已移除酒店详情弹窗状态
 
-  // 根据slug查找对应的旅行卡片
+  // 根据slug查找对应的旅行卡片（优先从context，其次从API）
   const journey = useMemo(() => {
-    return journeys.find(j => j.slug === slug);
-  }, [journeys, slug]);
+    const foundInContext = journeys.find(j => j.slug === slug);
+    return foundInContext || journeyFromApi;
+  }, [journeys, slug, journeyFromApi]);
+  
+  // 如果context中找不到，尝试从API获取
+  useEffect(() => {
+    const fetchJourneyBySlug = async () => {
+      // 如果还在加载context数据，等待一下
+      if (journeysLoading) return;
+      
+      // 如果已经在context中找到，不需要API查询
+      const foundInContext = journeys.find(j => j.slug === slug);
+      if (foundInContext) return;
+      
+      // 如果已经查询过且结果为null，不需要重复查询
+      if (journeyFromApi === null && !isLoadingFromApi && journeys.length > 0) {
+        setIsLoadingFromApi(true);
+        try {
+          const response = await fetch(`/api/journeys/slug/${encodeURIComponent(slug)}`);
+          if (response.ok) {
+            const data = await response.json();
+            setJourneyFromApi(data.journey);
+          } else {
+            setJourneyFromApi(null);
+          }
+        } catch (error) {
+          console.error('Error fetching journey by slug:', error);
+          setJourneyFromApi(null);
+        } finally {
+          setIsLoadingFromApi(false);
+        }
+      }
+    };
+    
+    fetchJourneyBySlug();
+  }, [slug, journeys, journeysLoading, journeyFromApi, isLoadingFromApi]);
   
   console.log('DynamicJourneyPage Debug:', {
     journeysLoading,
@@ -116,8 +155,8 @@ export default function DynamicJourneyPage() {
         image: journey.heroImage || journey.image,
         title: journey.pageTitle || journey.title,
         stats: journey.heroStats || {
-          days: parseInt(journey.duration.split(' ')[0]) || 1,
-          destinations: journey.destinationCount || journey.itinerary.length || 1,
+          days: parseInt((journey.duration || '').split(' ')[0]) || 1,
+          destinations: journey.destinationCount || (journey.itinerary ? journey.itinerary.length : 1) || 1,
           maxGuests: journey.maxGuests || journey.maxParticipants || 12
         }
       },
@@ -138,18 +177,18 @@ export default function DynamicJourneyPage() {
           'Home', 'Journey', journey.category, journey.title
         ],
         description: journey.overview?.description || journey.description,
-        highlights: journey.overview?.highlights || journey.highlights.map(h => ({
+        highlights: journey.overview?.highlights || (journey.highlights || []).map(h => ({
           icon: '⭐',
           title: h,
           description: `Experience ${h.toLowerCase()} during your journey.`
         })),
-        sideImage: journey.overview?.sideImage || journey.images[1] || journey.image
+        sideImage: journey.overview?.sideImage || journey.images?.[1] || journey.image
       },
 
       // 行程区域 - 使用后台设置的 itinerary
-      itinerary: journey.itinerary.map(day => ({
+      itinerary: (journey.itinerary || []).map(day => ({
         ...day,
-        image: day.image || journey.images[0] || journey.image
+        image: day.image || journey.images?.[0] || journey.image
       })),
 
       // 体验区域 - 使用后台设置的 experiences（仅作为可选项清单）
@@ -239,14 +278,19 @@ export default function DynamicJourneyPage() {
     router.push('/booking/cart');
   };
 
-  // 如果找不到对应的旅行卡片，显示404
+  // 如果找不到对应的旅行卡片，显示404（延迟判断，给API查询时间）
   useEffect(() => {
-    if (journeys.length > 0 && !journey) {
-      router.push('/404');
+    // 只有在确认加载完成且确实找不到时才跳转404
+    if (!journeysLoading && !isLoadingFromApi && journeys.length > 0 && !journey && journeyFromApi === null) {
+      // 延迟一下，避免过快跳转
+      const timer = setTimeout(() => {
+        router.push('/404');
+      }, 500);
+      return () => clearTimeout(timer);
     }
-  }, [journeys, journey, router]);
+  }, [journeys, journey, journeyFromApi, journeysLoading, isLoadingFromApi, router]);
 
-  if (journeysLoading) {
+  if (journeysLoading || isLoadingFromApi) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">

@@ -67,6 +67,7 @@ export default function EditJourneyPage() {
 
   const [journey, setJourney] = useState<Journey | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState<Partial<Journey>>({});
 
   useEffect(() => {
@@ -94,29 +95,41 @@ export default function EditJourneyPage() {
   const handleExperienceSelection = (experienceId: string, checked: boolean) => {
     if (!journey) return;
     
-    const currentExps = journey.availableExperiences || [];
+    const currentExps = isEditing 
+      ? (formData.availableExperiences || journey.availableExperiences || [])
+      : (journey.availableExperiences || []);
     const newExps = checked 
       ? [...currentExps, experienceId]
       : currentExps.filter(id => id !== experienceId);
     
-    setJourney(prev => prev ? {
-      ...prev,
-      availableExperiences: newExps
-    } : null);
+    if (isEditing) {
+      handleInputChange('availableExperiences', newExps);
+    } else {
+      setJourney(prev => prev ? {
+        ...prev,
+        availableExperiences: newExps
+      } : null);
+    }
   };
 
   const handleAccommodationSelection = (hotelId: string, checked: boolean) => {
     if (!journey) return;
     
-    const currentHotels = journey.availableAccommodations || [];
+    const currentHotels = isEditing
+      ? (formData.availableAccommodations || journey.availableAccommodations || [])
+      : (journey.availableAccommodations || []);
     const newHotels = checked 
       ? [...currentHotels, hotelId]
       : currentHotels.filter(id => id !== hotelId);
     
-    setJourney(prev => prev ? {
-      ...prev,
-      availableAccommodations: newHotels
-    } : null);
+    if (isEditing) {
+      handleInputChange('availableAccommodations', newHotels);
+    } else {
+      setJourney(prev => prev ? {
+        ...prev,
+        availableAccommodations: newHotels
+      } : null);
+    }
   };
 
   const handleArrayInputChange = (field: string, index: number, value: string) => {
@@ -202,11 +215,18 @@ export default function EditJourneyPage() {
     handleInputChange('itinerary', normalized);
   };
 
-  const handleSave = () => {
-    if (journey) {
-      updateJourney(journey.id, formData);
+  const handleSave = async () => {
+    if (!journey || isSaving) return;
+    setIsSaving(true);
+    try {
+      const updated = await updateJourney(journey.id, formData);
+      setJourney(updated || { ...journey, ...formData });
       setIsEditing(false);
-      setJourney({ ...journey, ...formData });
+    } catch (e) {
+      console.error('Save journey failed:', e);
+      alert('保存失败，请稍后重试');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -255,9 +275,9 @@ export default function EditJourneyPage() {
               <div className="flex gap-4">
                 {isEditing ? (
                   <>
-                    <Button onClick={handleSave} variant="primary">
+                    <Button onClick={handleSave} variant="primary" disabled={isSaving}>
                       <Save className="w-4 h-4 mr-1" />
-                      Save Changes
+                      {isSaving ? 'Saving...' : 'Save Changes'}
                     </Button>
                     <Button onClick={() => setIsEditing(false)} variant="secondary">
                       Cancel
@@ -454,7 +474,7 @@ export default function EditJourneyPage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Highlights</label>
                     <textarea
-                      value={isEditing ? (formData.highlights || []).join('\n') : journey.highlights.join('\n')}
+                      value={(isEditing ? (formData.highlights || []) : (journey.highlights || [])).join('\n')}
                       onChange={(e) => {
                         const highlightsArray = e.target.value.split('\n').filter(line => line.trim() !== '');
                         handleInputChange('highlights', highlightsArray);
@@ -475,14 +495,14 @@ export default function EditJourneyPage() {
               <Card className="p-6">
                 <Heading level={2} className="text-xl font-semibold mb-4">Daily Itinerary</Heading>
                 <div className="space-y-4">
-                  {(isEditing ? formData.itinerary || [] : journey.itinerary).map((day, index) => (
+                  {(isEditing ? (formData.itinerary || []) : (journey.itinerary || [])).map((day, index) => (
                     <div key={index} className="border border-gray-200 rounded-lg p-4">
                       <div className="flex items-center justify-between mb-3">
                         <Heading level={3} className="text-lg font-semibold">Day {day.day}</Heading>
                         {isEditing && (
                           <Button
                             onClick={() => {
-                              const source = isEditing ? (formData.itinerary || []) : journey.itinerary;
+                              const source = isEditing ? (formData.itinerary || []) : (journey.itinerary || []);
                               const newItinerary = source.filter((_, i) => i !== index);
                               updateItinerary(newItinerary);
                             }}
@@ -501,7 +521,7 @@ export default function EditJourneyPage() {
                             type="text"
                             value={day.title}
                             onChange={(e) => {
-                              const source = isEditing ? (formData.itinerary || []) : journey.itinerary;
+                              const source = isEditing ? (formData.itinerary || []) : (journey.itinerary || []);
                               const newItinerary = [...source];
                               newItinerary[index] = { ...day, title: e.target.value };
                               updateItinerary(newItinerary);
@@ -516,7 +536,7 @@ export default function EditJourneyPage() {
                           <textarea
                             value={day.description}
                             onChange={(e) => {
-                              const source = isEditing ? (formData.itinerary || []) : journey.itinerary;
+                              const source = isEditing ? (formData.itinerary || []) : (journey.itinerary || []);
                               const newItinerary = [...source];
                               newItinerary[index] = { ...day, description: e.target.value };
                               updateItinerary(newItinerary);
@@ -756,7 +776,7 @@ export default function EditJourneyPage() {
                   <div>
                     <Heading level={3} className="text-lg font-semibold mb-4">Excluded</Heading>
                     <div className="space-y-2">
-                      {(isEditing ? formData.excluded || [] : journey.excluded).map((item, index) => (
+                      {(isEditing ? (formData.excluded || []) : (journey.excluded || [])).map((item, index) => (
                         <div key={index} className="flex gap-2">
                           <input
                             type="text"
@@ -836,7 +856,7 @@ export default function EditJourneyPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Main Image URL</label>
                     <input
                       type="url"
-                      value={isEditing ? formData.image || '' : journey.image}
+                      value={isEditing ? (formData.image ?? '') : (journey.image ?? '')}
                       onChange={(e) => handleInputChange('image', e.target.value)}
                       disabled={!isEditing}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
@@ -844,11 +864,16 @@ export default function EditJourneyPage() {
                   </div>
                   
                   <div className="mt-4">
-                    <img
-                      src={isEditing ? formData.image || journey.image : journey.image}
-                      alt="Journey preview"
-                      className="w-full h-32 object-cover rounded-lg"
-                    />
+                    {(() => {
+                      const previewUrl = isEditing ? (formData.image ?? journey.image) : journey.image;
+                      return previewUrl ? (
+                        <img
+                          src={previewUrl}
+                          alt="Journey preview"
+                          className="w-full h-32 object-cover rounded-lg"
+                        />
+                      ) : null;
+                    })()}
                   </div>
                 </div>
               </Card>
@@ -862,27 +887,48 @@ export default function EditJourneyPage() {
                       Select Available Experiences
                     </label>
                     <div className="space-y-2 max-h-60 overflow-y-auto border border-gray-200 rounded-lg p-4">
-                      {experiences.filter(exp => exp.status === 'active').map((experience) => (
-                        <div key={experience.id} className="flex items-center space-x-3">
-                          <input
-                            type="checkbox"
-                            id={`exp-${experience.id}`}
-                            checked={(journey.availableExperiences || []).includes(experience.id)}
-                            onChange={(e) => {
-                              handleExperienceSelection(experience.id, e.target.checked);
-                            }}
-                            className="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500"
-                          />
-                          <label htmlFor={`exp-${experience.id}`} className="flex-1 cursor-pointer">
-                            <div className="flex items-center justify-between">
-                              <Text className="font-medium text-sm">{experience.title}</Text>
-                              <span className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
-                                {experience.city}
-                              </span>
-                            </div>
-                          </label>
-                        </div>
-                      ))}
+                      {experiences.filter(exp => exp.status === 'active').map((experience) => {
+                        const availableExps = isEditing 
+                          ? (formData.availableExperiences || journey.availableExperiences || [])
+                          : (journey.availableExperiences || []);
+                        const isInAvailable = availableExps.includes(experience.id);
+                        const isSelected = isEditing ? (formData.experiences || []).includes(experience.id) : (journey.experiences || []).includes(experience.id);
+                        return (
+                          <div key={experience.id} className="flex items-center space-x-3">
+                            <input
+                              type="checkbox"
+                              id={`exp-${experience.id}`}
+                              checked={isInAvailable}
+                              onChange={(e) => {
+                                handleExperienceSelection(experience.id, e.target.checked);
+                              }}
+                              className="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500"
+                            />
+                            <label htmlFor={`exp-${experience.id}`} className="flex-1 cursor-pointer">
+                              <div className="flex items-center justify-between">
+                                <Text className="font-medium text-sm">{experience.title}</Text>
+                                <span className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
+                                  {experience.city}
+                                </span>
+                              </div>
+                            </label>
+                            {isInAvailable && !isSelected && (
+                              <Button
+                                onClick={() => {
+                                  const currentSelected = isEditing ? (formData.experiences || []) : (journey.experiences || []);
+                                  handleInputChange('experiences', [...currentSelected, experience.id]);
+                                }}
+                                variant="primary"
+                                size="sm"
+                                className="ml-2"
+                                disabled={!isEditing}
+                              >
+                                <Plus className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                   
@@ -935,7 +981,10 @@ export default function EditJourneyPage() {
                     </label>
                     <div className="space-y-2 max-h-60 overflow-y-auto border border-gray-200 rounded-lg p-4">
                       {hotels.filter(hotel => hotel.status === 'active').map((hotel) => {
-                        const isInAvailable = (journey.availableAccommodations || []).includes(hotel.id);
+                        const availableHotels = isEditing
+                          ? (formData.availableAccommodations || journey.availableAccommodations || [])
+                          : (journey.availableAccommodations || []);
+                        const isInAvailable = availableHotels.includes(hotel.id);
                         const isSelected = isEditing ? (formData.accommodations || []).includes(hotel.id) : (journey.accommodations || []).includes(hotel.id);
                         return (
                           <div key={hotel.id} className="flex items-center space-x-3">
@@ -1104,7 +1153,7 @@ export default function EditJourneyPage() {
               <PageGenerationHelper
                 journey={journey}
                 onUpdateJourney={updateJourney}
-                allJourneys={[]} // 这里可以传入所有旅行卡片用于生成相关推荐
+                allJourneys={journeys} // 传入所有旅行卡片用于生成相关推荐
               />
 
               {/* Statistics */}

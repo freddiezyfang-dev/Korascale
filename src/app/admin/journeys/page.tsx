@@ -9,6 +9,7 @@ import { Journey, JourneyStatus } from '@/types';
 import { migrateExistingPage, validateMigratedPage } from '@/lib/pageMigration';
 import { DeleteConfirmationModal } from '@/components/modals/DeleteConfirmationModal';
 import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation';
+import { checkDataStatus, createEmergencyBackup, restoreFromEmergencyBackup } from '@/utils/dataRecovery';
 import { 
   MapPin, 
   Star, 
@@ -48,6 +49,12 @@ const statusConfig = {
     color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     description: 'Journey is being prepared'
   },
+  // 兼容后端返回的 published 状态（等同已发布）
+  published: {
+    label: 'Published',
+    color: 'bg-green-100 text-green-800 border-green-200',
+    description: 'Journey is published'
+  }
 };
 
 const categoryConfig = {
@@ -75,7 +82,10 @@ export default function AdminJourneysPage() {
     getJourneysByStatus, 
     getJourneysByCategory, 
     getJourneysByRegion,
-    isLoading 
+    isLoading,
+    clearStorageAndReload,
+    createBackup,
+    restoreFromBackup
   } = useJourneyManagement();
   const router = useRouter();
   const { 
@@ -92,6 +102,7 @@ export default function AdminJourneysPage() {
   const [selectedRegion, setSelectedRegion] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [dataStatus, setDataStatus] = useState<any>(null);
 
   // 检查用户权限
   useEffect(() => {
@@ -105,6 +116,13 @@ export default function AdminJourneysPage() {
       return;
     }
   }, [user, router]);
+
+  // 检查数据状态
+  useEffect(() => {
+    const status = checkDataStatus();
+    setDataStatus(status);
+    console.log('Data Status Check:', status);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -212,6 +230,81 @@ export default function AdminJourneysPage() {
                   <Plus className="w-4 h-4 mr-1" />
                   Add New Journey
                 </Button>
+                
+                {/* Emergency Data Recovery Tool */}
+                <div className="bg-yellow-100 border border-yellow-300 rounded-lg p-3">
+                  <p className="text-xs text-yellow-800 mb-2">
+                    <strong>数据状态检查:</strong> {dataStatus ? (
+                      <>
+                        localStorage: {dataStatus.localStorageCount} journeys, 
+                        备份: {dataStatus.backupCount} journeys, 
+                        数据完整: {dataStatus.isDataIntact ? '是' : '否'}
+                      </>
+                    ) : '检查中...'}
+                  </p>
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={() => {
+                        const restored = restoreFromEmergencyBackup();
+                        if (restored) {
+                          alert(`从紧急备份恢复了 ${restored.length} 个journey！`);
+                          window.location.reload();
+                        } else {
+                          alert('没有找到紧急备份数据。');
+                        }
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="text-xs bg-blue-50 hover:bg-blue-200"
+                    >
+                      恢复紧急备份
+                    </Button>
+                    <Button 
+                      onClick={() => {
+                        if (restoreFromBackup()) {
+                          alert('从备份恢复成功！');
+                          window.location.reload();
+                        } else {
+                          alert('没有找到备份数据。');
+                        }
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="text-xs bg-yellow-50 hover:bg-yellow-200"
+                    >
+                      恢复备份
+                    </Button>
+                    <Button 
+                      onClick={() => {
+                        if (confirm('这将用默认数据替换所有当前数据。继续吗？')) {
+                          clearStorageAndReload();
+                          alert('默认journey已恢复！');
+                          window.location.reload();
+                        }
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="text-xs bg-red-50 hover:bg-red-200"
+                    >
+                      恢复默认
+                    </Button>
+                    <Button 
+                      onClick={() => {
+                        if (createBackup()) {
+                          alert('备份创建成功！');
+                        } else {
+                          alert('备份创建失败。');
+                        }
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="text-xs bg-green-50 hover:bg-green-200"
+                    >
+                      创建备份
+                    </Button>
+                  </div>
+                </div>
+                
                 <Button 
                   onClick={() => router.push('/admin')}
                   variant="secondary"
@@ -391,9 +484,9 @@ export default function AdminJourneysPage() {
               </Card>
             ) : (
               filteredJourneys.map((journey) => {
-                const statusInfo = statusConfig[journey.status];
-                const categoryInfo = categoryConfig[journey.category];
-                const difficultyInfo = difficultyConfig[journey.difficulty];
+                const statusInfo = statusConfig[journey.status] || statusConfig.draft;
+                const categoryInfo = categoryConfig[journey.category] || { label: journey.category || 'Other', color: 'bg-gray-100 text-gray-700' };
+                const difficultyInfo = difficultyConfig[journey.difficulty] || { label: journey.difficulty || 'Easy', color: 'bg-gray-100 text-gray-700' };
                 
                 return (
                   <Card key={journey.id} className="overflow-hidden">
@@ -404,8 +497,8 @@ export default function AdminJourneysPage() {
                         className="w-full h-48 object-cover"
                       />
                       <div className="absolute top-4 right-4 flex gap-2">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${statusInfo.color}`}>
-                          {statusInfo.label}
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${statusInfo?.color || 'bg-gray-100 text-gray-700 border-gray-200'}`}>
+                          {statusInfo?.label || 'Draft'}
                         </span>
                         {journey.featured && (
                           <span className="px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">
@@ -434,11 +527,11 @@ export default function AdminJourneysPage() {
                           <Text className="text-sm font-medium">{journey.rating}</Text>
                           <Text className="text-sm text-gray-500">({journey.reviewCount})</Text>
                         </div>
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${categoryInfo.color}`}>
-                          {categoryInfo.label}
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${categoryInfo?.color || 'bg-gray-100 text-gray-700'}`}>
+                          {categoryInfo?.label || 'Other'}
                         </span>
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${difficultyInfo.color}`}>
-                          {difficultyInfo.label}
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${difficultyInfo?.color || 'bg-gray-100 text-gray-700'}`}>
+                          {difficultyInfo?.label || 'Easy'}
                         </span>
                       </div>
                       

@@ -17,7 +17,7 @@ const imgJourney6 = "/images/journey-cards/chongqing-cyber-city.jpg";
 const imgJourney7 = "/images/journey-cards/chongqing-wulong-karst-national-park.jpg";
 
 // 旅程数据 - 匹配Figma设计中的6个旅程卡片
-const journeys = [
+const defaultJourneys = [
 	{
 		id: 1,
 		title: "Chengdu Deep Dive",
@@ -98,7 +98,10 @@ const journeys = [
 ];
 
 export default function JourneysPage() {
-	const { journeys, isLoading } = useJourneyManagement();
+	const { journeys: contextJourneys, isLoading, clearStorageAndReload } = useJourneyManagement();
+	
+	// 优先使用Context中的journeys数据，如果为空则使用默认数据
+	const journeys = contextJourneys.length > 0 ? contextJourneys : defaultJourneys;
 	const [selectedRegion, setSelectedRegion] = useState('All');
 	const [selectedDuration, setSelectedDuration] = useState('All');
 	const [selectedInterest, setSelectedInterest] = useState('All');

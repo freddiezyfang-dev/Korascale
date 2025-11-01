@@ -139,9 +139,10 @@ export function generateOverviewHighlights(journey: Journey) {
  */
 export function generateInclusions(journey: Journey) {
   const inclusions = [];
+  const included = journey.included || []; // 安全检查，确保 included 是数组
   
   // 检查是否包含交通
-  if (journey.included.some(item => 
+  if (included.some(item => 
     item.toLowerCase().includes('transport') || 
     item.toLowerCase().includes('bus') ||
     item.toLowerCase().includes('vehicle')
@@ -154,7 +155,7 @@ export function generateInclusions(journey: Journey) {
   }
   
   // 检查是否包含住宿
-  if (journey.included.some(item => 
+  if (included.some(item => 
     item.toLowerCase().includes('accommodation') || 
     item.toLowerCase().includes('hotel')
   )) {
@@ -172,7 +173,7 @@ export function generateInclusions(journey: Journey) {
   }
   
   // 检查是否包含导游
-  if (journey.included.some(item => 
+  if (included.some(item => 
     item.toLowerCase().includes('guide') || 
     item.toLowerCase().includes('tour guide')
   )) {
@@ -184,7 +185,7 @@ export function generateInclusions(journey: Journey) {
   }
   
   // 检查是否包含餐饮
-  if (journey.included.some(item => 
+  if (included.some(item => 
     item.toLowerCase().includes('meal') || 
     item.toLowerCase().includes('food') ||
     item.toLowerCase().includes('dinner') ||

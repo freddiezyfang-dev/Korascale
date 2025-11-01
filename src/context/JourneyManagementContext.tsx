@@ -2,6 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Journey, JourneyStatus } from '@/types';
+import { dataPersistence } from '@/utils/dataPersistence';
+import { journeyAPI } from '@/lib/databaseClient';
 
 interface JourneyManagementContextType {
   journeys: Journey[];
@@ -14,6 +16,10 @@ interface JourneyManagementContextType {
   getJourneysByRegion: (region: string) => Journey[];
   getFeaturedJourneys: () => Journey[];
   isLoading: boolean;
+  resetToDefaults: () => void;
+  clearStorageAndReload: () => void;
+  createBackup: () => boolean;
+  restoreFromBackup: () => boolean;
 }
 
 const JourneyManagementContext = createContext<JourneyManagementContextType | undefined>(undefined);
@@ -333,6 +339,121 @@ const defaultJourneys: Journey[] = [
   },
   {
     id: 'journey-3',
+    title: 'Full-Day Tour to the Ancient Dujiangyan Irrigation System',
+    description: 'Explore one of China\'s most remarkable engineering achievements, a 2,000-year-old irrigation system that still functions today. Learn about ancient Chinese water management techniques and their impact on Sichuan\'s agriculture.',
+    shortDescription: 'Explore ancient Chinese engineering marvel',
+    image: '/images/journey-cards/ancient-dujiangyan-irrigation.jpg',
+    images: ['/images/journey-cards/ancient-dujiangyan-irrigation.jpg'],
+    duration: '1 Day',
+    price: 179,
+    category: 'Culture & History',
+    region: 'Sichuan',
+    city: 'Dujiangyan',
+    location: 'Dujiangyan, Sichuan',
+    difficulty: 'Easy',
+    maxParticipants: 12,
+    minParticipants: 2,
+    included: [
+      'Professional English-speaking guide',
+      'All entrance fees',
+      'Transportation',
+      'Lunch'
+    ],
+    excluded: [
+      'Personal expenses',
+      'Tips for guide and driver',
+      'Hotel accommodation'
+    ],
+    highlights: [
+      '2,000-year-old irrigation system',
+      'Ancient Chinese engineering',
+      'Still functioning today',
+      'UNESCO World Heritage Site'
+    ],
+    itinerary: [
+      {
+        day: 1,
+        title: 'Dujiangyan Irrigation System Tour',
+        description: 'Full day exploration of ancient water management',
+        activities: [
+          'Morning: Depart from Chengdu',
+          'Afternoon: Tour irrigation system and museum',
+          'Evening: Return to Chengdu'
+        ],
+        meals: ['Lunch at local restaurant'],
+        accommodation: 'Not included'
+      }
+    ],
+    modules: [],
+    experiences: ['exp-1', 'exp-2'],
+    accommodations: ['hotel-1', 'hotel-2'],
+    availableExperiences: ['exp-1', 'exp-2', 'exp-3'],
+    availableAccommodations: ['hotel-1', 'hotel-2', 'hotel-3'],
+    requirements: [
+      'Comfortable walking shoes',
+      'Camera for photos',
+      'Interest in history and engineering'
+    ],
+    bestTimeToVisit: ['March', 'April', 'May', 'September', 'October', 'November'],
+    rating: 4.5,
+    reviewCount: 67,
+    status: 'active',
+    featured: false,
+    tags: ['history', 'engineering', 'unesco', 'ancient', 'one-day'],
+    slug: 'dujiangyan-irrigation',
+    pageTitle: 'Full-Day Tour to the Ancient Dujiangyan Irrigation System',
+    metaDescription: 'Explore one of China\'s most remarkable engineering achievements, a 2,000-year-old irrigation system that still functions today.',
+    heroImage: '/images/journey-cards/ancient-dujiangyan-irrigation.jpg',
+    heroStats: { days: 1, destinations: 2, maxGuests: 16 },
+    navigation: [
+      { name: 'Overview', href: '#overview' },
+      { name: 'Itinerary', href: '#itinerary' },
+      { name: 'Details', href: '#details' }
+    ],
+    overview: {
+      breadcrumb: ['Home','Journey','Culture & History','Dujiangyan Irrigation'],
+      description: 'Explore ancient Chinese water management techniques',
+      highlights: [
+        { icon: '🏗️', title: 'Ancient Engineering', description: '2,000-year-old system still working' },
+        { icon: '🌊', title: 'Water Management', description: 'Revolutionary irrigation techniques' }
+      ],
+      sideImage: '/images/journey-cards/ancient-dujiangyan-irrigation.jpg'
+    },
+    inclusions: {
+      transportation: {
+        icon: 'Car',
+        title: 'Transportation',
+        description: 'Round-trip transportation from Chengdu.'
+      },
+      guide: {
+        icon: 'User',
+        title: 'Guide',
+        description: 'Services of an experienced English-speaking guide.'
+      },
+      meals: {
+        icon: 'Utensils',
+        title: 'Meals',
+        description: 'Lunch at local restaurant.'
+      },
+      accommodation: {
+        icon: 'Bed',
+        title: 'Accommodation',
+        description: 'Accommodation is not included in this trip.'
+      },
+      others: [
+        {
+          icon: 'Ticket',
+          title: 'All entrance fees',
+          description: 'All entrance fees to attractions and sites are included.'
+        }
+      ]
+    },
+    relatedTrips: [],
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  {
+    id: 'journey-4',
     title: 'Jiuzhaigou Valley Multi-Color Lake Adventure',
     description: 'Discover the stunning natural beauty of Jiuzhaigou\'s crystal-clear lakes, waterfalls, and colorful forests. This UNESCO World Heritage Site offers breathtaking landscapes and unique Tibetan culture experiences.',
     shortDescription: 'Explore the stunning natural beauty of Jiuzhaigou',
@@ -432,6 +553,406 @@ const defaultJourneys: Journey[] = [
     heroImage: '/images/journey-cards/jiuzhaigou-valley-multi-color-lake.jpeg',
     createdAt: new Date(),
     updatedAt: new Date()
+  },
+  {
+    id: 'journey-5',
+    title: 'Jiuzhaigou & Huanglong National Parks Tour from Chengdu',
+    description: 'Experience two of China\'s most spectacular natural wonders. Visit the colorful travertine pools of Huanglong and the pristine lakes of Jiuzhaigou, both UNESCO World Heritage Sites.',
+    shortDescription: 'Experience two spectacular natural wonders',
+    image: '/images/journey-cards/jiuzhaigou-huanglong-national-park-tour.jpg',
+    images: ['/images/journey-cards/jiuzhaigou-huanglong-national-park-tour.jpg'],
+    duration: '4 Days',
+    price: 799,
+    category: 'Adventure',
+    region: 'Sichuan',
+    city: 'Jiuzhaigou',
+    location: 'Jiuzhaigou & Huanglong, Sichuan',
+    difficulty: 'Medium',
+    maxParticipants: 6,
+    minParticipants: 2,
+    included: [
+      'Professional English-speaking guide',
+      'All entrance fees',
+      'Transportation',
+      '3 nights accommodation',
+      'All meals',
+      'Tibetan culture experience'
+    ],
+    excluded: [
+      'Personal expenses',
+      'Tips for guide and driver',
+      'Optional activities'
+    ],
+    highlights: [
+      'Two UNESCO World Heritage Sites',
+      'Colorful travertine pools',
+      'Pristine lakes',
+      'Tibetan culture experience'
+    ],
+    itinerary: [
+      {
+        day: 1,
+        title: 'Arrival and Huanglong Exploration',
+        description: 'Arrive and explore Huanglong National Park',
+        activities: [
+          'Morning: Depart from Chengdu',
+          'Afternoon: Arrive and visit Huanglong',
+          'Evening: Check-in and dinner'
+        ],
+        meals: ['Lunch en route', 'Dinner at hotel'],
+        accommodation: 'Huanglong Hotel'
+      },
+      {
+        day: 2,
+        title: 'Full Day Huanglong Tour',
+        description: 'Complete exploration of Huanglong',
+        activities: [
+          'Morning: Visit travertine pools',
+          'Afternoon: Explore surrounding areas',
+          'Evening: Traditional dinner'
+        ],
+        meals: ['Breakfast at hotel', 'Lunch in park', 'Dinner'],
+        accommodation: 'Huanglong Hotel'
+      },
+      {
+        day: 3,
+        title: 'Jiuzhaigou Valley',
+        description: 'Explore Jiuzhaigou Valley',
+        activities: [
+          'Morning: Travel to Jiuzhaigou',
+          'Afternoon: Valley exploration',
+          'Evening: Check-in and dinner'
+        ],
+        meals: ['Breakfast at hotel', 'Lunch en route', 'Dinner'],
+        accommodation: 'Jiuzhaigou Hotel'
+      },
+      {
+        day: 4,
+        title: 'Return to Chengdu',
+        description: 'Complete valley tour and return',
+        activities: [
+          'Morning: Final valley exploration',
+          'Afternoon: Return to Chengdu',
+          'Evening: Arrive back in Chengdu'
+        ],
+        meals: ['Breakfast at hotel', 'Lunch en route'],
+        accommodation: 'Not included'
+      }
+    ],
+    modules: [],
+    experiences: ['exp-1', 'exp-2'],
+    accommodations: ['hotel-1', 'hotel-2'],
+    availableExperiences: ['exp-1', 'exp-2', 'exp-3'],
+    availableAccommodations: ['hotel-1', 'hotel-2', 'hotel-3'],
+    requirements: [
+      'Good physical condition',
+      'Warm clothing (mountain climate)',
+      'Camera for photos',
+      'Altitude sickness medication (if needed)'
+    ],
+    bestTimeToVisit: ['April', 'May', 'September', 'October'],
+    rating: 4.8,
+    reviewCount: 156,
+    status: 'active',
+    featured: false,
+    tags: ['nature', 'unesco', 'lakes', 'mountains', 'tibetan', 'multi-day'],
+    slug: 'jiuzhaigou-huanglong',
+    pageTitle: 'Jiuzhaigou & Huanglong National Parks Tour from Chengdu',
+    metaDescription: 'Experience two of China\'s most spectacular natural wonders. Visit the colorful travertine pools of Huanglong and the pristine lakes of Jiuzhaigou.',
+    heroImage: '/images/journey-cards/jiuzhaigou-huanglong-national-park-tour.jpg',
+    heroStats: { days: 4, destinations: 2, maxGuests: 16 },
+    navigation: [
+      { name: 'Overview', href: '#overview' },
+      { name: 'Itinerary', href: '#itinerary' },
+      { name: 'Details', href: '#details' }
+    ],
+    overview: {
+      breadcrumb: ['Home','Journey','Adventure','Jiuzhaigou & Huanglong'],
+      description: 'Experience two spectacular natural wonders',
+      highlights: [
+        { icon: '🏔️', title: 'Two UNESCO Sites', description: 'Jiuzhaigou and Huanglong' },
+        { icon: '🌈', title: 'Colorful Pools', description: 'Travertine formations' }
+      ],
+      sideImage: '/images/journey-cards/jiuzhaigou-huanglong-national-park-tour.jpg'
+    },
+    inclusions: {
+      transportation: {
+        icon: 'Car',
+        title: 'Transportation',
+        description: 'Transportation throughout the tour.'
+      },
+      guide: {
+        icon: 'User',
+        title: 'Guide',
+        description: 'Services of an experienced English-speaking guide.'
+      },
+      meals: {
+        icon: 'Utensils',
+        title: 'Meals',
+        description: 'All meals included.'
+      },
+      accommodation: {
+        icon: 'Bed',
+        title: 'Accommodation',
+        description: '3 nights accommodation included.'
+      },
+      others: [
+        {
+          icon: 'Ticket',
+          title: 'All entrance fees',
+          description: 'All entrance fees to attractions and sites are included.'
+        }
+      ]
+    },
+    relatedTrips: [],
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  {
+    id: 'journey-6',
+    title: 'The Cyberpunk City: Chongqing Day Tour',
+    description: 'See the best of Chongqing\'s magical and retro vibes in one day. Explore the ancient Ciqikou Old Town in the morning. In the afternoon, experience the Liziba Monorail passing through a residential building, ride the Yangtze River Cableway, and stroll through Longmenhao Old Street. Admire the Hongyadong night view before enjoying a dinner of authentic Chongqing hot pot after a lunch of local noodles. Feel the unique charm of this 8D city.',
+    shortDescription: 'Experience Chongqing\'s magical and retro vibes',
+    image: '/images/journey-cards/chongqing-cyber-city.jpg',
+    images: ['/images/journey-cards/chongqing-cyber-city.jpg'],
+    duration: '1 Day',
+    price: 249,
+    category: 'City',
+    region: 'Chongqing',
+    city: 'Chongqing',
+    location: 'Chongqing',
+    difficulty: 'Easy',
+    maxParticipants: 10,
+    minParticipants: 2,
+    included: [
+      'Professional English-speaking guide',
+      'All entrance fees',
+      'Transportation',
+      'Lunch and dinner',
+      'Cableway ride'
+    ],
+    excluded: [
+      'Personal expenses',
+      'Tips for guide and driver',
+      'Hotel accommodation'
+    ],
+    highlights: [
+      'Ciqikou Old Town',
+      'Liziba Monorail',
+      'Yangtze River Cableway',
+      'Hongyadong night view',
+      'Chongqing hot pot'
+    ],
+    itinerary: [
+      {
+        day: 1,
+        title: 'Chongqing City Highlights',
+        description: 'Full day exploration of Chongqing\'s unique attractions',
+        activities: [
+          'Morning: Ciqikou Old Town exploration',
+          'Afternoon: Liziba Monorail and cableway ride',
+          'Evening: Hongyadong night view and hot pot dinner'
+        ],
+        meals: ['Local noodles lunch', 'Chongqing hot pot dinner'],
+        accommodation: 'Not included'
+      }
+    ],
+    modules: [],
+    experiences: ['exp-1', 'exp-2'],
+    accommodations: ['hotel-1', 'hotel-2'],
+    availableExperiences: ['exp-1', 'exp-2', 'exp-3'],
+    availableAccommodations: ['hotel-1', 'hotel-2', 'hotel-3'],
+    requirements: [
+      'Comfortable walking shoes',
+      'Camera for photos',
+      'Appetite for spicy food'
+    ],
+    bestTimeToVisit: ['March', 'April', 'May', 'September', 'October', 'November'],
+    rating: 4.7,
+    reviewCount: 123,
+    status: 'active',
+    featured: false,
+    tags: ['city', 'cyberpunk', 'modern', 'chongqing', 'one-day'],
+    slug: 'chongqing-city-highlights',
+    pageTitle: 'The Cyberpunk City: Chongqing Day Tour',
+    metaDescription: 'See the best of Chongqing\'s magical and retro vibes in one day. Explore ancient old town, modern monorail, and enjoy authentic hot pot.',
+    heroImage: '/images/journey-cards/chongqing-cyber-city.jpg',
+    heroStats: { days: 1, destinations: 4, maxGuests: 16 },
+    navigation: [
+      { name: 'Overview', href: '#overview' },
+      { name: 'Itinerary', href: '#itinerary' },
+      { name: 'Details', href: '#details' }
+    ],
+    overview: {
+      breadcrumb: ['Home','Journey','City','Chongqing Highlights'],
+      description: 'Experience Chongqing\'s unique 8D city charm',
+      highlights: [
+        { icon: '🏙️', title: '8D City', description: 'Unique urban landscape' },
+        { icon: '🚇', title: 'Monorail', description: 'Train through building' },
+        { icon: '🌉', title: 'Cableway', description: 'Yangtze River crossing' }
+      ],
+      sideImage: '/images/journey-cards/chongqing-cyber-city.jpg'
+    },
+    inclusions: {
+      transportation: {
+        icon: 'Car',
+        title: 'Transportation',
+        description: 'Transportation throughout the tour.'
+      },
+      guide: {
+        icon: 'User',
+        title: 'Guide',
+        description: 'Services of an experienced English-speaking guide.'
+      },
+      meals: {
+        icon: 'Utensils',
+        title: 'Meals',
+        description: 'Local noodles lunch and Chongqing hot pot dinner.'
+      },
+      accommodation: {
+        icon: 'Bed',
+        title: 'Accommodation',
+        description: 'Accommodation is not included in this trip.'
+      },
+      others: [
+        {
+          icon: 'Ticket',
+          title: 'All entrance fees',
+          description: 'All entrance fees to attractions and sites are included.'
+        }
+      ]
+    },
+    relatedTrips: [],
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  {
+    id: 'journey-7',
+    title: 'Chongqing and Wulong Karst National Park 2-Day Adventure',
+    description: 'Explore the dramatic karst landscapes of Wulong, famous for its natural bridges and limestone formations. Experience the Three Natural Bridges and Furong Cave, showcasing millions of years of geological evolution.',
+    shortDescription: 'Explore dramatic karst landscapes',
+    image: '/images/journey-cards/chongqing-wulong-karst-national-park.jpg',
+    images: ['/images/journey-cards/chongqing-wulong-karst-national-park.jpg'],
+    duration: '2 Days',
+    price: 399,
+    category: 'Adventure',
+    region: 'Chongqing',
+    city: 'Wulong',
+    location: 'Wulong, Chongqing',
+    difficulty: 'Medium',
+    maxParticipants: 8,
+    minParticipants: 2,
+    included: [
+      'Professional English-speaking guide',
+      'All entrance fees',
+      'Transportation',
+      '1 night accommodation',
+      'All meals'
+    ],
+    excluded: [
+      'Personal expenses',
+      'Tips for guide and driver',
+      'Optional activities'
+    ],
+    highlights: [
+      'Three Natural Bridges',
+      'Furong Cave',
+      'Karst landscapes',
+      'Geological formations'
+    ],
+    itinerary: [
+      {
+        day: 1,
+        title: 'Wulong Karst Exploration',
+        description: 'Explore Three Natural Bridges',
+        activities: [
+          'Morning: Depart from Chongqing',
+          'Afternoon: Visit Three Natural Bridges',
+          'Evening: Check-in and dinner'
+        ],
+        meals: ['Lunch en route', 'Dinner at hotel'],
+        accommodation: 'Wulong Hotel'
+      },
+      {
+        day: 2,
+        title: 'Furong Cave and Return',
+        description: 'Explore Furong Cave and return to Chongqing',
+        activities: [
+          'Morning: Visit Furong Cave',
+          'Afternoon: Return to Chongqing',
+          'Evening: Arrive back in Chongqing'
+        ],
+        meals: ['Breakfast at hotel', 'Lunch en route'],
+        accommodation: 'Not included'
+      }
+    ],
+    modules: [],
+    experiences: ['exp-1', 'exp-2'],
+    accommodations: ['hotel-1', 'hotel-2'],
+    availableExperiences: ['exp-1', 'exp-2', 'exp-3'],
+    availableAccommodations: ['hotel-1', 'hotel-2', 'hotel-3'],
+    requirements: [
+      'Good physical condition',
+      'Comfortable walking shoes',
+      'Camera for photos'
+    ],
+    bestTimeToVisit: ['March', 'April', 'May', 'September', 'October', 'November'],
+    rating: 4.6,
+    reviewCount: 89,
+    status: 'active',
+    featured: false,
+    tags: ['adventure', 'karst', 'nature', 'chongqing', 'multi-day'],
+    slug: 'chongqing-wulong-karst',
+    pageTitle: 'Chongqing and Wulong Karst National Park 2-Day Adventure',
+    metaDescription: 'Explore the dramatic karst landscapes of Wulong, famous for its natural bridges and limestone formations.',
+    heroImage: '/images/journey-cards/chongqing-wulong-karst-national-park.jpg',
+    heroStats: { days: 2, destinations: 2, maxGuests: 16 },
+    navigation: [
+      { name: 'Overview', href: '#overview' },
+      { name: 'Itinerary', href: '#itinerary' },
+      { name: 'Details', href: '#details' }
+    ],
+    overview: {
+      breadcrumb: ['Home','Journey','Adventure','Wulong Karst'],
+      description: 'Explore dramatic karst landscapes',
+      highlights: [
+        { icon: '🌉', title: 'Natural Bridges', description: 'Three spectacular bridges' },
+        { icon: '🕳️', title: 'Furong Cave', description: 'Massive limestone cave' }
+      ],
+      sideImage: '/images/journey-cards/chongqing-wulong-karst-national-park.jpg'
+    },
+    inclusions: {
+      transportation: {
+        icon: 'Car',
+        title: 'Transportation',
+        description: 'Transportation throughout the tour.'
+      },
+      guide: {
+        icon: 'User',
+        title: 'Guide',
+        description: 'Services of an experienced English-speaking guide.'
+      },
+      meals: {
+        icon: 'Utensils',
+        title: 'Meals',
+        description: 'All meals included.'
+      },
+      accommodation: {
+        icon: 'Bed',
+        title: 'Accommodation',
+        description: '1 night accommodation included.'
+      },
+      others: [
+        {
+          icon: 'Ticket',
+          title: 'All entrance fees',
+          description: 'All entrance fees to attractions and sites are included.'
+        }
+      ]
+    },
+    relatedTrips: [],
+    createdAt: new Date(),
+    updatedAt: new Date()
   }
 ];
 
@@ -439,29 +960,59 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
   const [journeys, setJourneys] = useState<Journey[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 从 localStorage 加载旅行卡片数据，如果没有则使用默认数据
+  // 从数据库加载旅行卡片数据
   useEffect(() => {
-    const loadJourneys = () => {
+    const loadJourneys = async () => {
       try {
-        const storedJourneys = localStorage.getItem('journeys');
-        console.log('JourneyManagementContext: Loading journeys from localStorage:', storedJourneys ? 'Found data' : 'No data');
+        console.log('JourneyManagementContext: Loading journeys from database...');
         
+        // 首先尝试从数据库加载
+        const dbJourneys = await journeyAPI.getAll();
+        
+        if (dbJourneys.length > 0) {
+          console.log('JourneyManagementContext: Loaded from database:', dbJourneys.length, 'journeys');
+          setJourneys(dbJourneys);
+        } else {
+          // 如果没有数据库数据，尝试从localStorage加载（向后兼容）
+          const storedJourneys = localStorage.getItem('journeys');
+          if (storedJourneys) {
+            const parsedJourneys = JSON.parse(storedJourneys).map((journey: any) => ({
+              ...journey,
+              createdAt: new Date(journey.createdAt),
+              updatedAt: new Date(journey.updatedAt),
+            }));
+            
+            console.log('JourneyManagementContext: Migrating from localStorage:', parsedJourneys.length, 'journeys');
+            setJourneys(parsedJourneys);
+            
+            // 迁移到数据库（异步执行，不阻塞）
+            parsedJourneys.forEach(async (journey: any) => {
+              try {
+                await journeyAPI.create(journey);
+              } catch (error) {
+                console.error('Error migrating journey to database:', error);
+              }
+            });
+          } else {
+            console.log('JourneyManagementContext: No stored journeys, using default data');
+            setJourneys(defaultJourneys);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading journeys from database:', error);
+        
+        // 如果数据库失败，使用localStorage作为fallback
+        const storedJourneys = localStorage.getItem('journeys');
         if (storedJourneys) {
           const parsedJourneys = JSON.parse(storedJourneys).map((journey: any) => ({
             ...journey,
             createdAt: new Date(journey.createdAt),
             updatedAt: new Date(journey.updatedAt),
           }));
-          console.log('JourneyManagementContext: Loaded journeys count:', parsedJourneys.length);
           setJourneys(parsedJourneys);
         } else {
-          console.log('JourneyManagementContext: No stored journeys, using default data');
           setJourneys(defaultJourneys);
-          saveJourneys(defaultJourneys);
         }
-      } catch (error) {
-        console.error('Error loading journeys from storage:', error);
-        setJourneys(defaultJourneys);
       } finally {
         setIsLoading(false);
       }
@@ -470,72 +1021,218 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
     loadJourneys();
   }, []);
 
-  // 保存旅行卡片数据到 localStorage
-  const saveJourneys = (journeysData: Journey[]) => {
+  // 保存旅行卡片数据到持久化存储
+  const saveJourneys = async (journeysData: Journey[]) => {
     try {
+      // 保存到localStorage（向后兼容）
       localStorage.setItem('journeys', JSON.stringify(journeysData));
+      console.log('JourneyManagementContext: Saved journeys count:', journeysData.length);
+      
+      // 保存到持久化存储
+      await dataPersistence.saveData({ journeys: journeysData });
+      console.log('JourneyManagementContext: Saved to persistent storage');
+      
+      // 自动创建备份
+      await dataPersistence.createBackup();
+      console.log('JourneyManagementContext: Auto-backup created');
+      
     } catch (error) {
       console.error('Error saving journeys to storage:', error);
     }
   };
 
-  const updateJourneyStatus = (journeyId: string, status: JourneyStatus) => {
-    const updatedJourneys = journeys.map(journey => {
-      if (journey.id === journeyId) {
-        return {
-          ...journey,
-          status,
-          updatedAt: new Date(),
-        };
+  // 强制重置为默认数据
+  const resetToDefaults = () => {
+    console.log('JourneyManagementContext: Force resetting to default journeys');
+    setJourneys(defaultJourneys);
+    saveJourneys(defaultJourneys);
+  };
+
+  // 清除localStorage并重新加载
+  const clearStorageAndReload = () => {
+    console.log('JourneyManagementContext: Clearing localStorage and reloading');
+    localStorage.removeItem('journeys');
+    setJourneys(defaultJourneys);
+    saveJourneys(defaultJourneys);
+  };
+
+  // 创建数据备份
+  const createBackup = () => {
+    try {
+      const backup = {
+        journeys: journeys,
+        timestamp: new Date().toISOString(),
+        version: '1.0'
+      };
+      localStorage.setItem('journeys_backup', JSON.stringify(backup));
+      console.log('JourneyManagementContext: Backup created with', journeys.length, 'journeys');
+      return true;
+    } catch (error) {
+      console.error('Error creating backup:', error);
+      return false;
+    }
+  };
+
+  // 从备份恢复数据
+  const restoreFromBackup = () => {
+    try {
+      const backup = localStorage.getItem('journeys_backup');
+      if (backup) {
+        const parsedBackup = JSON.parse(backup);
+        if (parsedBackup.journeys && Array.isArray(parsedBackup.journeys)) {
+          console.log('JourneyManagementContext: Restoring from backup with', parsedBackup.journeys.length, 'journeys');
+          setJourneys(parsedBackup.journeys);
+          saveJourneys(parsedBackup.journeys);
+          return true;
+        }
       }
-      return journey;
-    });
-    
-    setJourneys(updatedJourneys);
-    saveJourneys(updatedJourneys);
-    
-    console.log(`Journey ${journeyId} status updated to ${status}`);
+      return false;
+    } catch (error) {
+      console.error('Error restoring from backup:', error);
+      return false;
+    }
   };
 
-  const updateJourney = (journeyId: string, updates: Partial<Omit<Journey, 'id' | 'createdAt' | 'updatedAt'>>) => {
-    const updatedJourneys = journeys.map(journey => {
-      if (journey.id === journeyId) {
-        return {
-          ...journey,
-          ...updates,
-          updatedAt: new Date(),
-        };
-      }
-      return journey;
-    });
-    
-    setJourneys(updatedJourneys);
-    saveJourneys(updatedJourneys);
-    
-    console.log(`Journey ${journeyId} updated successfully`);
+  const updateJourneyStatus = async (journeyId: string, status: JourneyStatus) => {
+    try {
+      // 🔥 自动保存到数据库
+      await journeyAPI.updateStatus(journeyId, status);
+      
+      // 更新本地状态
+      const updatedJourneys = journeys.map(journey => {
+        if (journey.id === journeyId) {
+          return {
+            ...journey,
+            status,
+            updatedAt: new Date(),
+          };
+        }
+        return journey;
+      });
+      
+      setJourneys(updatedJourneys);
+      
+      // 同时保存到localStorage作为备份
+      localStorage.setItem('journeys', JSON.stringify(updatedJourneys));
+      
+      console.log(`✅ Journey ${journeyId} status updated to ${status} in database`);
+    } catch (error) {
+      console.error('Error updating journey status in database:', error);
+      
+      // 如果数据库失败，更新localStorage作为fallback
+      const updatedJourneys = journeys.map(journey => {
+        if (journey.id === journeyId) {
+          return {
+            ...journey,
+            status,
+            updatedAt: new Date(),
+          };
+        }
+        return journey;
+      });
+      
+      setJourneys(updatedJourneys);
+      localStorage.setItem('journeys', JSON.stringify(updatedJourneys));
+      
+      console.warn('⚠️ Journey status updated in localStorage (database unavailable)');
+    }
   };
 
-  const addJourney = (journey: Omit<Journey, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const newJourney: Journey = {
-      ...journey,
-      id: `journey-${Date.now()}`,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    
-    const updatedJourneys = [...journeys, newJourney];
-    setJourneys(updatedJourneys);
-    saveJourneys(updatedJourneys);
-    
-    console.log(`New journey added: ${newJourney.id}`);
+  const updateJourney = async (journeyId: string, updates: Partial<Omit<Journey, 'id' | 'createdAt' | 'updatedAt'>>) => {
+    try {
+      // 🔥 自动保存到数据库
+      const updatedJourney = await journeyAPI.update(journeyId, updates);
+      
+      // 更新本地状态
+      const updatedJourneys = journeys.map(journey => 
+        journey.id === journeyId ? updatedJourney : journey
+      );
+      setJourneys(updatedJourneys);
+      
+      // 同时保存到localStorage作为备份
+      localStorage.setItem('journeys', JSON.stringify(updatedJourneys));
+      
+      console.log(`✅ Journey ${journeyId} updated in database`);
+      return updatedJourney;
+    } catch (error) {
+      console.error('Error updating journey in database:', error);
+      
+      // 如果数据库失败，更新localStorage作为fallback
+      const updatedJourneys = journeys.map(journey => {
+        if (journey.id === journeyId) {
+          return {
+            ...journey,
+            ...updates,
+            updatedAt: new Date(),
+          };
+        }
+        return journey;
+      });
+      
+      setJourneys(updatedJourneys);
+      localStorage.setItem('journeys', JSON.stringify(updatedJourneys));
+      
+      console.warn('⚠️ Journey updated in localStorage (database unavailable)');
+    }
   };
 
-  const deleteJourney = (journeyId: string) => {
-    const updatedJourneys = journeys.filter(journey => journey.id !== journeyId);
-    setJourneys(updatedJourneys);
-    saveJourneys(updatedJourneys);
-    
-    console.log(`Journey ${journeyId} deleted`);
+  const addJourney = async (journey: Omit<Journey, 'id' | 'createdAt' | 'updatedAt'>) => {
+    try {
+      // 🔥 自动保存到数据库
+      const savedJourney = await journeyAPI.create(journey);
+      
+      // 更新本地状态
+      const updatedJourneys = [...journeys, savedJourney];
+      setJourneys(updatedJourneys);
+      
+      // 同时保存到localStorage作为备份
+      localStorage.setItem('journeys', JSON.stringify(updatedJourneys));
+      
+      console.log(`✅ New journey saved to database: ${savedJourney.id}`);
+      return savedJourney;
+    } catch (error) {
+      console.error('Error saving journey to database:', error);
+      
+      // 如果数据库失败，保存到localStorage作为fallback
+      const newJourney: Journey = {
+        ...journey,
+        id: `journey-${Date.now()}`,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      
+      const updatedJourneys = [...journeys, newJourney];
+      setJourneys(updatedJourneys);
+      localStorage.setItem('journeys', JSON.stringify(updatedJourneys));
+      
+      console.warn('⚠️ Journey saved to localStorage (database unavailable)');
+      return newJourney;
+    }
+  };
+
+  const deleteJourney = async (journeyId: string) => {
+    try {
+      // 🔥 自动从数据库删除
+      await journeyAPI.delete(journeyId);
+      
+      // 更新本地状态
+      const updatedJourneys = journeys.filter(journey => journey.id !== journeyId);
+      setJourneys(updatedJourneys);
+      
+      // 同时更新localStorage作为备份
+      localStorage.setItem('journeys', JSON.stringify(updatedJourneys));
+      
+      console.log(`✅ Journey ${journeyId} deleted from database`);
+    } catch (error) {
+      console.error('Error deleting journey from database:', error);
+      
+      // 如果数据库失败，从localStorage删除作为fallback
+      const updatedJourneys = journeys.filter(journey => journey.id !== journeyId);
+      setJourneys(updatedJourneys);
+      localStorage.setItem('journeys', JSON.stringify(updatedJourneys));
+      
+      console.warn('⚠️ Journey deleted from localStorage (database unavailable)');
+    }
   };
 
   const getJourneysByStatus = (status: JourneyStatus) => {
@@ -565,6 +1262,10 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
     getJourneysByRegion,
     getFeaturedJourneys,
     isLoading,
+    resetToDefaults,
+    clearStorageAndReload,
+    createBackup,
+    restoreFromBackup,
   };
 
   return (

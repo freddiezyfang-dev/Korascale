@@ -55,7 +55,16 @@ export default function ArticleDetailPage() {
               fontFamily="Montserrat, sans-serif"
               sizeClassName="text-lg md:text-xl" 
             />
-            <Heading level={1} className="text-4xl text-white mt-4">{article.title}</Heading>
+            <Heading 
+              level={1} 
+              className="text-6xl md:text-7xl lg:text-8xl font-normal tracking-tight mt-4" 
+              style={{ 
+                fontFamily: 'Montserrat, sans-serif',
+                color: '#FFFFFF'
+              }}
+            >
+              {article.title}
+            </Heading>
             <Text className="text-white/90 mt-2">作者：{article.author}</Text>
           </div>
         </div>

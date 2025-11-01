@@ -43,23 +43,23 @@ export default function NavMenu() {
 
 				{/* 右侧用户区域 */}
 				<div className="flex items-center gap-3 h-[52px]">
-					<div className="w-[14px] h-[14px] flex items-center justify-center">
+					<div className="w-[14px] h-[14px] flex items-center justify-center flex-shrink-0">
 						<img src={imgVector} alt="user icon" className="w-full h-full" />
 					</div>
 					{user ? (
-						<div className="flex items-center gap-3">
-							<span className="text-[16px] text-black font-subheading">
+						<div className="flex items-center gap-3 min-w-0">
+							<span className="text-[16px] text-black font-subheading truncate">
 								Welcome, {user.name}
 							</span>
 							<button 
 								onClick={logout}
-								className="text-[16px] text-black font-subheading hover:opacity-80"
+								className="text-[16px] text-black font-subheading hover:opacity-80 flex-shrink-0"
 							>
 								Logout
 							</button>
 						</div>
 					) : (
-                        <Link href="/auth/login" className="text-[16px] text-black font-subheading hover:opacity-80">
+                        <Link href="/auth/login" className="text-[16px] text-black font-subheading hover:opacity-80 flex-shrink-0">
                             Sign in / Log in
                         </Link>
 					)}

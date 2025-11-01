@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Text, Card, Button } from '@/components/common';
 import { Journey } from '@/types';
+import { generateJourneyPageFields } from '@/lib/journeyPageGenerator';
 import { 
   Eye,
   Copy,
@@ -19,10 +20,12 @@ export function PageGenerationHelper({ journey, onUpdateJourney, allJourneys }: 
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handlePreviewPage = () => {
-    if (journey.slug) {
-      // 使用当前窗口打开，而不是新窗口
-      window.location.href = `/journeys/${journey.slug}`;
+    if (!journey.slug) {
+      alert('请先设置 Journey Slug 才能预览页面');
+      return;
     }
+    // 在新标签页中打开预览
+    window.open(`/journeys/${journey.slug}`, '_blank');
   };
 
   const handleCopyUrl = () => {
@@ -32,19 +35,23 @@ export function PageGenerationHelper({ journey, onUpdateJourney, allJourneys }: 
   };
 
   const handleConfirmGeneration = async () => {
-    if (!journey.slug) return;
+    if (!journey.slug) {
+      alert('请先设置 Journey Slug 才能生成页面');
+      return;
+    }
     
     setIsGenerating(true);
     try {
-      // 这里可以添加页面生成逻辑
-      // 比如生成页面内容、更新状态等
-      await new Promise(resolve => setTimeout(resolve, 1000)); // 模拟生成过程
+      // 生成页面所需的所有字段
+      const generatedFields = generateJourneyPageFields(journey, allJourneys);
       
-      // 可以在这里添加成功提示
-      alert('页面生成成功！');
+      // 保存生成的字段到数据库
+      await onUpdateJourney(journey.id, generatedFields);
+      
+      alert('页面生成成功！字段已自动保存。');
     } catch (error) {
       console.error('Error generating page:', error);
-      alert('页面生成失败，请重试');
+      alert(`页面生成失败：${error instanceof Error ? error.message : '未知错误'}`);
     } finally {
       setIsGenerating(false);
     }

@@ -1,10 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
 import { useUser } from '@/context/UserContext';
 import { useOrderManagement } from '@/context/OrderManagementContext';
-import { LoginModal } from '@/components/modals/LoginModal';
 import Dropdown from '@/components/ui/Dropdown';
 import { UserDropdown } from '@/components/ui/UserDropdown';
 
@@ -39,21 +37,6 @@ function HeaderLeft() {
 function UserSection() {
   const { user, logout } = useUser();
   const { addLoginRecord, updateLogoutRecord } = useOrderManagement();
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-
-  const handleLoginSuccess = () => {
-    setIsLoginModalOpen(false);
-    // 记录登录信息
-    if (user) {
-      addLoginRecord({
-        userId: user.id,
-        userEmail: user.email,
-        loginAt: new Date(),
-        ipAddress: '127.0.0.1',
-        userAgent: navigator.userAgent,
-      });
-    }
-  };
 
   const handleLogout = () => {
     if (user) {
@@ -63,57 +46,37 @@ function UserSection() {
   };
 
 	return (
-		<>
-			<div className="flex items-center gap-4">
-				{user ? (
-					<div className="flex items-center gap-3">
-						<Dropdown
-							trigger={
-								<div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
-									<img 
-										src={imgUser} 
-										alt="User" 
-										className="w-5 h-5"
-									/>
-									<span className="text-white text-sm hidden lg:block">
-										{user.name}
-									</span>
-								</div>
-							}
-							className="right-0"
-						>
-							<UserDropdown />
-						</Dropdown>
-						{user.email === 'admin@korascale.com' && (
-							<Link 
-								href="/admin"
-								className="text-white text-sm hover:text-gray-300 transition-colors bg-white bg-opacity-20 px-3 py-1 rounded"
-							>
-								Admin
-							</Link>
-						)}
-					</div>
-				) : (
-					<button
-						onClick={() => setIsLoginModalOpen(true)}
-						className="flex items-center gap-2 text-white hover:text-gray-300 transition-colors"
+		<div className="flex items-center gap-4">
+			{user ? (
+				<div className="flex items-center gap-3">
+					<Dropdown
+						trigger={
+							<div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
+								<img 
+									src={imgUser} 
+									alt="User" 
+									className="w-5 h-5"
+								/>
+								<span className="text-white text-sm hidden lg:block">
+									{user.name}
+								</span>
+							</div>
+						}
+						className="right-0"
 					>
-						<img 
-							src={imgUser} 
-							alt="Login" 
-							className="w-5 h-5"
-						/>
-						<span className="text-sm">Login</span>
-					</button>
-				)}
-			</div>
-
-			<LoginModal
-				isOpen={isLoginModalOpen}
-				onClose={() => setIsLoginModalOpen(false)}
-				onLoginSuccess={handleLoginSuccess}
-			/>
-		</>
+						<UserDropdown />
+					</Dropdown>
+					{user.email === 'admin@korascale.com' && (
+						<Link 
+							href="/admin"
+							className="text-white text-sm hover:text-gray-300 transition-colors bg-white bg-opacity-20 px-3 py-1 rounded"
+						>
+							Admin
+						</Link>
+					)}
+				</div>
+			) : null}
+		</div>
 	);
 }
 
