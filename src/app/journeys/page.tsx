@@ -200,7 +200,11 @@ export default function JourneysPage() {
 					
 					<div className="space-y-8">
 						{/* Filter featured journeys - take first 3 featured active journeys */}
-						{journeys.filter(j => j.featured && j.status === 'active').slice(0, 3).map((journey) => (
+						{journeys.filter(j => {
+							const isFeatured = 'featured' in j ? j.featured : false;
+							const isActive = 'status' in j ? j.status === 'active' : true;
+							return isFeatured && isActive;
+						}).slice(0, 3).map((journey) => (
 							<div key={journey.id} className="bg-white rounded-lg overflow-hidden shadow-lg">
 								<div className="flex">
 									<div className="w-1/2">
@@ -214,9 +218,15 @@ export default function JourneysPage() {
 											{journey.title}
 										</h3>
 										<p className="text-base font-['Monda'] text-black mb-8 leading-relaxed line-clamp-4">
-											{journey.overview?.description || journey.shortDescription || journey.description}
+											{('overview' in journey && journey.overview?.description) 
+												|| ('shortDescription' in journey && journey.shortDescription) 
+												|| journey.description}
 										</p>
-										<Link href={journey.slug ? `/journeys/${journey.slug}` : '#'}>
+										<Link href={('slug' in journey && journey.slug) 
+											? `/journeys/${journey.slug}` 
+											: ('link' in journey && journey.link) 
+												? journey.link 
+												: '#'}>
 											<Button variant="primary" className="text-xl font-['Monda']">
 												View Details
 											</Button>
