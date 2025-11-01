@@ -1,4 +1,4 @@
-import { Pool, QueryResult } from 'pg';
+import { Pool, QueryResult, QueryResultRow } from 'pg';
 
 // Neon/Provider 的 pooled 连接串通过 POSTGRES_URL 提供
 const connectionString = process.env.POSTGRES_URL;
@@ -13,7 +13,7 @@ export const pool = new Pool({
   ssl: { rejectUnauthorized: false },
 });
 
-export async function query<T = any>(text: string, params?: any[]): Promise<QueryResult<T>> {
+export async function query<T extends QueryResultRow = any>(text: string, params?: any[]): Promise<QueryResult<T>> {
   return pool.query<T>(text, params);
 }
 
