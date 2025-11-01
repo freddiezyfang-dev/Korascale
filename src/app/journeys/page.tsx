@@ -370,7 +370,11 @@ export default function JourneysPage() {
 												<span className="font-['Monda'] font-bold text-primary-600">{journey.price}</span>
 											</div>
 											<div className="mt-auto pt-3">
-												<Link href={`/journeys/${journey.slug}`} className="block">
+												<Link href={('slug' in journey && journey.slug) 
+													? `/journeys/${journey.slug}` 
+													: ('link' in journey && journey.link) 
+														? journey.link 
+														: '#'} className="block">
 													<Button variant="outline" size="sm" className="w-full">
 														View Details
 													</Button>
