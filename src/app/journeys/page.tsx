@@ -123,7 +123,8 @@ export default function JourneysPage() {
 
 	const filteredJourneys = useMemo(() => {
 		return journeys.filter(journey => {
-			const isActive = journey.status === 'active';
+			// 安全地检查 status 属性（默认 journeys 可能没有这个属性）
+			const isActive = 'status' in journey ? journey.status === 'active' : true;
 			const matchesRegion = selectedRegion === 'All' || journey.region === selectedRegion;
 			const matchesDuration = selectedDuration === 'All' || journey.duration === selectedDuration;
 			const matchesInterest = selectedInterest === 'All' || journey.category === selectedInterest;
