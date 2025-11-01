@@ -7,10 +7,10 @@ import { journeyAPI } from '@/lib/databaseClient';
 
 interface JourneyManagementContextType {
   journeys: Journey[];
-  updateJourneyStatus: (journeyId: string, status: JourneyStatus) => void;
-  updateJourney: (journeyId: string, updates: Partial<Omit<Journey, 'id' | 'createdAt' | 'updatedAt'>>) => void;
-  addJourney: (journey: Omit<Journey, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  deleteJourney: (journeyId: string) => void;
+  updateJourneyStatus: (journeyId: string, status: JourneyStatus) => Promise<void>;
+  updateJourney: (journeyId: string, updates: Partial<Omit<Journey, 'id' | 'createdAt' | 'updatedAt'>>) => Promise<Journey | undefined>;
+  addJourney: (journey: Omit<Journey, 'id' | 'createdAt' | 'updatedAt'>) => Promise<Journey>;
+  deleteJourney: (journeyId: string) => Promise<void>;
   getJourneysByStatus: (status: JourneyStatus) => Journey[];
   getJourneysByCategory: (category: string) => Journey[];
   getJourneysByRegion: (region: string) => Journey[];
@@ -1173,6 +1173,7 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
       localStorage.setItem('journeys', JSON.stringify(updatedJourneys));
       
       console.warn('⚠️ Journey updated in localStorage (database unavailable)');
+      return undefined;
     }
   };
 
