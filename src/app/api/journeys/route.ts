@@ -5,6 +5,14 @@ import { Journey } from '@/types';
 // GET: 获取所有journeys
 export async function GET(request: NextRequest) {
   try {
+    // 检查数据库连接
+    if (!process.env.POSTGRES_URL) {
+      return NextResponse.json(
+        { error: 'Database not configured. POSTGRES_URL is missing.' },
+        { status: 500 }
+      );
+    }
+    
     const { rows } = await query('SELECT * FROM journeys ORDER BY created_at DESC');
     
     // 转换数据库格式到应用格式

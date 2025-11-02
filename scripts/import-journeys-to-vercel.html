@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>导入 Journeys 到 Vercel</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #1e3b32;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+    }
+    textarea {
+      width: 100%;
+      height: 300px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+      margin-bottom: 20px;
+    }
+    button {
+      background: #1e3b32;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-right: 10px;
+    }
+    button:hover {
+      background: #1a342c;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .status {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 4px;
+      display: none;
+    }
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      display: block;
+    }
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+      display: block;
+    }
+    .status.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+      display: block;
+    }
+    .progress {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #666;
+    }
+    .instructions {
+      background: #fff3cd;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      border-left: 4px solid #ffc107;
+    }
+    .instructions h3 {
+      margin-top: 0;
+      color: #856404;
+    }
+    .instructions ol {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    .instructions li {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📤 导入 Journeys 到 Vercel</h1>
+    <p class="subtitle">将 localhost 的 journeys 数据导入到 Vercel 数据库</p>
+
+    <div class="instructions">
+      <h3>📋 使用说明</h3>
+      <ol>
+        <li>在 <strong>localhost</strong> 的浏览器 Console 中执行导出代码，获取 JSON 数据</li>
+        <li>将 JSON 数据粘贴到下面的文本框中</li>
+        <li>在 <strong>Vercel 网站</strong> 打开此页面（将此 HTML 文件上传到 public 目录，或直接复制代码到 Console）</li>
+        <li>点击"开始导入"按钮</li>
+        <li>等待导入完成，查看结果</li>
+      </ol>
+    </div>
+
+    <div>
+      <label for="jsonInput"><strong>粘贴 JSON 数据：</strong></label>
+      <textarea id="jsonInput" placeholder='{"journeys": [...], "experiences": [...], "hotels": [...]}'></textarea>
+    </div>
+
+    <div>
+      <button id="importBtn" onclick="startImport()">开始导入</button>
+      <button onclick="clearStatus()">清除状态</button>
+    </div>
+
+    <div id="status" class="status"></div>
+    <div id="progress" class="progress"></div>
+  </div>
+
+  <script>
+    async function startImport() {
+      const jsonInput = document.getElementById('jsonInput').value;
+      const statusDiv = document.getElementById('status');
+      const progressDiv = document.getElementById('progress');
+      const importBtn = document.getElementById('importBtn');
+
+      if (!jsonInput.trim()) {
+        showStatus('请输入 JSON 数据', 'error');
+        return;
+      }
+
+      let jsonData;
+      try {
+        jsonData = JSON.parse(jsonInput);
+      } catch (error) {
+        showStatus('JSON 格式错误：' + error.message, 'error');
+        return;
+      }
+
+      if (!jsonData.journeys || !Array.isArray(jsonData.journeys)) {
+        showStatus('JSON 数据格式不正确，需要包含 journeys 数组', 'error');
+        return;
+      }
+
+      importBtn.disabled = true;
+      showStatus('开始导入...', 'info');
+      progressDiv.textContent = `准备导入 ${jsonData.journeys.length} 个 journeys...`;
+
+      let successCount = 0;
+      let errorCount = 0;
+      const errors = [];
+
+      // 逐个导入
+      for (let i = 0; i < jsonData.journeys.length; i++) {
+        const journey = jsonData.journeys[i];
+        progressDiv.textContent = `正在导入 ${i + 1}/${jsonData.journeys.length}: ${journey.title || 'Unknown'}...`;
+
+        try {
+          // 移除 id, createdAt, updatedAt（让数据库自动生成）
+          const { id, createdAt, updatedAt, ...cleanJourney } = journey;
+
+          const response = await fetch('/api/journeys', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(cleanJourney)
+          });
+
+          if (response.ok) {
+            successCount++;
+            console.log(`✅ Imported: ${journey.title}`);
+          } else {
+            const errorData = await response.json();
+            errorCount++;
+            const errorMsg = `${journey.title || 'Unknown'}: ${errorData.error || 'Unknown error'}`;
+            errors.push(errorMsg);
+            console.error(`❌ Failed: ${errorMsg}`);
+          }
+        } catch (error) {
+          errorCount++;
+          const errorMsg = `${journey.title || 'Unknown'}: ${error.message}`;
+          errors.push(errorMsg);
+          console.error(`❌ Error: ${errorMsg}`, error);
+        }
+
+        // 添加小延迟，避免请求过快
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
+      importBtn.disabled = false;
+
+      // 显示结果
+      const resultMsg = `导入完成！\n✅ 成功: ${successCount}\n❌ 失败: ${errorCount}`;
+      showStatus(resultMsg, errorCount === 0 ? 'success' : 'info');
+
+      if (errors.length > 0) {
+        progressDiv.innerHTML = `<strong>错误详情：</strong><br>${errors.map(e => `• ${e}`).join('<br>')}`;
+      } else {
+        progressDiv.textContent = '所有 journeys 导入成功！刷新页面查看结果。';
+      }
+
+      console.log('Import complete:', { successCount, errorCount, errors });
+    }
+
+    function showStatus(message, type) {
+      const statusDiv = document.getElementById('status');
+      statusDiv.textContent = message;
+      statusDiv.className = 'status ' + type;
+    }
+
+    function clearStatus() {
+      const statusDiv = document.getElementById('status');
+      const progressDiv = document.getElementById('progress');
+      statusDiv.className = 'status';
+      statusDiv.textContent = '';
+      progressDiv.textContent = '';
+    }
+  </script>
+</body>
+</html>
+
