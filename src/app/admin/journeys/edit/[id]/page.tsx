@@ -31,6 +31,7 @@ import {
   Utensils,
   Ticket
 } from 'lucide-react';
+import { uploadAPI } from '@/lib/databaseClient';
 
 const categoryOptions = [
   'Food', 'Culture & History', 'Adventure', 'City', 'Nature', 'Spiritual'
@@ -68,6 +69,7 @@ export default function EditJourneyPage() {
   const [journey, setJourney] = useState<Journey | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState<Partial<Journey>>({});
 
   useEffect(() => {
@@ -227,6 +229,31 @@ export default function EditJourneyPage() {
       alert('保存失败，请稍后重试');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // 验证文件类型
+    if (!file.type.startsWith('image/')) {
+      alert('请选择图片文件');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const imageUrl = await uploadAPI.uploadImage(file, 'journeys');
+      handleInputChange('image', imageUrl);
+      alert('图片上传成功！');
+    } catch (error) {
+      console.error('Image upload failed:', error);
+      alert('图片上传失败，请重试');
+    } finally {
+      setIsUploading(false);
+      // 重置 input 值，以便可以重复选择同一文件
+      event.target.value = '';
     }
   };
 
@@ -854,13 +881,43 @@ export default function EditJourneyPage() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Main Image URL</label>
-                    <input
-                      type="url"
-                      value={isEditing ? (formData.image ?? '') : (journey.image ?? '')}
-                      onChange={(e) => handleInputChange('image', e.target.value)}
-                      disabled={!isEditing}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="url"
+                        value={isEditing ? (formData.image ?? '') : (journey.image ?? '')}
+                        onChange={(e) => handleInputChange('image', e.target.value)}
+                        disabled={!isEditing}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                        placeholder="图片 URL 或使用上传按钮上传到云存储"
+                      />
+                      {isEditing && (
+                        <>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            disabled={isUploading}
+                            className="hidden"
+                            id="image-upload-input"
+                          />
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            disabled={isUploading}
+                            className="flex items-center gap-2"
+                            onClick={() => document.getElementById('image-upload-input')?.click()}
+                          >
+                            <Upload className="w-4 h-4" />
+                            {isUploading ? '上传中...' : '上传'}
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                    {isEditing && (
+                      <Text size="sm" className="text-gray-500 mt-1">
+                        点击"上传"按钮上传图片到 Vercel Blob 云存储，或直接输入图片 URL
+                      </Text>
+                    )}
                   </div>
                   
                   <div className="mt-4">
