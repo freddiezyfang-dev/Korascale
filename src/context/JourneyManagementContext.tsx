@@ -157,35 +157,8 @@ const defaultJourneys: Journey[] = [
       ],
       sideImage: '/images/journey-cards/chengdu-daytour/itinerary-image.png'
     },
-    inclusions: {
-      transportation: {
-        icon: 'Car',
-        title: 'Transportation',
-        description: 'Transportation throughout in private bus. The departure time and meeting point will be arranged by our staff based on your hotel location and schedule.'
-      },
-      guide: {
-        icon: 'User',
-        title: 'Guide',
-        description: 'Services of an experienced English-speaking guide (other languages like Japanese, Korean, Spanish, German, and French available upon request).'
-      },
-      meals: {
-        icon: 'Utensils',
-        title: 'Meals',
-        description: 'Leshan snack experience and a Chengdu Hot Pot dinner.'
-      },
-      accommodation: {
-        icon: 'Bed',
-        title: 'Accommodation',
-        description: 'Accommodation is not included in this trip.'
-      },
-      others: [
-        {
-          icon: 'Ticket',
-          title: 'All entrance fees',
-          description: 'All entrance fees to attractions and sites are included.'
-        }
-      ]
-    },
+    includes: 'Transportation throughout in private bus. The departure time and meeting point will be arranged by our staff based on your hotel location and schedule.\nServices of an experienced English-speaking guide (other languages like Japanese, Korean, Spanish, German, and French available upon request).\nLeshan snack experience and a Chengdu Hot Pot dinner.\nAll entrance fees to attractions and sites are included.',
+    excludes: 'Accommodation is not included in this trip.',
     relatedTrips: [
       {
         title: 'Leshan Giant Buddha Day Trip from Chengdu',
@@ -304,35 +277,8 @@ const defaultJourneys: Journey[] = [
       ],
       sideImage: '/images/journey-cards/leshan-giant-buddha.jpg'
     },
-    inclusions: {
-      transportation: {
-        icon: 'Car',
-        title: 'Transportation',
-        description: 'Round-trip transportation from Chengdu.'
-      },
-      guide: {
-        icon: 'User',
-        title: 'Guide',
-        description: 'Services of an experienced English-speaking guide (other languages like Japanese, Korean, Spanish, German, and French available upon request).'
-      },
-      meals: {
-        icon: 'Utensils',
-        title: 'Meals',
-        description: 'Lunch at local restaurant.'
-      },
-      accommodation: {
-        icon: 'Bed',
-        title: 'Accommodation',
-        description: 'Accommodation is not included in this trip.'
-      },
-      others: [
-        {
-          icon: 'Ticket',
-          title: 'All entrance fees',
-          description: 'All entrance fees to attractions and sites are included.'
-        }
-      ]
-    },
+    includes: 'Round-trip transportation from Chengdu.\nServices of an experienced English-speaking guide (other languages like Japanese, Korean, Spanish, German, and French available upon request).\nLunch at local restaurant.\nAll entrance fees to attractions and sites are included.',
+    excludes: 'Accommodation is not included in this trip.',
     relatedTrips: [],
     createdAt: new Date(),
     updatedAt: new Date()
@@ -419,35 +365,8 @@ const defaultJourneys: Journey[] = [
       ],
       sideImage: '/images/journey-cards/ancient-dujiangyan-irrigation.jpg'
     },
-    inclusions: {
-      transportation: {
-        icon: 'Car',
-        title: 'Transportation',
-        description: 'Round-trip transportation from Chengdu.'
-      },
-      guide: {
-        icon: 'User',
-        title: 'Guide',
-        description: 'Services of an experienced English-speaking guide.'
-      },
-      meals: {
-        icon: 'Utensils',
-        title: 'Meals',
-        description: 'Lunch at local restaurant.'
-      },
-      accommodation: {
-        icon: 'Bed',
-        title: 'Accommodation',
-        description: 'Accommodation is not included in this trip.'
-      },
-      others: [
-        {
-          icon: 'Ticket',
-          title: 'All entrance fees',
-          description: 'All entrance fees to attractions and sites are included.'
-        }
-      ]
-    },
+    includes: 'Round-trip transportation from Chengdu.\nServices of an experienced English-speaking guide.\nLunch at local restaurant.\nAll entrance fees to attractions and sites are included.',
+    excludes: 'Accommodation is not included in this trip.',
     relatedTrips: [],
     createdAt: new Date(),
     updatedAt: new Date()
@@ -675,35 +594,8 @@ const defaultJourneys: Journey[] = [
       ],
       sideImage: '/images/journey-cards/jiuzhaigou-huanglong-national-park-tour.jpg'
     },
-    inclusions: {
-      transportation: {
-        icon: 'Car',
-        title: 'Transportation',
-        description: 'Transportation throughout the tour.'
-      },
-      guide: {
-        icon: 'User',
-        title: 'Guide',
-        description: 'Services of an experienced English-speaking guide.'
-      },
-      meals: {
-        icon: 'Utensils',
-        title: 'Meals',
-        description: 'All meals included.'
-      },
-      accommodation: {
-        icon: 'Bed',
-        title: 'Accommodation',
-        description: '3 nights accommodation included.'
-      },
-      others: [
-        {
-          icon: 'Ticket',
-          title: 'All entrance fees',
-          description: 'All entrance fees to attractions and sites are included.'
-        }
-      ]
-    },
+    includes: 'Transportation throughout the tour.\nServices of an experienced English-speaking guide.\nAll meals included.\n3 nights accommodation included.\nAll entrance fees to attractions and sites are included.',
+    excludes: '',
     relatedTrips: [],
     createdAt: new Date(),
     updatedAt: new Date()
@@ -793,35 +685,8 @@ const defaultJourneys: Journey[] = [
       ],
       sideImage: '/images/journey-cards/chongqing-cyber-city.jpg'
     },
-    inclusions: {
-      transportation: {
-        icon: 'Car',
-        title: 'Transportation',
-        description: 'Transportation throughout the tour.'
-      },
-      guide: {
-        icon: 'User',
-        title: 'Guide',
-        description: 'Services of an experienced English-speaking guide.'
-      },
-      meals: {
-        icon: 'Utensils',
-        title: 'Meals',
-        description: 'Local noodles lunch and Chongqing hot pot dinner.'
-      },
-      accommodation: {
-        icon: 'Bed',
-        title: 'Accommodation',
-        description: 'Accommodation is not included in this trip.'
-      },
-      others: [
-        {
-          icon: 'Ticket',
-          title: 'All entrance fees',
-          description: 'All entrance fees to attractions and sites are included.'
-        }
-      ]
-    },
+    includes: 'Transportation throughout the tour.\nServices of an experienced English-speaking guide.\nLocal noodles lunch and Chongqing hot pot dinner.\nAll entrance fees to attractions and sites are included.',
+    excludes: 'Accommodation is not included in this trip.',
     relatedTrips: [],
     createdAt: new Date(),
     updatedAt: new Date()
@@ -921,35 +786,8 @@ const defaultJourneys: Journey[] = [
       ],
       sideImage: '/images/journey-cards/chongqing-wulong-karst-national-park.jpg'
     },
-    inclusions: {
-      transportation: {
-        icon: 'Car',
-        title: 'Transportation',
-        description: 'Transportation throughout the tour.'
-      },
-      guide: {
-        icon: 'User',
-        title: 'Guide',
-        description: 'Services of an experienced English-speaking guide.'
-      },
-      meals: {
-        icon: 'Utensils',
-        title: 'Meals',
-        description: 'All meals included.'
-      },
-      accommodation: {
-        icon: 'Bed',
-        title: 'Accommodation',
-        description: '1 night accommodation included.'
-      },
-      others: [
-        {
-          icon: 'Ticket',
-          title: 'All entrance fees',
-          description: 'All entrance fees to attractions and sites are included.'
-        }
-      ]
-    },
+    includes: 'Transportation throughout the tour.\nServices of an experienced English-speaking guide.\nAll meals included.\n1 night accommodation included.\nAll entrance fees to attractions and sites are included.',
+    excludes: '',
     relatedTrips: [],
     createdAt: new Date(),
     updatedAt: new Date()

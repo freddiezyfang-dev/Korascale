@@ -92,7 +92,8 @@ export async function POST(request: NextRequest) {
     const jsonbData = {
       itinerary: journey.itinerary || [],
       overview: journey.overview || {},
-      inclusions: journey.inclusions || {},
+      includes: journey.includes || '',
+      excludes: journey.excludes || '',
       modules: journey.modules || [],
       heroStats: journey.heroStats || {},
       images: journey.images || [],

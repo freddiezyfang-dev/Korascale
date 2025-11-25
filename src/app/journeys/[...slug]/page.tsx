@@ -673,6 +673,10 @@ export default function DynamicJourneyPage() {
         </Container>
       </Section>
 
+      {/* Booking Section */}
+      <Section id="booking" background="primary" padding="xl">
+        <Container size="xl">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Select Your Date（替换原Dates & Prices区域，动态未来一年） */}
             <div>
               <Heading level={3} className="mb-8">

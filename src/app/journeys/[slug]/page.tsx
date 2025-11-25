@@ -231,14 +231,6 @@ export default function DynamicJourneyPage() {
       // 包含和排除项目
       includes: journey.includes || '',
       excludes: journey.excludes || '',
-          title: item,
-          description: `Included: ${item}`
-        })) || []
-      },
-
-      // 包含和排除项目
-      included: journey.included || [],
-      excluded: journey.excluded || [],
 
       // 相关推荐
       relatedTrips: journey.relatedTrips || [],

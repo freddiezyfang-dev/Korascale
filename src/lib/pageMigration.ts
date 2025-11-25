@@ -42,7 +42,8 @@ export function migrateExistingPage(existingJourney: Journey): Partial<Journey> 
     },
     
     // 包含项目
-    inclusions: existingJourney.inclusions || (generateInclusionsFromJourney(existingJourney) as any),
+    includes: existingJourney.includes || '',
+    excludes: existingJourney.excludes || '',
     
     // 相关推荐
     relatedTrips: existingJourney.relatedTrips || []
@@ -218,7 +219,7 @@ export function validateMigratedPage(journey: Journey): { isValid: boolean; warn
   if (!journey.heroStats) warnings.push('Missing hero stats');
   if (!journey.navigation || journey.navigation.length === 0) warnings.push('Missing navigation');
   if (!journey.overview) warnings.push('Missing overview');
-  if (!journey.inclusions || Object.keys(journey.inclusions).length === 0) warnings.push('Missing inclusions');
+  if (!journey.includes || journey.includes.trim().length === 0) warnings.push('Missing includes');
   
   return {
     isValid: warnings.length === 0,

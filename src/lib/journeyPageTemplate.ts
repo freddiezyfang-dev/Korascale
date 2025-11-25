@@ -86,19 +86,11 @@ export const JOURNEY_PAGE_TEMPLATE = {
     }
   },
 
-  // 包含项目区域配置
-  inclusions: {
+  // 包含和排除项目区域配置
+  includesExcludes: {
     background: 'secondary',
     padding: 'xl',
-    layout: 'grid grid-cols-1 lg:grid-cols-2 gap-12',
-    inclusionItem: {
-      container: 'flex gap-4',
-      icon: 'w-10 h-10 text-primary-500 flex-shrink-0',
-      content: {
-        title: 'font-medium mb-2',
-        description: 'text-sm text-gray-600'
-      }
-    }
+    layout: 'grid grid-cols-1 lg:grid-cols-2 gap-12'
   },
 
   // 相关推荐区域配置
@@ -174,33 +166,9 @@ export function generateStandardPageConfig(journey: Journey) {
     // 住宿区域
     accommodations: journey.accommodations || [],
 
-    // 包含项目
-    inclusions: journey.inclusions || [
-      {
-        icon: 'Car',
-        title: 'Transportation',
-        description: 'Transportation throughout your journey as specified.'
-      },
-      {
-        icon: 'Bed',
-        title: 'Accommodation',
-        description: 'Accommodation details as specified in the itinerary.'
-      },
-      {
-        icon: 'User',
-        title: 'Guide',
-        description: 'Professional local guides available.'
-      },
-      {
-        icon: 'Utensils',
-        title: 'Meals',
-        description: 'Meal arrangements as specified.'
-      }
-    ],
-
     // 包含和排除项目
-    included: journey.included || [],
-    excluded: journey.excluded || [],
+    includes: journey.includes || '',
+    excludes: journey.excludes || '',
 
     // 相关推荐
     relatedTrips: journey.relatedTrips || []

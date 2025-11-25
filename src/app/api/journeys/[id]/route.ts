@@ -170,7 +170,8 @@ export async function PUT(
     const jsonbUpdates: any = {};
     if (updates.itinerary !== undefined) jsonbUpdates.itinerary = updates.itinerary;
     if (updates.overview !== undefined) jsonbUpdates.overview = updates.overview;
-    if ((updates as any).inclusions !== undefined) jsonbUpdates.inclusions = (updates as any).inclusions;
+    if (updates.includes !== undefined) jsonbUpdates.includes = updates.includes;
+    if (updates.excludes !== undefined) jsonbUpdates.excludes = updates.excludes;
     if ((updates as any).images !== undefined) jsonbUpdates.images = (updates as any).images;
     if ((updates as any).highlights !== undefined) jsonbUpdates.highlights = (updates as any).highlights;
     if ((updates as any).experiences !== undefined) jsonbUpdates.experiences = (updates as any).experiences;
