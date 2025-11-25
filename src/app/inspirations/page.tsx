@@ -78,7 +78,6 @@ export default function Inspirations() {
           <Breadcrumb 
             items={[{ label: 'Home', href: '/' }, { label: 'Inspirations' }]}
             color="#FFFFFF"
-            fontFamily="Montserrat, sans-serif"
             sizeClassName="text-lg md:text-xl"
           />
         </div>

@@ -3,19 +3,43 @@
 
 import { Journey, JourneyStatus } from '@/types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+// 使用相对路径，在客户端自动使用当前域名
+const getApiUrl = (path: string) => {
+  // 在客户端使用相对路径，在服务端使用完整URL
+  if (typeof window === 'undefined') {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.VERCEL_URL || 'http://localhost:3000';
+    return `${baseUrl}${path}`;
+  }
+  return path;
+};
+
+// 创建带超时的 AbortSignal（兼容性处理）
+const createTimeoutSignal = (timeoutMs: number): AbortSignal => {
+  // 如果支持 AbortSignal.timeout，直接使用
+  if (typeof AbortSignal !== 'undefined' && 'timeout' in AbortSignal) {
+    return (AbortSignal as any).timeout(timeoutMs);
+  }
+  // 否则使用 AbortController + setTimeout
+  const controller = new AbortController();
+  setTimeout(() => controller.abort(), timeoutMs);
+  return controller.signal;
+};
 
 // Journey API调用
 export const journeyAPI = {
   // 获取所有journeys
   async getAll(): Promise<Journey[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/journeys`);
+      const response = await fetch(getApiUrl('/api/journeys'), {
+        // 添加超时控制
+        signal: createTimeoutSignal(10000), // 10秒超时
+      });
       if (!response.ok) throw new Error('Failed to fetch journeys');
       const data = await response.json();
       return data.journeys || [];
     } catch (error) {
       console.error('Error fetching journeys:', error);
+      // 如果请求失败，返回空数组而不是挂起
       return [];
     }
   },
@@ -23,7 +47,9 @@ export const journeyAPI = {
   // 获取单个journey
   async getById(id: string): Promise<Journey | null> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/journeys/${id}`);
+      const response = await fetch(getApiUrl(`/api/journeys/${id}`), {
+        signal: createTimeoutSignal(10000),
+      });
       if (!response.ok) throw new Error('Failed to fetch journey');
       const data = await response.json();
       return data.journey || null;
@@ -36,12 +62,13 @@ export const journeyAPI = {
   // 创建journey（自动保存到数据库）
   async create(journey: Omit<Journey, 'id' | 'createdAt' | 'updatedAt'>): Promise<Journey> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/journeys`, {
+      const response = await fetch(getApiUrl('/api/journeys'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(journey),
+        signal: createTimeoutSignal(15000),
       });
       
       if (!response.ok) {
@@ -60,12 +87,13 @@ export const journeyAPI = {
   // 更新journey（自动保存到数据库）
   async update(id: string, updates: Partial<Journey>): Promise<Journey> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/journeys/${id}`, {
+      const response = await fetch(getApiUrl(`/api/journeys/${id}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(updates),
+        signal: createTimeoutSignal(15000),
       });
       
       if (!response.ok) {
@@ -90,8 +118,9 @@ export const journeyAPI = {
   // 删除journey（自动从数据库删除）
   async delete(id: string): Promise<void> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/journeys/${id}`, {
+      const response = await fetch(getApiUrl(`/api/journeys/${id}`), {
         method: 'DELETE',
+        signal: createTimeoutSignal(10000),
       });
       
       if (!response.ok) {
@@ -114,9 +143,10 @@ export const uploadAPI = {
       formData.append('file', file);
       formData.append('folder', folder);
 
-      const response = await fetch(`${API_BASE_URL}/api/upload`, {
+      const response = await fetch(getApiUrl('/api/upload'), {
         method: 'POST',
         body: formData,
+        signal: createTimeoutSignal(30000), // 上传需要更长时间
       });
 
       if (!response.ok) {
@@ -149,12 +179,13 @@ export const userAPI = {
   // 保存用户信息（自动保存到数据库）
   async saveUserInfo(userData: any): Promise<void> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/users`, {
+      const response = await fetch(getApiUrl('/api/users'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(userData),
+        signal: createTimeoutSignal(10000),
       });
 
       if (!response.ok) {
@@ -167,6 +198,8 @@ export const userAPI = {
     }
   },
 };
+
+
 
 
 

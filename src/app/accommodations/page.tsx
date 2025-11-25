@@ -169,7 +169,6 @@ export default function Accommodations() {
             <Breadcrumb 
               items={[{ label: 'Home', href: '/' }, { label: 'Accommodations' }]}
               color="#000000"
-              fontFamily="Montserrat, sans-serif"
               sizeClassName="text-lg md:text-xl"
             />
           </div>

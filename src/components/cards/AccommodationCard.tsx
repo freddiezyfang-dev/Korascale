@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, CSSProperties } from 'react';
 import { useWishlist } from '@/context/WishlistContext';
 import { Button, Card, Heading, Text } from '@/components/common';
 import { Plus, Heart, Calendar, Star, MapPin, Wifi, Car, Coffee } from 'lucide-react';
@@ -18,6 +18,8 @@ export interface AccommodationCardProps {
   onClick?: () => void;
   variant?: 'default' | 'light';
   showWishlist?: boolean;
+  titleStyle?: CSSProperties;
+  descriptionStyle?: CSSProperties;
 }
 
 export const AccommodationCard: React.FC<AccommodationCardProps> = ({
@@ -32,6 +34,8 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
   onClick,
   variant = 'default',
   showWishlist = true,
+  titleStyle,
+  descriptionStyle,
 }) => {
   console.log("|" + image + "|");
   
@@ -115,13 +119,21 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
         </Text>
 
         {/* 标题 */}
-        <Heading level={4} className={`text-lg font-medium mb-3 line-clamp-2 ${isLight ? 'text-black' : 'text-white'}`} style={{ color: isLight ? '#000000' : '#ffffff' }}>
+        <Heading
+          level={4}
+          className={`text-lg font-medium mb-3 line-clamp-2 ${isLight ? 'text-black' : 'text-white'}`}
+          style={{ color: isLight ? '#000000' : '#ffffff', ...(titleStyle || {}) }}
+        >
           {title}
         </Heading>
 
         {/* 描述 */}
         {description && (
-          <Text size="sm" className={`${isLight ? 'text-black' : 'text-white'} mb-4 line-clamp-3`} style={{ color: isLight ? '#000000' : '#ffffff' }}>
+          <Text
+            size="sm"
+            className={`${isLight ? 'text-black' : 'text-white'} mb-4 line-clamp-3`}
+            style={{ color: isLight ? '#000000' : '#ffffff', ...(descriptionStyle || {}) }}
+          >
             {description}
           </Text>
         )}

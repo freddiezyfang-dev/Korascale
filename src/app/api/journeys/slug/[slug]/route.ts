@@ -11,11 +11,28 @@ export async function GET(
     const { slug } = await context.params;
     // 对 slug 进行 URL 解码，处理可能的编码字符
     const decodedSlug = decodeURIComponent(slug);
+    
+    console.log('[API] Fetching journey by slug:', {
+      originalSlug: slug,
+      decodedSlug: decodedSlug,
+      url: request.url
+    });
+    
     const { rows } = await query('SELECT * FROM journeys WHERE slug = $1', [decodedSlug]);
     
+    console.log('[API] Query result:', {
+      rowsCount: rows.length,
+      found: rows.length > 0,
+      allSlugs: rows.length > 0 ? rows.map(r => r.slug) : 'N/A'
+    });
+    
     if (rows.length === 0) {
+      // 尝试查询所有 journeys 的 slug，用于调试
+      const allRows = await query('SELECT id, slug, title FROM journeys LIMIT 10', []);
+      console.log('[API] Available journeys:', allRows.rows.map(r => ({ id: r.id, slug: r.slug, title: r.title })));
+      
       return NextResponse.json(
-        { error: 'Journey not found' },
+        { error: 'Journey not found', searchedSlug: decodedSlug },
         { status: 404 }
       );
     }
@@ -32,6 +49,7 @@ export async function GET(
       price: row.price,
       originalPrice: row.original_price,
       category: row.category,
+      journeyType: row.journey_type || undefined, // 版面分类
       region: row.region,
       city: row.city,
       location: row.location,

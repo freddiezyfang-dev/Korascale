@@ -9,9 +9,8 @@ import { UserDropdown } from '@/components/ui/UserDropdown';
 // 使用本地图片资源 - 你的logo图片
 const imgLogo = "/logo.png"; // 使用你的logo文件
 const imgMail = "/icons/mail.svg";
-const imgMessageCircle = "/icons/message.svg";
 const imgInstagram = "/icons/instagram.svg";
-const imgFacebook = "/icons/facebook.svg";
+const imgTiktok = "/icons/tiktok.svg";
 const imgGlobe = "/globe.svg";
 const imgSearchOutlined = "/icons/search.svg";
 const imgUser = "/icons/user.svg";
@@ -85,29 +84,60 @@ function SocialAndSearch() {
 		<div className="flex items-center justify-center gap-4 lg:gap-[35px] overflow-hidden px-4 lg:px-16 py-[25px] shrink-0" data-name="Scial Media" data-node-id="770:181">
 			{/* Social Media Icons - Hidden on mobile, visible on desktop */}
 			<div className="hidden lg:flex items-center gap-6">
-				<div className="shrink-0 size-6" data-name="mail" data-node-id="770:182">
+				{/* 邮件图标 */}
+				<a 
+					href="mailto:customer-service@korascale.com" 
+					className="shrink-0 size-6 hover:opacity-80 transition-opacity cursor-pointer" 
+					data-name="mail" 
+					data-node-id="770:182"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
 					<img aria-hidden className="block size-full" src={imgMail} alt="Email" />
-				</div>
-				<div className="shrink-0 size-6" data-name="message-circle" data-node-id="770:185">
-					<img aria-hidden className="block size-full" src={imgMessageCircle} alt="Message" />
-				</div>
-				<div className="shrink-0 size-6" data-name="instagram" data-node-id="770:187">
+				</a>
+				{/* Instagram图标 */}
+				<a 
+					href="https://www.instagram.com/korascaletravel/" 
+					className="shrink-0 size-6 hover:opacity-80 transition-opacity cursor-pointer" 
+					data-name="instagram" 
+					data-node-id="770:187"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
 					<img aria-hidden className="block size-full" src={imgInstagram} alt="Instagram" />
-				</div>
-				<div className="shrink-0 size-6" data-name="facebook" data-node-id="770:191">
-					<img aria-hidden className="block size-full" src={imgFacebook} alt="Facebook" />
-				</div>
-				<div className="shrink-0 size-6" data-name="globe" data-node-id="770:193">
+				</a>
+				{/* TikTok图标 */}
+				<a 
+					href="https://www.tiktok.com/@korascale" 
+					className="shrink-0 size-6 hover:opacity-80 transition-opacity cursor-pointer" 
+					data-name="tiktok" 
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					<img aria-hidden className="block size-full" src={imgTiktok} alt="TikTok" />
+				</a>
+				{/* 语言图标 */}
+				<Link 
+					href="/language" 
+					className="shrink-0 size-6 hover:opacity-80 transition-opacity cursor-pointer" 
+					data-name="globe" 
+					data-node-id="770:193"
+				>
 					<img aria-hidden className="block size-full" src={imgGlobe} alt="Language" />
-				</div>
+				</Link>
 			</div>
 			{/* Search Section */}
-			<div className="bg-[#1e3b32] flex items-center justify-center overflow-hidden px-4 lg:px-[51px] py-[14px] shrink-0" data-name="Language" data-node-id="770:192">
+			<Link 
+				href="/journeys" 
+				className="bg-[#1e3b32] flex items-center justify-center gap-2 overflow-hidden px-4 lg:px-[51px] py-[14px] shrink-0 hover:opacity-80 transition-opacity cursor-pointer" 
+				data-name="Language" 
+				data-node-id="770:192"
+			>
 				<div className="shrink-0 size-6" data-name="SearchOutlined" data-node-id="771:244">
 					<img aria-hidden className="block size-full" src={imgSearchOutlined} alt="Search" />
 				</div>
-				<div className="bg-[#d9d9d9] h-[26px] rounded-[20px] shrink-0 w-[80px] lg:w-[115px]" data-name="Search" data-node-id="770:197" />
-			</div>
+				<span className="text-white text-sm lg:text-base whitespace-nowrap">find your journey</span>
+			</Link>
 		</div>
 	);
 }

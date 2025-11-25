@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS journeys (
   original_price DECIMAL(10, 2),
   
   category VARCHAR(50),
+  journey_type VARCHAR(50), -- 版面分类：Explore Together, Deep Discovery, Signature Journeys
   region VARCHAR(100),
   city VARCHAR(100),
   location VARCHAR(255),
@@ -66,6 +67,7 @@ CREATE TABLE IF NOT EXISTS journeys (
 CREATE INDEX IF NOT EXISTS idx_journeys_slug ON journeys(slug);
 CREATE INDEX IF NOT EXISTS idx_journeys_status ON journeys(status);
 CREATE INDEX IF NOT EXISTS idx_journeys_category ON journeys(category);
+CREATE INDEX IF NOT EXISTS idx_journeys_journey_type ON journeys(journey_type);
 CREATE INDEX IF NOT EXISTS idx_journeys_region ON journeys(region);
 CREATE INDEX IF NOT EXISTS idx_journeys_featured ON journeys(featured);
 CREATE INDEX IF NOT EXISTS idx_journeys_data ON journeys USING GIN(data);
@@ -81,6 +83,7 @@ BEGIN
       COALESCE(NEW.description, '') || ' ' || 
       COALESCE(NEW.short_description, '') || ' ' ||
       COALESCE(NEW.category, '') || ' ' ||
+      COALESCE(NEW.journey_type, '') || ' ' ||
       COALESCE(NEW.region, '') || ' ' ||
       COALESCE(NEW.city, '')
     );

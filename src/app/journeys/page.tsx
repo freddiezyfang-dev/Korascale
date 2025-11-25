@@ -5,6 +5,7 @@ import { useState, useMemo } from 'react';
 import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/components/common';
 import { PlanningSectionNew } from '@/components/sections';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
+import type { JourneyType } from '@/types';
 
 // 使用本地图片资源
 const imgHeroBanner = "/images/hero/slide5-chongqing.jpg";
@@ -27,7 +28,8 @@ const defaultJourneys = [
 		price: "From ¥299",
 		category: "Food",
 		region: "Sichuan",
-		link: "/journeys/chengdu-city-one-day-deep-dive"
+		link: "/journeys/chengdu-city-one-day-deep-dive",
+    journeyType: "Explore Together"
 	},
 	{
 		id: 2,
@@ -38,7 +40,8 @@ const defaultJourneys = [
 		price: "From $199",
 		category: "Culture & History",
 		region: "Sichuan",
-		link: "/journeys/leshan-giant-buddha"
+		link: "/journeys/leshan-giant-buddha",
+    journeyType: "Explore Together"
 	},
 	{
 		id: 3,
@@ -49,7 +52,8 @@ const defaultJourneys = [
 		price: "From $179",
 		category: "Culture & History",
 		region: "Sichuan",
-		link: "/journeys/dujiangyan-irrigation"
+		link: "/journeys/dujiangyan-irrigation",
+    journeyType: "Explore Together"
 	},
 	{
 		id: 4,
@@ -60,7 +64,8 @@ const defaultJourneys = [
 		price: "From $599",
 		category: "Adventure",
 		region: "Sichuan",
-		link: "/journeys/jiuzhaigou-valley"
+		link: "/journeys/jiuzhaigou-valley",
+    journeyType: "Deep Discovery"
 	},
 	{
 		id: 5,
@@ -71,7 +76,8 @@ const defaultJourneys = [
 		price: "From $799",
 		category: "Adventure",
 		region: "Sichuan",
-		link: "/journeys/jiuzhaigou-huanglong"
+		link: "/journeys/jiuzhaigou-huanglong",
+    journeyType: "Deep Discovery"
 	},
 	{
 		id: 6,
@@ -82,7 +88,8 @@ const defaultJourneys = [
 		price: "From $249",
 		category: "City",
 		region: "Chongqing",
-		link: "/journeys/chongqing-city-highlights"
+		link: "/journeys/chongqing-city-highlights",
+    journeyType: "Explore Together"
 	},
 	{
 		id: 7,
@@ -93,9 +100,49 @@ const defaultJourneys = [
 		price: "From $399",
 		category: "Adventure",
 		region: "Chongqing",
-		link: "/journeys/chongqing-wulong-karst"
+		link: "/journeys/chongqing-wulong-karst",
+    journeyType: "Signature Journeys"
 	}
 ];
+
+const journeyTypeOptions: { value: JourneyType; label: string; description: string }[] = [
+	{
+		value: 'Explore Together',
+		label: 'Explore Together',
+		description: 'Immersive day experiences and micro adventures designed for quick inspiration.'
+	},
+	{
+		value: 'Deep Discovery',
+		label: 'Deep Discovery',
+		description: 'Multi-day journeys that dive beneath the surface of local culture, nature, and cuisine.'
+	},
+	{
+		value: 'Signature Journeys',
+		label: 'Signature Journeys',
+		description: 'Premium, curated expeditions with elevated service, exclusive access, and unforgettable moments.'
+	}
+];
+
+const defaultJourneyType: JourneyType = 'Explore Together';
+
+// Journey Type 到 Slug 的映射
+const JourneyTypeToSlug: Record<JourneyType, string> = {
+	'Explore Together': 'explore-together',
+	'Deep Discovery': 'deep-discovery',
+	'Signature Journeys': 'signature-journeys'
+};
+
+// 获取 Journey Type 的 Slug
+const getJourneyTypeSlug = (type: JourneyType): string => {
+	return JourneyTypeToSlug[type] || 'explore-together';
+};
+
+const resolveJourneyType = (journey: any): JourneyType => {
+	if ('journeyType' in journey && journey.journeyType) {
+		return journey.journeyType as JourneyType;
+	}
+	return defaultJourneyType;
+};
 
 export default function JourneysPage() {
 	const { journeys: contextJourneys, isLoading, clearStorageAndReload } = useJourneyManagement();
@@ -107,6 +154,7 @@ export default function JourneysPage() {
 	const [selectedInterest, setSelectedInterest] = useState('All');
 	const [selectedMonth, setSelectedMonth] = useState('All');
 	const [searchTerm, setSearchTerm] = useState('');
+	const [selectedJourneyType, setSelectedJourneyType] = useState<JourneyType | 'All'>('All');
 
 	const categories = [
 		'All', 
@@ -122,9 +170,11 @@ export default function JourneysPage() {
 	];
 
 	const filteredJourneys = useMemo(() => {
-		return journeys.filter(journey => {
+		const filtered = journeys.filter(journey => {
 			// 安全地检查 status 属性（默认 journeys 可能没有这个属性）
 			const isActive = 'status' in journey ? journey.status === 'active' : true;
+			const journeyType = resolveJourneyType(journey);
+			const matchesJourneyType = selectedJourneyType === 'All' || journeyType === selectedJourneyType;
 			const matchesRegion = selectedRegion === 'All' || journey.region === selectedRegion;
 			const matchesDuration = selectedDuration === 'All' || journey.duration === selectedDuration;
 			const matchesInterest = selectedInterest === 'All' || journey.category === selectedInterest;
@@ -132,9 +182,33 @@ export default function JourneysPage() {
 			const matchesMonth = selectedMonth === 'All'; // For now, always true
 			const matchesSearch = journey.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
 								 journey.description.toLowerCase().includes(searchTerm.toLowerCase());
-			return isActive && matchesRegion && matchesDuration && matchesInterest && matchesMonth && matchesSearch;
+			return isActive && matchesJourneyType && matchesRegion && matchesDuration && matchesInterest && matchesMonth && matchesSearch;
 		});
-	}, [journeys, selectedRegion, selectedDuration, selectedInterest, selectedMonth, searchTerm]);
+		
+		// 调试信息：在开发环境中输出
+		if (process.env.NODE_ENV === 'development') {
+			console.log('Journeys Page Debug:', {
+				totalJourneys: journeys.length,
+				filteredCount: filtered.length,
+				selectedJourneyType,
+				selectedRegion,
+				selectedDuration,
+				selectedInterest,
+				searchTerm,
+				journeys: journeys.map(j => ({
+					id: j.id,
+					title: j.title,
+					status: 'status' in j ? j.status : 'undefined',
+					journeyType: resolveJourneyType(j),
+					region: j.region,
+					duration: j.duration,
+					category: j.category
+				}))
+			});
+		}
+		
+		return filtered;
+	}, [journeys, selectedJourneyType, selectedRegion, selectedDuration, selectedInterest, selectedMonth, searchTerm]);
 
 	// 加载状态
 	if (isLoading) {
@@ -149,95 +223,77 @@ export default function JourneysPage() {
 
 	return (
 		<div className="min-h-screen bg-white">
-			{/* Hero Section - Figma Design */}
-			<div className="relative h-[800px] flex">
-				{/* Left Hero Banner */}
-				<div className="w-1/2 relative">
-					<div 
-						className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-						style={{ backgroundImage: `url('${imgHeroBanner}')` }}
-					/>
-					<div className="relative z-10 h-full flex items-center justify-center">
-						<div className="text-center text-white">
-							<Heading level={1} className="text-6xl lg:text-8xl font-['Montaga'] mb-8 leading-tight">
-								Find Your Journey
-							</Heading>
-							<Text size="xl" className="text-2xl font-['Monda'] mb-8">
-								View All Journeys
-							</Text>
-						</div>
-					</div>
-				</div>
-
-				{/* Right Content */}
-				<div className="w-1/2 bg-[#f5f1e6] flex items-center">
-					<Container size="lg" className="py-16">
-                        {/* Breadcrumb Navigation */}
-                        <Breadcrumb 
-                            items={[{ label: 'Home', href: '/' }, { label: 'Journeys' }]}
-                            color="#000000"
-                            fontFamily="Montserrat, sans-serif"
-                            sizeClassName="text-lg md:text-xl"
-                            className="mb-8"
-                        />
-
-						{/* Description Text */}
-						<Text size="xl" className="text-2xl font-['Montaga'] leading-relaxed tracking-wide">
-							Explore our curated collection of journeys across China&apos;s most breathtaking landscapes. 
-							Whether you seek cultural immersion, culinary delights, or outdoor adventure, use the 
-							filters to discover your dream itinerary. Let your journey of a lifetime start now.
-						</Text>
-					</Container>
-				</div>
-			</div>
-
-			{/* Recommended Journeys Section */}
-			<div className="bg-[#1e3b32] py-16">
+			{/* Journey Collections Section - 参考 Inspirations 页面排版 */}
+			<Section background="secondary" padding="xl" className="py-24">
 				<Container size="xl">
-					<h2 className="text-4xl font-['Montaga'] text-center mb-16" style={{ color: '#ffffff' }}>
-						Recommended Journeys
-					</h2>
-					
-					<div className="space-y-8">
-						{/* Filter featured journeys - take first 3 featured active journeys */}
-						{journeys.filter(j => {
-							const isFeatured = 'featured' in j ? j.featured : false;
-							const isActive = 'status' in j ? j.status === 'active' : true;
-							return isFeatured && isActive;
-						}).slice(0, 3).map((journey) => (
-							<div key={journey.id} className="bg-white rounded-lg overflow-hidden shadow-lg">
-								<div className="flex">
-									<div className="w-1/2">
-										<div 
-											className="h-[400px] bg-cover bg-center bg-no-repeat"
-											style={{ backgroundImage: `url('${journey.image}')` }}
+					{/* Breadcrumb Navigation */}
+					<div className="mb-12">
+						<Breadcrumb 
+							items={[{ label: 'Home', href: '/' }, { label: 'Journeys' }]}
+							color="#000000"
+							sizeClassName="text-lg md:text-xl"
+						/>
+					</div>
+
+					{/* Three Column Grid - 参考 Inspirations 页面的 3 列布局 */}
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-16">
+						{journeyTypeOptions.map((option) => {
+							// 为每个分类获取对应的图片（可以根据需要添加图片）
+							const getImageForType = (type: JourneyType) => {
+								switch(type) {
+									case 'Explore Together':
+										return imgJourney1; // 使用现有图片或添加新图片
+									case 'Deep Discovery':
+										return imgJourney4;
+									case 'Signature Journeys':
+										return imgJourney5;
+									default:
+										return imgJourney1;
+								}
+							};
+
+							return (
+								<Link
+									key={option.value}
+									href={`/journeys/${getJourneyTypeSlug(option.value)}`}
+									className="group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl block"
+								>
+									<div className="relative h-[357px] rounded-lg overflow-hidden mb-6">
+										<img
+											src={getImageForType(option.value)}
+											alt={option.label}
+											className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
 										/>
 									</div>
-									<div className="w-1/2 p-8">
-										<h3 className="text-2xl font-['Montaga'] text-black mb-4">
-											{journey.title}
-										</h3>
-										<p className="text-base font-['Monda'] text-black mb-8 leading-relaxed line-clamp-4">
-											{('overview' in journey && journey.overview?.description) 
-												|| ('shortDescription' in journey && journey.shortDescription) 
-												|| journey.description}
-										</p>
-										<Link href={('slug' in journey && journey.slug) 
-											? `/journeys/${journey.slug}` 
-											: ('link' in journey && journey.link) 
-												? journey.link 
-												: '#'}>
-											<Button variant="primary" className="text-xl font-['Monda']">
-												View Details
-											</Button>
-										</Link>
+									<div className="text-center px-8">
+										<Heading 
+											level={3} 
+											className="text-xl font-subheading mb-4" 
+											style={{ color: '#000000', fontFamily: 'Montaga, serif' }}
+										>
+											{option.label}
+										</Heading>
+										<Text 
+											className="text-xs mb-6 leading-relaxed px-2" 
+											style={{ color: '#000000', fontFamily: 'Monda, sans-serif' }}
+										>
+											{option.description}
+										</Text>
+										<span className="text-xs font-body underline group-hover:text-[#1e3b32] transition-colors duration-300 inline-block" 
+											style={{ color: '#000000', fontFamily: 'Monda, sans-serif' }}
+										>
+											VIEW MORE
+										</span>
 									</div>
-								</div>
-							</div>
-						))}
+								</Link>
+							);
+						})}
 					</div>
 				</Container>
-			</div>
+			</Section>
+
+			{/* Planning Your Trip Section - 包含 Tailor-Made 内容 */}
+			<PlanningSectionNew />
 
 			{/* Filter and Results Section */}
 			<div className="bg-[#f5f1e6] py-16">
@@ -247,6 +303,28 @@ export default function JourneysPage() {
 						<div className="w-80 flex-shrink-0">
 							<div className="bg-white rounded-lg p-6 shadow-lg">
 								<h3 className="text-2xl font-['Monda'] font-bold mb-6">Filter</h3>
+								
+								{/* Journey Type Filter */}
+								<div className="mb-8">
+									<h4 className="text-xl font-['Monda'] font-bold mb-4">JOURNEY TYPE</h4>
+									<div className="flex flex-wrap gap-2">
+										{['All', ...journeyTypeOptions.map(opt => opt.value)].map((type) => (
+											<button
+												key={type}
+												className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
+													selectedJourneyType === type ? 'bg-gray-200' : 'bg-white'
+												}`}
+												style={{
+													color: 'black',
+													backgroundColor: selectedJourneyType === type ? '#e5e7eb' : 'white'
+												}}
+												onClick={() => setSelectedJourneyType(type as JourneyType | 'All')}
+											>
+												{type}
+											</button>
+										))}
+									</div>
+								</div>
 								
 								{/* Regions Filter */}
 								<div className="mb-8">
@@ -388,9 +466,6 @@ export default function JourneysPage() {
 					</div>
 				</Container>
 			</div>
-
-			{/* Planning Section */}
-			<PlanningSectionNew />
 		</div>
 	);
 }

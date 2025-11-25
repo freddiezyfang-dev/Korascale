@@ -7,7 +7,8 @@ import { useUser } from '@/context/UserContext';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { useExperienceManagement } from '@/context/ExperienceManagementContext';
 import { useHotelManagement } from '@/context/HotelManagementContext';
-import { Journey, JourneyStatus } from '@/types';
+import { Journey, JourneyStatus, JourneyType } from '@/types';
+import { uploadAPI } from '@/lib/databaseClient';
 import { PageGenerationHelper } from '@/components/admin/PageGenerationHelper';
 import { 
   ArrowLeft,
@@ -25,6 +26,12 @@ import {
 
 const categoryOptions = [
   'Food', 'Culture & History', 'Adventure', 'City', 'Nature', 'Spiritual'
+];
+
+const journeyTypeOptions: JourneyType[] = [
+  'Explore Together',
+  'Deep Discovery',
+  'Signature Journeys'
 ];
 
 const difficultyOptions = ['Easy', 'Medium', 'Hard'];
@@ -56,6 +63,7 @@ export default function AddJourneyPage() {
     price: 0,
     originalPrice: 0,
     category: 'Food',
+    journeyType: 'Explore Together',
     region: 'Sichuan',
     city: '',
     location: '',
@@ -93,6 +101,7 @@ export default function AddJourneyPage() {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({
@@ -120,6 +129,31 @@ export default function AddJourneyPage() {
       ...prev,
       [field]: (prev[field as keyof Journey] as string[]).filter((_, i) => i !== index)
     }));
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // 验证文件类型
+    if (!file.type.startsWith('image/')) {
+      alert('请选择图片文件');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const imageUrl = await uploadAPI.uploadImage(file, 'journeys');
+      handleInputChange('image', imageUrl);
+      alert('图片上传成功！');
+    } catch (error) {
+      console.error('Image upload failed:', error);
+      alert('图片上传失败，请重试');
+    } finally {
+      setIsUploading(false);
+      // 重置 input 值，以便可以重复选择同一文件
+      event.target.value = '';
+    }
   };
 
   // 处理inclusions结构的变化
@@ -304,6 +338,21 @@ export default function AddJourneyPage() {
                       </div>
 
                       <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Journey Type</label>
+                        <select
+                          value={formData.journeyType || 'Explore Together'}
+                          onChange={(e) => handleInputChange('journeyType', e.target.value as JourneyType)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        >
+                          {journeyTypeOptions.map(type => (
+                            <option key={type} value={type}>{type}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Difficulty</label>
                         <select
                           value={formData.difficulty || 'Easy'}
@@ -435,11 +484,11 @@ export default function AddJourneyPage() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Overview Side Image URL</label>
                       <input
-                        type="url"
+                        type="text"
                         value={formData.overview?.sideImage || ''}
                         onChange={(e) => handleInputChange('overview', { ...formData.overview, sideImage: e.target.value })}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                        placeholder="Enter side image URL"
+                        placeholder="Enter side image URL (e.g., /images/... or https://...)"
                       />
                     </div>
 
@@ -514,7 +563,7 @@ export default function AddJourneyPage() {
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Image URL (Optional)</label>
                             <input
-                              type="url"
+                              type="text"
                               value={day.image || ''}
                               onChange={(e) => {
                                 const newItinerary = [...(formData.itinerary || [])];
@@ -1049,25 +1098,55 @@ export default function AddJourneyPage() {
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Main Image URL <span className="text-red-500">*</span>
+                        Main Image <span className="text-red-500">*</span>
                       </label>
+                      
+                      {/* 文件上传按钮 */}
+                      <div className="mb-3">
+                        <label className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg cursor-pointer hover:bg-primary-700 transition-colors">
+                          <Upload className="w-4 h-4 mr-2" />
+                          {isUploading ? '上传中...' : '上传图片到云存储'}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                            disabled={isUploading}
+                          />
+                        </label>
+                        <Text size="sm" className="text-gray-500 ml-3 inline-block">
+                          或手动输入图片URL
+                        </Text>
+                      </div>
+                      
+                      {/* URL 输入框 */}
                       <input
-                        type="url"
+                        type="text"
                         value={formData.image || ''}
                         onChange={(e) => handleInputChange('image', e.target.value)}
                         required
-                        placeholder="/images/journey-cards/ancient-dujiangyan-irrigation.jpg"
+                        placeholder="图片URL（上传后会自动填充）或输入路径，例如：/images/journey-cards/ancient-dujiangyan-irrigation.jpg"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       />
                       <Text size="sm" className="text-gray-500 mt-1">
-                        请输入图片路径，例如：/images/journey-cards/ancient-dujiangyan-irrigation.jpg
+                        {formData.image?.startsWith('https://') 
+                          ? '✅ 云存储URL（已上传到云存储）' 
+                          : '💡 提示：点击"上传图片"按钮可将图片上传到云存储，或直接输入图片URL'}
                       </Text>
                     </div>
                     
                     {formData.image && (
                       <div className="mt-4">
-                        <div className="w-full h-32 bg-gray-100 rounded-lg flex items-center justify-center text-gray-500 border-2 border-dashed border-gray-300">
-                          <Text size="sm">图片预览: {formData.image}</Text>
+                        <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-300">
+                          <img
+                            src={formData.image}
+                            alt="Preview"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              e.currentTarget.parentElement!.innerHTML = '<div class="w-full h-48 flex items-center justify-center text-gray-500">图片加载失败</div>';
+                            }}
+                          />
                         </div>
                       </div>
                     )}

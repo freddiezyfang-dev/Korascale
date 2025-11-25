@@ -1,6 +1,6 @@
 "use client";
 
-import Dropdown, { DestinationsDropdown, InspirationsDropdown } from "@/components/ui/Dropdown";
+import Dropdown, { DestinationsDropdown, InspirationsDropdown, JourneysDropdown } from "@/components/ui/Dropdown";
 import Link from "next/link";
 import { useUser } from "@/context/UserContext";
 
@@ -10,7 +10,7 @@ export default function NavMenu() {
 	const { user, logout } = useUser();
 	
 	return (
-		<nav className="w-full bg-[#f5f1e6] relative z-40" data-name="Navi Bar" data-node-id="819:685">
+		<nav className="w-full bg-white relative z-40" data-name="Navi Bar" data-node-id="819:685">
 			<div className="relative mx-auto flex max-w-screen-2xl items-center justify-between px-[50px] py-0 h-[62px]">
 				{/* 左侧导航菜单 */}
 				<div className="flex items-center gap-[26px] text-[16px] text-black font-subheading">
@@ -23,9 +23,15 @@ export default function NavMenu() {
 					>
 						<DestinationsDropdown />
 					</Dropdown>
-                    <Link href="/journeys" className="hover:opacity-80 h-[34px] flex items-center">
-                        Journeys
-                    </Link>
+					<Dropdown
+                    trigger={
+                            <Link href="/journeys" className="hover:opacity-80 h-[34px] flex items-center">
+                                Journeys
+                            </Link>
+                        }
+					>
+						<JourneysDropdown />
+					</Dropdown>
 					<Dropdown
                     trigger={
                             <Link href="/inspirations" className="hover:opacity-80 h-[34px] flex items-center">

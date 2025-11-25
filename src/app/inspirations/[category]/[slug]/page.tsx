@@ -52,7 +52,6 @@ export default function ArticleDetailPage() {
                 {label:category}
               ]} 
               color="#FFFFFF" 
-              fontFamily="Montserrat, sans-serif"
               sizeClassName="text-lg md:text-xl" 
             />
             <Heading 

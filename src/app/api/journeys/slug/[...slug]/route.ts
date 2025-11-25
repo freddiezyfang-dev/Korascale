@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { Journey } from '@/types';
 
-// GET: 根据slug获取journey
+// GET: 根据slug获取journey (catch-all route for slugs with /)
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ slug: string[] }> }
@@ -13,11 +13,24 @@ export async function GET(
     const slug = Array.isArray(slugArray) ? slugArray.join('/') : (slugArray || '');
     // 对 slug 进行 URL 解码，处理可能的编码字符
     const decodedSlug = decodeURIComponent(slug);
+    
+    console.log('[API] Fetching journey by slug (catch-all):', {
+      slugArray: slugArray,
+      joinedSlug: slug,
+      decodedSlug: decodedSlug,
+      url: request.url
+    });
+    
     const { rows } = await query('SELECT * FROM journeys WHERE slug = $1', [decodedSlug]);
+    
+    console.log('[API] Query result (catch-all):', {
+      rowsCount: rows.length,
+      found: rows.length > 0
+    });
     
     if (rows.length === 0) {
       return NextResponse.json(
-        { error: 'Journey not found' },
+        { error: 'Journey not found', searchedSlug: decodedSlug },
         { status: 404 }
       );
     }
@@ -34,6 +47,7 @@ export async function GET(
       price: row.price,
       originalPrice: row.original_price,
       category: row.category,
+      journeyType: row.journey_type || undefined, // 版面分类
       region: row.region,
       city: row.city,
       location: row.location,

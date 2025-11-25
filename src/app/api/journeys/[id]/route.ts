@@ -9,6 +9,17 @@ export async function GET(
 ) {
   try {
     const { id } = await context.params;
+    
+    // 如果 id 看起来像 slug（包含连字符或斜杠），应该使用 slug 路由
+    // UUID 格式：xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx (36字符，包含连字符)
+    // 如果 id 很短或包含斜杠，可能是 slug，应该返回 404 让 slug 路由处理
+    if (id.length < 36 || id.includes('/')) {
+      return NextResponse.json(
+        { error: 'Journey not found. Use /api/journeys/slug/[slug] for slug-based queries.' },
+        { status: 404 }
+      );
+    }
+    
     const { rows } = await query('SELECT * FROM journeys WHERE id = $1', [id]);
     
     if (rows.length === 0) {
@@ -30,6 +41,7 @@ export async function GET(
       price: row.price,
       originalPrice: row.original_price,
       category: row.category,
+      journeyType: row.journey_type || undefined, // 版面分类
       region: row.region,
       city: row.city,
       location: row.location,
@@ -100,6 +112,10 @@ export async function PUT(
     if ((updates as any).category !== undefined) {
       updateFields.push(`category = $${paramIndex++}`);
       updateValues.push((updates as any).category);
+    }
+    if ((updates as any).journeyType !== undefined) {
+      updateFields.push(`journey_type = $${paramIndex++}`);
+      updateValues.push((updates as any).journeyType);
     }
     if (updates.location !== undefined) {
       updateFields.push(`location = $${paramIndex++}`);

@@ -114,6 +114,63 @@ export type HotelStatus = 'active' | 'inactive';
 // 旅行卡片状态类型
 export type JourneyStatus = 'active' | 'inactive' | 'draft';
 
+// 旅行卡片版面分类类型
+export type JourneyType = 'Explore Together' | 'Deep Discovery' | 'Signature Journeys';
+
+// 定制服务类型
+export type CustomizationType = 'Tailor-Made China';
+
+// Tailor-Made China 定制服务请求状态
+export type TailorMadeStatus = 'pending' | 'in_progress' | 'quoted' | 'confirmed' | 'completed' | 'cancelled';
+
+// Tailor-Made China 定制服务请求
+export interface TailorMadeRequest {
+  id: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone?: string;
+  customerCountry?: string;
+  travelDates?: {
+    startDate?: string;
+    endDate?: string;
+    flexible: boolean;
+  };
+  numberOfTravelers: number;
+  travelerDetails?: Array<{
+    name: string;
+    age?: number;
+    specialNeeds?: string;
+  }>;
+  preferredDestinations?: string[];
+  interests?: string[];
+  budgetRange?: string;
+  accommodationPreference?: string;
+  transportationPreference?: string;
+  specialRequirements?: string;
+  dietaryRestrictions?: string;
+  accessibilityNeeds?: string;
+  itineraryPreferences?: Record<string, any>;
+  experiencePreferences?: Record<string, any>;
+  accommodationPreferences?: Record<string, any>;
+  status: TailorMadeStatus;
+  assignedTo?: string; // 分配的顾问ID
+  quoteAmount?: number;
+  quoteCurrency?: string;
+  quoteValidUntil?: Date;
+  quoteDetails?: Record<string, any>;
+  communicationLog?: Array<{
+    date: Date;
+    type: string;
+    content: string;
+    userId?: string;
+  }>;
+  createdAt: Date;
+  updatedAt: Date;
+  submittedAt?: Date;
+  confirmedAt?: Date;
+  completedAt?: Date;
+}
+
 // 旅行卡片类型
 export interface Journey {
   id: string;
@@ -126,6 +183,7 @@ export interface Journey {
   price: number;
   originalPrice?: number;
   category: 'Food' | 'Culture & History' | 'Adventure' | 'City' | 'Nature' | 'Spiritual';
+  journeyType?: JourneyType; // 版面分类：Explore Together, Deep Discovery, Signature Journeys
   region: string;
   city: string;
   location: string;

@@ -7,6 +7,20 @@ import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/c
 import { ExperienceCard } from '@/components/cards/ExperienceCard';
 import { AccommodationCard } from '@/components/cards/AccommodationCard';
 import { WishlistSidebar } from '@/components/wishlist/WishlistSidebar';
+import dynamic from 'next/dynamic';
+
+// 动态导入地图组件（避免 SSR 问题）
+const JourneyMap = dynamic(() => import('@/components/map/JourneyMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[400px] lg:h-[600px] bg-gray-100 rounded-lg flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-2"></div>
+        <p className="text-gray-600 text-sm">加载地图中...</p>
+      </div>
+    </div>
+  )
+});
 // import { HotelDetailModal } from '@/components/modals/HotelDetailModal';
 import { useWishlist } from '@/context/WishlistContext';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
@@ -41,6 +55,11 @@ export default function DynamicJourneyPage() {
   // 如果context中找不到，尝试从API获取
   useEffect(() => {
     const fetchJourneyBySlug = async () => {
+      // 验证 slug 是否有效
+      if (!slug || slug.trim() === '') {
+        return;
+      }
+      
       // 如果还在加载context数据，等待一下
       if (journeysLoading) return;
       
@@ -49,10 +68,19 @@ export default function DynamicJourneyPage() {
       if (foundInContext) return;
       
       // 如果已经查询过且结果为null，不需要重复查询
-      if (journeyFromApi === null && !isLoadingFromApi && journeys.length > 0) {
+      // 添加 slug 验证，避免无效请求
+      if (journeyFromApi === null && !isLoadingFromApi && journeys.length > 0 && slug && slug.length > 1) {
         setIsLoadingFromApi(true);
         try {
-          const response = await fetch(`/api/journeys/slug/${encodeURIComponent(slug)}`);
+          // 创建超时控制器
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000);
+          
+          const response = await fetch(`/api/journeys/slug/${encodeURIComponent(slug)}`, {
+            signal: controller.signal,
+          });
+          
+          clearTimeout(timeoutId);
           if (response.ok) {
             const data = await response.json();
             setJourneyFromApi(data.journey);
@@ -60,7 +88,10 @@ export default function DynamicJourneyPage() {
             setJourneyFromApi(null);
           }
         } catch (error) {
-          console.error('Error fetching journey by slug:', error);
+          // 如果是 AbortError，不记录错误
+          if (error instanceof Error && error.name !== 'AbortError') {
+            console.error('Error fetching journey by slug:', error);
+          }
           setJourneyFromApi(null);
         } finally {
           setIsLoadingFromApi(false);
@@ -430,7 +461,6 @@ export default function DynamicJourneyPage() {
                         index === 0 ? "/" : index === 1 ? "/journeys" : "#"
                 }))}
                 color="#000000"
-                fontFamily="Montserrat, sans-serif"
                 sizeClassName="text-lg md:text-xl"
                 className="mb-8"
               />
@@ -465,14 +495,17 @@ export default function DynamicJourneyPage() {
 
             {/* 右侧内容 */}
             <div className="lg:w-96 md:w-full">
-              {/* 右侧图片 */}
+              {/* 可交互地图 */}
               <div className="mt-6 relative">
-                <div
-                  className="h-[400px] lg:h-[600px] bg-center bg-cover bg-no-repeat rounded-lg"
-                  style={{ backgroundImage: `url('${pageConfig.overview.sideImage}')` }}
+                <JourneyMap
+                  city={journey.city}
+                  location={journey.location}
+                  region={journey.region}
+                  title={journey.title}
+                  className="relative"
                 />
-                {/* Book Now 固定在左侧图像的底部左侧 */}
-                <div className="absolute left-4 bottom-4">
+                {/* Book Now 固定在地图的底部左侧 */}
+                <div className="absolute left-4 bottom-4 z-[1000]">
                   <Button variant="primary" onClick={handleDirectBooking}>
                     Book Now
                   </Button>

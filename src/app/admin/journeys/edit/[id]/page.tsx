@@ -7,7 +7,7 @@ import { useUser } from '@/context/UserContext';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { useExperienceManagement } from '@/context/ExperienceManagementContext';
 import { useHotelManagement } from '@/context/HotelManagementContext';
-import { Journey, JourneyStatus } from '@/types';
+import { Journey, JourneyStatus, JourneyType } from '@/types';
 import { PageGenerationHelper } from '@/components/admin/PageGenerationHelper';
 import { DeleteConfirmationModal } from '@/components/modals/DeleteConfirmationModal';
 import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation';
@@ -35,6 +35,12 @@ import { uploadAPI } from '@/lib/databaseClient';
 
 const categoryOptions = [
   'Food', 'Culture & History', 'Adventure', 'City', 'Nature', 'Spiritual'
+];
+
+const journeyTypeOptions: JourneyType[] = [
+  'Explore Together',
+  'Deep Discovery',
+  'Signature Journeys'
 ];
 
 const difficultyOptions = ['Easy', 'Medium', 'Hard'];
@@ -221,9 +227,27 @@ export default function EditJourneyPage() {
     if (!journey || isSaving) return;
     setIsSaving(true);
     try {
+      // 调试：打印要保存的数据
+      console.log('Saving journey data:', {
+        journeyId: journey.id,
+        formData: formData,
+        highlights: formData.highlights,
+        highlightsType: Array.isArray(formData.highlights) ? 'array' : typeof formData.highlights,
+        highlightsLength: Array.isArray(formData.highlights) ? formData.highlights.length : 'N/A'
+      });
+      
       const updated = await updateJourney(journey.id, formData);
+      
+      // 调试：打印保存后的数据
+      console.log('Journey saved, updated data:', {
+        updated: updated,
+        highlights: updated?.highlights,
+        highlightsType: updated?.highlights ? (Array.isArray(updated.highlights) ? 'array' : typeof updated.highlights) : 'undefined'
+      });
+      
       setJourney(updated || { ...journey, ...formData });
       setIsEditing(false);
+      alert('保存成功！请刷新页面查看 highlights 是否显示。');
     } catch (e) {
       console.error('Save journey failed:', e);
       alert('保存失败，请稍后重试');
@@ -346,7 +370,7 @@ export default function EditJourneyPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
                     <input
                       type="text"
-                      value={isEditing ? formData.title || '' : journey.title}
+                      value={isEditing ? (formData.title ?? '') : (journey.title ?? '')}
                       onChange={(e) => handleInputChange('title', e.target.value)}
                       disabled={!isEditing}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
@@ -357,7 +381,7 @@ export default function EditJourneyPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Short Description</label>
                     <input
                       type="text"
-                      value={isEditing ? formData.shortDescription || '' : journey.shortDescription}
+                      value={isEditing ? (formData.shortDescription ?? '') : (journey.shortDescription ?? '')}
                       onChange={(e) => handleInputChange('shortDescription', e.target.value)}
                       disabled={!isEditing}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
@@ -368,7 +392,7 @@ export default function EditJourneyPage() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
                       <select
-                        value={isEditing ? formData.category || '' : journey.category}
+                        value={isEditing ? (formData.category ?? '') : (journey.category ?? '')}
                         onChange={(e) => handleInputChange('category', e.target.value)}
                         disabled={!isEditing}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
@@ -378,13 +402,27 @@ export default function EditJourneyPage() {
                         ))}
                       </select>
                     </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Journey Type</label>
+                      <select
+                        value={isEditing ? (formData.journeyType ?? '') : (journey.journeyType ?? '')}
+                        onChange={(e) => handleInputChange('journeyType', e.target.value as JourneyType)}
+                        disabled={!isEditing}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                      >
+                        {journeyTypeOptions.map(type => (
+                          <option key={type} value={type}>{type}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Region</label>
                       <select
-                        value={isEditing ? formData.region || '' : journey.region}
+                        value={isEditing ? (formData.region ?? '') : (journey.region ?? '')}
                         onChange={(e) => handleInputChange('region', e.target.value)}
                         disabled={!isEditing}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
@@ -399,7 +437,7 @@ export default function EditJourneyPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
                       <input
                         type="text"
-                        value={isEditing ? formData.city || '' : journey.city}
+                        value={isEditing ? (formData.city ?? '') : (journey.city ?? '')}
                         onChange={(e) => handleInputChange('city', e.target.value)}
                         disabled={!isEditing}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
@@ -417,7 +455,7 @@ export default function EditJourneyPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Duration</label>
                     <input
                       type="text"
-                      value={isEditing ? formData.duration || '' : journey.duration}
+                      value={isEditing ? (formData.duration ?? '') : (journey.duration ?? '')}
                       onChange={(e) => handleInputChange('duration', e.target.value)}
                       disabled={!isEditing}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
@@ -489,12 +527,12 @@ export default function EditJourneyPage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Overview Side Image URL</label>
                     <input
-                      type="url"
+                      type="text"
                       value={isEditing ? formData.overview?.sideImage || '' : journey.overview?.sideImage || ''}
                       onChange={(e) => handleInputChange('overview', { ...formData.overview, sideImage: e.target.value })}
                       disabled={!isEditing}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                      placeholder="Enter side image URL"
+                      placeholder="Enter side image URL (e.g., /images/... or https://...)"
                     />
                   </div>
 
@@ -577,7 +615,7 @@ export default function EditJourneyPage() {
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Image URL (Optional)</label>
                           <input
-                            type="url"
+                            type="text"
                             value={day.image || ''}
                             onChange={(e) => {
                               const source = isEditing ? (formData.itinerary || []) : journey.itinerary;
@@ -587,7 +625,7 @@ export default function EditJourneyPage() {
                             }}
                             disabled={!isEditing}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                            placeholder="Enter image URL for this day"
+                            placeholder="Enter image URL (e.g., /images/... or https://...)"
                           />
                         </div>
                       </div>
@@ -848,7 +886,7 @@ export default function EditJourneyPage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                     <select
-                      value={isEditing ? formData.status || '' : journey.status}
+                      value={isEditing ? (formData.status ?? '') : (journey.status ?? '')}
                       onChange={(e) => handleInputChange('status', e.target.value as JourneyStatus)}
                       disabled={!isEditing}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
@@ -883,12 +921,12 @@ export default function EditJourneyPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Main Image URL</label>
                     <div className="flex gap-2">
                       <input
-                        type="url"
+                        type="text"
                         value={isEditing ? (formData.image ?? '') : (journey.image ?? '')}
                         onChange={(e) => handleInputChange('image', e.target.value)}
                         disabled={!isEditing}
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                        placeholder="图片 URL 或使用上传按钮上传到云存储"
+                        placeholder="图片路径 (如: /images/... 或 https://...)"
                       />
                       {isEditing && (
                         <>
@@ -1133,7 +1171,7 @@ export default function EditJourneyPage() {
                         <label className="block text-sm font-medium text-gray-700 mb-1">Journey Slug</label>
                         <input
                           type="text"
-                          value={isEditing ? formData.slug || '' : journey.slug}
+                          value={isEditing ? (formData.slug ?? '') : (journey.slug ?? '')}
                           onChange={(e) => handleInputChange('slug', e.target.value)}
                           disabled={!isEditing}
                           placeholder="e.g., chengdu-city-one-day-deep-dive"
@@ -1147,7 +1185,7 @@ export default function EditJourneyPage() {
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Region for Destinations</label>
                         <select
-                          value={isEditing ? formData.region || '' : journey.region}
+                          value={isEditing ? (formData.region ?? '') : (journey.region ?? '')}
                           onChange={(e) => handleInputChange('region', e.target.value)}
                           disabled={!isEditing}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"

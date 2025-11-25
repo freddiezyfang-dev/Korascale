@@ -123,7 +123,6 @@ export default function RegionDestinationsPage() {
                 { label: regionInfo.name }
               ]}
               color="#FFFFFF"
-              fontFamily="Montserrat, sans-serif"
               sizeClassName="text-lg md:text-xl"
             />
           </div>

@@ -13,6 +13,7 @@ import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { useExperienceManagement } from '@/context/ExperienceManagementContext';
 import { useHotelManagement } from '@/context/HotelManagementContext';
 import { generateStandardPageConfig, JOURNEY_PAGE_TEMPLATE } from '@/lib/journeyPageTemplate';
+import { generateOverviewHighlights } from '@/lib/journeyPageGenerator';
 import { useCart } from '@/context/CartContext';
 import { Journey } from '@/types';
 import { Heart, MapPin, Clock, Users, Car, Bed, User, Utensils, Ticket } from 'lucide-react';
@@ -43,6 +44,11 @@ export default function DynamicJourneyPage() {
   // 如果context中找不到，尝试从API获取
   useEffect(() => {
     const fetchJourneyBySlug = async () => {
+      // 验证 slug 是否有效
+      if (!slug || slug.trim() === '') {
+        return;
+      }
+      
       // 如果还在加载context数据，等待一下
       if (journeysLoading) return;
       
@@ -51,10 +57,19 @@ export default function DynamicJourneyPage() {
       if (foundInContext) return;
       
       // 如果已经查询过且结果为null，不需要重复查询
-      if (journeyFromApi === null && !isLoadingFromApi && journeys.length > 0) {
+      // 添加 slug 验证，避免无效请求
+      if (journeyFromApi === null && !isLoadingFromApi && journeys.length > 0 && slug && slug.length > 1) {
         setIsLoadingFromApi(true);
         try {
-          const response = await fetch(`/api/journeys/slug/${encodeURIComponent(slug)}`);
+          // 创建超时控制器
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000);
+          
+          const response = await fetch(`/api/journeys/slug/${encodeURIComponent(slug)}`, {
+            signal: controller.signal,
+          });
+          
+          clearTimeout(timeoutId);
           if (response.ok) {
             const data = await response.json();
             setJourneyFromApi(data.journey);
@@ -62,7 +77,10 @@ export default function DynamicJourneyPage() {
             setJourneyFromApi(null);
           }
         } catch (error) {
-          console.error('Error fetching journey by slug:', error);
+          // 如果是 AbortError，不记录错误
+          if (error instanceof Error && error.name !== 'AbortError') {
+            console.error('Error fetching journey by slug:', error);
+          }
           setJourneyFromApi(null);
         } finally {
           setIsLoadingFromApi(false);
@@ -179,11 +197,30 @@ export default function DynamicJourneyPage() {
           'Home', 'Journey', journey.category, journey.title
         ],
         description: journey.overview?.description || journey.description,
-        highlights: journey.overview?.highlights || (journey.highlights || []).map(h => ({
-          icon: '⭐',
-          title: h,
-          description: `Experience ${h.toLowerCase()} during your journey.`
-        })),
+        highlights: (() => {
+          // 调试日志
+          console.log('Highlights Debug:', {
+            'journey.overview?.highlights': journey.overview?.highlights,
+            'journey.overview?.highlights?.length': journey.overview?.highlights?.length,
+            'journey.highlights': journey.highlights,
+            'journey.highlights?.length': journey.highlights?.length,
+            'journey.highlights type': Array.isArray(journey.highlights) ? 'array' : typeof journey.highlights
+          });
+          
+          // 优先使用 overview.highlights（如果存在且不为空）
+          if (journey.overview?.highlights && Array.isArray(journey.overview.highlights) && journey.overview.highlights.length > 0) {
+            return journey.overview.highlights;
+          }
+          
+          // 否则使用 journey.highlights（用户输入的）
+          if (journey.highlights && Array.isArray(journey.highlights) && journey.highlights.length > 0) {
+            const generated = generateOverviewHighlights(journey);
+            console.log('Generated highlights:', generated);
+            return generated;
+          }
+          
+          return [];
+        })(),
         sideImage: journey.overview?.sideImage || journey.images?.[1] || journey.image
       },
 
@@ -432,7 +469,6 @@ export default function DynamicJourneyPage() {
                         index === 0 ? "/" : index === 1 ? "/journeys" : "#"
                 }))}
                 color="#000000"
-                fontFamily="Montserrat, sans-serif"
                 sizeClassName="text-lg md:text-xl"
                 className="mb-8"
               />
@@ -443,26 +479,45 @@ export default function DynamicJourneyPage() {
               </Text>
 
               {/* 特色亮点 */}
-              <div className="space-y-4">
-                {(pageConfig.overview?.highlights || []).map((highlight, index) => (
-                  <div key={index} className="flex items-start gap-3">
-                    <span className="text-2xl">{highlight.icon}</span>
-                    <div className="flex-1">
-                      <Text className="font-medium">{highlight.title}</Text>
-                      <Text size="sm" className="text-gray-600">
-                        {highlight.description}
-                      </Text>
-                      {'image' in highlight && (highlight as any).image && (
-                        <img
-                          src={(highlight as any).image}
-                          alt={highlight.title}
-                          className="mt-2 w-full h-32 object-cover rounded-lg"
-                        />
-                      )}
+              {(() => {
+                const highlights = pageConfig.overview?.highlights || [];
+                console.log('Rendering highlights:', {
+                  highlightsCount: highlights.length,
+                  highlights: highlights,
+                  pageConfigOverview: pageConfig.overview
+                });
+                
+                if (highlights.length === 0) {
+                  return (
+                    <div className="text-gray-500 text-sm">
+                      No highlights available. Please add highlights in the admin panel.
                     </div>
+                  );
+                }
+                
+                return (
+                  <div className="space-y-4">
+                    {highlights.map((highlight, index) => (
+                      <div key={index} className="flex items-start gap-3">
+                        <span className="text-2xl">{highlight.icon || '⭐'}</span>
+                        <div className="flex-1">
+                          <Text className="font-medium">{highlight.title || 'Highlight'}</Text>
+                          <Text size="sm" className="text-gray-600">
+                            {highlight.description || ''}
+                          </Text>
+                          {'image' in highlight && (highlight as any).image && (
+                            <img
+                              src={(highlight as any).image}
+                              alt={highlight.title}
+                              className="mt-2 w-full h-32 object-cover rounded-lg"
+                            />
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                );
+              })()}
             </div>
 
             {/* 右侧内容 */}

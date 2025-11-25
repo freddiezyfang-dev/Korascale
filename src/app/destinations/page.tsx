@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/components/common';
-import { InspirationsSection, PlanningSectionNew, JourneyCarousel } from '@/components/sections';
+import { InspirationsSection, PlanningSectionNew } from '@/components/sections';
 import { useState, useEffect } from 'react';
 
 // 图片资源 - 使用本地图片
@@ -40,35 +40,6 @@ const provinces = [
   }
 ];
 
-// 精选推荐数据
-const featuredOffers = [
-  {
-    id: 1,
-    title: "Chengdu One-Day Deep Dive",
-    image: "/images/journey-cards/chengdu-deep-dive.jpeg",
-    description: "Explore the cultural heart of Sichuan"
-  },
-  {
-    id: 2,
-    title: "Chongqing Wulong Karst",
-    image: "/images/journey-cards/chongqing-wulong-karst-national-park.jpg",
-    description: "Discover the natural wonders"
-  },
-  {
-    id: 3,
-    title: "Tibet Buddhist Journey",
-    image: "/images/journey-cards/tibet-buddhist-journey.jpg",
-    description: "Spiritual journey to the roof of the world"
-  },
-  {
-    id: 4,
-    title: "Jiuzhaigou Valley Tour",
-    image: "/images/journey-cards/jiuzhaigou-valley-multi-color-lake.jpeg",
-    description: "Experience the colorful lakes"
-  }
-];
-
-
 export default function Destinations() {
   // 设置页面标题
   useEffect(() => {
@@ -90,7 +61,6 @@ export default function Destinations() {
             <Breadcrumb 
               items={[{ label: 'Home', href: '/' }, { label: 'Destinations' }]}
               color="#FFFFFF"
-              fontFamily="Montserrat, sans-serif"
               sizeClassName="text-lg md:text-xl"
             />
           </div>
@@ -192,24 +162,6 @@ export default function Destinations() {
           </div>
         </Container>
       </Section>
-
-      {/* Featured Offers Section */}
-      <div className="bg-tertiary py-24">
-        <Container size="xl">
-          <JourneyCarousel
-            subtitle="Our Featured Offers"
-            title="China guides and inspirations"
-            items={featuredOffers.map(offer => ({
-              id: offer.id,
-              title: offer.title,
-              image: offer.image,
-              href: "/journeys"
-            }))}
-            autoPlay={true}
-            interval={3000}
-          />
-        </Container>
-      </div>
 
       {/* Inspirations Section */}
       <InspirationsSection />

@@ -18,7 +18,7 @@ export function Breadcrumb({
   items,
   color = '#FFFFFF',
   className = '',
-  fontFamily = 'Montserrat, sans-serif',
+  fontFamily = 'Monda, sans-serif',
   sizeClassName = 'text-lg md:text-2xl'
 }: BreadcrumbProps) {
   return (
