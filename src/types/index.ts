@@ -241,33 +241,8 @@ export interface Journey {
     }[];
     sideImage: string;
   };
-  inclusions?: {
-    transportation?: {
-      icon: string;
-      title: string;
-      description: string;
-    };
-    guide?: {
-      icon: string;
-      title: string;
-      description: string;
-    };
-    meals?: {
-      icon: string;
-      title: string;
-      description: string;
-    };
-    accommodation?: {
-      icon: string;
-      title: string;
-      description: string;
-    };
-    others?: {
-      icon: string;
-      title: string;
-      description: string;
-    }[];
-  };
+  includes?: string; // 包含内容，用户自定义文本
+  excludes?: string; // 不包含内容，用户自定义文本
   relatedTrips?: {
     title: string;
     duration: string;

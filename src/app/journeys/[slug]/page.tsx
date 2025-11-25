@@ -29,7 +29,7 @@ import { useHotelManagement } from '@/context/HotelManagementContext';
 import { generateStandardPageConfig, JOURNEY_PAGE_TEMPLATE } from '@/lib/journeyPageTemplate';
 import { useCart } from '@/context/CartContext';
 import { Journey } from '@/types';
-import { Heart, MapPin, Clock, Users, Car, Bed, User, Utensils, Ticket } from 'lucide-react';
+import { Heart, MapPin, Clock, Users } from 'lucide-react';
 
 export default function DynamicJourneyPage() {
   const { toggleWishlist, items } = useWishlist();
@@ -228,30 +228,9 @@ export default function DynamicJourneyPage() {
       // 住宿区域 - 使用后台设置的 accommodations
       accommodations: journey.accommodations || [],
 
-      // 包含项目 - 使用后台设置的 inclusions
-      inclusions: journey.inclusions || {
-        transportation: {
-          icon: 'Car',
-          title: 'Transportation',
-          description: 'Transportation throughout your journey as specified.'
-        },
-        guide: {
-          icon: 'User',
-          title: 'Guide',
-          description: 'Professional local guides available.'
-        },
-        meals: {
-          icon: 'Utensils',
-          title: 'Meals',
-          description: 'Meal arrangements as specified.'
-        },
-        accommodation: {
-          icon: 'Bed',
-          title: 'Accommodation',
-          description: 'Accommodation details as specified in the itinerary.'
-        },
-        others: journey.included?.map(item => ({
-          icon: '*',
+      // 包含和排除项目
+      includes: journey.includes || '',
+      excludes: journey.excludes || '',
           title: item,
           description: `Included: ${item}`
         })) || []
@@ -615,147 +594,29 @@ export default function DynamicJourneyPage() {
         </Section>
       )}
 
-      {/* Inclusions & Offers */}
+      {/* Includes & Excludes */}
       <Section id="details" background="secondary" padding="xl">
         <Container size="xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Inclusions */}
+            {/* Includes */}
             <div>
               <Heading level={3} className="mb-8">
-                Inclusions & Offers
+                Includes
               </Heading>
               
-              <div className="space-y-6">
-                {/* 使用新的inclusions结构 */}
-                {journey.inclusions ? (
-                  <>
-                    {/* Transportation */}
-                    {journey.inclusions.transportation && (
-                      <div className="flex gap-4">
-                        <Car className="w-10 h-10 text-primary-500 flex-shrink-0" />
-                        <div>
-                          <Text className="font-medium mb-2">
-                            {journey.inclusions.transportation.title}
-                          </Text>
-                          <Text size="sm" className="text-gray-600">
-                            {journey.inclusions.transportation.description}
-                          </Text>
+              <div className="space-y-4">
+                {journey.includes ? (
+                  <div className="whitespace-pre-line">
+                    {journey.includes.split('\n').map((line, index) => (
+                      line.trim() && (
+                        <div key={index} className="flex items-start gap-3 mb-3">
+                          <span className="text-primary-500 mt-1">•</span>
+                          <Text className="text-gray-700">{line.trim()}</Text>
                         </div>
-                      </div>
-                    )}
-
-                    {/* Guide */}
-                    {journey.inclusions.guide && (
-                      <div className="flex gap-4">
-                        <User className="w-10 h-10 text-primary-500 flex-shrink-0" />
-                        <div>
-                          <Text className="font-medium mb-2">
-                            {journey.inclusions.guide.title}
-                          </Text>
-                          <Text size="sm" className="text-gray-600">
-                            {journey.inclusions.guide.description}
-                          </Text>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Meals */}
-                    {journey.inclusions.meals && (
-                      <div className="flex gap-4">
-                        <Utensils className="w-10 h-10 text-primary-500 flex-shrink-0" />
-                        <div>
-                          <Text className="font-medium mb-2">
-                            {journey.inclusions.meals.title}
-                          </Text>
-                          <Text size="sm" className="text-gray-600">
-                            {journey.inclusions.meals.description}
-                          </Text>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Accommodation */}
-                    {journey.inclusions.accommodation && (
-                      <div className="flex gap-4">
-                        <Bed className="w-10 h-10 text-primary-500 flex-shrink-0" />
-                        <div>
-                          <Text className="font-medium mb-2">
-                            {journey.inclusions.accommodation.title}
-                          </Text>
-                          <Text size="sm" className="text-gray-600">
-                            {journey.inclusions.accommodation.description}
-                          </Text>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Others */}
-                    {journey.inclusions.others && journey.inclusions.others.map((item, index) => {
-                      // 根据图标名称选择对应的图标组件
-                      let IconComponent = Car;
-                      if (item.icon === 'Ticket') {
-                        IconComponent = Ticket;
-                      } else if (item.icon === 'User') {
-                        IconComponent = User;
-                      } else if (item.icon === 'Utensils') {
-                        IconComponent = Utensils;
-                      } else if (item.icon === 'Bed') {
-                        IconComponent = Bed;
-                      } else if (item.icon === 'Car') {
-                        IconComponent = Car;
-                      }
-
-                      return (
-                        <div key={index} className="flex gap-4">
-                          <IconComponent className="w-10 h-10 text-primary-500 flex-shrink-0" />
-                          <div>
-                            <Text className="font-medium mb-2">
-                              {item.title}
-                            </Text>
-                            <Text size="sm" className="text-gray-600">
-                              {item.description}
-                            </Text>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </>
+                      )
+                    ))}
+                  </div>
                 ) : (
-                  /* 回退到旧的included数组显示 */
-                  journey.included && journey.included.map((item, index) => {
-                    // 根据包含项目类型选择图标
-                    let IconComponent = Car;
-                    if (item.toLowerCase().includes('transport') || item.toLowerCase().includes('vehicle')) {
-                      IconComponent = Car;
-                    } else if (item.toLowerCase().includes('accommodation') || item.toLowerCase().includes('hotel') || item.toLowerCase().includes('stay')) {
-                      IconComponent = Bed;
-                    } else if (item.toLowerCase().includes('guide') || item.toLowerCase().includes('guide')) {
-                      IconComponent = User;
-                    } else if (item.toLowerCase().includes('meal') || item.toLowerCase().includes('food') || item.toLowerCase().includes('dining')) {
-                      IconComponent = Utensils;
-                    }
-
-                    return (
-                      <div key={index} className="flex gap-4">
-                        <IconComponent className="w-10 h-10 text-primary-500 flex-shrink-0" />
-                        <div>
-                          <Text className="font-medium mb-2">
-                            {item.split(':')[0] || item.split(' - ')[0] || item.split('(')[0] || item}
-                          </Text>
-                          <Text size="sm" className="text-gray-600">
-                            {item.includes(':') ? item.split(':')[1] : 
-                             item.includes(' - ') ? item.split(' - ')[1] : 
-                             item.includes('(') ? item.split('(')[1].replace(')', '') : 
-                             item}
-                          </Text>
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-
-                {/* Show message if no items */}
-                {(!journey.inclusions && (!journey.included || journey.included.length === 0)) && (
                   <div className="text-center py-8">
                     <Text className="text-gray-500">No inclusion details available for this journey.</Text>
                   </div>
@@ -763,6 +624,39 @@ export default function DynamicJourneyPage() {
               </div>
             </div>
 
+            {/* Excludes */}
+            <div>
+              <Heading level={3} className="mb-8">
+                Excludes
+              </Heading>
+              
+              <div className="space-y-4">
+                {journey.excludes ? (
+                  <div className="whitespace-pre-line">
+                    {journey.excludes.split('\n').map((line, index) => (
+                      line.trim() && (
+                        <div key={index} className="flex items-start gap-3 mb-3">
+                          <span className="text-red-500 mt-1">×</span>
+                          <Text className="text-gray-700">{line.trim()}</Text>
+                        </div>
+                      )
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Text className="text-gray-500">No exclusion details available for this journey.</Text>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </Container>
+      </Section>
+
+      {/* Booking Section */}
+      <Section id="booking" background="primary" padding="xl">
+        <Container size="xl">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Select Your Date（替换原Dates & Prices区域，动态未来一年） */}
             <div>
               <Heading level={3} className="mb-8">

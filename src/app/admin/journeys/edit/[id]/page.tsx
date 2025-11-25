@@ -24,12 +24,7 @@ import {
   Clock,
   Users,
   DollarSign,
-  Star,
-  Car,
-  Bed,
-  User,
-  Utensils,
-  Ticket
+  Star
 } from 'lucide-react';
 import { uploadAPI } from '@/lib/databaseClient';
 
@@ -164,57 +159,6 @@ export default function EditJourneyPage() {
   };
 
   // 处理inclusions结构的变化
-  const handleInclusionChange = (category: 'transportation' | 'guide' | 'meals' | 'accommodation', field: 'title' | 'description', value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      inclusions: {
-        ...prev.inclusions,
-        [category]: {
-          ...prev.inclusions?.[category],
-          icon: prev.inclusions?.[category]?.icon || (category === 'transportation' ? 'Car' : category === 'guide' ? 'User' : category === 'meals' ? 'Utensils' : 'Bed'),
-          [field]: value
-        }
-      }
-    }));
-  };
-
-  // 处理其他inclusions的变化
-  const handleOtherInclusionChange = (index: number, field: 'title' | 'description', value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      inclusions: {
-        ...prev.inclusions,
-        others: prev.inclusions?.others?.map((item, i) => 
-          i === index ? { ...item, [field]: value } : item
-        ) || []
-      }
-    }));
-  };
-
-  // 添加其他inclusion
-  const handleAddOtherInclusion = () => {
-    setFormData(prev => ({
-      ...prev,
-      inclusions: {
-        ...prev.inclusions,
-        others: [
-          ...(prev.inclusions?.others || []),
-          { icon: 'Ticket', title: '', description: '' }
-        ]
-      }
-    }));
-  };
-
-  // 移除其他inclusion
-  const handleRemoveOtherInclusion = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      inclusions: {
-        ...prev.inclusions,
-        others: prev.inclusions?.others?.filter((_, i) => i !== index) || []
-      }
-    }));
-  };
 
   // 规范化与统一更新行程（保证 day 序号连续从1开始）
   const normalizeItinerary = (items: Array<any>) => items.map((d, i) => ({ ...d, day: i + 1 }));
@@ -649,228 +593,48 @@ export default function EditJourneyPage() {
                 </div>
               </Card>
 
-              {/* Inclusions & Excluded */}
+              {/* Includes & Excludes */}
               <Card className="p-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* New Inclusions Structure */}
+                  {/* Includes */}
                   <div>
-                    <Heading level={3} className="text-lg font-semibold mb-4">Inclusions & Offers</Heading>
-                    <div className="space-y-6">
-                      {/* Transportation */}
-                      <div className="border border-gray-200 rounded-lg p-4">
-                        <Heading level={4} className="text-md font-medium mb-3 flex items-center gap-2">
-                          <Car className="w-5 h-5 text-primary-500" />
-                          Transportation
-                        </Heading>
-                        <div className="space-y-3">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                            <input
-                              type="text"
-                              value={isEditing ? (formData.inclusions?.transportation?.title || '') : (journey.inclusions?.transportation?.title || '')}
-                              onChange={(e) => handleInclusionChange('transportation', 'title', e.target.value)}
-                              disabled={!isEditing}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                              placeholder="Transportation"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                            <textarea
-                              value={isEditing ? (formData.inclusions?.transportation?.description || '') : (journey.inclusions?.transportation?.description || '')}
-                              onChange={(e) => handleInclusionChange('transportation', 'description', e.target.value)}
-                              disabled={!isEditing}
-                              rows={3}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                              placeholder="Transportation details..."
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Guide */}
-                      <div className="border border-gray-200 rounded-lg p-4">
-                        <Heading level={4} className="text-md font-medium mb-3 flex items-center gap-2">
-                          <User className="w-5 h-5 text-primary-500" />
-                          Guide
-                        </Heading>
-                        <div className="space-y-3">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                            <input
-                              type="text"
-                              value={isEditing ? (formData.inclusions?.guide?.title || '') : (journey.inclusions?.guide?.title || '')}
-                              onChange={(e) => handleInclusionChange('guide', 'title', e.target.value)}
-                              disabled={!isEditing}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                              placeholder="Guide"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                            <textarea
-                              value={isEditing ? (formData.inclusions?.guide?.description || '') : (journey.inclusions?.guide?.description || '')}
-                              onChange={(e) => handleInclusionChange('guide', 'description', e.target.value)}
-                              disabled={!isEditing}
-                              rows={3}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                              placeholder="Guide details..."
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Meals */}
-                      <div className="border border-gray-200 rounded-lg p-4">
-                        <Heading level={4} className="text-md font-medium mb-3 flex items-center gap-2">
-                          <Utensils className="w-5 h-5 text-primary-500" />
-                          Meals
-                        </Heading>
-                        <div className="space-y-3">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                            <input
-                              type="text"
-                              value={isEditing ? (formData.inclusions?.meals?.title || '') : (journey.inclusions?.meals?.title || '')}
-                              onChange={(e) => handleInclusionChange('meals', 'title', e.target.value)}
-                              disabled={!isEditing}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                              placeholder="Meals"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                            <textarea
-                              value={isEditing ? (formData.inclusions?.meals?.description || '') : (journey.inclusions?.meals?.description || '')}
-                              onChange={(e) => handleInclusionChange('meals', 'description', e.target.value)}
-                              disabled={!isEditing}
-                              rows={3}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                              placeholder="Meals details..."
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Accommodation */}
-                      <div className="border border-gray-200 rounded-lg p-4">
-                        <Heading level={4} className="text-md font-medium mb-3 flex items-center gap-2">
-                          <Bed className="w-5 h-5 text-primary-500" />
-                          Accommodation
-                        </Heading>
-                        <div className="space-y-3">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                            <input
-                              type="text"
-                              value={isEditing ? (formData.inclusions?.accommodation?.title || '') : (journey.inclusions?.accommodation?.title || '')}
-                              onChange={(e) => handleInclusionChange('accommodation', 'title', e.target.value)}
-                              disabled={!isEditing}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                              placeholder="Accommodation"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                            <textarea
-                              value={isEditing ? (formData.inclusions?.accommodation?.description || '') : (journey.inclusions?.accommodation?.description || '')}
-                              onChange={(e) => handleInclusionChange('accommodation', 'description', e.target.value)}
-                              disabled={!isEditing}
-                              rows={3}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                              placeholder="Accommodation details..."
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Others */}
-                      <div className="border border-gray-200 rounded-lg p-4">
-                        <Heading level={4} className="text-md font-medium mb-3">Other Inclusions</Heading>
-                        <div className="space-y-3">
-                          {(isEditing ? (formData.inclusions?.others || []) : (journey.inclusions?.others || [])).map((item, index) => (
-                            <div key={index} className="flex gap-2 p-3 border border-gray-200 rounded-lg">
-                              <div className="flex-1 space-y-2">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-primary-500 font-bold">*</span>
-                                  <input
-                                    type="text"
-                                    value={item.title}
-                                    onChange={(e) => handleOtherInclusionChange(index, 'title', e.target.value)}
-                                    disabled={!isEditing}
-                                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                                    placeholder="Title"
-                                  />
-                                </div>
-                                <textarea
-                                  value={item.description}
-                                  onChange={(e) => handleOtherInclusionChange(index, 'description', e.target.value)}
-                                  disabled={!isEditing}
-                                  rows={2}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                                  placeholder="Description"
-                                />
-                              </div>
-                              {isEditing && (
-                                <Button
-                                  onClick={() => handleRemoveOtherInclusion(index)}
-                                  variant="secondary"
-                                  size="sm"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              )}
-                            </div>
-                          ))}
-                          {isEditing && (
-                            <Button
-                              onClick={handleAddOtherInclusion}
-                              variant="secondary"
-                              size="sm"
-                            >
-                              <Plus className="w-4 h-4 mr-1" />
-                              Add Other Inclusion
-                            </Button>
-                          )}
-                        </div>
-                      </div>
+                    <Heading level={3} className="text-lg font-semibold mb-4">Includes</Heading>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        包含内容（每行一项，或使用逗号分隔）
+                      </label>
+                      <textarea
+                        value={isEditing ? (formData.includes || '') : (journey.includes || '')}
+                        onChange={(e) => handleInputChange('includes', e.target.value)}
+                        disabled={!isEditing}
+                        rows={10}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                        placeholder="例如：&#10;专业导游服务&#10;所有景点门票&#10;酒店住宿（双人间）&#10;每日早餐和午餐&#10;机场接送服务"
+                      />
+                      <Text size="sm" className="text-gray-500 mt-2">
+                        您可以输入多行内容，每行代表一项包含的服务或项目
+                      </Text>
                     </div>
                   </div>
 
-                  {/* Excluded */}
+                  {/* Excludes */}
                   <div>
-                    <Heading level={3} className="text-lg font-semibold mb-4">Excluded</Heading>
-                    <div className="space-y-2">
-                      {(isEditing ? (formData.excluded || []) : (journey.excluded || [])).map((item, index) => (
-                        <div key={index} className="flex gap-2">
-                          <input
-                            type="text"
-                            value={item}
-                            onChange={(e) => handleArrayInputChange('excluded', index, e.target.value)}
-                            disabled={!isEditing}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                          />
-                          {isEditing && (
-                            <Button
-                              onClick={() => handleRemoveArrayItem('excluded', index)}
-                              variant="secondary"
-                              size="sm"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          )}
-                        </div>
-                      ))}
-                      {isEditing && (
-                        <Button
-                          onClick={() => handleAddArrayItem('excluded')}
-                          variant="secondary"
-                          size="sm"
-                        >
-                          <Plus className="w-4 h-4 mr-1" />
-                          Add Item
-                        </Button>
-                      )}
+                    <Heading level={3} className="text-lg font-semibold mb-4">Excludes</Heading>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        不包含内容（每行一项，或使用逗号分隔）
+                      </label>
+                      <textarea
+                        value={isEditing ? (formData.excludes || '') : (journey.excludes || '')}
+                        onChange={(e) => handleInputChange('excludes', e.target.value)}
+                        disabled={!isEditing}
+                        rows={10}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                        placeholder="例如：&#10;国际航班费用&#10;个人消费&#10;旅游保险&#10;晚餐费用&#10;小费"
+                      />
+                      <Text size="sm" className="text-gray-500 mt-2">
+                        您可以输入多行内容，每行代表一项不包含的服务或项目
+                      </Text>
                     </div>
                   </div>
                 </div>
