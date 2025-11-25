@@ -45,7 +45,18 @@ export const PlanTripModal: React.FC<PlanTripModalProps> = ({
     },
   });
 
-  const [errors, setErrors] = useState<Partial<PlanTripData & { customerInfo: Partial<PlanTripData['customerInfo']>, submit?: string }>>({});
+  const [errors, setErrors] = useState<{
+    departureDate?: string;
+    tripDuration?: string;
+    destinations?: string;
+    customerInfo?: {
+      fullName?: string;
+      email?: string;
+      phoneNumber?: string;
+      additionalNotes?: string;
+    };
+    submit?: string;
+  }>({});
 
   // Step configuration
   const steps = [

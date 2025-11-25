@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { trySendWithResend, trySendWithNodemailer } from '@/lib/optionalEmail';
 
 // 邮件发送函数（使用 Resend 或 nodemailer）
 async function sendEmail(data: {
@@ -38,63 +39,36 @@ This email was automatically sent by Korascale Travel Customization System
 Submitted at: ${new Date().toLocaleString('en-US')}
   `.trim();
 
-  // 如果配置了 Resend API Key，使用 Resend 发送邮件
+  // 如果配置了 Resend API Key，尝试使用 Resend 发送邮件
   if (process.env.RESEND_API_KEY) {
-    try {
-      // 动态导入 resend（如果已安装）
-      const resendModule = await import('resend').catch(() => null);
-      if (resendModule) {
-        const { Resend } = resendModule;
-        const resendClient = new Resend(process.env.RESEND_API_KEY);
-        
-        const result = await resendClient.emails.send({
-          from: process.env.RESEND_FROM_EMAIL || 'noreply@korascale.com',
-          to: customerServiceEmail,
-          replyTo: data.customerInfo.email,
-          subject: emailSubject,
-          text: emailBody,
-        });
-
-        return { success: true, messageId: result.id || 'sent' };
-      }
-    } catch (error) {
-      console.error('Resend 邮件发送失败:', error);
-      // 继续尝试其他方式
-    }
+    const result = await trySendWithResend(
+      process.env.RESEND_API_KEY,
+      process.env.RESEND_FROM_EMAIL || 'noreply@korascale.com',
+      customerServiceEmail,
+      data.customerInfo.email,
+      emailSubject,
+      emailBody
+    );
+    if (result) return result;
   }
   
-  // 如果没有配置邮件服务，使用 nodemailer（需要配置 SMTP）
+  // 如果配置了 SMTP，尝试使用 nodemailer 发送邮件
   if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-    try {
-      // 动态导入 nodemailer（如果已安装）
-      const nodemailerModule = await import('nodemailer').catch(() => null);
-      if (nodemailerModule) {
-        const nodemailer = nodemailerModule.default;
-        
-        const transporter = nodemailer.createTransport({
-          host: process.env.SMTP_HOST,
-          port: parseInt(process.env.SMTP_PORT || '587'),
-          secure: process.env.SMTP_PORT === '465',
-          auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS,
-          },
-        });
-
-        const info = await transporter.sendMail({
-          from: process.env.SMTP_FROM || process.env.SMTP_USER,
-          to: customerServiceEmail,
-          replyTo: data.customerInfo.email,
-          subject: emailSubject,
-          text: emailBody,
-        });
-
-        return { success: true, messageId: info.messageId || 'sent' };
-      }
-    } catch (error) {
-      console.error('SMTP 邮件发送失败:', error);
-      // 继续尝试其他方式
-    }
+    const result = await trySendWithNodemailer(
+      {
+        host: process.env.SMTP_HOST,
+        port: parseInt(process.env.SMTP_PORT || '587'),
+        secure: process.env.SMTP_PORT === '465',
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+      process.env.SMTP_FROM || process.env.SMTP_USER,
+      customerServiceEmail,
+      data.customerInfo.email,
+      emailSubject,
+      emailBody
+    );
+    if (result) return result;
   }
 
   // 如果没有配置任何邮件服务，记录到控制台（开发环境）
