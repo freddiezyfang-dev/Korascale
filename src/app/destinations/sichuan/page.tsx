@@ -250,10 +250,8 @@ export default function SichuanChongqingPage() {
               <button
                 key={item.href}
                 onClick={() => handleSubNavClick(item.href)}
-                className={`w-full py-2 text-sm md:text-base font-semibold transition-colors border border-transparent ${
-                  activeSection === item.href ? 'text-[#c99a44] border-[#c99a44]' : 'text-white hover:text-[#c99a44]'
-                }`}
-                style={{ fontFamily: 'Montaga, serif', textTransform: 'none', letterSpacing: '0em' }}
+                className="w-full py-2 text-sm md:text-base font-semibold border border-transparent text-white"
+                style={{ fontFamily: 'Monda, sans-serif', textTransform: 'none', letterSpacing: '0em', color: '#ffffff' }}
               >
                 {item.label}
               </button>
@@ -295,22 +293,22 @@ export default function SichuanChongqingPage() {
             <div className="space-y-10">
               {recommendedJourneys.map((journey) => (
                 <Card key={journey.id} className="overflow-hidden border border-gray-200 shadow-sm">
-                  <div className="grid grid-cols-1 md:grid-cols-2 auto-rows-fr md:min-h-[320px]">
-                    <div className="h-64 md:h-full">
+                  <div className="grid grid-cols-1 md:grid-cols-2 h-[400px]">
+                    <div className="h-full">
                       <img
                         src={journey.image}
                         alt={journey.title}
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <div className="p-6 flex flex-col gap-4">
+                    <div className="p-6 flex flex-col gap-4 h-full">
                       <Heading level={3} className="text-2xl font-heading" style={{ fontFamily: 'Montaga, serif' }}>
                         {journey.title}
                       </Heading>
                       <Text className="text-gray-700 line-clamp-2" style={{ fontFamily: 'Monda, sans-serif' }}>
                         {journey.overview?.description || journey.shortDescription || journey.description}
                       </Text>
-                      <Text className="text-gray-700 leading-relaxed" style={{ fontFamily: 'Monda, sans-serif' }}>
+                      <Text className="text-gray-700 leading-relaxed line-clamp-3" style={{ fontFamily: 'Monda, sans-serif' }}>
                         {journey.description}
                       </Text>
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between text-sm text-gray-600 gap-2">
