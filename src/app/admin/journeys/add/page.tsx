@@ -904,13 +904,21 @@ export default function AddJourneyPage() {
                         value={formData.image || ''}
                         onChange={(e) => handleInputChange('image', e.target.value)}
                         required
-                        placeholder="图片URL（上传后会自动填充）或输入路径，例如：/images/journey-cards/ancient-dujiangyan-irrigation.jpg"
+                        placeholder="图片URL（上传后会自动填充）或输入路径，例如：/images/journey-cards/xxx.jpg 或 https://xxx.public.blob.vercel-storage.com/..."
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       />
                       <Text size="sm" className="text-gray-500 mt-1">
-                        {formData.image?.startsWith('https://') 
-                          ? '✅ 云存储URL（已上传到云存储）' 
-                          : '💡 提示：点击"上传图片"按钮可将图片上传到云存储，或直接输入图片URL'}
+                        {(() => {
+                          if (!formData.image) {
+                            return '💡 提示：点击"上传图片"按钮可将图片上传到 Vercel Blob 云存储，或直接输入图片URL（支持本地路径 /images/... 或云存储URL）';
+                          } else if (formData.image.startsWith('https://') && formData.image.includes('vercel-storage.com')) {
+                            return '✅ 云存储URL（已上传到 Vercel Blob 云存储）';
+                          } else if (formData.image.startsWith('/')) {
+                            return '💡 本地路径（存储在 public 目录），建议使用"上传"按钮上传到云存储';
+                          } else {
+                            return '💡 外部URL或云存储URL';
+                          }
+                        })()}
                       </Text>
                     </div>
                     

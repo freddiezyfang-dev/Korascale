@@ -690,7 +690,7 @@ export default function EditJourneyPage() {
                         onChange={(e) => handleInputChange('image', e.target.value)}
                         disabled={!isEditing}
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                        placeholder="图片路径 (如: /images/... 或 https://...)"
+                        placeholder="图片URL（上传后会自动填充）或输入路径，例如：/images/journey-cards/xxx.jpg 或 https://xxx.public.blob.vercel-storage.com/..."
                       />
                       {isEditing && (
                         <>
@@ -717,7 +717,17 @@ export default function EditJourneyPage() {
                     </div>
                     {isEditing && (
                       <Text size="sm" className="text-gray-500 mt-1">
-                        点击"上传"按钮上传图片到 Vercel Blob 云存储，或直接输入图片 URL
+                        {(() => {
+                          const currentImage = formData.image ?? journey.image ?? '';
+                          if (currentImage?.startsWith('https://') && currentImage.includes('vercel-storage.com')) {
+                            return '✅ 云存储URL（已上传到 Vercel Blob 云存储）';
+                          } else if (currentImage?.startsWith('/')) {
+                            return '💡 本地路径（存储在 public 目录），建议使用"上传"按钮上传到云存储';
+                          } else if (currentImage) {
+                            return '💡 外部URL或云存储URL';
+                          }
+                          return '💡 提示：点击"上传"按钮可将图片上传到 Vercel Blob 云存储，或直接输入图片URL（支持本地路径 /images/... 或云存储URL）';
+                        })()}
                       </Text>
                     )}
                   </div>
