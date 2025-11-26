@@ -139,25 +139,49 @@ export const uploadAPI = {
   // 上传图片到云存储（自动保存）
   async uploadImage(file: File, folder: 'journeys' | 'experiences' | 'hotels' = 'journeys'): Promise<string> {
     try {
+      // 检查文件大小（Vercel Blob 限制 4.5MB）
+      const maxSize = 4.5 * 1024 * 1024; // 4.5MB in bytes
+      if (file.size > maxSize) {
+        throw new Error(`文件太大（${(file.size / 1024 / 1024).toFixed(2)}MB），最大支持 4.5MB。请压缩图片后重试。`);
+      }
+
       const formData = new FormData();
       formData.append('file', file);
       formData.append('folder', folder);
 
-      const response = await fetch(getApiUrl('/api/upload'), {
+      const apiUrl = getApiUrl('/api/upload');
+      console.log('Uploading to:', apiUrl, 'File size:', file.size, 'bytes');
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         body: formData,
         signal: createTimeoutSignal(30000), // 上传需要更长时间
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to upload image');
+        let errorMessage = '上传失败';
+        try {
+          const error = await response.json();
+          errorMessage = error.error || errorMessage;
+        } catch (e) {
+          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
+      if (!data.url) {
+        throw new Error('服务器返回的数据中没有图片URL');
+      }
+      
+      console.log('Upload successful, URL:', data.url);
       return data.url; // 返回图片URL
     } catch (error) {
       console.error('Error uploading image:', error);
+      // 如果是 AbortError（超时），提供更友好的错误信息
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('上传超时，请检查网络连接后重试');
+      }
       throw error;
     }
   },

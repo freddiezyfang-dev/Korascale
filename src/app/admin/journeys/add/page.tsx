@@ -159,13 +159,31 @@ export default function AddJourneyPage() {
     setIsUploading(true);
     try {
       const imageUrl = await uploadAPI.uploadImage(file, 'journeys');
-      const newItinerary = [...(formData.itinerary || [])];
-      newItinerary[dayIndex] = { ...newItinerary[dayIndex], image: imageUrl };
+      const source = formData.itinerary || [];
+      
+      // 检查 dayIndex 是否有效
+      if (dayIndex < 0 || dayIndex >= source.length) {
+        console.error('Invalid dayIndex:', dayIndex, 'itinerary length:', source.length);
+        alert('无效的行程索引，请刷新页面重试');
+        return;
+      }
+
+      const newItinerary = [...source];
+      const currentDay = newItinerary[dayIndex];
+      
+      if (!currentDay) {
+        console.error('Day not found at index:', dayIndex);
+        alert('找不到对应的行程，请刷新页面重试');
+        return;
+      }
+
+      newItinerary[dayIndex] = { ...currentDay, image: imageUrl };
       updateItinerary(newItinerary);
       alert('图片上传成功！');
     } catch (error) {
       console.error('Image upload failed:', error);
-      alert('图片上传失败，请重试');
+      const errorMessage = error instanceof Error ? error.message : '未知错误';
+      alert(`图片上传失败：${errorMessage}。请检查控制台获取详细信息。`);
     } finally {
       setIsUploading(false);
       // 重置 input 值，以便可以重复选择同一文件
