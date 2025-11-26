@@ -235,6 +235,11 @@ export default function EditJourneyPage() {
       return;
     }
 
+    if (!journey) {
+      alert('Journey 数据未加载');
+      return;
+    }
+
     setIsUploading(true);
     try {
       const imageUrl = await uploadAPI.uploadImage(file, 'journeys');
