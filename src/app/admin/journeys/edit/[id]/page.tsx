@@ -225,6 +225,34 @@ export default function EditJourneyPage() {
     }
   };
 
+  const handleItineraryImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, dayIndex: number) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // 验证文件类型
+    if (!file.type.startsWith('image/')) {
+      alert('请选择图片文件');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const imageUrl = await uploadAPI.uploadImage(file, 'journeys');
+      const source = isEditing ? (formData.itinerary || []) : (journey.itinerary || []);
+      const newItinerary = [...source];
+      newItinerary[dayIndex] = { ...newItinerary[dayIndex], image: imageUrl };
+      updateItinerary(newItinerary);
+      alert('图片上传成功！');
+    } catch (error) {
+      console.error('Image upload failed:', error);
+      alert('图片上传失败，请重试');
+    } finally {
+      setIsUploading(false);
+      // 重置 input 值，以便可以重复选择同一文件
+      event.target.value = '';
+    }
+  };
+
   const handleStatusToggle = () => {
     if (journey) {
       const newStatus = journey.status === 'active' ? 'inactive' : 'active';
@@ -468,17 +496,6 @@ export default function EditJourneyPage() {
                     />
                   </div>
                   
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Overview Side Image URL</label>
-                    <input
-                      type="text"
-                      value={isEditing ? formData.overview?.sideImage || '' : journey.overview?.sideImage || ''}
-                      onChange={(e) => handleInputChange('overview', { ...formData.overview, sideImage: e.target.value })}
-                      disabled={!isEditing}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                      placeholder="Enter side image URL (e.g., /images/... or https://...)"
-                    />
-                  </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Highlights</label>
@@ -558,19 +575,58 @@ export default function EditJourneyPage() {
                         
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Image URL (Optional)</label>
-                          <input
-                            type="text"
-                            value={day.image || ''}
-                            onChange={(e) => {
-                              const source = isEditing ? (formData.itinerary || []) : journey.itinerary;
-                              const newItinerary = [...source];
-                              newItinerary[index] = { ...day, image: e.target.value };
-                              updateItinerary(newItinerary);
-                            }}
-                            disabled={!isEditing}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                            placeholder="Enter image URL (e.g., /images/... or https://...)"
-                          />
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={day.image || ''}
+                              onChange={(e) => {
+                                const source = isEditing ? (formData.itinerary || []) : journey.itinerary;
+                                const newItinerary = [...source];
+                                newItinerary[index] = { ...day, image: e.target.value };
+                                updateItinerary(newItinerary);
+                              }}
+                              disabled={!isEditing}
+                              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                              placeholder="图片URL（上传后会自动填充）或输入路径，例如：/images/... 或 https://xxx.public.blob.vercel-storage.com/..."
+                            />
+                            {isEditing && (
+                              <>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => handleItineraryImageUpload(e, index)}
+                                  disabled={isUploading}
+                                  className="hidden"
+                                  id={`itinerary-image-upload-${index}`}
+                                />
+                                <Button
+                                  type="button"
+                                  variant="secondary"
+                                  disabled={isUploading}
+                                  className="flex items-center gap-2"
+                                  onClick={() => document.getElementById(`itinerary-image-upload-${index}`)?.click()}
+                                >
+                                  <Upload className="w-4 h-4" />
+                                  {isUploading ? '上传中...' : '上传'}
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                          {isEditing && (
+                            <Text size="sm" className="text-gray-500 mt-1">
+                              {(() => {
+                                const currentImage = day.image || '';
+                                if (currentImage?.startsWith('https://') && currentImage.includes('vercel-storage.com')) {
+                                  return '✅ 云存储URL（已上传到 Vercel Blob 云存储）';
+                                } else if (currentImage?.startsWith('/')) {
+                                  return '💡 本地路径（存储在 public 目录），建议使用"上传"按钮上传到云存储';
+                                } else if (currentImage) {
+                                  return '💡 外部URL或云存储URL';
+                                }
+                                return '💡 提示：点击"上传"按钮可将图片上传到 Vercel Blob 云存储，或直接输入图片URL';
+                              })()}
+                            </Text>
+                          )}
                         </div>
                       </div>
                     </div>
