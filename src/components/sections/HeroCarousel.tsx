@@ -87,7 +87,7 @@ export default function HeroCarousel({
   };
 
   return (
-    <div className="relative w-full h-[600px] overflow-hidden" data-name="Hero Banner/Homepage" data-node-id="186:81">
+    <div className="relative w-full h-[400px] sm:h-[500px] md:h-[600px] overflow-hidden" data-name="Hero Banner/Homepage" data-node-id="186:81">
       {/* 轮播图片 */}
       <div className="relative w-full h-full">
         {slides.map((slide, index) => (
@@ -115,13 +115,13 @@ export default function HeroCarousel({
 
       {/* 内容层 */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="text-center text-white px-4 max-w-4xl">
-          <h1 className="text-5xl md:text-6xl font-normal mb-8 font-[Montserrat] max-w-4xl">
+        <div className="text-center text-white px-4 sm:px-6 md:px-8 max-w-4xl">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-normal mb-4 sm:mb-6 md:mb-8 font-[Montserrat] max-w-4xl">
             {slides[currentSlide].title}
           </h1>
           <Link 
             href="/journeys"
-            className="bg-white text-black px-8 py-3 rounded-lg font-bold text-xl hover:bg-gray-100 transition-colors"
+            className="bg-white text-black px-4 sm:px-6 md:px-8 py-2 sm:py-3 rounded-lg font-bold text-sm sm:text-base md:text-xl hover:bg-gray-100 transition-colors inline-block"
           >
             Explore now
           </Link>
@@ -133,19 +133,19 @@ export default function HeroCarousel({
         <>
           <button
             onClick={goToPrevious}
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-full transition-all duration-200 z-10"
+            className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 sm:p-3 rounded-full transition-all duration-200 z-10 touch-manipulation"
             aria-label="上一张"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
           <button
             onClick={goToNext}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-full transition-all duration-200 z-10"
+            className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 sm:p-3 rounded-full transition-all duration-200 z-10 touch-manipulation"
             aria-label="下一张"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>

@@ -18,9 +18,9 @@ const sizeClasses = {
 
 const paddingClasses = {
   none: 'px-0',
-  sm: 'px-3',
-  md: 'px-4',
-  lg: 'px-6',
+  sm: 'px-3 sm:px-4',
+  md: 'px-4 sm:px-6',
+  lg: 'px-4 sm:px-6 md:px-8',
 };
 
 export function Container({ 

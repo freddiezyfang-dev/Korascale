@@ -38,13 +38,13 @@ export default function Home() {
       />
 
       {/* Main Action Cards - Figma Design */}
-      <Section background="tertiary" padding="sm" className="py-6">
-        <Container size="xl" padding="lg">
-          <div className="flex gap-5 items-center justify-center">
+      <Section background="tertiary" padding="sm" className="py-4 md:py-6">
+        <Container size="xl" padding="md">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 items-center justify-center">
             {/* Destinations Card */}
-            <Link href="/destinations" className="group">
+            <Link href="/destinations" className="group w-full">
               <div 
-                className="relative h-[463px] w-[284px] bg-center bg-cover bg-no-repeat overflow-hidden transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-2xl"
+                className="relative h-[300px] sm:h-[400px] lg:h-[463px] w-full bg-center bg-cover bg-no-repeat overflow-hidden transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-2xl rounded-lg"
                 style={{ 
                   backgroundImage: `url('${imgDestinationsButton}')`,
                   backgroundSize: 'cover',
@@ -54,11 +54,11 @@ export default function Home() {
                 {/* 渐变遮罩 - 从透明到半黑，让底部文字区域更易读 */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent group-hover:from-black/70 group-hover:via-black/30 transition-all duration-300"></div>
                 
-                <div className="absolute bottom-[99px] left-1/2 transform -translate-x-1/2 text-center w-[222px] h-[140px] flex flex-col items-center justify-start">
+                <div className="absolute bottom-4 sm:bottom-8 lg:bottom-[99px] left-1/2 transform -translate-x-1/2 text-center w-[90%] sm:w-[222px] flex flex-col items-center justify-start">
                   {/* 移除内层遮罩的背景色，依赖外层渐变遮罩 */}
-                  <div className="rounded-lg p-4 w-full h-full flex flex-col items-center justify-start">
-                    <Heading level={3} className="text-2xl font-subheading mb-4 text-center text-white font-bold drop-shadow-lg" style={{ color: 'white' }}>Destinations</Heading>
-                    <Text size="xs" className="leading-normal text-center text-white font-semibold drop-shadow-md" style={{ color: 'white' }}>
+                  <div className="rounded-lg p-3 sm:p-4 w-full flex flex-col items-center justify-start">
+                    <Heading level={3} className="text-lg sm:text-xl lg:text-2xl font-subheading mb-2 sm:mb-4 text-center text-white font-bold drop-shadow-lg" style={{ color: 'white' }}>Destinations</Heading>
+                    <Text size="xs" className="leading-normal text-center text-white font-semibold drop-shadow-md text-xs sm:text-sm" style={{ color: 'white' }}>
                       Step into the Heart of China: From the Great Wall to Pandas, Your Adventure Begins.
                     </Text>
                   </div>
@@ -67,9 +67,9 @@ export default function Home() {
             </Link>
 
             {/* Journeys Card */}
-            <Link href="/journeys" className="group">
+            <Link href="/journeys" className="group w-full">
               <div 
-                className="relative h-[463px] w-[284px] bg-center bg-cover bg-no-repeat overflow-hidden transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-2xl"
+                className="relative h-[300px] sm:h-[400px] lg:h-[463px] w-full bg-center bg-cover bg-no-repeat overflow-hidden transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-2xl rounded-lg"
                 style={{ 
                   backgroundImage: `url('${imgJourneysButton}')`,
                   backgroundSize: 'cover',
@@ -79,11 +79,11 @@ export default function Home() {
                 {/* 渐变遮罩 - 从透明到半黑，让底部文字区域更易读 */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent group-hover:from-black/70 group-hover:via-black/30 transition-all duration-300"></div>
                 
-                <div className="absolute bottom-[99px] left-1/2 transform -translate-x-1/2 text-center w-[222px] h-[140px] flex flex-col items-center justify-start">
+                <div className="absolute bottom-4 sm:bottom-8 lg:bottom-[99px] left-1/2 transform -translate-x-1/2 text-center w-[90%] sm:w-[222px] flex flex-col items-center justify-start">
                   {/* 移除内层遮罩的背景色，依赖外层渐变遮罩 */}
-                  <div className="rounded-lg p-4 w-full h-full flex flex-col items-center justify-start">
-                    <Heading level={3} className="text-2xl font-subheading mb-4 text-center text-white font-bold drop-shadow-lg" style={{ color: 'white' }}>Journeys</Heading>
-                    <Text size="xs" className="leading-normal text-center text-white font-semibold drop-shadow-md" style={{ color: 'white' }}>
+                  <div className="rounded-lg p-3 sm:p-4 w-full flex flex-col items-center justify-start">
+                    <Heading level={3} className="text-lg sm:text-xl lg:text-2xl font-subheading mb-2 sm:mb-4 text-center text-white font-bold drop-shadow-lg" style={{ color: 'white' }}>Journeys</Heading>
+                    <Text size="xs" className="leading-normal text-center text-white font-semibold drop-shadow-md text-xs sm:text-sm" style={{ color: 'white' }}>
                       Turn Your Travel Dreams into Reality: Curated Trips for Every Explorer.
                     </Text>
                   </div>
@@ -92,9 +92,9 @@ export default function Home() {
             </Link>
 
             {/* Inspirations Card */}
-            <Link href="/inspirations" className="group">
+            <Link href="/inspirations" className="group w-full">
               <div 
-                className="relative h-[463px] w-[284px] bg-center bg-cover bg-no-repeat overflow-hidden transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-2xl"
+                className="relative h-[300px] sm:h-[400px] lg:h-[463px] w-full bg-center bg-cover bg-no-repeat overflow-hidden transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-2xl rounded-lg"
                 style={{ 
                   backgroundImage: `url('${imgInspirationsButton}')`,
                   backgroundSize: 'cover',
@@ -104,11 +104,11 @@ export default function Home() {
                 {/* 渐变遮罩 - 从透明到半黑，让底部文字区域更易读 */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent group-hover:from-black/50 group-hover:via-black/20 transition-all duration-300"></div>
                 
-                <div className="absolute bottom-[99px] left-1/2 transform -translate-x-1/2 text-center w-[222px] h-[140px] flex flex-col items-center justify-start">
+                <div className="absolute bottom-4 sm:bottom-8 lg:bottom-[99px] left-1/2 transform -translate-x-1/2 text-center w-[90%] sm:w-[222px] flex flex-col items-center justify-start">
                   {/* 移除内层遮罩的背景色，依赖外层渐变遮罩 */}
-                  <div className="rounded-lg p-4 w-full h-full flex flex-col items-center justify-start">
-                    <Heading level={3} className="text-2xl font-subheading mb-4 text-center text-white font-bold drop-shadow-lg" style={{ color: 'white' }}>Inspirations</Heading>
-                    <Text size="xs" className="leading-normal text-center text-white font-semibold drop-shadow-md" style={{ color: 'white' }}>
+                  <div className="rounded-lg p-3 sm:p-4 w-full flex flex-col items-center justify-start">
+                    <Heading level={3} className="text-lg sm:text-xl lg:text-2xl font-subheading mb-2 sm:mb-4 text-center text-white font-bold drop-shadow-lg" style={{ color: 'white' }}>Inspirations</Heading>
+                    <Text size="xs" className="leading-normal text-center text-white font-semibold drop-shadow-md text-xs sm:text-sm" style={{ color: 'white' }}>
                       Find Your Spark: Uncover Stories, Culture, and China&apos;s Hidden Secrets.
                     </Text>
                   </div>
@@ -117,9 +117,9 @@ export default function Home() {
             </Link>
 
             {/* Accommodations Card */}
-            <Link href="/accommodations" className="group">
+            <Link href="/accommodations" className="group w-full">
               <div 
-                className="relative h-[463px] w-[284px] bg-center bg-cover bg-no-repeat overflow-hidden transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-2xl"
+                className="relative h-[300px] sm:h-[400px] lg:h-[463px] w-full bg-center bg-cover bg-no-repeat overflow-hidden transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-2xl rounded-lg"
                 style={{ 
                   backgroundImage: `url('${imgAccommodationsButton}')`,
                   backgroundSize: 'cover',
@@ -129,11 +129,11 @@ export default function Home() {
                 {/* 渐变遮罩 - 从透明到半黑，让底部文字区域更易读 */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent group-hover:from-black/70 group-hover:via-black/30 transition-all duration-300"></div>
                 
-                <div className="absolute bottom-[99px] left-1/2 transform -translate-x-1/2 text-center w-[222px] h-[140px] flex flex-col items-center justify-start">
+                <div className="absolute bottom-4 sm:bottom-8 lg:bottom-[99px] left-1/2 transform -translate-x-1/2 text-center w-[90%] sm:w-[222px] flex flex-col items-center justify-start">
                   {/* 移除内层遮罩的背景色，依赖外层渐变遮罩 */}
-                  <div className="rounded-lg p-4 w-full h-full flex flex-col items-center justify-start">
-                    <Heading level={3} className="text-2xl font-subheading mb-4 text-center text-white font-bold drop-shadow-lg" style={{ color: 'white' }}>Accommodations</Heading>
-                    <Text size="xs" className="leading-normal text-center text-white font-semibold drop-shadow-md" style={{ color: 'white' }}>
+                  <div className="rounded-lg p-3 sm:p-4 w-full flex flex-col items-center justify-start">
+                    <Heading level={3} className="text-lg sm:text-xl lg:text-2xl font-subheading mb-2 sm:mb-4 text-center text-white font-bold drop-shadow-lg" style={{ color: 'white' }}>Accommodations</Heading>
+                    <Text size="xs" className="leading-normal text-center text-white font-semibold drop-shadow-md text-xs sm:text-sm" style={{ color: 'white' }}>
                       Rest Your Head in Authenticity: From Luxury Hotels to Ancient Inns.
                     </Text>
                   </div>
@@ -164,27 +164,27 @@ export default function Home() {
       <Section background="tertiary" padding="xl">
         <Container size="xl">
           {/* Article 1 */}
-          <div className="bg-[#1e3b32] flex flex-col lg:flex-row items-center gap-8 mb-16 rounded-lg overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]">
+          <div className="bg-[#1e3b32] flex flex-col lg:flex-row items-center gap-4 md:gap-8 mb-8 md:mb-16 rounded-lg overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]">
             <div 
-              className="lg:w-1/2 h-[601px] bg-center bg-cover bg-no-repeat transition-transform duration-300 group-hover:scale-110"
+              className="w-full lg:w-1/2 h-[300px] sm:h-[400px] md:h-[500px] lg:h-[601px] bg-center bg-cover bg-no-repeat transition-transform duration-300 group-hover:scale-110"
               style={{ backgroundImage: `url('${imgArticle1}')` }}
             />
-            <div className="lg:w-1/2 p-8 text-white" style={{ color: 'white' }}>
+            <div className="w-full lg:w-1/2 p-4 md:p-6 lg:p-8 text-white" style={{ color: 'white' }}>
               <h3 
-                className="text-4xl font-[Barlow_Semi_Condensed] mb-6 text-white" 
+                className="text-2xl sm:text-3xl lg:text-4xl font-[Barlow_Semi_Condensed] mb-4 md:mb-6 text-white" 
                 style={{ color: 'white' }}
               >
                 Adventures Custom Made For You
               </h3>
               <p 
-                className="text-lg mb-8 font-body text-white" 
+                className="text-base sm:text-lg mb-6 md:mb-8 font-body text-white" 
                 style={{ color: 'white' }}
               >
                 Korascale offers fully tailored expeditions. Curate your own adventure by selecting from our unique experiences to build a handcrafted itinerary that is uniquely yours.
               </p>
               <Link 
                 href="/journeys" 
-                className="text-white underline font-body hover:opacity-80"
+                className="text-white underline font-body hover:opacity-80 text-sm sm:text-base"
                 style={{ color: 'white' }}
               >
                 VIEW MORE
@@ -193,30 +193,30 @@ export default function Home() {
           </div>
 
           {/* Article 2 & 3 */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8 mb-8 md:mb-16">
             <div className="bg-[#1e3b32] rounded-lg overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]">
               <Link href="/destinations">
                 <div 
-                  className="h-[475px] bg-center bg-cover bg-no-repeat transition-transform duration-300 group-hover:scale-110"
+                  className="h-[250px] sm:h-[350px] md:h-[400px] lg:h-[475px] bg-center bg-cover bg-no-repeat transition-transform duration-300 group-hover:scale-110"
                   style={{ backgroundImage: `url('${imgArticle2}')` }}
                 />
               </Link>
-              <div className="p-8 text-white" style={{ color: 'white' }}>
+              <div className="p-4 md:p-6 lg:p-8 text-white" style={{ color: 'white' }}>
                 <h3 
-                  className="text-4xl font-[Barlow_Semi_Condensed] mb-6 text-white" 
+                  className="text-2xl sm:text-3xl lg:text-4xl font-[Barlow_Semi_Condensed] mb-4 md:mb-6 text-white" 
                   style={{ color: 'white' }}
                 >
                   Cyber-City Chongqing
                 </h3>
                 <p 
-                  className="text-lg mb-8 font-[Monda] text-white" 
+                  className="text-base sm:text-lg mb-6 md:mb-8 font-[Monda] text-white" 
                   style={{ color: 'white' }}
                 >
                   Where neon-drenched skyscrapers pierce the mist, rising from ancient hills. Experience the breathtaking fusion of cutting-edge lightscapes and timeless tradition.
                 </p>
                 <Link 
                   href="/destinations" 
-                  className="text-white underline font-body hover:opacity-80 group-hover:text-yellow-300 transition-colors duration-300"
+                  className="text-white underline font-body hover:opacity-80 group-hover:text-yellow-300 transition-colors duration-300 text-sm sm:text-base"
                   style={{ color: 'white' }}
                 >
                   VIEW MORE
@@ -227,26 +227,26 @@ export default function Home() {
             <div className="bg-[#1e3b32] rounded-lg overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]">
               <Link href="/inspirations">
                 <div 
-                  className="h-[479px] bg-center bg-cover bg-no-repeat transition-transform duration-300 group-hover:scale-110"
+                  className="h-[250px] sm:h-[350px] md:h-[400px] lg:h-[479px] bg-center bg-cover bg-no-repeat transition-transform duration-300 group-hover:scale-110"
                   style={{ backgroundImage: `url('${imgArticle3}')` }}
                 />
               </Link>
-              <div className="p-8 text-white" style={{ color: 'white' }}>
+              <div className="p-4 md:p-6 lg:p-8 text-white" style={{ color: 'white' }}>
                 <h3 
-                  className="text-4xl font-[Barlow_Semi_Condensed] mb-6 text-white" 
+                  className="text-2xl sm:text-3xl lg:text-4xl font-[Barlow_Semi_Condensed] mb-4 md:mb-6 text-white" 
                   style={{ color: 'white' }}
                 >
                   Chinese Food Tour
                 </h3>
                 <p 
-                  className="text-lg mb-8 font-[Monda] text-white" 
+                  className="text-base sm:text-lg mb-6 md:mb-8 font-[Monda] text-white" 
                   style={{ color: 'white' }}
                 >
                   Embark on the ultimate sensory adventure. Let your taste buds explode with flavors from China&apos;s diverse regions, guided by the wisdom of generations of culinary masters.
                 </p>
                 <Link 
                   href="/inspirations" 
-                  className="text-white underline font-body hover:opacity-80 group-hover:text-yellow-300 transition-colors duration-300"
+                  className="text-white underline font-body hover:opacity-80 group-hover:text-yellow-300 transition-colors duration-300 text-sm sm:text-base"
                   style={{ color: 'white' }}
                 >
                   VIEW MORE
@@ -256,30 +256,30 @@ export default function Home() {
           </div>
 
           {/* Article 4 & 5 */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
             <div className="bg-[#1e3b32] rounded-lg overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]">
               <Link href="/journeys">
                 <div 
-                  className="h-[479px] bg-center bg-cover bg-no-repeat transition-transform duration-300 group-hover:scale-110"
+                  className="h-[250px] sm:h-[350px] md:h-[400px] lg:h-[479px] bg-center bg-cover bg-no-repeat transition-transform duration-300 group-hover:scale-110"
                   style={{ backgroundImage: `url('${imgArticle4}')` }}
                 />
               </Link>
-              <div className="p-8 text-white text-center" style={{ color: 'white' }}>
+              <div className="p-4 md:p-6 lg:p-8 text-white text-center" style={{ color: 'white' }}>
                 <h3 
-                  className="text-4xl font-[Barlow_Semi_Condensed] mb-6 text-white" 
+                  className="text-2xl sm:text-3xl lg:text-4xl font-[Barlow_Semi_Condensed] mb-4 md:mb-6 text-white" 
                   style={{ color: 'white' }}
                 >
                   Sacred Horizons · A Tibetan Buddhist Journey
                 </h3>
                 <p 
-                  className="text-lg mb-8 font-[Monda] text-white" 
+                  className="text-base sm:text-lg mb-6 md:mb-8 font-[Monda] text-white" 
                   style={{ color: 'white' }}
                 >
                   Discover the serene beauty of snow-capped mountains, ancient monasteries, and timeless Tibetan traditions. Immerse yourself in a cultural journey where spirituality meets breathtaking landscapes.
                 </p>
                 <Link 
                   href="/journeys" 
-                  className="text-white underline font-body hover:opacity-80 group-hover:text-yellow-300 transition-colors duration-300"
+                  className="text-white underline font-body hover:opacity-80 group-hover:text-yellow-300 transition-colors duration-300 text-sm sm:text-base"
                   style={{ color: 'white' }}
                 >
                   VIEW MORE
@@ -290,26 +290,26 @@ export default function Home() {
             <div className="bg-[#1e3b32] rounded-lg overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]">
               <Link href="/inspirations">
                 <div 
-                  className="h-[479px] bg-center bg-cover bg-no-repeat transition-transform duration-300 group-hover:scale-110"
+                  className="h-[250px] sm:h-[350px] md:h-[400px] lg:h-[479px] bg-center bg-cover bg-no-repeat transition-transform duration-300 group-hover:scale-110"
                   style={{ backgroundImage: `url('${imgArticle5}')` }}
                 />
               </Link>
-              <div className="p-8 text-white text-center" style={{ color: 'white' }}>
+              <div className="p-4 md:p-6 lg:p-8 text-white text-center" style={{ color: 'white' }}>
                 <h3 
-                  className="text-4xl font-[Barlow_Semi_Condensed] mb-6 text-white" 
+                  className="text-2xl sm:text-3xl lg:text-4xl font-[Barlow_Semi_Condensed] mb-4 md:mb-6 text-white" 
                   style={{ color: 'white' }}
                 >
                   Sacred Horizons
                 </h3>
                 <p 
-                  className="text-lg mb-8 font-[Monda] text-white" 
+                  className="text-base sm:text-lg mb-6 md:mb-8 font-[Monda] text-white" 
                   style={{ color: 'white' }}
                 >
                   Discover the serene beauty of sacred landscapes and ancient traditions that have shaped civilizations for centuries.
                 </p>
                 <Link 
                   href="/inspirations" 
-                  className="text-white underline font-body hover:opacity-80 group-hover:text-yellow-300 transition-colors duration-300"
+                  className="text-white underline font-body hover:opacity-80 group-hover:text-yellow-300 transition-colors duration-300 text-sm sm:text-base"
                   style={{ color: 'white' }}
                 >
                   VIEW MORE
@@ -326,9 +326,9 @@ export default function Home() {
       {/* About Us Section */}
       <Section background="tertiary" padding="xl">
         <Container size="xl">
-          <div className="text-center mb-16">
-            <Text size="xl" className="mb-4 font-body">About Us</Text>
-            <Heading level={2} className="text-5xl font-[Montaga]">Who will you travel with</Heading>
+          <div className="text-center mb-8 md:mb-16 px-4">
+            <Text size="lg" className="sm:text-xl mb-3 sm:mb-4 font-body">About Us</Text>
+            <Heading level={2} className="text-3xl sm:text-4xl md:text-5xl font-[Montaga]">Who will you travel with</Heading>
           </div>
         </Container>
       </Section>

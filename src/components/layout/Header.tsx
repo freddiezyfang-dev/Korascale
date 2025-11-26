@@ -81,7 +81,7 @@ function UserSection() {
 
 function SocialAndSearch() {
 	return (
-		<div className="flex items-center justify-center gap-4 lg:gap-[35px] overflow-hidden px-4 lg:px-16 py-[25px] shrink-0" data-name="Scial Media" data-node-id="770:181">
+		<div className="flex items-center justify-center gap-2 sm:gap-4 lg:gap-[35px] overflow-hidden px-2 sm:px-4 lg:px-16 py-3 sm:py-4 lg:py-[25px] shrink-0" data-name="Scial Media" data-node-id="770:181">
 			{/* Social Media Icons - Hidden on mobile, visible on desktop */}
 			<div className="hidden lg:flex items-center gap-6">
 				{/* 邮件图标 */}
@@ -129,14 +129,14 @@ function SocialAndSearch() {
 			{/* Search Section */}
 			<Link 
 				href="/journeys" 
-				className="bg-[#1e3b32] flex items-center justify-center gap-2 overflow-hidden px-4 lg:px-[51px] py-[14px] shrink-0 hover:opacity-80 transition-opacity cursor-pointer" 
+				className="bg-[#1e3b32] flex items-center justify-center gap-1 sm:gap-2 overflow-hidden px-2 sm:px-4 lg:px-[51px] py-2 sm:py-3 lg:py-[14px] shrink-0 hover:opacity-80 transition-opacity cursor-pointer rounded touch-manipulation" 
 				data-name="Language" 
 				data-node-id="770:192"
 			>
-				<div className="shrink-0 size-6" data-name="SearchOutlined" data-node-id="771:244">
+				<div className="shrink-0 size-4 sm:size-5 lg:size-6" data-name="SearchOutlined" data-node-id="771:244">
 					<img aria-hidden className="block size-full" src={imgSearchOutlined} alt="Search" />
 				</div>
-				<span className="text-white text-sm lg:text-base whitespace-nowrap">find your journey</span>
+				<span className="text-white text-xs sm:text-sm lg:text-base whitespace-nowrap hidden sm:inline">find your journey</span>
 			</Link>
 		</div>
 	);
@@ -145,9 +145,9 @@ function SocialAndSearch() {
 export default function Header() {
 	return (
 		<header className="w-full bg-[#1e3b32] text-white relative z-50" data-name="Header/Main" data-node-id="771:249">
-			<div className="flex items-center justify-between lg:gap-[600px] gap-4 px-4 lg:px-[50px] py-0">
+			<div className="flex items-center justify-between gap-2 sm:gap-4 px-3 sm:px-4 md:px-6 lg:px-[50px] py-0">
 				<HeaderLeft />
-				<div className="flex items-center gap-4">
+				<div className="flex items-center gap-2 sm:gap-4">
 					<SocialAndSearch />
 					<UserSection />
 				</div>
