@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import Link from "next/link";
 import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/components/common';
 import { AccommodationCard } from '@/components/cards/AccommodationCard';
+import { PlanTripModal } from '@/components/modals/PlanTripModal';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { useHotelManagement } from '@/context/HotelManagementContext';
 
@@ -22,6 +23,7 @@ export default function SichuanChongqingPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedDuration, setSelectedDuration] = useState<string>('All');
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [isPlanTripModalOpen, setIsPlanTripModalOpen] = useState(false);
 
   // 筛选 Sichuan 和 Chongqing 地区的 journeys
   const filteredJourneys = useMemo(() => {
@@ -382,7 +384,7 @@ export default function SichuanChongqingPage() {
 
       {/* All Journeys / Filter Section */}
       <div id="all-journeys" className="bg-[#f5f1e6] py-16">
-        <Container size="xl">
+        <Container size="full" padding="none" className="px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Filter Sidebar */}
             <div className="w-full lg:w-80 flex-shrink-0">
@@ -495,41 +497,98 @@ export default function SichuanChongqingPage() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredJourneys.map((journey) => (
-                    <Card key={journey.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col h-full">
-                      <div 
-                        className="h-48 bg-cover bg-center bg-no-repeat flex-shrink-0"
-                        style={{ backgroundImage: `url('${journey.image}')` }}
-                      />
-                      <div className="p-4 bg-[#fff6da] flex flex-col flex-1">
-                        <Heading level={3} className="text-lg font-heading mb-2" style={{ fontFamily: 'Montaga, serif' }}>
-                          {journey.title}
-                        </Heading>
-                        <div className="flex justify-between items-center text-sm text-gray-600 mb-4">
-                          <span className="font-['Monda']">{journey.duration}</span>
-                          <span className="font-['Monda'] font-bold text-primary-600">
-                            {typeof journey.price === 'number' ? `$${journey.price}` : journey.price || 'N/A'}
-                          </span>
+                  {filteredJourneys.map((journey) => {
+                    // 获取 maxGuests
+                    const maxGuests = ('maxGuests' in journey && journey.maxGuests) 
+                      ? journey.maxGuests 
+                      : ('maxParticipants' in journey && journey.maxParticipants) 
+                        ? journey.maxParticipants 
+                        : null;
+                    
+                    // 获取价格
+                    const price = ('price' in journey && typeof journey.price === 'number')
+                      ? `$${journey.price}`
+                      : ('price' in journey ? journey.price : 'N/A');
+                    
+                    return (
+                      <Card key={journey.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col h-full bg-[#f5f1e6]">
+                        <div 
+                          className="h-48 bg-cover bg-center bg-no-repeat flex-shrink-0"
+                          style={{ backgroundImage: `url('${journey.image}')` }}
+                        />
+                        <div className="p-4 flex flex-col flex-1">
+                          <Heading 
+                            level={3} 
+                            className="text-lg font-heading mb-2 font-normal" 
+                            style={{ fontFamily: 'Montaga, serif', fontWeight: 400 }}
+                          >
+                            {journey.title}
+                          </Heading>
+                          <Text className="text-sm text-gray-600 mb-3 line-clamp-2 flex-shrink-0">
+                            {journey.shortDescription || journey.description}
+                          </Text>
+                          <div className="mt-auto flex flex-col flex-shrink-0">
+                            {/* 第一行：Duration 和 Max Guests */}
+                            <Text
+                              className="text-sm mb-1"
+                              style={{ fontFamily: 'Monda, sans-serif', color: '#000000', fontWeight: 400, fontSize: '0.875rem' }}
+                            >
+                              {journey.duration || 'N/A'}{maxGuests ? ` • Limited to ${maxGuests} guests` : ''}
+                            </Text>
+                            {/* 第二行：价格 */}
+                            <Text
+                              className="text-sm"
+                              style={{ fontFamily: 'Monda, sans-serif', color: '#000000', fontWeight: 400, fontSize: '0.875rem' }}
+                            >
+                              {price !== 'N/A' ? `Priced from ${price}` : ''}
+                            </Text>
+                          </div>
                         </div>
-                        <Text className="text-sm text-gray-600 mb-4 line-clamp-3" style={{ fontFamily: 'Monda, sans-serif' }}>
-                          {journey.shortDescription || journey.description}
-                        </Text>
-                        <div className="mt-auto">
-                          <Link href={`/journeys/${journey.slug || journey.id}`}>
-                            <Button variant="outline" size="sm" className="w-full">
-                              View Details
-                            </Button>
-                          </Link>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
+                      </Card>
+                    );
+                  })}
                 </div>
               )}
             </div>
           </div>
         </Container>
       </div>
+
+      {/* Plan Your Journey Section */}
+      <Section background="primary" padding="none" className="py-12">
+        <Container
+          size="xl"
+          padding="none"
+          className="bg-tertiary mx-4 sm:mx-8 lg:mx-20 rounded-lg p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6"
+        >
+          <div>
+            <Heading
+              level={2}
+              className="text-2xl sm:text-3xl mb-4"
+              style={{ color: '#FFFFFF', fontFamily: 'Montaga, serif' }}
+            >
+              Plan your journey in China with Korascale
+            </Heading>
+            <Text
+              className="text-sm sm:text-base"
+              style={{ color: '#FFFFFF', fontFamily: 'Monda, sans-serif' }}
+            >
+              Tell us what you are looking for and our team will craft a tailored itinerary that matches your
+              interests, timing and budget.
+            </Text>
+          </div>
+          <Button
+            variant="primary"
+            size="lg"
+            className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-body text-sm hover:bg-white hover:text-tertiary transition-all duration-300"
+            onClick={() => setIsPlanTripModalOpen(true)}
+          >
+            PLAN YOUR JOURNEY
+          </Button>
+        </Container>
+
+        <PlanTripModal isOpen={isPlanTripModalOpen} onClose={() => setIsPlanTripModalOpen(false)} />
+      </Section>
     </main>
   );
 }

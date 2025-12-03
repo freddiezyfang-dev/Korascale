@@ -12,8 +12,8 @@ export default function NavMenu() {
 	return (
 		<nav className="w-full bg-white relative z-40" data-name="Navi Bar" data-node-id="819:685">
 			<div className="relative mx-auto flex max-w-screen-2xl items-center justify-between px-4 sm:px-6 md:px-8 lg:px-[50px] py-0 h-[50px] sm:h-[56px] lg:h-[62px] overflow-x-auto scrollbar-hide">
-				{/* 左侧导航菜单 */}
-				<div className="flex items-center gap-3 sm:gap-4 md:gap-6 lg:gap-[26px] text-sm sm:text-base text-black font-subheading shrink-0">
+				{/* 左侧导航菜单 - 更靠左 */}
+				<div className="flex items-center gap-3 sm:gap-4 md:gap-6 lg:gap-[26px] text-sm sm:text-base text-black font-subheading font-semibold shrink-0 -ml-2 sm:-ml-4 md:-ml-6 lg:-ml-8">
 					<Dropdown
                     trigger={
                             <Link href="/destinations" className="hover:opacity-80 h-[34px] flex items-center">
@@ -47,8 +47,8 @@ export default function NavMenu() {
 
 				</div>
 
-				{/* 右侧用户区域 */}
-				<div className="flex items-center gap-2 sm:gap-3 h-full shrink-0">
+				{/* 右侧用户区域 - 更靠右 */}
+				<div className="flex items-center gap-2 sm:gap-3 h-full shrink-0 -mr-2 sm:-mr-4 md:-mr-6 lg:-mr-8">
 					<div className="w-3 h-3 sm:w-[14px] sm:h-[14px] flex items-center justify-center flex-shrink-0">
 						<img src={imgVector} alt="user icon" className="w-full h-full" />
 					</div>

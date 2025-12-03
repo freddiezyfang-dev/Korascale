@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useRef, useState, useEffect } from 'react';
+import React, { useMemo, useRef, useState, useEffect, useLayoutEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/components/common';
@@ -18,6 +18,10 @@ import { useCart } from '@/context/CartContext';
 import { Journey } from '@/types';
 import { Heart, MapPin, Clock, Users } from 'lucide-react';
 
+// Journey Type slugs 映射（移到组件外部，避免每次渲染都创建新数组）
+// 注意：这里用于路由识别和重定向，必须包含所有 journey type 的 slug
+const JOURNEY_TYPE_SLUGS = ['explore-together', 'deep-discovery', 'signature-journeys', 'group-tours'] as const;
+
 export default function DynamicJourneyPage() {
   const { toggleWishlist, items } = useWishlist();
   const { journeys, isLoading: journeysLoading } = useJourneyManagement();
@@ -28,6 +32,43 @@ export default function DynamicJourneyPage() {
   // catch-all 路由返回数组，需要合并
   const slugArray = params.slug as string[];
   const slug = Array.isArray(slugArray) ? slugArray.join('/') : (slugArray || '');
+  
+  // 检查是否是 journey type slug（在组件早期检查，避免执行后续逻辑）
+  const isJourneyTypeSlug = slug && JOURNEY_TYPE_SLUGS.includes(slug as any);
+  const isTypeRoute = slug && (slug.startsWith('type/') || slug === 'type');
+  
+  // 调试信息：检查 journey type slug 识别
+  if (slug) {
+    const directCheck = JOURNEY_TYPE_SLUGS.includes(slug as any);
+    console.log('[DynamicJourneyPage] Slug check:', {
+      slug,
+      isJourneyTypeSlug,
+      isTypeRoute,
+      directCheck,
+      JOURNEY_TYPE_SLUGS: Array.from(JOURNEY_TYPE_SLUGS),
+      willRedirect: directCheck || isTypeRoute
+    });
+  }
+  
+  // 使用 useLayoutEffect 同步执行重定向（在 DOM 更新之前）
+  // 这样可以确保在 useEffect 执行之前就完成重定向
+  useLayoutEffect(() => {
+    if (isTypeRoute) {
+      // 提取 type 值并重定向
+      const typeValue = slug.replace('type/', '');
+      if (typeValue) {
+        router.replace(`/journeys/type/${typeValue}`);
+      }
+    } else if (isJourneyTypeSlug) {
+      // 如果是 journey type slug，立即重定向到 type 路由
+      router.replace(`/journeys/type/${slug}`);
+    }
+  }, [slug, router, isTypeRoute, isJourneyTypeSlug]);
+  
+  // 如果路径是 type/* 或者是 journey type slug，不渲染任何内容，等待重定向
+  if (isTypeRoute || isJourneyTypeSlug) {
+    return null;
+  }
   
   // 直接从API获取journey（如果context中没有）
   const [journeyFromApi, setJourneyFromApi] = useState<Journey | null>(null);
@@ -43,9 +84,39 @@ export default function DynamicJourneyPage() {
   
   // 如果context中找不到，尝试从API获取
   useEffect(() => {
+    // 如果是 journey type slug，立即返回，不执行任何 API 调用
+    // 使用更严格的检查，确保不会误判
+    if (!slug) {
+      console.log('[DynamicJourneyPage] No slug, skipping API call');
+      return;
+    }
+    
+    // 直接检查 slug 是否在 JOURNEY_TYPE_SLUGS 中（不依赖变量）
+    const isTypeSlug = JOURNEY_TYPE_SLUGS.includes(slug as any);
+    if (isTypeSlug) {
+      console.log('[DynamicJourneyPage] Journey type slug detected, skipping API call:', slug, {
+        slug,
+        isTypeSlug,
+        JOURNEY_TYPE_SLUGS: Array.from(JOURNEY_TYPE_SLUGS)
+      });
+      return; // 立即返回，不执行后续任何代码
+    }
+    
+    console.log('[DynamicJourneyPage] Proceeding with API call for slug:', slug, {
+      slug,
+      isTypeSlug,
+      JOURNEY_TYPE_SLUGS: Array.from(JOURNEY_TYPE_SLUGS)
+    });
+    
     const fetchJourneyBySlug = async () => {
       // 验证 slug 是否有效
       if (!slug || slug.trim() === '') {
+        return;
+      }
+      
+      // 再次检查是否是 journey type slug（双重保险，直接检查常量）
+      if (JOURNEY_TYPE_SLUGS.includes(slug as any)) {
+        console.log('[DynamicJourneyPage] Aborting API call - journey type slug detected:', slug);
         return;
       }
       
@@ -56,9 +127,21 @@ export default function DynamicJourneyPage() {
       const foundInContext = journeys.find(j => j.slug === slug);
       if (foundInContext) return;
       
+      // 最后一次检查是否是 journey type slug（三重保险）
+      if (JOURNEY_TYPE_SLUGS.includes(slug as any)) {
+        console.log('[DynamicJourneyPage] Final check - journey type slug, aborting:', slug);
+        return;
+      }
+      
       // 如果已经查询过且结果为null，不需要重复查询
       // 添加 slug 验证，避免无效请求
       if (journeyFromApi === null && !isLoadingFromApi && journeys.length > 0 && slug && slug.length > 1) {
+        // 最后一次检查（四重保险）
+        if (JOURNEY_TYPE_SLUGS.includes(slug as any)) {
+          console.log('[DynamicJourneyPage] Pre-fetch check - journey type slug, aborting:', slug);
+          return;
+        }
+        
         setIsLoadingFromApi(true);
         try {
           // 创建超时控制器

@@ -115,7 +115,7 @@ export type HotelStatus = 'active' | 'inactive';
 export type JourneyStatus = 'active' | 'inactive' | 'draft';
 
 // 旅行卡片版面分类类型
-export type JourneyType = 'Explore Together' | 'Deep Discovery' | 'Signature Journeys';
+export type JourneyType = 'Explore Together' | 'Deep Discovery' | 'Signature Journeys' | 'Group Tours';
 
 // 定制服务类型
 export type CustomizationType = 'Tailor-Made China';

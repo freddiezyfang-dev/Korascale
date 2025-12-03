@@ -840,18 +840,24 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
         console.error('Error loading journeys from database:', error);
         
         // 如果数据库失败，使用localStorage作为fallback
-        const storedJourneys = localStorage.getItem('journeys');
-        if (storedJourneys) {
-          const parsedJourneys = JSON.parse(storedJourneys).map((journey: any) => ({
-            ...journey,
-            createdAt: new Date(journey.createdAt),
-            updatedAt: new Date(journey.updatedAt),
-          }));
-          setJourneys(parsedJourneys);
-        } else {
+        try {
+          const storedJourneys = localStorage.getItem('journeys');
+          if (storedJourneys) {
+            const parsedJourneys = JSON.parse(storedJourneys).map((journey: any) => ({
+              ...journey,
+              createdAt: new Date(journey.createdAt),
+              updatedAt: new Date(journey.updatedAt),
+            }));
+            setJourneys(parsedJourneys);
+          } else {
+            setJourneys(defaultJourneys);
+          }
+        } catch (localStorageError) {
+          console.error('Error loading from localStorage:', localStorageError);
           setJourneys(defaultJourneys);
         }
       } finally {
+        // 确保 isLoading 总是被设置为 false
         setIsLoading(false);
       }
     };

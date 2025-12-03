@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState, useMemo } from 'react';
 import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/components/common';
-import { PlanningSectionNew } from '@/components/sections';
+import { PlanTripModal } from '@/components/modals/PlanTripModal';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import type { JourneyType } from '@/types';
 
@@ -129,7 +129,8 @@ const defaultJourneyType: JourneyType = 'Explore Together';
 const JourneyTypeToSlug: Record<JourneyType, string> = {
 	'Explore Together': 'explore-together',
 	'Deep Discovery': 'deep-discovery',
-	'Signature Journeys': 'signature-journeys'
+	'Signature Journeys': 'signature-journeys',
+	'Group Tours': 'group-tours'
 };
 
 // 获取 Journey Type 的 Slug
@@ -155,6 +156,7 @@ export default function JourneysPage() {
 	const [selectedMonth, setSelectedMonth] = useState('All');
 	const [searchTerm, setSearchTerm] = useState('');
 	const [selectedJourneyType, setSelectedJourneyType] = useState<JourneyType | 'All'>('All');
+	const [isPlanTripModalOpen, setIsPlanTripModalOpen] = useState(false);
 
 	const categories = [
 		'All', 
@@ -223,81 +225,178 @@ export default function JourneysPage() {
 
 	return (
 		<div className="min-h-screen bg-white">
-			{/* Journey Collections Section - 参考 Inspirations 页面排版 */}
-			<Section background="secondary" padding="xl" className="py-24">
-				<Container size="xl">
-					{/* Breadcrumb Navigation */}
-					<div className="mb-12">
-						<Breadcrumb 
-							items={[{ label: 'Home', href: '/' }, { label: 'Journeys' }]}
-							color="#000000"
-							sizeClassName="text-lg md:text-xl"
-						/>
-					</div>
+			{/* Plan Your Trip Hero Section - 与其他页面统一 */}
+			<Section background="primary" padding="none" className="relative h-[447px] overflow-hidden">
+				<div 
+					className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+					style={{ backgroundImage: `url('/images/planning/ciqikou.jpg')` }}
+				/>
+				<div className="absolute inset-0 bg-black/20" />
+				<div className="relative z-10 h-full flex items-center justify-end">
+					<Container size="xl" className="h-full flex items-center justify-end">
+						{/* Breadcrumb Navigation */}
+						<div className="absolute top-8 left-0 w-full px-4 md:px-8">
+							<Breadcrumb 
+								items={[{ label: 'Home', href: '/' }, { label: 'Journeys' }]}
+								color="#FFFFFF"
+								sizeClassName="text-lg md:text-xl"
+							/>
+						</div>
+						
+						{/* Text Box Overlay - Right Side - 与其他页面统一 */}
+						<div className="bg-tertiary w-[359px] h-[352px] rounded-lg p-8 flex flex-col justify-center">
+							<Heading 
+								level={2} 
+								className="text-4xl font-heading mb-8" 
+								style={{ color: '#FFFFFF' }}
+							>
+								Plan your trip in China with Korascale
+							</Heading>
+							<Button 
+								variant="primary" 
+								size="lg" 
+								className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-body text-sm hover:bg-white hover:text-tertiary transition-all duration-300"
+								onClick={() => setIsPlanTripModalOpen(true)}
+							>
+								EXPLORE NOW
+							</Button>
+						</div>
+					</Container>
+				</div>
+			</Section>
 
-					{/* Three Column Grid - 参考 Inspirations 页面的 3 列布局 */}
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-16">
-						{journeyTypeOptions.map((option) => {
-							// 为每个分类获取对应的图片（可以根据需要添加图片）
-							const getImageForType = (type: JourneyType) => {
-								switch(type) {
-									case 'Explore Together':
-										return imgJourney1; // 使用现有图片或添加新图片
-									case 'Deep Discovery':
-										return imgJourney4;
-									case 'Signature Journeys':
-										return imgJourney5;
-									default:
-										return imgJourney1;
-								}
-							};
-
-							return (
-								<Link
-									key={option.value}
-									href={`/journeys/${getJourneyTypeSlug(option.value)}`}
-									className="group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl block"
+			{/* Journey Categories Grid - 4 Cards Layout - 贴近页面边 */}
+			<Section background="secondary" padding="none">
+				<Container size="full" padding="none" className="py-16 md:py-20 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+						{/* Explore Together */}
+						<Link
+							href="/journeys/explore-together"
+							className="group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl block"
+						>
+							<div className="relative h-[280px] md:h-[320px] lg:h-[357px] rounded-lg overflow-hidden mb-6">
+								<img
+									src={imgJourney1}
+									alt="Explore Together"
+									className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+								/>
+							</div>
+							<div className="text-center px-4">
+								<Heading 
+									level={3} 
+									className="text-xl md:text-2xl font-subheading mb-4" 
+									style={{ color: '#000000', fontFamily: 'Montaga, serif' }}
 								>
-									<div className="relative h-[357px] rounded-lg overflow-hidden mb-6">
-										<img
-											src={getImageForType(option.value)}
-											alt={option.label}
-											className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-										/>
-									</div>
-									<div className="text-center px-8">
-										<Heading 
-											level={3} 
-											className="text-xl font-subheading mb-4" 
-											style={{ color: '#000000', fontFamily: 'Montaga, serif' }}
-										>
-											{option.label}
-										</Heading>
-										<Text 
-											className="text-xs mb-6 leading-relaxed px-2" 
-											style={{ color: '#000000', fontFamily: 'Monda, sans-serif' }}
-										>
-											{option.description}
-										</Text>
-										<span className="text-xs font-body underline group-hover:text-[#1e3b32] transition-colors duration-300 inline-block" 
-											style={{ color: '#000000', fontFamily: 'Monda, sans-serif' }}
-										>
-											VIEW MORE
-										</span>
-									</div>
-								</Link>
-							);
-						})}
+									Explore Together
+								</Heading>
+								<Text 
+									className="text-sm md:text-base leading-relaxed mb-4" 
+									style={{ color: '#000000', fontFamily: 'Monda, sans-serif' }}
+								>
+									Immersive day experiences and micro adventures designed for quick inspiration.
+								</Text>
+							</div>
+						</Link>
+
+						{/* Deep Discovery */}
+						<Link
+							href="/journeys/deep-discovery"
+							className="group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl block"
+						>
+							<div className="relative h-[280px] md:h-[320px] lg:h-[357px] rounded-lg overflow-hidden mb-6">
+								<img
+									src={imgJourney4}
+									alt="Deep Discovery"
+									className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+								/>
+							</div>
+							<div className="text-center px-4">
+								<Heading 
+									level={3} 
+									className="text-xl md:text-2xl font-subheading mb-4" 
+									style={{ color: '#000000', fontFamily: 'Montaga, serif' }}
+								>
+									Deep Discovery
+								</Heading>
+								<Text 
+									className="text-sm md:text-base leading-relaxed mb-4" 
+									style={{ color: '#000000', fontFamily: 'Monda, sans-serif' }}
+								>
+									Multi-day journeys that dive beneath the surface of local culture, nature, and cuisine.
+								</Text>
+							</div>
+						</Link>
+
+						{/* Signature Journeys */}
+						<Link
+							href="/journeys/signature-journeys"
+							className="group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl block"
+						>
+							<div className="relative h-[280px] md:h-[320px] lg:h-[357px] rounded-lg overflow-hidden mb-6">
+								<img
+									src={imgJourney5}
+									alt="Signature Journeys"
+									className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+								/>
+							</div>
+							<div className="text-center px-4">
+								<Heading 
+									level={3} 
+									className="text-xl md:text-2xl font-subheading mb-4" 
+									style={{ color: '#000000', fontFamily: 'Montaga, serif' }}
+								>
+									Signature Journeys
+								</Heading>
+								<Text 
+									className="text-sm md:text-base leading-relaxed mb-4" 
+									style={{ color: '#000000', fontFamily: 'Monda, sans-serif' }}
+								>
+									Premium, curated expeditions with elevated service, exclusive access, and unforgettable moments.
+								</Text>
+							</div>
+						</Link>
+
+						{/* Group Tours */}
+						<Link
+							href="/journeys/group-tours"
+							className="group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl block"
+						>
+							<div className="relative h-[280px] md:h-[320px] lg:h-[357px] rounded-lg overflow-hidden mb-6">
+								<img
+									src={imgJourney7 || imgJourney1}
+									alt="Group Tours"
+									className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+								/>
+							</div>
+							<div className="text-center px-4">
+								<Heading 
+									level={3} 
+									className="text-xl md:text-2xl font-subheading mb-4" 
+									style={{ color: '#000000', fontFamily: 'Montaga, serif' }}
+								>
+									Group Tours
+								</Heading>
+								<Text 
+									className="text-sm md:text-base leading-relaxed mb-4" 
+									style={{ color: '#000000', fontFamily: 'Monda, sans-serif' }}
+								>
+									Classic group tour routes designed for overseas teams of 30-50 people with dedicated services.
+								</Text>
+							</div>
+						</Link>
 					</div>
 				</Container>
 			</Section>
 
-			{/* Planning Your Trip Section - 包含 Tailor-Made 内容 */}
-			<PlanningSectionNew />
+			{/* Plan Trip Modal */}
+			<PlanTripModal 
+				isOpen={isPlanTripModalOpen}
+				onClose={() => setIsPlanTripModalOpen(false)}
+			/>
 
 			{/* Filter and Results Section */}
 			<div className="bg-[#f5f1e6] py-16">
-				<Container size="xl">
+				<Container size="full" padding="none" className="px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
 					<div className="flex gap-8">
 						{/* Filter Sidebar */}
 						<div className="w-80 flex-shrink-0">
@@ -433,39 +532,98 @@ export default function JourneysPage() {
 
 							{/* Journey Cards Grid */}
 							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-								{filteredJourneys.map((journey) => (
-									<Card key={journey.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col h-full">
-										<div 
-											className="h-48 bg-cover bg-center bg-no-repeat flex-shrink-0"
-											style={{ backgroundImage: `url('${journey.image}')` }}
-										/>
-										<div className="p-4 bg-[#fff6da] flex flex-col flex-1">
-											<h3 className="text-[10px] font-['Montaga'] mb-2 leading-tight flex-shrink-0">
-												{journey.title}
-											</h3>
-											<div className="flex justify-between items-center text-sm text-gray-600 flex-shrink-0">
-												<span className="font-['Monda']">{journey.duration}</span>
-												<span className="font-['Monda'] font-bold text-primary-600">{journey.price}</span>
+								{filteredJourneys.map((journey) => {
+									// 获取 maxGuests
+									const maxGuests = ('maxGuests' in journey && journey.maxGuests) 
+										? journey.maxGuests 
+										: ('maxParticipants' in journey && journey.maxParticipants) 
+											? journey.maxParticipants 
+											: null;
+									
+									// 获取价格
+									const price = ('price' in journey && typeof journey.price === 'number')
+										? `$${journey.price}`
+										: ('price' in journey ? journey.price : 'N/A');
+									
+									return (
+										<Card key={journey.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col h-full bg-[#f5f1e6]">
+											<div 
+												className="h-48 bg-cover bg-center bg-no-repeat flex-shrink-0"
+												style={{ backgroundImage: `url('${journey.image}')` }}
+											/>
+											<div className="p-4 flex flex-col flex-1">
+												<h3 
+													className="text-lg font-['Montaga'] mb-2 leading-tight flex-shrink-0 font-normal"
+													style={{ fontWeight: 400 }}
+												>
+													{journey.title}
+												</h3>
+												<Text className="text-sm text-gray-600 mb-3 line-clamp-2 flex-shrink-0">
+													{('shortDescription' in journey && journey.shortDescription) ||
+														('description' in journey && journey.description) ||
+														''}
+												</Text>
+												<div className="mt-auto flex flex-col flex-shrink-0">
+													{/* 第一行：Duration 和 Max Guests */}
+													<Text
+														className="text-sm mb-1"
+														style={{ fontFamily: 'Monda, sans-serif', color: '#000000', fontWeight: 400, fontSize: '0.875rem' }}
+													>
+                        {journey.duration || 'N/A'}{maxGuests ? ` • Limited to ${maxGuests} guests` : ''}
+													</Text>
+													{/* 第二行：价格 */}
+													<Text
+														className="text-sm"
+														style={{ fontFamily: 'Monda, sans-serif', color: '#000000', fontWeight: 400, fontSize: '0.875rem' }}
+													>
+														{price !== 'N/A' ? `Priced from ${price}` : ''}
+													</Text>
+												</div>
 											</div>
-											<div className="mt-auto pt-3">
-												<Link href={('slug' in journey && journey.slug) 
-													? `/journeys/${journey.slug}` 
-													: ('link' in journey && journey.link) 
-														? journey.link 
-														: '#'} className="block">
-													<Button variant="outline" size="sm" className="w-full">
-														View Details
-													</Button>
-												</Link>
-											</div>
-										</div>
-									</Card>
-								))}
+										</Card>
+									);
+								})}
 							</div>
 						</div>
 					</div>
 				</Container>
 			</div>
+
+			{/* Plan Your Journey Section */}
+			<Section background="primary" padding="none" className="py-12">
+				<Container
+					size="xl"
+					padding="none"
+					className="bg-tertiary mx-4 sm:mx-8 lg:mx-20 rounded-lg p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6"
+				>
+					<div>
+						<Heading
+							level={2}
+							className="text-2xl sm:text-3xl mb-4"
+							style={{ color: '#FFFFFF', fontFamily: 'Montaga, serif' }}
+						>
+							Plan your journey in China with Korascale
+						</Heading>
+						<Text
+							className="text-sm sm:text-base"
+							style={{ color: '#FFFFFF', fontFamily: 'Monda, sans-serif' }}
+						>
+							Tell us what you are looking for and our team will craft a tailored itinerary that matches your
+							interests, timing and budget.
+						</Text>
+					</div>
+					<Button
+						variant="primary"
+						size="lg"
+						className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-body text-sm hover:bg-white hover:text-tertiary transition-all duration-300"
+						onClick={() => setIsPlanTripModalOpen(true)}
+					>
+						PLAN YOUR JOURNEY
+					</Button>
+				</Container>
+
+				<PlanTripModal isOpen={isPlanTripModalOpen} onClose={() => setIsPlanTripModalOpen(false)} />
+			</Section>
 		</div>
 	);
 }
