@@ -539,48 +539,57 @@ export default function JourneysPage() {
 										: ('maxParticipants' in journey && journey.maxParticipants) 
 											? journey.maxParticipants 
 											: null;
-									
 									// 获取价格
 									const price = ('price' in journey && typeof journey.price === 'number')
 										? `$${journey.price}`
 										: ('price' in journey ? journey.price : 'N/A');
 									
+									// 详情页链接：优先使用 slug，其次使用自带 link，最后退回 /journeys
+									const href =
+										'slug' in journey && journey.slug
+											? `/journeys/${journey.slug}`
+											: 'link' in journey && journey.link
+												? journey.link
+												: '/journeys';
+									
 									return (
-										<Card key={journey.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col h-full bg-[#f5f1e6]">
-											<div 
-												className="h-48 bg-cover bg-center bg-no-repeat flex-shrink-0"
-												style={{ backgroundImage: `url('${journey.image}')` }}
-											/>
-											<div className="p-4 flex flex-col flex-1">
-												<h3 
-													className="text-lg font-['Montaga'] mb-2 leading-tight flex-shrink-0 font-normal"
-													style={{ fontWeight: 400 }}
-												>
-													{journey.title}
-												</h3>
-												<Text className="text-sm text-gray-600 mb-3 line-clamp-2 flex-shrink-0">
-													{('shortDescription' in journey && journey.shortDescription) ||
-														('description' in journey && journey.description) ||
-														''}
-												</Text>
-												<div className="mt-auto flex flex-col flex-shrink-0">
-													{/* 第一行：Duration 和 Max Guests */}
-													<Text
-														className="text-sm mb-1"
-														style={{ fontFamily: 'Monda, sans-serif', color: '#000000', fontWeight: 400, fontSize: '0.875rem' }}
+										<Link key={journey.id} href={href} className="block h-full">
+											<Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col h-full bg-[#f5f1e6] cursor-pointer">
+												<div 
+													className="h-48 bg-cover bg-center bg-no-repeat flex-shrink-0"
+													style={{ backgroundImage: `url('${journey.image}')` }}
+												/>
+												<div className="p-4 flex flex-col flex-1">
+													<h3 
+														className="text-lg font-['Montaga'] mb-2 leading-tight flex-shrink-0 font-normal"
+														style={{ fontWeight: 400 }}
 													>
-                        {journey.duration || 'N/A'}{maxGuests ? ` • Limited to ${maxGuests} guests` : ''}
+														{journey.title}
+													</h3>
+													<Text className="text-sm text-gray-600 mb-3 line-clamp-2 flex-shrink-0">
+														{('shortDescription' in journey && journey.shortDescription) ||
+															('description' in journey && journey.description) ||
+															''}
 													</Text>
-													{/* 第二行：价格 */}
-													<Text
-														className="text-sm"
-														style={{ fontFamily: 'Monda, sans-serif', color: '#000000', fontWeight: 400, fontSize: '0.875rem' }}
-													>
-														{price !== 'N/A' ? `Priced from ${price}` : ''}
-													</Text>
+													<div className="mt-auto flex flex-col flex-shrink-0">
+														{/* 第一行：Duration 和 Max Guests */}
+														<Text
+															className="text-sm mb-1"
+															style={{ fontFamily: 'Monda, sans-serif', color: '#000000', fontWeight: 400, fontSize: '0.875rem' }}
+														>
+															{journey.duration || 'N/A'}{maxGuests ? ` • Limited to ${maxGuests} guests` : ''}
+														</Text>
+														{/* 第二行：价格 */}
+														<Text
+															className="text-sm"
+															style={{ fontFamily: 'Monda, sans-serif', color: '#000000', fontWeight: 400, fontSize: '0.875rem' }}
+														>
+															{price !== 'N/A' ? `Priced from ${price}` : ''}
+														</Text>
+													</div>
 												</div>
-											</div>
-										</Card>
+											</Card>
+										</Link>
 									);
 								})}
 							</div>

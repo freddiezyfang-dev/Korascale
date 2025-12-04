@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
 import { useUser } from '@/context/UserContext';
 
@@ -10,8 +10,21 @@ export default function LoginPage() {
 	const [password, setPassword] = useState('');
 	const [error, setError] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
-	const { login } = useUser();
+	const { login, user } = useUser();
 	const router = useRouter();
+	const searchParams = useSearchParams();
+	const redirect = searchParams.get('redirect');
+
+	// 如果已经登录，直接跳转
+	useEffect(() => {
+		if (user) {
+			if (redirect) {
+				router.push(redirect);
+			} else {
+				router.push('/');
+			}
+		}
+	}, [user, redirect, router]);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -21,8 +34,12 @@ export default function LoginPage() {
 		try {
 			const success = await login(email, password);
 			if (success) {
-				// 登录成功后重定向到首页
-				router.push('/');
+				// 登录成功后重定向到指定页面或首页
+				if (redirect) {
+					router.push(redirect);
+				} else {
+					router.push('/');
+				}
 			} else {
 				setError('Invalid email or password');
 			}

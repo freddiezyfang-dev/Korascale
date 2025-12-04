@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useMemo, useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Section, Container, Heading, Text, Breadcrumb, Card, Button } from '@/components/common';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
+import { useUser } from '@/context/UserContext';
 import { JourneyType, Journey } from '@/types';
 import { PlanTripModal } from '@/components/modals/PlanTripModal';
 
@@ -34,10 +35,14 @@ const JourneyTypeToHeroImage: Record<JourneyType, string> = {
 
 // Journey Type 的描述
 const JourneyTypeDescriptions: Record<JourneyType, string> = {
-  'Explore Together': 'Join a curated group of fellow travelers on our 1-2 day highlight tours. Designed for maximum discovery with minimal planning, these journeys offer the perfect introduction to a city or region\'s iconic culture and landscapes. Led by expert guides, it\'s the most vibrant and social way to explore.',
-  'Deep Discovery': 'Multi-day journeys that dive beneath the surface of local culture, nature, and cuisine.',
-  'Signature Journeys': 'Premium, curated expeditions with elevated service, exclusive access, and unforgettable moments.',
-  'Group Tours': 'Classic group tour routes designed for overseas teams of 30-50 people with dedicated services.'
+  'Explore Together':
+    'Join a curated group of fellow travelers on our 1-2 day highlight tours. Designed for maximum discovery with minimal planning, these journeys offer the perfect introduction to a city or region\'s iconic culture and landscapes. Led by expert guides, it\'s the most vibrant and social way to explore.',
+  'Deep Discovery':
+    'Multi-day journeys that dive beneath the surface of local culture, nature, and cuisine.',
+  'Signature Journeys':
+    'Premium, curated expeditions with elevated service, exclusive access, and unforgettable moments.',
+  'Group Tours':
+    'For schools, corporations, institutions, and large private gatherings, our dedicated Group Tours are designed to inspire, engage, and unite. We expertly manage every detail for parties of 30 or more, transforming complex logistics into seamless, impactful journeys—whether for educational discovery, team building, corporate off-sites, or special events. Share a moment of discovery and create lasting bonds.\n\nReady to inspire your group? Contact our Group Travel Specialists to begin crafting your journey.'
 };
 
 // 解析 journey type 的辅助函数
@@ -55,9 +60,41 @@ const resolveJourneyType = (journey: any): JourneyType => {
   return 'Explore Together'; // 默认
 };
 
+// Brochure 数据结构
+interface Brochure {
+  id: string;
+  title: string;
+  coverImage: string;
+  pdfUrl: string;
+}
+
+// 示例 brochures 数据
+const brochures: Brochure[] = [
+  {
+    id: '1',
+    title: 'Abercrombie & Kent',
+    coverImage: '/images/brochures/brochure-1.jpg',
+    pdfUrl: '/pdfs/brochure-1.pdf'
+  },
+  {
+    id: '2',
+    title: 'Abercrombie & Kent',
+    coverImage: '/images/brochures/brochure-2.jpg',
+    pdfUrl: '/pdfs/brochure-2.pdf'
+  },
+  {
+    id: '3',
+    title: 'Abercrombie & Kent - Join The Adventure',
+    coverImage: '/images/brochures/brochure-3.jpg',
+    pdfUrl: '/pdfs/brochure-3.pdf'
+  }
+];
+
 export default function JourneyTypePage() {
   const params = useParams();
+  const router = useRouter();
   const { journeys, isLoading } = useJourneyManagement();
+  const { user } = useUser();
   const [isPlanTripModalOpen, setIsPlanTripModalOpen] = useState(false);
 
   // Filter 状态：与 journey 主页面一致
@@ -176,94 +213,178 @@ export default function JourneyTypePage() {
     journeyType
   });
 
+  const isGroupTours = journeyType === 'Group Tours';
+
   return (
     <main className="bg-[#f5f1e6]">
-      {/* 1. Hero Banner Section - 按照示意图调整 */}
+      {/* 1. Hero Banner Section */}
       <Section background="secondary" padding="none" className="relative overflow-hidden">
-        <div className="flex h-[800px] w-full overflow-hidden relative">
-          {/* 左侧图片区域 - 标题居中 */}
-          <div 
-            className="w-1/2 h-[800px] bg-center bg-cover bg-no-repeat relative flex-shrink-0 md:w-1/2 w-full"
-          style={{ backgroundImage: `url('${heroImage}')` }}
-          >
-            {/* 渐变遮罩层 */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent"></div>
-            {/* 标题居中显示 */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 z-10">
-              <Heading 
-                level={1} 
-                className="text-8xl lg:text-8xl md:text-6xl text-4xl mb-6 font-heading text-white drop-shadow-lg" 
-                style={{ 
-                  fontFamily: 'Montaga, serif',
-                  fontWeight: 400,
-                  letterSpacing: '-0.025em',
-                  lineHeight: '1.1',
-                  color: '#ffffff'
-                }}
-              >
-                {journeyType}
-              </Heading>
-            </div>
-          </div>
-
-          {/* 右侧内容区域 */}
-          <div className="w-1/2 h-[800px] flex flex-col flex-shrink-0 md:w-1/2 w-full" 
-               style={{ backgroundColor: '#f5f1e6' }}>
-            {/* 面包屑导航 - 靠左置顶，文字不加粗 */}
-            <div className="px-6 py-2 lg:px-6 md:px-4 px-3">
-            <Breadcrumb 
-              items={[
-                { label: 'Home', href: '/' },
-                { label: 'Journeys', href: '/journeys' },
-                { label: journeyType }
-              ]}
+        {isGroupTours ? (
+          // Group Tours：无配图，标题和正文居中
+          <div className="relative h-[700px] w-full bg-[#f5f1e6] flex flex-col">
+            {/* 面包屑导航 - 左上角 */}
+            <div className="px-6 py-4 md:px-10 md:py-6">
+              <Breadcrumb
+                items={[
+                  { label: 'Home', href: '/' },
+                  { label: 'Journeys', href: '/journeys' },
+                  { label: journeyType }
+                ]}
                 color="#000000"
                 sizeClassName="text-lg md:text-xl font-normal"
                 className="font-normal"
               />
             </div>
-
-            {/* 描述文本 - 靠左保持合适边距，文字不加粗 */}
-            <div className="px-6 pt-32 flex-1 lg:px-6 lg:pt-32 md:px-4 md:pt-24 px-3 pt-16">
-              <Text 
-                size="xl" 
-                className="text-black leading-relaxed font-body"
-              style={{ 
-                  fontFamily: 'Monda, sans-serif',
-                  fontSize: '1.25rem',
-                  lineHeight: '1.625',
-                  letterSpacing: '0em',
-                  fontWeight: 400
-                }}
-              >
-              {description}
-            </Text>
+            {/* 中间标题 + 正文 */}
+            <div className="flex-1 flex items-center justify-center px-6 md:px-10">
+              <div className="max-w-4xl text-center">
+                <Heading
+                  level={1}
+                  className="text-xl sm:text-2xl lg:text-3xl mb-6 whitespace-nowrap"
+                  style={{ fontFamily: 'Montaga, serif', color: '#000000', fontWeight: 400 }}
+                >
+                  Group Travel, Crafted for Connection.
+                </Heading>
+                <Text
+                  className="text-sm sm:text-base leading-relaxed whitespace-pre-line"
+                  style={{
+                    fontFamily: 'Monda, sans-serif',
+                    color: '#000000',
+                    lineHeight: '1.7',
+                    fontWeight: 400
+                  }}
+                >
+                  {description}
+                </Text>
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          // 其他类型：左图右文布局
+          <div className="flex h-[800px] w-full overflow-hidden relative">
+            {/* 左侧图片区域 */}
+            <div
+              className="w-1/2 h-[800px] bg-center bg-cover bg-no-repeat relative flex-shrink-0 md:w-1/2 w-full"
+              style={{ backgroundImage: `url('${heroImage}')` }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 z-10">
+                <Heading
+                  level={1}
+                  className="text-8xl lg:text-8xl md:text-6xl text-4xl mb-6 font-heading text-white drop-shadow-lg"
+                  style={{
+                    fontFamily: 'Montaga, serif',
+                    fontWeight: 400,
+                    letterSpacing: '-0.025em',
+                    lineHeight: '1.1',
+                    color: '#ffffff'
+                  }}
+                >
+                  {journeyType}
+                </Heading>
+              </div>
+            </div>
+
+            {/* 右侧内容区域 */}
+            <div
+              className="w-1/2 h-[800px] flex flex-col flex-shrink-0 md:w-1/2 w-full"
+              style={{ backgroundColor: '#f5f1e6' }}
+            >
+              {/* 面包屑导航 - 靠左置顶，文字不加粗 */}
+              <div className="px-6 py-2 lg:px-6 md:px-4 px-3">
+                <Breadcrumb
+                  items={[
+                    { label: 'Home', href: '/' },
+                    { label: 'Journeys', href: '/journeys' },
+                    { label: journeyType }
+                  ]}
+                  color="#000000"
+                  sizeClassName="text-lg md:text-xl font-normal"
+                  className="font-normal"
+                />
+              </div>
+
+              {/* 描述区域 - 左对齐 */}
+              <div className="px-6 pt-32 flex-1 lg:px-6 lg:pt-32 md:px-4 md:pt-24 px-3 pt-16">
+                <Text
+                  size="xl"
+                  className="text-black leading-relaxed font-body"
+                  style={{
+                    fontFamily: 'Monda, sans-serif',
+                    fontSize: '1.25rem',
+                    lineHeight: '1.625',
+                    letterSpacing: '0em',
+                    fontWeight: 400
+                  }}
+                >
+                  {description}
+                </Text>
+              </div>
+            </div>
+          </div>
+        )}
       </Section>
 
-      {/* 2. Recommended Journeys Section */}
+      {/* 2. Recommended Journeys / Brochures Section */}
       <Section background="secondary" padding="none" className="py-12 sm:py-16 bg-white">
         <Container
           size="full"
           padding="none"
           className="max-w-5xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12"
         >
-          <div className="text-center mb-10">
-            <Text className="text-sm uppercase tracking-wide mb-2" style={{ fontFamily: 'Monda, sans-serif' }}>
-              Recommended Journeys
-            </Text>
-            <Heading
-              level={2}
-              className="text-2xl sm:text-3xl lg:text-4xl"
-              style={{ fontFamily: 'Montaga, serif' }}
-            >
-              Our Favorite Adventures in {journeyType} Right Now
-            </Heading>
-          </div>
+          {isGroupTours ? (
+            // Group Tours: 显示 Brochures，无标题和副标题
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {brochures.map((brochure) => {
+                const handleBrochureClick = () => {
+                  if (user) {
+                    // 已登录，直接打开 PDF
+                    window.open(brochure.pdfUrl, '_blank');
+                  } else {
+                    // 未登录，跳转到登录页面，登录后返回当前页面
+                    router.push(`/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+                  }
+                };
 
-          <div className="space-y-8">
+                return (
+                  <Card
+                    key={brochure.id}
+                    className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                    onClick={handleBrochureClick}
+                  >
+                    <div
+                      className="w-full h-[400px] bg-cover bg-center bg-no-repeat"
+                      style={{ backgroundImage: `url('${brochure.coverImage}')` }}
+                    />
+                    <div className="p-4 bg-white">
+                      <Text
+                        className="text-sm font-medium text-center"
+                        style={{ fontFamily: 'Monda, sans-serif', color: '#000000' }}
+                      >
+                        {brochure.title}
+                      </Text>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          ) : (
+            // 其他类型: 显示 Recommended Journeys，有标题和副标题
+            <>
+              <div className="text-center mb-10">
+                <Text className="text-sm uppercase tracking-wide mb-2" style={{ fontFamily: 'Monda, sans-serif' }}>
+                  Recommended Journeys
+                </Text>
+                <Heading
+                  level={2}
+                  className="text-2xl sm:text-3xl lg:text-4xl"
+                  style={{ fontFamily: 'Montaga, serif' }}
+                >
+                  Our Favorite Adventures in {journeyType} Right Now
+                </Heading>
+              </div>
+
+              <div className="space-y-8">
             {recommendedJourneys.map((journey: Journey) => {
               // 获取 overview 描述，优先使用 overview.description，否则使用 description
               const overviewText = ('overview' in journey && journey.overview && typeof journey.overview === 'object' && 'description' in journey.overview)
@@ -342,11 +463,14 @@ export default function JourneyTypePage() {
                 </Card>
               );
             })}
-          </div>
+              </div>
+            </>
+          )}
         </Container>
       </Section>
 
-      {/* 3. Journey Filter + Grid Section */}
+      {/* 3. Journey Filter + Grid Section - Group Tours 不显示 */}
+      {!isGroupTours && (
       <Section background="secondary" padding="none" className="pb-16 bg-[#f5f1e6]">
         <Container size="full" padding="none" className="px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-16">
           <div className="flex gap-8">
@@ -602,6 +726,7 @@ export default function JourneyTypePage() {
           </div>
         </Container>
       </Section>
+      )}
 
       {/* 4. Plan Your Journey Section */}
       <Section background="primary" padding="none" className="py-12">

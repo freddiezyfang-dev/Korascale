@@ -697,70 +697,68 @@ export default function DynamicJourneyPage() {
         </Section>
       )}
 
-      {/* Includes & Excludes */}
+      {/* Includes & Excludes + Select Your Date Section */}
       <Section id="details" background="secondary" padding="xl">
         <Container size="xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Includes */}
+            {/* 左侧：Includes & Excludes */}
             <div>
-              <Heading level={3} className="mb-8">
-                Includes
-              </Heading>
-              
-              <div className="space-y-4">
-                {journey.includes ? (
-                  <div className="whitespace-pre-line">
-                    {journey.includes.split('\n').map((line, index) => (
-                      line.trim() && (
-                        <div key={index} className="flex items-start gap-3 mb-3">
-                          <span className="text-primary-500 mt-1">•</span>
-                          <Text className="text-gray-700">{line.trim()}</Text>
-                        </div>
-                      )
-                    ))}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Includes */}
+                <div>
+                  <Heading level={3} className="mb-8">
+                    Includes
+                  </Heading>
+                  
+                  <div className="space-y-4">
+                    {journey.includes ? (
+                      <div className="whitespace-pre-line">
+                        {journey.includes.split('\n').map((line, index) => (
+                          line.trim() && (
+                            <div key={index} className="flex items-start gap-3 mb-3">
+                              <span className="text-primary-500 mt-1">•</span>
+                              <Text className="text-gray-700">{line.trim()}</Text>
+                            </div>
+                          )
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <Text className="text-gray-500">No inclusion details available for this journey.</Text>
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Text className="text-gray-500">No inclusion details available for this journey.</Text>
+                </div>
+
+                {/* Excludes */}
+                <div>
+                  <Heading level={3} className="mb-8">
+                    Excludes
+                  </Heading>
+                  
+                  <div className="space-y-4">
+                    {journey.excludes ? (
+                      <div className="whitespace-pre-line">
+                        {journey.excludes.split('\n').map((line, index) => (
+                          line.trim() && (
+                            <div key={index} className="flex items-start gap-3 mb-3">
+                              <span className="text-red-500 mt-1">×</span>
+                              <Text className="text-gray-700">{line.trim()}</Text>
+                            </div>
+                          )
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <Text className="text-gray-500">No exclusion details available for this journey.</Text>
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             </div>
 
-            {/* Excludes */}
-            <div>
-              <Heading level={3} className="mb-8">
-                Excludes
-              </Heading>
-              
-              <div className="space-y-4">
-                {journey.excludes ? (
-                  <div className="whitespace-pre-line">
-                    {journey.excludes.split('\n').map((line, index) => (
-                      line.trim() && (
-                        <div key={index} className="flex items-start gap-3 mb-3">
-                          <span className="text-red-500 mt-1">×</span>
-                          <Text className="text-gray-700">{line.trim()}</Text>
-                        </div>
-                      )
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Text className="text-gray-500">No exclusion details available for this journey.</Text>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </Container>
-      </Section>
-
-      {/* Booking Section */}
-      <Section id="booking" background="primary" padding="xl">
-        <Container size="xl">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Select Your Date（替换原Dates & Prices区域，动态未来一年） */}
+            {/* 右侧：Select Your Date */}
             <div>
               <Heading level={3} className="mb-8">
                 Select Your Date

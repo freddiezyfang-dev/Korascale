@@ -10,4 +10,5 @@ export { default as PlanningSection } from './PlanningSection';
 export { default as TestHero } from './TestHero';
 export { default as InspirationsSection } from './InspirationsSection';
 export { default as PlanningSectionNew } from './PlanningSectionNew';
+export { default as HomeJourneyStrip } from './HomeJourneyStrip';
 

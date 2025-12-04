@@ -34,12 +34,30 @@ export const journeyAPI = {
         // 添加超时控制
         signal: createTimeoutSignal(10000), // 10秒超时
       });
-      if (!response.ok) throw new Error('Failed to fetch journeys');
+      
+      if (!response.ok) {
+        // 尝试获取详细的错误信息
+        let errorMessage = `Failed to fetch journeys (HTTP ${response.status})`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+          // 如果无法解析错误响应，使用默认消息
+        }
+        console.error('API Error:', errorMessage);
+        throw new Error(errorMessage);
+      }
+      
       const data = await response.json();
       return data.journeys || [];
     } catch (error) {
-      console.error('Error fetching journeys:', error);
-      // 如果请求失败，返回空数组而不是挂起
+      // 如果是 AbortError（超时），提供更友好的错误信息
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.error('Request timeout: Failed to fetch journeys within 10 seconds');
+      } else {
+        console.error('Error fetching journeys:', error);
+      }
+      // 如果请求失败，返回空数组而不是挂起，让页面可以正常加载
       return [];
     }
   },

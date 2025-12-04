@@ -7,13 +7,34 @@ export async function GET(request: NextRequest) {
   try {
     // 检查数据库连接
     if (!process.env.POSTGRES_URL) {
+      console.error('[API /journeys] POSTGRES_URL is missing');
       return NextResponse.json(
         { error: 'Database not configured. POSTGRES_URL is missing.' },
         { status: 500 }
       );
     }
     
-    const { rows } = await query('SELECT * FROM journeys ORDER BY created_at DESC');
+    console.log('[API /journeys] Fetching journeys from database...');
+    
+    let rows;
+    try {
+      const result = await query('SELECT * FROM journeys ORDER BY created_at DESC');
+      rows = result.rows;
+      console.log('[API /journeys] Found', rows.length, 'journeys');
+    } catch (dbError) {
+      console.error('[API /journeys] Database query error:', dbError);
+      // 检查是否是表不存在的错误
+      if (dbError instanceof Error && dbError.message.includes('does not exist')) {
+        return NextResponse.json(
+          { 
+            error: 'Journeys table does not exist. Please run database migrations.',
+            details: process.env.NODE_ENV === 'development' ? String(dbError) : undefined
+          },
+          { status: 500 }
+        );
+      }
+      throw dbError; // 重新抛出其他错误
+    }
     
     // 转换数据库格式到应用格式
     const journeys = rows.map(row => {
@@ -52,8 +73,18 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ journeys });
   } catch (error) {
     console.error('Error fetching journeys:', error);
+    
+    // 提供更详细的错误信息
+    let errorMessage = 'Failed to fetch journeys';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to fetch journeys' },
+      { 
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? String(error) : undefined
+      },
       { status: 500 }
     );
   }

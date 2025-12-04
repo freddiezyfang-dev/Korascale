@@ -1,8 +1,7 @@
 import Link from "next/link";
 import HeroCarousel from "@/components/sections/HeroCarousel";
-import JourneyCarousel from "@/components/sections/JourneyCarousel";
 import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
-import { InspirationsSection } from '@/components/sections';
+import { InspirationsSection, HomeJourneyStrip } from '@/components/sections';
 
 // 使用本地图片资源 - 按功能分类的图片路径
 // 1. 主页主要功能卡片 (Main Action Cards)
@@ -11,13 +10,13 @@ const imgJourneysButton = "/images/main-cards/journeys.jpeg"; // 旅程卡片
 const imgInspirationsButton = "/images/main-cards/inspirations.png"; // 灵感卡片
 const imgAccommodationsButton = "/images/main-cards/accommodations.jpg"; // 住宿卡片
 
-// 2. 旅程滑动卡片 (Journey Slide Cards)
-const imgJourneyCard1 = "/images/journey-cards/chengdu-deep-dive.jpeg"; // 成都一日深度游
-const imgJourneyCard2 = "/images/journey-cards/chongqing-cyber-city.jpg"; // 重庆赛博城市
-const imgJourneyCard3 = "/images/journey-cards/tibet-buddhist-journey.jpg"; // 西藏佛教之旅
-const imgJourneyCard4 = "/images/journey-cards/food-tour.jpg"; // 美食之旅
-const imgJourneyCard5 = "/images/journey-cards/chongqing-wulong-karst-national-park.jpg"; // 重庆武隆喀斯特国家公园
-const imgJourneyCard6 = "/images/journey-cards/jiuzhaigou-huanglong-national-park-tour.jpg"; // 九寨沟黄龙国家公园之旅
+// 2. 旅程精选卡片 (用于首页 \"What do you want to travel\" 区域，样式与 journeys filter 卡片保持一致)
+const imgJourneyCard1 = "/images/journey-cards/chengdu-deep-dive.jpeg";
+const imgJourneyCard2 = "/images/journey-cards/chongqing-cyber-city.jpg";
+const imgJourneyCard3 = "/images/journey-cards/tibet-buddhist-journey.jpg";
+const imgJourneyCard4 = "/images/journey-cards/food-tour.jpg";
+const imgJourneyCard5 = "/images/journey-cards/chongqing-wulong-karst-national-park.jpg";
+const imgJourneyCard6 = "/images/journey-cards/jiuzhaigou-huanglong-national-park-tour.jpg";
 
 // 3. 文章卡片 (Article Cards)
 const imgArticle1 = "/images/article-cards/adventures-custom-made.jpg"; // 定制冒险
@@ -30,12 +29,24 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Carousel - Figma Design */}
-      <HeroCarousel 
+      <div className="w-full overflow-hidden">
+        <HeroCarousel 
+        videoSrc="/videos/Herobanner1.mp4"
         autoSlide={true}
         slideInterval={5000}
         showIndicators={true}
         showArrows={true}
-      />
+        />
+      </div>
+
+      {/* Intro text between Hero and Main Cards */}
+      <section className="bg-[#F5F1E6]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-6 md:py-10">
+          <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-relaxed text-[#1e3b32] font-[Montaga]">
+            Korascale crafts journeys of depth, not just distance. We specialize in immersive cultural experiences and exclusive access, guiding travelers beyond sightseeing to forge genuine connections—with places, heritage, and fellow explorers. From curated small groups to fully bespoke itineraries, we turn travel into a story that becomes part of you.
+          </p>
+        </div>
+      </section>
 
       {/* Main Action Cards - Figma Design */}
       <Section background="tertiary" padding="sm" className="py-4 md:py-6">
@@ -54,13 +65,9 @@ export default function Home() {
                 {/* 渐变遮罩 - 从透明到半黑，让底部文字区域更易读 */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent group-hover:from-black/70 group-hover:via-black/30 transition-all duration-300"></div>
                 
-                <div className="absolute bottom-4 sm:bottom-8 lg:bottom-[99px] left-1/2 transform -translate-x-1/2 text-center w-[90%] sm:w-[222px] flex flex-col items-center justify-start">
-                  {/* 移除内层遮罩的背景色，依赖外层渐变遮罩 */}
-                  <div className="rounded-lg p-3 sm:p-4 w-full flex flex-col items-center justify-start">
-                    <Heading level={3} className="text-lg sm:text-xl lg:text-2xl font-subheading mb-2 sm:mb-4 text-center text-white font-bold drop-shadow-lg" style={{ color: 'white' }}>Destinations</Heading>
-                    <Text size="xs" className="leading-normal text-center text-white font-semibold drop-shadow-md text-xs sm:text-sm" style={{ color: 'white' }}>
-                      Step into the Heart of China: From the Great Wall to Pandas, Your Adventure Begins.
-                    </Text>
+                <div className="absolute bottom-4 sm:bottom-6 lg:bottom-6 left-1/2 transform -translate-x-1/2 text-center w-[90%] sm:w-[222px] flex flex-col items-center justify-end">
+                  <div className="rounded-lg px-3 sm:px-4 w-full flex flex-col items-center justify-end">
+                    <Heading level={3} className="text-lg sm:text-xl lg:text-2xl font-subheading text-center text-white font-bold drop-shadow-lg" style={{ color: 'white' }}>Destinations</Heading>
                   </div>
                 </div>
               </div>
@@ -79,13 +86,9 @@ export default function Home() {
                 {/* 渐变遮罩 - 从透明到半黑，让底部文字区域更易读 */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent group-hover:from-black/70 group-hover:via-black/30 transition-all duration-300"></div>
                 
-                <div className="absolute bottom-4 sm:bottom-8 lg:bottom-[99px] left-1/2 transform -translate-x-1/2 text-center w-[90%] sm:w-[222px] flex flex-col items-center justify-start">
-                  {/* 移除内层遮罩的背景色，依赖外层渐变遮罩 */}
-                  <div className="rounded-lg p-3 sm:p-4 w-full flex flex-col items-center justify-start">
-                    <Heading level={3} className="text-lg sm:text-xl lg:text-2xl font-subheading mb-2 sm:mb-4 text-center text-white font-bold drop-shadow-lg" style={{ color: 'white' }}>Journeys</Heading>
-                    <Text size="xs" className="leading-normal text-center text-white font-semibold drop-shadow-md text-xs sm:text-sm" style={{ color: 'white' }}>
-                      Turn Your Travel Dreams into Reality: Curated Trips for Every Explorer.
-                    </Text>
+                <div className="absolute bottom-4 sm:bottom-6 lg:bottom-6 left-1/2 transform -translate-x-1/2 text-center w-[90%] sm:w-[222px] flex flex-col items-center justify-end">
+                  <div className="rounded-lg px-3 sm:px-4 w-full flex flex-col items-center justify-end">
+                    <Heading level={3} className="text-lg sm:text-xl lg:text-2xl font-subheading text-center text-white font-bold drop-shadow-lg" style={{ color: 'white' }}>Journeys</Heading>
                   </div>
                 </div>
               </div>
@@ -104,13 +107,9 @@ export default function Home() {
                 {/* 渐变遮罩 - 从透明到半黑，让底部文字区域更易读 */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent group-hover:from-black/50 group-hover:via-black/20 transition-all duration-300"></div>
                 
-                <div className="absolute bottom-4 sm:bottom-8 lg:bottom-[99px] left-1/2 transform -translate-x-1/2 text-center w-[90%] sm:w-[222px] flex flex-col items-center justify-start">
-                  {/* 移除内层遮罩的背景色，依赖外层渐变遮罩 */}
-                  <div className="rounded-lg p-3 sm:p-4 w-full flex flex-col items-center justify-start">
-                    <Heading level={3} className="text-lg sm:text-xl lg:text-2xl font-subheading mb-2 sm:mb-4 text-center text-white font-bold drop-shadow-lg" style={{ color: 'white' }}>Inspirations</Heading>
-                    <Text size="xs" className="leading-normal text-center text-white font-semibold drop-shadow-md text-xs sm:text-sm" style={{ color: 'white' }}>
-                      Find Your Spark: Uncover Stories, Culture, and China&apos;s Hidden Secrets.
-                    </Text>
+                <div className="absolute bottom-4 sm:bottom-6 lg:bottom-6 left-1/2 transform -translate-x-1/2 text-center w-[90%] sm:w-[222px] flex flex-col items-center justify-end">
+                  <div className="rounded-lg px-3 sm:px-4 w-full flex flex-col items-center justify-end">
+                    <Heading level={3} className="text-lg sm:text-xl lg:text-2xl font-subheading text-center text-white font-bold drop-shadow-lg" style={{ color: 'white' }}>Inspirations</Heading>
                   </div>
                 </div>
               </div>
@@ -129,13 +128,9 @@ export default function Home() {
                 {/* 渐变遮罩 - 从透明到半黑，让底部文字区域更易读 */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent group-hover:from-black/70 group-hover:via-black/30 transition-all duration-300"></div>
                 
-                <div className="absolute bottom-4 sm:bottom-8 lg:bottom-[99px] left-1/2 transform -translate-x-1/2 text-center w-[90%] sm:w-[222px] flex flex-col items-center justify-start">
-                  {/* 移除内层遮罩的背景色，依赖外层渐变遮罩 */}
-                  <div className="rounded-lg p-3 sm:p-4 w-full flex flex-col items-center justify-start">
-                    <Heading level={3} className="text-lg sm:text-xl lg:text-2xl font-subheading mb-2 sm:mb-4 text-center text-white font-bold drop-shadow-lg" style={{ color: 'white' }}>Accommodations</Heading>
-                    <Text size="xs" className="leading-normal text-center text-white font-semibold drop-shadow-md text-xs sm:text-sm" style={{ color: 'white' }}>
-                      Rest Your Head in Authenticity: From Luxury Hotels to Ancient Inns.
-                    </Text>
+                <div className="absolute bottom-4 sm:bottom-6 lg:bottom-6 left-1/2 transform -translate-x-1/2 text-center w-[90%] sm:w-[222px] flex flex-col items-center justify-end">
+                  <div className="rounded-lg px-3 sm:px-4 w-full flex flex-col items-center justify-end">
+                    <Heading level={3} className="text-lg sm:text-xl lg:text-2xl font-subheading text-center text-white font-bold drop-shadow-lg" style={{ color: 'white' }}>Accommodations</Heading>
                   </div>
                 </div>
               </div>
@@ -144,21 +139,21 @@ export default function Home() {
         </Container>
       </Section>
 
-      {/* Journey Section */}
-      <JourneyCarousel
-        subtitle="Journey"
-        title="What do you want to travel"
-        items={[
-          { id: 1, title: "Chengdu One-Day Deep Dive", image: imgJourneyCard1, href: "/journeys" },
-          { id: 2, title: "Chongqing Cyber City", image: imgJourneyCard2, href: "/journeys" },
-          { id: 3, title: "Tibet Buddhist Journey", image: imgJourneyCard3, href: "/journeys" },
-          { id: 4, title: "Chinese Food Tour", image: imgJourneyCard4, href: "/journeys" },
-          { id: 5, title: "Chongqing Wulong Karst National Park", image: imgJourneyCard5, href: "/journeys" },
-          { id: 6, title: "Jiuzhaigou Huanglong National Park Tour", image: imgJourneyCard6, href: "/journeys" }
-        ]}
-        autoPlay={true}
-        interval={3000}
-      />
+      {/* What do you want to travel - 使用与 journeys filter 相同卡片样式，单行自动轮播 */}
+      <Section background="secondary" padding="xl">
+        <Container size="xl">
+          <div className="text-center mb-10 md:mb-12 px-4">
+            <Heading 
+              level={2} 
+              className="text-3xl sm:text-4xl md:text-5xl font-[Montaga]"
+            >
+              What do you want to travel
+            </Heading>
+          </div>
+
+          <HomeJourneyStrip />
+        </Container>
+      </Section>
 
       {/* Content Articles */}
       <Section background="tertiary" padding="xl">
@@ -184,10 +179,10 @@ export default function Home() {
               </p>
               <Link 
                 href="/journeys" 
-                className="text-white underline font-body hover:opacity-80 text-sm sm:text-base"
+                className="text-white underline font-body hover:opacity-80 text-base sm:text-lg"
                 style={{ color: 'white' }}
               >
-                VIEW MORE
+                view more
               </Link>
             </div>
           </div>
@@ -216,10 +211,10 @@ export default function Home() {
                 </p>
                 <Link 
                   href="/destinations" 
-                  className="text-white underline font-body hover:opacity-80 group-hover:text-yellow-300 transition-colors duration-300 text-sm sm:text-base"
+                  className="text-white underline font-body hover:opacity-80 group-hover:text-yellow-300 transition-colors duration-300 text-base sm:text-lg"
                   style={{ color: 'white' }}
                 >
-                  VIEW MORE
+                  view more
                 </Link>
               </div>
             </div>
@@ -246,10 +241,10 @@ export default function Home() {
                 </p>
                 <Link 
                   href="/inspirations" 
-                  className="text-white underline font-body hover:opacity-80 group-hover:text-yellow-300 transition-colors duration-300 text-sm sm:text-base"
+                  className="text-white underline font-body hover:opacity-80 group-hover:text-yellow-300 transition-colors duration-300 text-base sm:text-lg"
                   style={{ color: 'white' }}
                 >
-                  VIEW MORE
+                  view more
                 </Link>
               </div>
             </div>
@@ -309,10 +304,10 @@ export default function Home() {
                 </p>
                 <Link 
                   href="/inspirations" 
-                  className="text-white underline font-body hover:opacity-80 group-hover:text-yellow-300 transition-colors duration-300 text-sm sm:text-base"
+                  className="text-white underline font-body hover:opacity-80 group-hover:text-yellow-300 transition-colors duration-300 text-base sm:text-lg"
                   style={{ color: 'white' }}
                 >
-                  VIEW MORE
+                  view more
                 </Link>
               </div>
             </div>

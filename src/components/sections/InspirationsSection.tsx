@@ -81,7 +81,6 @@ export default function InspirationsSection() {
       <div className="max-w-screen-2xl mx-auto">
         <Container size="xl">
           <div className="text-center mb-8">
-            <Text className="text-2xl font-body mb-4">Inspirations</Text>
             <Heading level={2} className="text-5xl font-heading">
               How do you want to travel
             </Heading>
@@ -122,7 +121,7 @@ export default function InspirationsSection() {
                     className="text-sm font-body text-white underline hover:no-underline mx-auto group-hover:text-yellow-300 transition-colors duration-300" 
                     style={{ color: '#FFFFFF' }}
                   >
-                    VIEW MORE
+                    view more
                   </span>
                 </div>
               </Link>
@@ -134,7 +133,7 @@ export default function InspirationsSection() {
               href="/inspirations"
               className="text-2xl font-body text-neutral-100 underline hover:no-underline hover:text-white transition-colors duration-300"
             >
-              VIEW ALL INSPIRATION
+              view all inspiration
             </Link>
           </div>
         </div>
