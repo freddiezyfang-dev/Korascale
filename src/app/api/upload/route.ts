@@ -28,20 +28,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 验证文件类型
-    if (!file.type.startsWith('image/')) {
+    // 验证文件类型（支持图片和视频）
+    const isImage = file.type.startsWith('image/');
+    const isVideo = file.type.startsWith('video/');
+    
+    if (!isImage && !isVideo) {
       return NextResponse.json(
-        { error: 'Invalid file type. Only image files are allowed.' },
+        { error: 'Invalid file type. Only image and video files are allowed.' },
         { status: 400 }
       );
     }
 
-    // 检查文件大小（4.5MB 限制）
-    const maxSize = 4.5 * 1024 * 1024; // 4.5MB
+    // 检查文件大小
+    // 图片：4.5MB 限制，视频：100MB 限制
+    const maxSize = isImage 
+      ? 4.5 * 1024 * 1024  // 4.5MB for images
+      : 100 * 1024 * 1024; // 100MB for videos
+    
     if (file.size > maxSize) {
       return NextResponse.json(
         { 
-          error: `File too large. Maximum size is 4.5MB, but file is ${(file.size / 1024 / 1024).toFixed(2)}MB.`,
+          error: `File too large. Maximum size is ${(maxSize / 1024 / 1024).toFixed(2)}MB, but file is ${(file.size / 1024 / 1024).toFixed(2)}MB.`,
           fileSize: file.size,
           maxSize: maxSize
         },
