@@ -220,47 +220,6 @@ export const uploadAPI = {
     return this.uploadFile(file, folder);
   },
 
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('folder', folder);
-
-      const apiUrl = getApiUrl('/api/upload');
-      console.log('Uploading to:', apiUrl, 'File size:', file.size, 'bytes');
-
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        body: formData,
-        signal: createTimeoutSignal(30000), // 上传需要更长时间
-      });
-
-      if (!response.ok) {
-        let errorMessage = '上传失败';
-        try {
-          const error = await response.json();
-          errorMessage = error.error || errorMessage;
-        } catch (e) {
-          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-        }
-        throw new Error(errorMessage);
-      }
-
-      const data = await response.json();
-      if (!data.url) {
-        throw new Error('服务器返回的数据中没有图片URL');
-      }
-      
-      console.log('Upload successful, URL:', data.url);
-      return data.url; // 返回图片URL
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      // 如果是 AbortError（超时），提供更友好的错误信息
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw new Error('上传超时，请检查网络连接后重试');
-      }
-      throw error;
-    }
-  },
-
   // 批量上传图片
   async uploadImages(files: File[], folder: 'journeys' | 'experiences' | 'hotels' = 'journeys'): Promise<string[]> {
     try {
