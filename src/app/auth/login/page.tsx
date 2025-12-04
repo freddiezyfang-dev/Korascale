@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
 import { useUser } from '@/context/UserContext';
 
-export default function LoginPage() {
+function LoginForm() {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [error, setError] = useState('');
@@ -130,6 +130,24 @@ export default function LoginPage() {
 				</Container>
 			</Section>
 		</main>
+	);
+}
+
+export default function LoginPage() {
+	return (
+		<Suspense fallback={
+			<main className="min-h-screen bg-white">
+				<Section background="primary" padding="xl">
+					<Container size="sm">
+						<div className="text-center">
+							<Text>Loading...</Text>
+						</div>
+					</Container>
+				</Section>
+			</main>
+		}>
+			<LoginForm />
+		</Suspense>
 	);
 }
 
