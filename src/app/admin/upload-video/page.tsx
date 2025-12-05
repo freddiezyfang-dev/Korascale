@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { uploadAPI } from '@/lib/databaseClient';
 import { Button, Card, Heading, Text } from '@/components/common';
 
@@ -9,6 +9,7 @@ export default function UploadVideoPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -33,16 +34,34 @@ export default function UploadVideoPage() {
     setError(null);
     setUploadedUrl(null);
 
+    // 创建 AbortController 用于取消上传
+    abortControllerRef.current = new AbortController();
+
     try {
-      const url = await uploadAPI.uploadFile(file, 'videos');
+      const url = await uploadAPI.uploadFile(file, 'videos', abortControllerRef.current.signal);
       setUploadedUrl(url);
       console.log('视频上传成功:', url);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : '上传失败';
-      setError(errorMessage);
-      console.error('上传失败:', err);
+      // 如果是用户取消，不显示错误
+      if (err instanceof Error && err.name === 'AbortError') {
+        setError('上传已取消');
+      } else {
+        const errorMessage = err instanceof Error ? err.message : '上传失败';
+        setError(errorMessage);
+        console.error('上传失败:', err);
+      }
     } finally {
       setUploading(false);
+      abortControllerRef.current = null;
+    }
+  };
+
+  const handleCancel = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      setUploading(false);
+      setError('上传已取消');
+      abortControllerRef.current = null;
     }
   };
 
@@ -100,14 +119,25 @@ export default function UploadVideoPage() {
               </div>
             )}
 
-            <Button
-              onClick={handleUpload}
-              disabled={!file || uploading}
-              variant="primary"
-              className="w-full"
-            >
-              {uploading ? '上传中...' : '上传视频'}
-            </Button>
+            <div className="flex gap-3">
+              <Button
+                onClick={handleUpload}
+                disabled={!file || uploading}
+                variant="primary"
+                className="flex-1"
+              >
+                {uploading ? '上传中...' : '上传视频'}
+              </Button>
+              {uploading && (
+                <Button
+                  onClick={handleCancel}
+                  variant="secondary"
+                  className="flex-1"
+                >
+                  取消上传
+                </Button>
+              )}
+            </div>
 
             <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <Text size="sm" className="text-blue-800">

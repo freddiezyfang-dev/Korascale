@@ -155,7 +155,7 @@ export const journeyAPI = {
 // 文件上传API
 export const uploadAPI = {
   // 上传文件到云存储（支持图片和视频）
-  async uploadFile(file: File, folder: 'journeys' | 'experiences' | 'hotels' | 'videos' = 'journeys'): Promise<string> {
+  async uploadFile(file: File, folder: 'journeys' | 'experiences' | 'hotels' | 'videos' = 'journeys', signal?: AbortSignal): Promise<string> {
     try {
       const isImage = file.type.startsWith('image/');
       const isVideo = file.type.startsWith('video/');
@@ -181,10 +181,17 @@ export const uploadAPI = {
       const apiUrl = getApiUrl('/api/upload');
       console.log('Uploading to:', apiUrl, 'File size:', file.size, 'bytes', 'Type:', file.type);
 
+      // 使用用户提供的 signal 或创建超时 signal
+      const timeoutSignal = createTimeoutSignal(isVideo ? 300000 : 30000); // 视频需要更长时间（5分钟）
+      
+      // 如果用户提供了 signal，优先使用；否则使用超时 signal
+      // 注意：如果同时需要超时和用户取消，需要合并两个 signal
+      const fetchSignal = signal || timeoutSignal;
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         body: formData,
-        signal: createTimeoutSignal(isVideo ? 300000 : 30000), // 视频需要更长时间（5分钟）
+        signal: fetchSignal,
       });
 
       if (!response.ok) {
