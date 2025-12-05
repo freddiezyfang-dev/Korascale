@@ -42,9 +42,11 @@ export default function UploadVideoPage() {
       setUploadedUrl(url);
       console.log('视频上传成功:', url);
     } catch (err) {
-      // 如果是用户取消，不显示错误
+      // 如果是用户取消，不显示错误（已经在 handleCancel 中处理）
       if (err instanceof Error && err.name === 'AbortError') {
-        setError('上传已取消');
+        // 取消上传是用户主动操作，不需要显示错误
+        // 错误信息已经在 handleCancel 中设置
+        return;
       } else {
         const errorMessage = err instanceof Error ? err.message : '上传失败';
         setError(errorMessage);
@@ -57,7 +59,7 @@ export default function UploadVideoPage() {
   };
 
   const handleCancel = () => {
-    if (abortControllerRef.current) {
+    if (abortControllerRef.current && uploading) {
       abortControllerRef.current.abort();
       setUploading(false);
       setError('上传已取消');
@@ -96,8 +98,14 @@ export default function UploadVideoPage() {
             </div>
 
             {error && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <Text className="text-red-700">{error}</Text>
+              <div className={`p-4 border rounded-lg ${
+                error === '上传已取消' 
+                  ? 'bg-blue-50 border-blue-200' 
+                  : 'bg-red-50 border-red-200'
+              }`}>
+                <Text className={error === '上传已取消' ? 'text-blue-700' : 'text-red-700'}>
+                  {error}
+                </Text>
               </div>
             )}
 
