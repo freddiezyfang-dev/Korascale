@@ -184,7 +184,7 @@ export const uploadAPI = {
       const response = await fetch(apiUrl, {
         method: 'POST',
         body: formData,
-        signal: createTimeoutSignal(isVideo ? 120000 : 30000), // 视频需要更长时间
+        signal: createTimeoutSignal(isVideo ? 300000 : 30000), // 视频需要更长时间（5分钟）
       });
 
       if (!response.ok) {
