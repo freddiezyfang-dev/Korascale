@@ -98,21 +98,25 @@ export default function HomeJourneyStrip() {
     return () => clearInterval(interval);
   }, [isInView, isPaused]);
 
-  // 当 currentIndex 变化时，滚动到对应卡片
+  // 当 currentIndex 变化时，滚动到对应卡片（仅在 section 可见时）
   useEffect(() => {
     const container = containerRef.current;
-    if (!container) return;
+    if (!container || !isInView) return; // 只在 section 可见时才滚动
 
     const children = container.querySelectorAll<HTMLDivElement>('[data-journey-card]');
     const target = children[currentIndex];
     if (target) {
-      target.scrollIntoView({
+      // 使用容器的 scrollTo 方法，只滚动容器内部，不影响整个页面
+      const containerRect = container.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      const scrollLeft = container.scrollLeft + (targetRect.left - containerRect.left) - (containerRect.width / 2) + (targetRect.width / 2);
+      
+      container.scrollTo({
+        left: scrollLeft,
         behavior: 'smooth',
-        inline: 'center',
-        block: 'nearest',
       });
     }
-  }, [currentIndex]);
+  }, [currentIndex, isInView]);
 
   return (
     <div

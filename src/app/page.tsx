@@ -1,3 +1,6 @@
+'use client';
+
+import { useEffect } from 'react';
 import Link from "next/link";
 import HeroCarousel from "@/components/sections/HeroCarousel";
 import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
@@ -26,6 +29,14 @@ const imgArticle4 = "/images/article-cards/tibet-buddhist-journey.jpg"; // 西�
 const imgArticle5 = "/images/article-cards/sacred-horizons.jpg"; // 神圣地平线
 
 export default function Home() {
+  // 确保页面加载时滚动到顶部
+  useEffect(() => {
+    // 如果 URL 中没有 hash，滚动到顶部
+    if (!window.location.hash) {
+      window.scrollTo(0, 0);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Carousel - Figma Design */}
