@@ -42,7 +42,7 @@ export default function Home() {
       {/* Hero Carousel - Figma Design */}
       <div className="w-full overflow-hidden">
         <HeroCarousel 
-        videoSrc="/videos/Herobanner1.mp4"
+        videoSrc={process.env.NEXT_PUBLIC_HERO_VIDEO_URL || "/videos/Herobanner1.mp4"}
         autoSlide={true}
         slideInterval={5000}
         showIndicators={true}
