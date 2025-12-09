@@ -556,29 +556,21 @@ export default function DynamicJourneyPage() {
                 return (
                   <div className="space-y-4">
                     {highlights.map((highlight, index) => {
-                      // 处理description，避免重复显示title
-                      let displayDescription = highlight.description || '';
-                      const title = highlight.title || '';
-                      
-                      // 如果description以title开头，则移除重复的title部分
-                      if (displayDescription && title && displayDescription.trim().startsWith(title.trim())) {
-                        displayDescription = displayDescription.trim().substring(title.trim().length).trim();
-                      }
+                      // 优先使用description，如果没有则使用title
+                      const content = highlight.description || highlight.title || '';
                       
                       return (
-                        <div key={index} className="flex items-start gap-3">
-                          <span className="text-2xl">{highlight.icon || '⭐'}</span>
+                        <div key={index} className="flex items-start">
                           <div className="flex-1">
-                            <Text className="font-medium mb-1">{title || 'Highlight'}</Text>
-                            {displayDescription && (
-                              <Text size="sm" className="text-gray-600 whitespace-pre-line">
-                                {displayDescription}
+                            {content && (
+                              <Text size="sm" className="text-gray-700 whitespace-pre-line leading-relaxed">
+                                {content}
                               </Text>
                             )}
                             {'image' in highlight && (highlight as any).image && (
                               <img
                                 src={(highlight as any).image}
-                                alt={highlight.title}
+                                alt={highlight.title || 'Highlight'}
                                 className="mt-2 w-full h-32 object-cover rounded-lg"
                               />
                             )}

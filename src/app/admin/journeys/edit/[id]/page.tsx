@@ -552,66 +552,24 @@ export default function EditJourneyPage() {
                             )}
                           </div>
                           <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">Icon (Emoji)</label>
-                            <input
-                              type="text"
-                              value={highlight.icon || ''}
-                              onChange={(e) => {
-                                const currentHighlights = isEditing 
-                                  ? (formData.overview?.highlights || [])
-                                  : (journey.overview?.highlights || []);
-                                const newHighlights = [...currentHighlights];
-                                newHighlights[index] = { ...highlight, icon: e.target.value };
-                                handleInputChange('overview', {
-                                  ...formData.overview,
-                                  highlights: newHighlights
-                                });
-                              }}
-                              disabled={!isEditing}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                              placeholder="⭐ 或 🐼 等emoji"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">Title</label>
-                            <input
-                              type="text"
-                              value={highlight.title || ''}
-                              onChange={(e) => {
-                                const currentHighlights = isEditing 
-                                  ? (formData.overview?.highlights || [])
-                                  : (journey.overview?.highlights || []);
-                                const newHighlights = [...currentHighlights];
-                                newHighlights[index] = { ...highlight, title: e.target.value };
-                                handleInputChange('overview', {
-                                  ...formData.overview,
-                                  highlights: newHighlights
-                                });
-                              }}
-                              disabled={!isEditing}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                              placeholder="亮点标题"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">Description</label>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">Content</label>
                             <textarea
-                              value={highlight.description || ''}
+                              value={highlight.description || highlight.title || ''}
                               onChange={(e) => {
                                 const currentHighlights = isEditing 
                                   ? (formData.overview?.highlights || [])
                                   : (journey.overview?.highlights || []);
                                 const newHighlights = [...currentHighlights];
-                                newHighlights[index] = { ...highlight, description: e.target.value };
+                                newHighlights[index] = { ...highlight, title: '', description: e.target.value };
                                 handleInputChange('overview', {
                                   ...formData.overview,
                                   highlights: newHighlights
                                 });
                               }}
                               disabled={!isEditing}
-                              rows={3}
+                              rows={4}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                              placeholder="详细描述（支持换行）"
+                              placeholder="输入highlight内容（支持换行）"
                             />
                           </div>
                         </div>
@@ -622,7 +580,7 @@ export default function EditJourneyPage() {
                             const currentHighlights = formData.overview?.highlights || [];
                             handleInputChange('overview', {
                               ...formData.overview,
-                              highlights: [...currentHighlights, { icon: '⭐', title: '', description: '' }]
+                              highlights: [...currentHighlights, { title: '', description: '' }]
                             });
                           }}
                           variant="secondary"
@@ -634,7 +592,7 @@ export default function EditJourneyPage() {
                       )}
                     </div>
                     <Text size="sm" className="text-gray-500 mt-2">
-                      这些highlights会显示在journey详情页面的overview部分。每个highlight包含图标、标题和描述。
+                      这些highlights会显示在journey详情页面的overview部分。支持换行显示。
                     </Text>
                   </div>
 
