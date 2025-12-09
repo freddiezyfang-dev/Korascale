@@ -13,7 +13,6 @@ import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { useExperienceManagement } from '@/context/ExperienceManagementContext';
 import { useHotelManagement } from '@/context/HotelManagementContext';
 import { generateStandardPageConfig, JOURNEY_PAGE_TEMPLATE } from '@/lib/journeyPageTemplate';
-import { generateOverviewHighlights } from '@/lib/journeyPageGenerator';
 import { useCart } from '@/context/CartContext';
 import { Journey } from '@/types';
 import { Heart, MapPin, Clock, Users } from 'lucide-react';
@@ -280,30 +279,7 @@ export default function DynamicJourneyPage() {
           'Home', 'Journey', journey.category, journey.title
         ],
         description: journey.overview?.description || journey.description,
-        highlights: (() => {
-          // 调试日志
-          console.log('Highlights Debug:', {
-            'journey.overview?.highlights': journey.overview?.highlights,
-            'journey.overview?.highlights?.length': journey.overview?.highlights?.length,
-            'journey.highlights': journey.highlights,
-            'journey.highlights?.length': journey.highlights?.length,
-            'journey.highlights type': Array.isArray(journey.highlights) ? 'array' : typeof journey.highlights
-          });
-          
-          // 优先使用 overview.highlights（如果存在且不为空）
-          if (journey.overview?.highlights && Array.isArray(journey.overview.highlights) && journey.overview.highlights.length > 0) {
-            return journey.overview.highlights;
-          }
-          
-          // 否则使用 journey.highlights（用户输入的）
-          if (journey.highlights && Array.isArray(journey.highlights) && journey.highlights.length > 0) {
-            const generated = generateOverviewHighlights(journey);
-            console.log('Generated highlights:', generated);
-            return generated;
-          }
-          
-          return [];
-        })(),
+        highlights: journey.overview?.highlights || [],
         sideImage: journey.overview?.sideImage || journey.images?.[1] || journey.image
       },
 

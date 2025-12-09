@@ -595,24 +595,6 @@ export default function EditJourneyPage() {
                       这些highlights会显示在journey详情页面的overview部分。支持换行显示。
                     </Text>
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Highlights (Legacy)</label>
-                    <textarea
-                      value={(isEditing ? (formData.highlights || []) : (journey.highlights || [])).join('\n')}
-                      onChange={(e) => {
-                        const highlightsArray = e.target.value.split('\n').filter(line => line.trim() !== '');
-                        handleInputChange('highlights', highlightsArray);
-                      }}
-                      disabled={!isEditing}
-                      rows={6}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                      placeholder="Enter highlights, one per line:&#10;• Visit Chengdu Panda Base&#10;• Hands-on cooking experience&#10;• Sichuan Opera face-changing show&#10;• Authentic hot pot dinner"
-                    />
-                    <Text size="sm" className="text-gray-500 mt-1">
-                      Enter each highlight on a new line. Use bullet points (•) or dashes (-) for better formatting.
-                    </Text>
-                  </div>
                 </div>
               </Card>
 
