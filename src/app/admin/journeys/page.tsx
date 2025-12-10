@@ -85,6 +85,7 @@ export default function AdminJourneysPage() {
     isLoading,
     reloadJourneys,
     clearStorageAndReload,
+    migrateFromLocalStorage,
     createBackup,
     restoreFromBackup
   } = useJourneyManagement();
@@ -316,6 +317,24 @@ export default function AdminJourneysPage() {
                       className="text-xs bg-purple-50 hover:bg-purple-200"
                     >
                       强制刷新数据
+                    </Button>
+                    <Button 
+                      onClick={async () => {
+                        if (confirm('这将把 localStorage 中的数据迁移到数据库。继续吗？')) {
+                          const result = await migrateFromLocalStorage();
+                          if (result.success > 0 || result.failed === 0) {
+                            alert(`迁移完成！成功: ${result.success}, 失败: ${result.failed}`);
+                            window.location.reload();
+                          } else {
+                            alert(`迁移完成，但有部分失败。成功: ${result.success}, 失败: ${result.failed}`);
+                          }
+                        }
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="text-xs bg-blue-50 hover:bg-blue-200"
+                    >
+                      从 localStorage 迁移
                     </Button>
                   </div>
                 </div>

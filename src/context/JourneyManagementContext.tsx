@@ -19,6 +19,7 @@ interface JourneyManagementContextType {
   reloadJourneys: () => Promise<void>;
   resetToDefaults: () => void;
   clearStorageAndReload: () => void;
+  migrateFromLocalStorage: () => Promise<{ success: number; failed: number }>;
   createBackup: () => boolean;
   restoreFromBackup: () => boolean;
 }
@@ -821,15 +822,34 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
             updatedAt: new Date(journey.updatedAt),
           }));
           
-          console.log('JourneyManagementContext: Migrating from localStorage:', parsedJourneys.length, 'journeys');
+          console.log('JourneyManagementContext: Found localStorage data, migrating to database:', parsedJourneys.length, 'journeys');
           setJourneys(parsedJourneys);
           
-          // 迁移到数据库（异步执行，不阻塞）
-          parsedJourneys.forEach(async (journey: any) => {
+          // 迁移到数据库（使用 Promise.all 确保所有迁移完成）
+          const migrationPromises = parsedJourneys.map(async (journey: any) => {
             try {
-              await journeyAPI.create(journey);
+              // 移除 id, createdAt, updatedAt，让数据库生成新的
+              const { id, createdAt, updatedAt, ...journeyData } = journey;
+              const savedJourney = await journeyAPI.create(journeyData);
+              console.log(`✅ Migrated journey to database: ${savedJourney.id} - ${journey.title || journey.id}`);
+              return { success: true, journey: savedJourney };
             } catch (error) {
-              console.error('Error migrating journey to database:', error);
+              console.error(`❌ Error migrating journey to database: ${journey.title || journey.id}`, error);
+              return { success: false, journey, error };
+            }
+          });
+          
+          // 等待所有迁移完成（不阻塞 UI）
+          Promise.all(migrationPromises).then((results) => {
+            const successCount = results.filter(r => r.success).length;
+            const failCount = results.filter(r => !r.success).length;
+            console.log(`📊 Migration completed: ${successCount} succeeded, ${failCount} failed`);
+            
+            // 如果迁移成功，重新加载数据以获取数据库中的数据
+            if (successCount > 0) {
+              setTimeout(() => {
+                loadJourneys();
+              }, 1000);
             }
           });
         } else {
@@ -906,6 +926,54 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
     localStorage.removeItem('journeys');
     setJourneys(defaultJourneys);
     saveJourneys(defaultJourneys);
+  };
+
+  // 手动从 localStorage 迁移到数据库
+  const migrateFromLocalStorage = async (): Promise<{ success: number; failed: number }> => {
+    try {
+      const storedJourneys = localStorage.getItem('journeys');
+      if (!storedJourneys) {
+        console.log('JourneyManagementContext: No localStorage data to migrate');
+        return { success: 0, failed: 0 };
+      }
+
+      const parsedJourneys = JSON.parse(storedJourneys).map((journey: any) => ({
+        ...journey,
+        createdAt: new Date(journey.createdAt),
+        updatedAt: new Date(journey.updatedAt),
+      }));
+
+      console.log(`JourneyManagementContext: Starting manual migration of ${parsedJourneys.length} journeys...`);
+
+      const migrationPromises = parsedJourneys.map(async (journey: any) => {
+        try {
+          // 移除 id, createdAt, updatedAt，让数据库生成新的
+          const { id, createdAt, updatedAt, ...journeyData } = journey;
+          const savedJourney = await journeyAPI.create(journeyData);
+          console.log(`✅ Migrated: ${savedJourney.id} - ${journey.title || journey.id}`);
+          return { success: true, journey: savedJourney };
+        } catch (error) {
+          console.error(`❌ Failed to migrate: ${journey.title || journey.id}`, error);
+          return { success: false, journey, error };
+        }
+      });
+
+      const results = await Promise.all(migrationPromises);
+      const successCount = results.filter(r => r.success).length;
+      const failCount = results.filter(r => !r.success).length;
+
+      console.log(`📊 Migration completed: ${successCount} succeeded, ${failCount} failed`);
+
+      // 如果迁移成功，重新加载数据
+      if (successCount > 0) {
+        await loadJourneys();
+      }
+
+      return { success: successCount, failed: failCount };
+    } catch (error) {
+      console.error('JourneyManagementContext: Error during migration:', error);
+      return { success: 0, failed: 0 };
+    }
   };
 
   // 创建数据备份
@@ -1118,6 +1186,7 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
     reloadJourneys,
     resetToDefaults,
     clearStorageAndReload,
+    migrateFromLocalStorage,
     createBackup,
     restoreFromBackup,
   };
