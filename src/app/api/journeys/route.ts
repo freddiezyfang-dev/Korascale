@@ -18,7 +18,6 @@ export async function GET(request: NextRequest) {
     console.log('[API /journeys] Fetching journeys from database...');
     
     // 解析连接字符串以诊断问题
-    const connectionString = process.env.NEON_POSTGRES_URL || process.env.POSTGRES_URL;
     let connectionInfo: any = {
       hasPostgresUrl: !!process.env.POSTGRES_URL,
       hasNeonPostgresUrl: !!process.env.NEON_POSTGRES_URL,
