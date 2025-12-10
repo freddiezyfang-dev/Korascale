@@ -26,6 +26,9 @@ export function generatePageTitle(title: string): string {
  * 基于旅行卡片描述生成SEO友好的meta描述
  */
 export function generateMetaDescription(description: string, maxLength: number = 160): string {
+  if (!description) {
+    return '';
+  }
   if (description.length <= maxLength) {
     return description;
   }
@@ -50,8 +53,8 @@ export function generateMetaDescription(description: string, maxLength: number =
  * 基于旅行卡片信息生成英雄区域的统计数据
  */
 export function generateHeroStats(journey: Journey) {
-  const days = parseInt(journey.duration.split(' ')[0]) || 1;
-  const destinations = journey.itinerary.length || 1;
+  const days = journey.duration ? parseInt(journey.duration.split(' ')[0]) || 1 : 1;
+  const destinations = (journey.itinerary && Array.isArray(journey.itinerary)) ? journey.itinerary.length : 1;
   const maxGuests = journey.maxParticipants || 12;
   
   return {
@@ -88,8 +91,8 @@ export function generateBreadcrumb(journey: Journey) {
   return [
     'Home',
     'Journey',
-    journey.category,
-    journey.title
+    journey.category || 'Journey',
+    journey.title || ''
   ];
 }
 
@@ -98,6 +101,16 @@ export function generateBreadcrumb(journey: Journey) {
  * 基于旅行卡片亮点生成概述区域的亮点列表
  */
 export function generateOverviewHighlights(journey: Journey) {
+  // 如果 journey.overview?.highlights 已存在，直接返回（保持用户输入的内容）
+  if (journey.overview?.highlights && Array.isArray(journey.overview.highlights) && journey.overview.highlights.length > 0) {
+    return journey.overview.highlights;
+  }
+  
+  // 如果没有 highlights 或为空，返回空数组
+  if (!journey.highlights || !Array.isArray(journey.highlights) || journey.highlights.length === 0) {
+    return [];
+  }
+  
   const iconMap: { [key: string]: string } = {
     'panda': '🐼',
     'food': '🥢',
@@ -205,9 +218,14 @@ export function generateInclusions(journey: Journey) {
  * 生成相关旅行
  * 基于旅行卡片信息生成相关旅行推荐
  */
-export function generateRelatedTrips(journey: Journey, allJourneys: Journey[]) {
+export function generateRelatedTrips(journey: Journey, allJourneys: Journey[] = []) {
+  if (!allJourneys || !Array.isArray(allJourneys) || allJourneys.length === 0) {
+    return [];
+  }
+  
   return allJourneys
     .filter(j => 
+      j && 
       j.id !== journey.id && 
       j.status === 'active' && 
       (j.region === journey.region || j.category === journey.category)
@@ -227,18 +245,27 @@ export function generateRelatedTrips(journey: Journey, allJourneys: Journey[]) {
  * 基于现有数据自动填充页面生成所需的字段
  */
 export function generateJourneyPageFields(journey: Journey, allJourneys: Journey[] = []): Partial<Journey> {
+  // 安全检查：确保必要字段存在
+  if (!journey.title) {
+    throw new Error('Journey title is required');
+  }
+  
+  const sideImage = (journey.images && Array.isArray(journey.images) && journey.images.length > 1) 
+    ? journey.images[1] 
+    : journey.image || '';
+  
   return {
     slug: journey.slug || generateSlug(journey.title),
     pageTitle: journey.pageTitle || generatePageTitle(journey.title),
-    metaDescription: journey.metaDescription || generateMetaDescription(journey.description),
-    heroImage: journey.heroImage || journey.image,
+    metaDescription: journey.metaDescription || generateMetaDescription(journey.description || ''),
+    heroImage: journey.heroImage || journey.image || '',
     heroStats: journey.heroStats || generateHeroStats(journey),
     navigation: journey.navigation || generateNavigation(journey),
     overview: journey.overview || {
       breadcrumb: generateBreadcrumb(journey),
-      description: journey.description,
+      description: journey.description || '',
       highlights: generateOverviewHighlights(journey),
-      sideImage: journey.images[1] || journey.image
+      sideImage: sideImage
     },
     includes: journey.includes || '',
     excludes: journey.excludes || '',
