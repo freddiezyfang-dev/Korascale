@@ -12,6 +12,27 @@ function getPool(): Pool {
       throw new Error('Missing POSTGRES_URL or NEON_POSTGRES_URL in environment');
     }
 
+    // 解析连接字符串以诊断问题（不显示密码）
+    try {
+      const url = new URL(connectionString);
+      console.log('[DB] Connection string parsed:', {
+        protocol: url.protocol,
+        hostname: url.hostname,
+        port: url.port || 'default',
+        pathname: url.pathname,
+        username: url.username || 'N/A',
+        hasPassword: !!url.password,
+        search: url.search || 'none',
+        usingEnv: process.env.NEON_POSTGRES_URL ? 'NEON_POSTGRES_URL' : 'POSTGRES_URL',
+      });
+    } catch (parseError) {
+      console.error('[DB] Failed to parse connection string:', {
+        error: String(parseError),
+        connectionStringLength: connectionString.length,
+        connectionStringPrefix: connectionString.substring(0, 50),
+      });
+    }
+
     // 在无证书的 serverless 环境中关闭严格校验证书
     pool = new Pool({
       connectionString,

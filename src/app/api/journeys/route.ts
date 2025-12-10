@@ -16,13 +16,35 @@ export async function GET(request: NextRequest) {
     }
     
     console.log('[API /journeys] Fetching journeys from database...');
-    console.log('[API /journeys] Database connection info:', {
+    
+    // 解析连接字符串以诊断问题
+    const connectionString = process.env.NEON_POSTGRES_URL || process.env.POSTGRES_URL;
+    let connectionInfo: any = {
       hasPostgresUrl: !!process.env.POSTGRES_URL,
       hasNeonPostgresUrl: !!process.env.NEON_POSTGRES_URL,
       usingConnection: process.env.NEON_POSTGRES_URL ? 'NEON_POSTGRES_URL' : 'POSTGRES_URL',
-      postgresUrlPrefix: process.env.POSTGRES_URL?.substring(0, 30) || 'N/A',
-      neonPostgresUrlPrefix: process.env.NEON_POSTGRES_URL?.substring(0, 30) || 'N/A',
-    });
+      connectionStringLength: connectionString?.length || 0,
+    };
+    
+    // 尝试解析连接字符串
+    if (connectionString) {
+      try {
+        const url = new URL(connectionString);
+        connectionInfo.parsed = {
+          protocol: url.protocol,
+          hostname: url.hostname,
+          port: url.port || 'default',
+          database: url.pathname?.replace('/', '') || 'N/A',
+          username: url.username || 'N/A',
+          hasPassword: !!url.password,
+        };
+      } catch (parseError) {
+        connectionInfo.parseError = String(parseError);
+        connectionInfo.rawPrefix = connectionString.substring(0, 100);
+      }
+    }
+    
+    console.log('[API /journeys] Database connection info:', connectionInfo);
     
     // 先检查表是否存在
     let tableExists = false;
