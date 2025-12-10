@@ -16,6 +16,7 @@ interface JourneyManagementContextType {
   getJourneysByRegion: (region: string) => Journey[];
   getFeaturedJourneys: () => Journey[];
   isLoading: boolean;
+  reloadJourneys: () => Promise<void>;
   resetToDefaults: () => void;
   clearStorageAndReload: () => void;
   createBackup: () => boolean;
@@ -798,72 +799,100 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
   const [journeys, setJourneys] = useState<Journey[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 从数据库加载旅行卡片数据
-  useEffect(() => {
-    const loadJourneys = async () => {
-      try {
-        console.log('JourneyManagementContext: Loading journeys from database...');
-        
-        // 首先尝试从数据库加载
-        const dbJourneys = await journeyAPI.getAll();
-        
-        if (dbJourneys.length > 0) {
-          console.log('JourneyManagementContext: Loaded from database:', dbJourneys.length, 'journeys');
-          setJourneys(dbJourneys);
+  // 从数据库加载旅行卡片数据的函数
+  const loadJourneys = async () => {
+    try {
+      console.log('JourneyManagementContext: Loading journeys from database...');
+      setIsLoading(true);
+      
+      // 首先尝试从数据库加载
+      const dbJourneys = await journeyAPI.getAll();
+      
+      if (dbJourneys.length > 0) {
+        console.log('JourneyManagementContext: Loaded from database:', dbJourneys.length, 'journeys');
+        setJourneys(dbJourneys);
+      } else {
+        // 如果没有数据库数据，尝试从localStorage加载（向后兼容）
+        const storedJourneys = localStorage.getItem('journeys');
+        if (storedJourneys) {
+          const parsedJourneys = JSON.parse(storedJourneys).map((journey: any) => ({
+            ...journey,
+            createdAt: new Date(journey.createdAt),
+            updatedAt: new Date(journey.updatedAt),
+          }));
+          
+          console.log('JourneyManagementContext: Migrating from localStorage:', parsedJourneys.length, 'journeys');
+          setJourneys(parsedJourneys);
+          
+          // 迁移到数据库（异步执行，不阻塞）
+          parsedJourneys.forEach(async (journey: any) => {
+            try {
+              await journeyAPI.create(journey);
+            } catch (error) {
+              console.error('Error migrating journey to database:', error);
+            }
+          });
         } else {
-          // 如果没有数据库数据，尝试从localStorage加载（向后兼容）
-          const storedJourneys = localStorage.getItem('journeys');
-          if (storedJourneys) {
-            const parsedJourneys = JSON.parse(storedJourneys).map((journey: any) => ({
-              ...journey,
-              createdAt: new Date(journey.createdAt),
-              updatedAt: new Date(journey.updatedAt),
-            }));
-            
-            console.log('JourneyManagementContext: Migrating from localStorage:', parsedJourneys.length, 'journeys');
-            setJourneys(parsedJourneys);
-            
-            // 迁移到数据库（异步执行，不阻塞）
-            parsedJourneys.forEach(async (journey: any) => {
-              try {
-                await journeyAPI.create(journey);
-              } catch (error) {
-                console.error('Error migrating journey to database:', error);
-              }
-            });
-          } else {
-            console.log('JourneyManagementContext: No stored journeys, using default data');
-            setJourneys(defaultJourneys);
-          }
-        }
-      } catch (error) {
-        console.error('Error loading journeys from database:', error);
-        
-        // 如果数据库失败，使用localStorage作为fallback
-        try {
-          const storedJourneys = localStorage.getItem('journeys');
-          if (storedJourneys) {
-            const parsedJourneys = JSON.parse(storedJourneys).map((journey: any) => ({
-              ...journey,
-              createdAt: new Date(journey.createdAt),
-              updatedAt: new Date(journey.updatedAt),
-            }));
-            setJourneys(parsedJourneys);
-          } else {
-            setJourneys(defaultJourneys);
-          }
-        } catch (localStorageError) {
-          console.error('Error loading from localStorage:', localStorageError);
+          console.log('JourneyManagementContext: No stored journeys, using default data');
           setJourneys(defaultJourneys);
         }
-      } finally {
-        // 确保 isLoading 总是被设置为 false
-        setIsLoading(false);
       }
-    };
+    } catch (error) {
+      console.error('Error loading journeys from database:', error);
+      
+      // 如果数据库失败，使用localStorage作为fallback
+      try {
+        const storedJourneys = localStorage.getItem('journeys');
+        if (storedJourneys) {
+          const parsedJourneys = JSON.parse(storedJourneys).map((journey: any) => ({
+            ...journey,
+            createdAt: new Date(journey.createdAt),
+            updatedAt: new Date(journey.updatedAt),
+          }));
+          setJourneys(parsedJourneys);
+        } else {
+          setJourneys(defaultJourneys);
+        }
+      } catch (localStorageError) {
+        console.error('Error loading from localStorage:', localStorageError);
+        setJourneys(defaultJourneys);
+      }
+    } finally {
+      // 确保 isLoading 总是被设置为 false
+      setIsLoading(false);
+    }
+  };
 
+  // 从数据库加载旅行卡片数据（首次加载）
+  useEffect(() => {
     loadJourneys();
   }, []);
+
+  // 定期刷新数据（每30秒）
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('JourneyManagementContext: Auto-refreshing journeys...');
+      loadJourneys();
+    }, 30000); // 30秒刷新一次
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // 当页面重新获得焦点时刷新数据
+  useEffect(() => {
+    const handleFocus = () => {
+      console.log('JourneyManagementContext: Page focused, refreshing journeys...');
+      loadJourneys();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, []);
+
+  // 手动刷新函数
+  const reloadJourneys = async () => {
+    await loadJourneys();
+  };
 
   // 保存旅行卡片数据到持久化存储
   const saveJourneys = async (journeysData: Journey[]) => {
@@ -1107,6 +1136,7 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
     getJourneysByRegion,
     getFeaturedJourneys,
     isLoading,
+    reloadJourneys,
     resetToDefaults,
     clearStorageAndReload,
     createBackup,
