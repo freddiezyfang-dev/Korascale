@@ -5,11 +5,12 @@ import { Journey } from '@/types';
 // GET: 获取所有journeys
 export async function GET(request: NextRequest) {
   try {
-    // 检查数据库连接
-    if (!process.env.POSTGRES_URL) {
-      console.error('[API /journeys] POSTGRES_URL is missing');
+    // 检查数据库连接（支持 NEON_POSTGRES_URL 或 POSTGRES_URL）
+    const connectionString = process.env.NEON_POSTGRES_URL || process.env.POSTGRES_URL;
+    if (!connectionString) {
+      console.error('[API /journeys] Both POSTGRES_URL and NEON_POSTGRES_URL are missing');
       return NextResponse.json(
-        { error: 'Database not configured. POSTGRES_URL is missing.' },
+        { error: 'Database not configured. POSTGRES_URL or NEON_POSTGRES_URL is missing.' },
         { status: 500 }
       );
     }
@@ -18,8 +19,9 @@ export async function GET(request: NextRequest) {
     console.log('[API /journeys] Database connection info:', {
       hasPostgresUrl: !!process.env.POSTGRES_URL,
       hasNeonPostgresUrl: !!process.env.NEON_POSTGRES_URL,
-      postgresUrlPrefix: process.env.POSTGRES_URL?.substring(0, 20) || 'N/A',
-      neonPostgresUrlPrefix: process.env.NEON_POSTGRES_URL?.substring(0, 20) || 'N/A',
+      usingConnection: process.env.NEON_POSTGRES_URL ? 'NEON_POSTGRES_URL' : 'POSTGRES_URL',
+      postgresUrlPrefix: process.env.POSTGRES_URL?.substring(0, 30) || 'N/A',
+      neonPostgresUrlPrefix: process.env.NEON_POSTGRES_URL?.substring(0, 30) || 'N/A',
     });
     
     // 先检查表是否存在
