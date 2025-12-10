@@ -5,10 +5,11 @@ let pool: Pool | null = null;
 
 function getPool(): Pool {
   if (!pool) {
-    const connectionString = process.env.POSTGRES_URL;
+    // 优先使用 NEON_POSTGRES_URL，如果没有则使用 POSTGRES_URL
+    const connectionString = process.env.NEON_POSTGRES_URL || process.env.POSTGRES_URL;
     
     if (!connectionString) {
-      throw new Error('Missing POSTGRES_URL in environment');
+      throw new Error('Missing POSTGRES_URL or NEON_POSTGRES_URL in environment');
     }
 
     // 在无证书的 serverless 环境中关闭严格校验证书

@@ -15,6 +15,55 @@ export async function GET(request: NextRequest) {
     }
     
     console.log('[API /journeys] Fetching journeys from database...');
+    console.log('[API /journeys] Database connection info:', {
+      hasPostgresUrl: !!process.env.POSTGRES_URL,
+      hasNeonPostgresUrl: !!process.env.NEON_POSTGRES_URL,
+      postgresUrlPrefix: process.env.POSTGRES_URL?.substring(0, 20) || 'N/A',
+      neonPostgresUrlPrefix: process.env.NEON_POSTGRES_URL?.substring(0, 20) || 'N/A',
+    });
+    
+    // 先检查表是否存在
+    let tableExists = false;
+    try {
+      const checkTableResult = await query(`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_schema = 'public' 
+          AND table_name = 'journeys'
+        );
+      `);
+      tableExists = checkTableResult.rows[0]?.exists || false;
+      console.log('[API /journeys] Table exists check:', tableExists);
+      
+      if (!tableExists) {
+        // 列出所有表用于调试
+        const allTablesResult = await query(`
+          SELECT table_name 
+          FROM information_schema.tables 
+          WHERE table_schema = 'public' 
+          ORDER BY table_name;
+        `);
+        console.log('[API /journeys] Available tables:', allTablesResult.rows.map(r => r.table_name));
+        
+        return NextResponse.json(
+          { 
+            error: 'Journeys table does not exist. Please run database migrations.',
+            availableTables: allTablesResult.rows.map(r => r.table_name),
+            details: process.env.NODE_ENV === 'development' ? 'Table check failed' : undefined
+          },
+          { status: 500 }
+        );
+      }
+    } catch (checkError) {
+      console.error('[API /journeys] Error checking table existence:', checkError);
+      return NextResponse.json(
+        { 
+          error: 'Database connection error',
+          details: process.env.NODE_ENV === 'development' ? String(checkError) : undefined
+        },
+        { status: 500 }
+      );
+    }
     
     let rows;
     try {
@@ -23,16 +72,6 @@ export async function GET(request: NextRequest) {
       console.log('[API /journeys] Found', rows.length, 'journeys');
     } catch (dbError) {
       console.error('[API /journeys] Database query error:', dbError);
-      // 检查是否是表不存在的错误
-      if (dbError instanceof Error && dbError.message.includes('does not exist')) {
-        return NextResponse.json(
-          { 
-            error: 'Journeys table does not exist. Please run database migrations.',
-            details: process.env.NODE_ENV === 'development' ? String(dbError) : undefined
-          },
-          { status: 500 }
-        );
-      }
       throw dbError; // 重新抛出其他错误
     }
     
