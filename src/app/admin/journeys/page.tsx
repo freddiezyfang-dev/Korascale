@@ -83,6 +83,7 @@ export default function AdminJourneysPage() {
     getJourneysByCategory, 
     getJourneysByRegion,
     isLoading,
+    reloadJourneys,
     clearStorageAndReload,
     createBackup,
     restoreFromBackup
@@ -301,6 +302,20 @@ export default function AdminJourneysPage() {
                       className="text-xs bg-green-50 hover:bg-green-200"
                     >
                       创建备份
+                    </Button>
+                    <Button 
+                      onClick={async () => {
+                        // 清除localStorage缓存
+                        localStorage.removeItem('journeys');
+                        // 强制从数据库重新加载
+                        await reloadJourneys();
+                        alert('已清除缓存并从数据库重新加载数据！');
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="text-xs bg-purple-50 hover:bg-purple-200"
+                    >
+                      强制刷新数据
                     </Button>
                   </div>
                 </div>
