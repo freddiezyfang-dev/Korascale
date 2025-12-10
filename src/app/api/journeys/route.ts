@@ -70,7 +70,17 @@ export async function GET(request: NextRequest) {
       };
     });
     
-    return NextResponse.json({ journeys });
+    // 设置响应头，禁用缓存
+    return NextResponse.json(
+      { journeys },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        },
+      }
+    );
   } catch (error) {
     console.error('Error fetching journeys:', error);
     

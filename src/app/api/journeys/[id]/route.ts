@@ -61,7 +61,17 @@ export async function GET(
       updatedAt: new Date(row.updated_at),
     } as Journey;
     
-    return NextResponse.json({ journey });
+    // 设置响应头，禁用缓存
+    return NextResponse.json(
+      { journey },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        },
+      }
+    );
   } catch (error) {
     console.error('Error fetching journey:', error);
     return NextResponse.json(

@@ -868,12 +868,12 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
     loadJourneys();
   }, []);
 
-  // 定期刷新数据（每30秒）
+  // 定期刷新数据（每10秒）
   useEffect(() => {
     const interval = setInterval(() => {
       console.log('JourneyManagementContext: Auto-refreshing journeys...');
       loadJourneys();
-    }, 30000); // 30秒刷新一次
+    }, 10000); // 10秒刷新一次
 
     return () => clearInterval(interval);
   }, []);
@@ -1025,6 +1025,11 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
       // 同时保存到localStorage作为备份
       localStorage.setItem('journeys', JSON.stringify(updatedJourneys));
       
+      // 立即从数据库重新加载，确保数据同步
+      setTimeout(() => {
+        loadJourneys();
+      }, 500);
+      
       console.log(`✅ Journey ${journeyId} updated in database`);
       return updatedJourney;
     } catch (error) {
@@ -1061,6 +1066,11 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
       
       // 同时保存到localStorage作为备份
       localStorage.setItem('journeys', JSON.stringify(updatedJourneys));
+      
+      // 立即从数据库重新加载，确保数据同步
+      setTimeout(() => {
+        loadJourneys();
+      }, 500);
       
       console.log(`✅ New journey saved to database: ${savedJourney.id}`);
       return savedJourney;
