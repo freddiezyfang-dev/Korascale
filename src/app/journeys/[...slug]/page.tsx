@@ -594,7 +594,7 @@ export default function DynamicJourneyPage() {
                     <Heading level={3} className="mb-4 text-black">
                       {day.title}
                     </Heading>
-                    <Text className="text-gray-700 leading-relaxed">
+                    <Text className="text-gray-700 leading-relaxed whitespace-pre-line">
                       {day.description}
                     </Text>
                   </div>
