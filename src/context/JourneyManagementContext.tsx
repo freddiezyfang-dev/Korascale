@@ -1004,11 +1004,6 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
       // 同时保存到localStorage作为备份
       localStorage.setItem('journeys', JSON.stringify(updatedJourneys));
       
-      // 立即从数据库重新加载，确保数据同步
-      setTimeout(() => {
-        loadJourneys();
-      }, 500);
-      
       console.log(`✅ Journey ${journeyId} updated in database`);
       return updatedJourney;
     } catch (error) {
