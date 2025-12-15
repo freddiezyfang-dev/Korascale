@@ -434,7 +434,7 @@ export default function JourneysPage() {
 								
 								{/* Journey Type Filter */}
 								<div className="mb-8">
-									<h4 className="text-xl font-['Monda'] font-bold mb-4">JOURNEY TYPE</h4>
+									<h4 className="text-base font-['Monda'] font-bold mb-4">JOURNEY TYPE</h4>
 									<div className="flex flex-wrap gap-2">
 										{['All', ...journeyTypeOptions.map(opt => opt.value)].map((type) => (
 											<button
@@ -456,7 +456,7 @@ export default function JourneysPage() {
 								
 								{/* Regions Filter */}
 								<div className="mb-8">
-									<h4 className="text-xl font-['Monda'] font-bold mb-4">REGIONS</h4>
+									<h4 className="text-base font-['Monda'] font-bold mb-4">REGIONS</h4>
 									<div className="flex flex-wrap gap-2">
 										{regionOptions.map((region) => (
 											<button
@@ -476,23 +476,23 @@ export default function JourneysPage() {
 									</div>
 								</div>
 
-								{/* Duration Filter */}
+								{/* Places Filter */}
 								<div className="mb-8">
-									<h4 className="text-xl font-['Monda'] font-bold mb-4">DURATION</h4>
-									<div className="flex flex-wrap gap-2">
-										{['All', '1 Day', '2 Days', '3 Days', '4 Days'].map((duration) => (
+									<h4 className="text-base font-['Monda'] font-bold mb-4">PLACES</h4>
+									<div className="flex flex-wrap gap-2 max-h-60 overflow-y-auto">
+										{placeOptions.map((place) => (
 											<button
-												key={duration}
+												key={place}
 												className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
-													selectedDuration === duration ? 'bg-gray-200' : 'bg-white'
+													selectedPlace === place ? 'bg-gray-200' : 'bg-white'
 												}`}
 												style={{
 													color: 'black',
-													backgroundColor: selectedDuration === duration ? '#e5e7eb' : 'white'
+													backgroundColor: selectedPlace === place ? '#e5e7eb' : 'white'
 												}}
-												onClick={() => setSelectedDuration(duration)}
+												onClick={() => setSelectedPlace(place)}
 											>
-												{duration}
+												{place}
 											</button>
 										))}
 									</div>
@@ -500,7 +500,7 @@ export default function JourneysPage() {
 
 								{/* Interests Filter - 对应 Journey.category */}
 								<div className="mb-8">
-									<h4 className="text-xl font-['Monda'] font-bold mb-4">INTERESTS</h4>
+									<h4 className="text-base font-['Monda'] font-bold mb-4">INTERESTS</h4>
 									<div className="flex flex-wrap gap-2">
 										{['All', 'Nature', 'Culture', 'History', 'City', 'Cruises'].map((interest) => (
 											<button
@@ -520,23 +520,23 @@ export default function JourneysPage() {
 									</div>
 								</div>
 
-								{/* Places Filter */}
+								{/* Duration Filter */}
 								<div className="mb-8">
-									<h4 className="text-xl font-['Monda'] font-bold mb-4">PLACES</h4>
-									<div className="flex flex-wrap gap-2 max-h-60 overflow-y-auto">
-										{placeOptions.map((place) => (
+									<h4 className="text-base font-['Monda'] font-bold mb-4">DURATION</h4>
+									<div className="flex flex-wrap gap-2">
+										{['All', '1 Day', '2 Days', '3 Days', '4 Days'].map((duration) => (
 											<button
-												key={place}
+												key={duration}
 												className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
-													selectedPlace === place ? 'bg-gray-200' : 'bg-white'
+													selectedDuration === duration ? 'bg-gray-200' : 'bg-white'
 												}`}
 												style={{
 													color: 'black',
-													backgroundColor: selectedPlace === place ? '#e5e7eb' : 'white'
+													backgroundColor: selectedDuration === duration ? '#e5e7eb' : 'white'
 												}}
-												onClick={() => setSelectedPlace(place)}
+												onClick={() => setSelectedDuration(duration)}
 											>
-												{place}
+												{duration}
 											</button>
 										))}
 									</div>

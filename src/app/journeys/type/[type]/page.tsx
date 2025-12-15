@@ -666,7 +666,7 @@ export default function JourneyTypePage() {
                     className="flex items-center justify-between cursor-pointer mb-4"
                     onClick={() => setIsJourneyTypeOpen(v => !v)}
                   >
-                    <h4 className="text-xl font-['Monda'] font-bold">JOURNEY TYPE</h4>
+                    <h4 className="text-base font-['Monda'] font-bold">JOURNEY TYPE</h4>
                     <span className="text-sm transition-transform duration-200">{isJourneyTypeOpen ? '▼' : '▶'}</span>
                   </div>
                   {isJourneyTypeOpen && (
@@ -696,7 +696,7 @@ export default function JourneyTypePage() {
                     className="flex items-center justify-between cursor-pointer mb-4"
                     onClick={() => setIsRegionOpen(v => !v)}
                   >
-                    <h4 className="text-xl font-['Monda'] font-bold">REGIONS</h4>
+                    <h4 className="text-base font-['Monda'] font-bold">REGIONS</h4>
                     <span className="text-sm transition-transform duration-200">{isRegionOpen ? '▼' : '▶'}</span>
                   </div>
                   {isRegionOpen && (
@@ -720,30 +720,30 @@ export default function JourneyTypePage() {
                   )}
                 </div>
 
-                {/* Duration Filter */}
+                {/* Places Filter */}
                 <div className="mb-8">
                   <div 
                     className="flex items-center justify-between cursor-pointer mb-4"
-                    onClick={() => setIsDurationOpen(v => !v)}
+                    onClick={() => setIsPlaceOpen(v => !v)}
                   >
-                    <h4 className="text-xl font-['Monda'] font-bold">DURATION</h4>
-                    <span className="text-sm transition-transform duration-200">{isDurationOpen ? '▼' : '▶'}</span>
+                    <h4 className="text-base font-['Monda'] font-bold">PLACES</h4>
+                    <span className="text-sm transition-transform duration-200">{isPlaceOpen ? '▼' : '▶'}</span>
                   </div>
-                  {isDurationOpen && (
-                    <div className="flex flex-wrap gap-2">
-                      {['All', '1 Day', '2 Days', '3 Days', '4 Days'].map((duration) => (
+                  {isPlaceOpen && (
+                    <div className="flex flex-wrap gap-2 max-h-60 overflow-y-auto">
+                      {placeOptions.map((place) => (
                         <button
-                          key={duration}
+                          key={place}
                           className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
-                            selectedDuration === duration ? 'bg-gray-200' : 'bg-white'
+                            selectedPlace === place ? 'bg-gray-200' : 'bg-white'
                           }`}
                           style={{
                             color: 'black',
-                            backgroundColor: selectedDuration === duration ? '#e5e7eb' : 'white'
+                            backgroundColor: selectedPlace === place ? '#e5e7eb' : 'white'
                           }}
-                          onClick={() => setSelectedDuration(duration)}
+                          onClick={() => setSelectedPlace(place)}
                         >
-                          {duration}
+                          {place}
                         </button>
                       ))}
                     </div>
@@ -756,7 +756,7 @@ export default function JourneyTypePage() {
                     className="flex items-center justify-between cursor-pointer mb-4"
                     onClick={() => setIsInterestOpen(v => !v)}
                   >
-                    <h4 className="text-xl font-['Monda'] font-bold">INTERESTS</h4>
+                    <h4 className="text-base font-['Monda'] font-bold">INTERESTS</h4>
                     <span className="text-sm transition-transform duration-200">{isInterestOpen ? '▼' : '▶'}</span>
                   </div>
                     {isInterestOpen && (
@@ -780,30 +780,30 @@ export default function JourneyTypePage() {
                   )}
                 </div>
 
-                {/* Places Filter */}
+                {/* Duration Filter */}
                 <div className="mb-8">
                   <div 
                     className="flex items-center justify-between cursor-pointer mb-4"
-                    onClick={() => setIsPlaceOpen(v => !v)}
+                    onClick={() => setIsDurationOpen(v => !v)}
                   >
-                    <h4 className="text-xl font-['Monda'] font-bold">PLACES</h4>
-                    <span className="text-sm transition-transform duration-200">{isPlaceOpen ? '▼' : '▶'}</span>
+                    <h4 className="text-base font-['Monda'] font-bold">DURATION</h4>
+                    <span className="text-sm transition-transform duration-200">{isDurationOpen ? '▼' : '▶'}</span>
                   </div>
-                  {isPlaceOpen && (
-                    <div className="flex flex-wrap gap-2 max-h-60 overflow-y-auto">
-                      {placeOptions.map((place) => (
+                  {isDurationOpen && (
+                    <div className="flex flex-wrap gap-2">
+                      {['All', '1 Day', '2 Days', '3 Days', '4 Days'].map((duration) => (
                         <button
-                          key={place}
+                          key={duration}
                           className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
-                            selectedPlace === place ? 'bg-gray-200' : 'bg-white'
+                            selectedDuration === duration ? 'bg-gray-200' : 'bg-white'
                           }`}
                           style={{
                             color: 'black',
-                            backgroundColor: selectedPlace === place ? '#e5e7eb' : 'white'
+                            backgroundColor: selectedDuration === duration ? '#e5e7eb' : 'white'
                           }}
-                          onClick={() => setSelectedPlace(place)}
+                          onClick={() => setSelectedDuration(duration)}
                         >
-                          {place}
+                          {duration}
                         </button>
                       ))}
                     </div>
