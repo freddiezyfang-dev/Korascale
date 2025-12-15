@@ -26,8 +26,9 @@ const defaultJourneys = [
 		image: imgJourney1,
 		duration: "1 Day",
 		price: "From ¥299",
-		category: "Food",
-		region: "Sichuan",
+		category: "Culture",
+		region: "South China",
+		place: "Sichuan Basin & Mountains",
 		link: "/journeys/chengdu-city-one-day-deep-dive",
     journeyType: "Explore Together"
 	},
@@ -38,8 +39,9 @@ const defaultJourneys = [
 		image: imgJourney2,
 		duration: "1 Day",
 		price: "From $199",
-		category: "Culture & History",
-		region: "Sichuan",
+		category: "Culture",
+		region: "South China",
+		place: "Sichuan Basin & Mountains",
 		link: "/journeys/leshan-giant-buddha",
     journeyType: "Explore Together"
 	},
@@ -50,8 +52,9 @@ const defaultJourneys = [
 		image: imgJourney3,
 		duration: "1 Day",
 		price: "From $179",
-		category: "Culture & History",
-		region: "Sichuan",
+		category: "Culture",
+		region: "South China",
+		place: "Sichuan Basin & Mountains",
 		link: "/journeys/dujiangyan-irrigation",
     journeyType: "Explore Together"
 	},
@@ -62,8 +65,9 @@ const defaultJourneys = [
 		image: imgJourney4,
 		duration: "3 Days",
 		price: "From $599",
-		category: "Adventure",
-		region: "Sichuan",
+		category: "Nature",
+		region: "Northwest China",
+		place: "Qinghai–Tibet Plateau",
 		link: "/journeys/jiuzhaigou-valley",
     journeyType: "Deep Discovery"
 	},
@@ -74,8 +78,9 @@ const defaultJourneys = [
 		image: imgJourney5,
 		duration: "4 Days",
 		price: "From $799",
-		category: "Adventure",
-		region: "Sichuan",
+		category: "Nature",
+		region: "Northwest China",
+		place: "Qinghai–Tibet Plateau",
 		link: "/journeys/jiuzhaigou-huanglong",
     journeyType: "Deep Discovery"
 	},
@@ -87,7 +92,8 @@ const defaultJourneys = [
 		duration: "1 Day",
 		price: "From $249",
 		category: "City",
-		region: "Chongqing",
+		region: "South China",
+		place: "Chongqing & Three Gorges",
 		link: "/journeys/chongqing-city-highlights",
     journeyType: "Explore Together"
 	},
@@ -98,8 +104,9 @@ const defaultJourneys = [
 		image: imgJourney7,
 		duration: "2 Days",
 		price: "From $399",
-		category: "Adventure",
-		region: "Chongqing",
+		category: "Nature",
+		region: "South China",
+		place: "Chongqing & Three Gorges",
 		link: "/journeys/chongqing-wulong-karst",
     journeyType: "Signature Journeys"
 	}
@@ -203,7 +210,7 @@ export default function JourneysPage() {
 			const matchesRegion = selectedRegion === 'All' || journey.region === selectedRegion;
 			const matchesDuration = selectedDuration === 'All' || journey.duration === selectedDuration;
 			const matchesInterest = selectedInterest === 'All' || journey.category === selectedInterest;
-			const matchesPlace = selectedPlace === 'All' || (journey.place && journey.place === selectedPlace);
+			const matchesPlace = selectedPlace === 'All' || ('place' in journey && journey.place && journey.place === selectedPlace);
 			const matchesSearch = journey.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
 								 journey.description.toLowerCase().includes(searchTerm.toLowerCase());
 			return isActive && matchesJourneyType && matchesRegion && matchesDuration && matchesInterest && matchesPlace && matchesSearch;
