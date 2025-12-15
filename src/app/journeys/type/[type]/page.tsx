@@ -90,18 +90,66 @@ const brochures: Brochure[] = [
   }
 ];
 
+// Partnership Paths 数据结构
+interface PartnershipPath {
+  id: number;
+  number: number;
+  title: string;
+  description: string;
+  image: string;
+}
+
+const partnershipPaths: PartnershipPath[] = [
+  {
+    id: 1,
+    number: 1,
+    title: 'Initial Consultation',
+    description: 'We begin with a detailed conversation to understand your group\'s interests, goals, and requirements.',
+    image: '/images/journey-cards/chengdu-deep-dive.jpeg'
+  },
+  {
+    id: 2,
+    number: 2,
+    title: 'Custom Itinerary Design',
+    description: 'Our team crafts a bespoke itinerary tailored specifically to your group\'s needs and preferences.',
+    image: '/images/journey-cards/jiuzhaigou-valley-multi-color-lake.jpeg'
+  },
+  {
+    id: 3,
+    number: 3,
+    title: 'Logistics Planning',
+    description: 'We handle all the complex logistics including accommodations, transportation, and special arrangements.',
+    image: '/images/journey-cards/jiuzhaigou-huanglong-national-park-tour.jpg'
+  },
+  {
+    id: 4,
+    number: 4,
+    title: 'Expert Guidance',
+    description: 'Your journey is led by experienced guides who provide deep cultural insights and seamless experiences.',
+    image: '/images/journey-cards/chongqing-wulong-karst-national-park.jpg'
+  },
+  {
+    id: 5,
+    number: 5,
+    title: 'Ongoing Support',
+    description: 'We provide continuous support throughout your journey and beyond, ensuring every detail is perfect.',
+    image: '/images/journey-cards/chengdu-deep-dive.jpeg'
+  }
+];
+
 export default function JourneyTypePage() {
   const params = useParams();
   const router = useRouter();
   const { journeys, isLoading } = useJourneyManagement();
   const { user } = useUser();
   const [isPlanTripModalOpen, setIsPlanTripModalOpen] = useState(false);
+  const [hoveredPath, setHoveredPath] = useState<number | null>(null);
 
   // Filter 状态：与 journey 主页面一致
   const [selectedRegion, setSelectedRegion] = useState<string>('All');
   const [selectedDuration, setSelectedDuration] = useState<string>('All');
   const [selectedInterest, setSelectedInterest] = useState<string>('All');
-  const [selectedMonth, setSelectedMonth] = useState<string>('All');
+  const [selectedPlace, setSelectedPlace] = useState<string>('All');
   const [searchTerm, setSearchTerm] = useState('');
   
   // 单个选项的折叠状态
@@ -109,7 +157,43 @@ export default function JourneyTypePage() {
   const [isRegionOpen, setIsRegionOpen] = useState(true);
   const [isDurationOpen, setIsDurationOpen] = useState(true);
   const [isInterestOpen, setIsInterestOpen] = useState(true);
-  const [isMonthOpen, setIsMonthOpen] = useState(true);
+  const [isPlaceOpen, setIsPlaceOpen] = useState(true);
+
+  // Region选项
+  const regionOptions = [
+    'All',
+    'Northwest China',
+    'Northwest&Northern Frontier',
+    'North China',
+    'South China',
+    'East&Central China'
+  ];
+
+  // Places选项
+  const placeOptions = [
+    'All',
+    'Tibetan Plateau & Kham Region',
+    'Yunnan–Guizhou Highlands',
+    'Sichuan Basin & Mountains',
+    'Chongqing & Three Gorges',
+    'Zhangjiajie',
+    'Silk Road Corridor',
+    'Qinghai–Tibet Plateau',
+    'Xi\'an',
+    'Xinjiang Oases & Deserts',
+    'Inner Mongolian Grasslands',
+    'Beijing',
+    'Loess & Shanxi Heritage',
+    'Northeastern Forests',
+    'Canton',
+    'Guilin',
+    'Hakka Fujian',
+    'Wuhan',
+    'Shanghai',
+    'WaterTowns',
+    'Hangzhou',
+    'Yellow Mountain & Southern Anhui'
+  ];
   
   const typeSlug = Array.isArray(params?.type) ? params?.type[0] : (params?.type as string);
   const journeyType = SlugToJourneyType[typeSlug || ''];
@@ -130,7 +214,7 @@ export default function JourneyTypePage() {
     journeys.forEach(j => {
       if (j.region) set.add(j.region);
     });
-    return Array.from(set).sort();
+    return ['All', ...Array.from(set).sort()];
   }, [journeys]);
 
   // 应用所有筛选条件（显示所有 journeys，不只是当前类型）
@@ -143,14 +227,14 @@ export default function JourneyTypePage() {
       const matchesRegion = selectedRegion === 'All' || journey.region === selectedRegion;
       const matchesDuration = selectedDuration === 'All' || journey.duration === selectedDuration;
       const matchesInterest = selectedInterest === 'All' || journey.category === selectedInterest;
-      const matchesMonth = selectedMonth === 'All'; // Month filtering would need additional data
+      const matchesPlace = selectedPlace === 'All' || (journey.place && journey.place === selectedPlace);
       const matchesSearch = searchTerm === '' || 
         journey.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (('description' in journey && journey.description) || '').toLowerCase().includes(searchTerm.toLowerCase());
       
-      return isActive && matchesJourneyType && matchesRegion && matchesDuration && matchesInterest && matchesMonth && matchesSearch;
+      return isActive && matchesJourneyType && matchesRegion && matchesDuration && matchesInterest && matchesPlace && matchesSearch;
     });
-  }, [journeys, selectedJourneyType, selectedRegion, selectedDuration, selectedInterest, selectedMonth, searchTerm]);
+  }, [journeys, selectedJourneyType, selectedRegion, selectedDuration, selectedInterest, selectedPlace, searchTerm]);
 
   // 如果正在加载且没有数据，显示加载状态
   // 添加超时机制，避免无限加载
@@ -235,27 +319,16 @@ export default function JourneyTypePage() {
                 className="font-normal"
               />
             </div>
-            {/* 中间标题 + 正文 */}
+            {/* 中间标题 */}
             <div className="flex-1 flex items-center justify-center px-6 md:px-10">
-              <div className="max-w-4xl text-center">
+              <div className="max-w-5xl lg:max-w-6xl text-center">
                 <Heading
                   level={1}
-                  className="text-xl sm:text-2xl lg:text-3xl mb-6 whitespace-nowrap"
+                  className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl leading-tight"
                   style={{ fontFamily: 'Montaga, serif', color: '#000000', fontWeight: 400 }}
                 >
-                  Group Travel, Crafted for Connection.
+                  The Korascale Partnership: A Clear Path to Extraordinary Groups
                 </Heading>
-                <Text
-                  className="text-sm sm:text-base leading-relaxed whitespace-pre-line"
-                  style={{
-                    fontFamily: 'Monda, sans-serif',
-                    color: '#000000',
-                    lineHeight: '1.7',
-                    fontWeight: 400
-                  }}
-                >
-                  {description}
-                </Text>
               </div>
             </div>
           </div>
@@ -325,7 +398,115 @@ export default function JourneyTypePage() {
         )}
       </Section>
 
-      {/* 2. Recommended Journeys / Brochures Section */}
+      {/* 2. Partnership Section - Only for Group Tours */}
+      {isGroupTours && (
+        <Section background="secondary" padding="none" className="py-6 sm:py-8 bg-white">
+          <Container
+            size="full"
+            padding="none"
+            className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12"
+          >
+            <div className="flex flex-col md:flex-row items-start gap-8 md:gap-12">
+              {/* 左侧标题区域 */}
+              <div className="md:w-1/3 flex-shrink-0 py-6 sm:py-8">
+                <Heading
+                  level={2}
+                  className="text-2xl sm:text-3xl lg:text-4xl mb-4"
+                  style={{ fontFamily: 'Montaga, serif', color: '#000000', fontWeight: 400 }}
+                >
+                  How to travel with Korascale
+                </Heading>
+                <Text
+                  className="text-base sm:text-lg"
+                  style={{
+                    fontFamily: 'Monda, sans-serif',
+                    color: '#000000',
+                    fontWeight: 400
+                  }}
+                >
+                  Your Path to a bespoke China Journey
+                </Text>
+              </div>
+              {/* 右侧内容区域 - Partnership Paths */}
+              <div className="md:w-2/3 flex-1 py-6 sm:py-8">
+                <div className="flex gap-2 justify-end">
+                  {partnershipPaths.map((path) => (
+                    <div
+                      key={path.id}
+                      className={`
+                        relative transition-all duration-300 ease-in-out cursor-pointer
+                        ${hoveredPath === path.id ? 'w-80' : 'w-16'}
+                      `}
+                      onMouseEnter={() => setHoveredPath(path.id)}
+                      onMouseLeave={() => setHoveredPath(null)}
+                    >
+                      {/* 竖长条 - 默认状态显示图片和数字 */}
+                      <div
+                        className={`
+                          h-full min-h-[350px] rounded-lg transition-all duration-300 ease-in-out border overflow-hidden
+                          flex flex-col
+                          ${hoveredPath === path.id 
+                            ? 'bg-white shadow-xl border-black/20' 
+                            : 'bg-white border-black/10 hover:border-black/30'
+                          }
+                        `}
+                      >
+                        {/* 图片区域 */}
+                        <div className="relative w-full flex-shrink-0">
+                          <div
+                            className={`
+                              w-full bg-cover bg-center bg-no-repeat transition-all duration-300
+                              ${hoveredPath === path.id ? 'h-56' : 'h-full min-h-[350px]'}
+                            `}
+                            style={{ backgroundImage: `url('${path.image}')` }}
+                          >
+                            {/* 数字覆盖层 */}
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                              <div
+                                className={`
+                                  transition-all duration-300
+                                  ${hoveredPath === path.id
+                                    ? 'text-white text-2xl'
+                                    : 'text-white text-3xl'
+                                  }
+                                `}
+                                style={{ fontFamily: 'Monda, sans-serif', fontWeight: 600 }}
+                              >
+                                {path.number}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* 卡片内容 - 悬停时展开显示 */}
+                        {hoveredPath === path.id && (
+                          <div className="flex-1 flex flex-col p-4">
+                            <Heading
+                              level={3}
+                              className="text-lg mb-3"
+                              style={{ fontFamily: 'Montaga, serif', color: '#000000', fontWeight: 400 }}
+                            >
+                              {path.title}
+                            </Heading>
+                            <Text
+                              className="text-sm leading-relaxed"
+                              style={{ fontFamily: 'Monda, sans-serif', color: '#000000', fontWeight: 400 }}
+                            >
+                              {path.description}
+                            </Text>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Container>
+        </Section>
+      )}
+
+      {/* 3. Recommended Journeys / Brochures Section */}
       <Section background="secondary" padding="none" className="py-12 sm:py-16 bg-white">
         <Container
           size="full"
@@ -469,7 +650,7 @@ export default function JourneyTypePage() {
         </Container>
       </Section>
 
-      {/* 3. Journey Filter + Grid Section - Group Tours 不显示 */}
+      {/* 4. Journey Filter + Grid Section - Group Tours 不显示 */}
       {!isGroupTours && (
       <Section background="secondary" padding="none" className="pb-16 bg-[#f5f1e6]">
         <Container size="full" padding="none" className="px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-16">
@@ -520,7 +701,7 @@ export default function JourneyTypePage() {
                   </div>
                   {isRegionOpen && (
                     <div className="flex flex-wrap gap-2">
-                      {['All', 'Sichuan', 'Chongqing', 'Qinghai', 'Gansu', 'Xinjiang', 'Shaanxi'].map((region) => (
+                      {regionOptions.map((region) => (
                         <button
                           key={region}
                           className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
@@ -569,7 +750,7 @@ export default function JourneyTypePage() {
                   )}
                 </div>
 
-                {/* Interests Filter */}
+                {/* Interests Filter - 对应 Journey.category */}
                 <div className="mb-8">
                   <div 
                     className="flex items-center justify-between cursor-pointer mb-4"
@@ -578,9 +759,9 @@ export default function JourneyTypePage() {
                     <h4 className="text-xl font-['Monda'] font-bold">INTERESTS</h4>
                     <span className="text-sm transition-transform duration-200">{isInterestOpen ? '▼' : '▶'}</span>
                   </div>
-                  {isInterestOpen && (
+                    {isInterestOpen && (
                     <div className="flex flex-wrap gap-2">
-                      {['All', 'City', 'Culture & History', 'Food', 'Adventure'].map((interest) => (
+                      {['All', 'Nature', 'Culture', 'History', 'City', 'Cruises'].map((interest) => (
                         <button
                           key={interest}
                           className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
@@ -599,30 +780,30 @@ export default function JourneyTypePage() {
                   )}
                 </div>
 
-                {/* Months Filter */}
+                {/* Places Filter */}
                 <div className="mb-8">
                   <div 
                     className="flex items-center justify-between cursor-pointer mb-4"
-                    onClick={() => setIsMonthOpen(v => !v)}
+                    onClick={() => setIsPlaceOpen(v => !v)}
                   >
-                    <h4 className="text-xl font-['Monda'] font-bold">MONTHS</h4>
-                    <span className="text-sm transition-transform duration-200">{isMonthOpen ? '▼' : '▶'}</span>
+                    <h4 className="text-xl font-['Monda'] font-bold">PLACES</h4>
+                    <span className="text-sm transition-transform duration-200">{isPlaceOpen ? '▼' : '▶'}</span>
                   </div>
-                  {isMonthOpen && (
-                    <div className="flex flex-wrap gap-2">
-                      {['All', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map((month) => (
+                  {isPlaceOpen && (
+                    <div className="flex flex-wrap gap-2 max-h-60 overflow-y-auto">
+                      {placeOptions.map((place) => (
                         <button
-                          key={month}
+                          key={place}
                           className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
-                            selectedMonth === month ? 'bg-gray-200' : 'bg-white'
+                            selectedPlace === place ? 'bg-gray-200' : 'bg-white'
                           }`}
                           style={{
                             color: 'black',
-                            backgroundColor: selectedMonth === month ? '#e5e7eb' : 'white'
+                            backgroundColor: selectedPlace === place ? '#e5e7eb' : 'white'
                           }}
-                          onClick={() => setSelectedMonth(month)}
+                          onClick={() => setSelectedPlace(place)}
                         >
-                          {month}
+                          {place}
                         </button>
                       ))}
                     </div>
@@ -728,7 +909,7 @@ export default function JourneyTypePage() {
       </Section>
       )}
 
-      {/* 4. Plan Your Journey Section */}
+      {/* 5. Plan Your Journey Section */}
       <Section background="primary" padding="none" className="py-12">
         <Container
           size="xl"

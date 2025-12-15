@@ -58,12 +58,11 @@ const statusConfig = {
 };
 
 const categoryConfig = {
-  'Food': { label: 'Food', color: 'bg-orange-100 text-orange-800' },
-  'Culture & History': { label: 'Culture & History', color: 'bg-purple-100 text-purple-800' },
-  'Adventure': { label: 'Adventure', color: 'bg-green-100 text-green-800' },
-  'City': { label: 'City', color: 'bg-blue-100 text-blue-800' },
   'Nature': { label: 'Nature', color: 'bg-emerald-100 text-emerald-800' },
-  'Spiritual': { label: 'Spiritual', color: 'bg-indigo-100 text-indigo-800' },
+  'Culture': { label: 'Culture', color: 'bg-purple-100 text-purple-800' },
+  'History': { label: 'History', color: 'bg-yellow-100 text-yellow-800' },
+  'City': { label: 'City', color: 'bg-blue-100 text-blue-800' },
+  'Cruises': { label: 'Cruises', color: 'bg-cyan-100 text-cyan-800' },
 };
 
 const difficultyConfig = {
@@ -177,8 +176,8 @@ export default function AdminJourneysPage() {
     inactive: getJourneysByStatus('inactive').length,
     draft: getJourneysByStatus('draft').length,
     featured: journeys.filter(j => j.featured && j.status === 'active').length,
-    food: getJourneysByCategory('Food').length,
-    adventure: getJourneysByCategory('Adventure').length,
+    nature: getJourneysByCategory('Nature').length,
+    city: getJourneysByCategory('City').length,
   };
 
   if (!user || user.email !== 'admin@korascale.com') {
@@ -407,10 +406,10 @@ export default function AdminJourneysPage() {
             <Card className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Text className="text-sm font-medium text-gray-600">Food Tours</Text>
-                  <Text className="text-2xl font-bold text-orange-600">{stats.food}</Text>
+                  <Text className="text-sm font-medium text-gray-600">Nature Journeys</Text>
+                  <Text className="text-2xl font-bold text-emerald-600">{stats.nature}</Text>
                 </div>
-                <DollarSign className="w-6 h-6 text-orange-500" />
+                <MapPin className="w-6 h-6 text-emerald-500" />
               </div>
             </Card>
           </div>

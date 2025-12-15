@@ -9,21 +9,26 @@
 
 ### 步骤 2：找到 Function Logs
 
-有两种方式查看日志：
+有三种方式查看日志：
 
-#### 方式 A：通过 Functions 页面（推荐）
+#### 方式 A：通过 Logs 标签页（推荐）
 
-1. 在项目 Dashboard 左侧菜单，点击 **"Functions"**
-2. 找到 `/api/journeys` 函数
-3. 点击进入，查看 **"Logs"** 标签页
+1. 在项目 Dashboard 顶部导航栏，点击 **"Logs"** 标签
+2. 在日志页面，你可以看到所有函数的实时日志
+3. 使用搜索框搜索 `[API /journeys]` 来过滤相关日志
+4. 或者查看最近的错误日志（你的错误率显示 55%，说明有很多错误）
 
 #### 方式 B：通过 Deployments 页面
 
 1. 在项目 Dashboard，点击 **"Deployments"**
-2. 点击最新的部署（最上面的那个）
-3. 在部署详情页面，点击 **"Functions"** 标签
-4. 找到 `/api/journeys` 函数
-5. 点击查看日志
+2. 点击最新的部署（最上面的那个，显示 "Ready Just now"）
+3. 在部署详情页面，向下滚动找到 **"Function Logs"** 部分
+4. 或者点击 **"View Function Logs"** 按钮
+
+#### 方式 C：通过 Observability 页面
+
+1. 在项目 Dashboard 顶部导航栏，点击 **"Observability"**
+2. 查看错误和日志信息
 
 ### 步骤 3：触发 API 调用以生成日志
 
@@ -50,7 +55,7 @@ curl https://your-project.vercel.app/api/journeys
 
 ### 步骤 4：查看日志输出
 
-触发 API 调用后，立即返回 Vercel Dashboard → Functions → `/api/journeys` → Logs
+触发 API 调用后，立即返回 Vercel Dashboard → **Logs** 标签页
 
 你应该能看到以下日志：
 
@@ -95,23 +100,24 @@ curl https://your-project.vercel.app/api/journeys
 2. 如果部署失败，查看 Build Logs
 3. 如果部署成功，等待 1-2 分钟后再试
 
-### 问题 4：找不到 Functions 页面
+### 问题 4：找不到 Logs 页面
 
 **原因**：可能是 Vercel 界面版本不同
 
 **解决**：
-1. 尝试在项目 Dashboard 顶部搜索 "Functions"
-2. 或者直接访问：`https://vercel.com/[your-team]/[your-project]/functions`
+1. 在项目 Dashboard 顶部导航栏查找 **"Logs"** 标签
+2. 或者通过 Deployments 页面 → 最新部署 → 查看 Function Logs
+3. 也可以直接访问：`https://vercel.com/[your-team]/[your-project]/logs`
 
 ---
 
 ## 📋 快速检查清单
 
 - [ ] 已访问 Vercel Dashboard
-- [ ] 已找到 Functions 页面
-- [ ] 已找到 `/api/journeys` 函数
-- [ ] 已触发 API 调用（访问了 API URL）
-- [ ] 已查看 Logs 标签页
+- [ ] 已找到 **Logs** 标签页（在顶部导航栏）
+- [ ] 已触发 API 调用（访问了 `https://korascale.vercel.app/api/journeys` 或 `https://www.korascale.com/api/journeys`）
+- [ ] 已查看 Logs 页面
+- [ ] 使用搜索框搜索 `[API /journeys]` 或查看最近的错误日志
 - [ ] 看到了 `[API /journeys]` 开头的日志
 
 ---

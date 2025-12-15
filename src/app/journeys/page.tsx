@@ -153,22 +153,45 @@ export default function JourneysPage() {
 	const [selectedRegion, setSelectedRegion] = useState('All');
 	const [selectedDuration, setSelectedDuration] = useState('All');
 	const [selectedInterest, setSelectedInterest] = useState('All');
-	const [selectedMonth, setSelectedMonth] = useState('All');
+	const [selectedPlace, setSelectedPlace] = useState('All');
 	const [searchTerm, setSearchTerm] = useState('');
 	const [selectedJourneyType, setSelectedJourneyType] = useState<JourneyType | 'All'>('All');
 	const [isPlanTripModalOpen, setIsPlanTripModalOpen] = useState(false);
 
-	const categories = [
-		'All', 
-		// Regions
-		'Sichuan', 'Chongqing', 'Qinghai', 'Gansu', 'Xinjiang', 'Shaanxi',
-		// Duration
-		'1 Day', '2 Days', '3 Days', '4 Days',
-		// Interests
-		'City', 'Culture & History', 'Food', 'Adventure',
-		// Months
-		'January', 'February', 'March', 'April', 'May', 'June', 
-		'July', 'August', 'September', 'October', 'November', 'December'
+	// Region选项
+	const regionOptions = [
+		'All',
+		'Northwest China',
+		'Northwest&Northern Frontier',
+		'North China',
+		'South China',
+		'East&Central China'
+	];
+
+	// Places选项
+	const placeOptions = [
+		'All',
+		'Tibetan Plateau & Kham Region',
+		'Yunnan–Guizhou Highlands',
+		'Sichuan Basin & Mountains',
+		'Chongqing & Three Gorges',
+		'Zhangjiajie',
+		'Silk Road Corridor',
+		'Qinghai–Tibet Plateau',
+		'Xi\'an',
+		'Xinjiang Oases & Deserts',
+		'Inner Mongolian Grasslands',
+		'Beijing',
+		'Loess & Shanxi Heritage',
+		'Northeastern Forests',
+		'Canton',
+		'Guilin',
+		'Hakka Fujian',
+		'Wuhan',
+		'Shanghai',
+		'WaterTowns',
+		'Hangzhou',
+		'Yellow Mountain & Southern Anhui'
 	];
 
 	const filteredJourneys = useMemo(() => {
@@ -180,11 +203,10 @@ export default function JourneysPage() {
 			const matchesRegion = selectedRegion === 'All' || journey.region === selectedRegion;
 			const matchesDuration = selectedDuration === 'All' || journey.duration === selectedDuration;
 			const matchesInterest = selectedInterest === 'All' || journey.category === selectedInterest;
-			// Note: Month filtering would need additional data in journey objects
-			const matchesMonth = selectedMonth === 'All'; // For now, always true
+			const matchesPlace = selectedPlace === 'All' || (journey.place && journey.place === selectedPlace);
 			const matchesSearch = journey.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
 								 journey.description.toLowerCase().includes(searchTerm.toLowerCase());
-			return isActive && matchesJourneyType && matchesRegion && matchesDuration && matchesInterest && matchesMonth && matchesSearch;
+			return isActive && matchesJourneyType && matchesRegion && matchesDuration && matchesInterest && matchesPlace && matchesSearch;
 		});
 		
 		// 调试信息：在开发环境中输出
@@ -210,7 +232,7 @@ export default function JourneysPage() {
 		}
 		
 		return filtered;
-	}, [journeys, selectedJourneyType, selectedRegion, selectedDuration, selectedInterest, selectedMonth, searchTerm]);
+	}, [journeys, selectedJourneyType, selectedRegion, selectedDuration, selectedInterest, selectedPlace, searchTerm]);
 
 	// 加载状态
 	if (isLoading) {
@@ -429,7 +451,7 @@ export default function JourneysPage() {
 								<div className="mb-8">
 									<h4 className="text-xl font-['Monda'] font-bold mb-4">REGIONS</h4>
 									<div className="flex flex-wrap gap-2">
-										{['All', 'Sichuan', 'Chongqing', 'Qinghai', 'Gansu', 'Xinjiang', 'Shaanxi'].map((region) => (
+										{regionOptions.map((region) => (
 											<button
 												key={region}
 												className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
@@ -469,11 +491,11 @@ export default function JourneysPage() {
 									</div>
 								</div>
 
-								{/* Interests Filter */}
+								{/* Interests Filter - 对应 Journey.category */}
 								<div className="mb-8">
 									<h4 className="text-xl font-['Monda'] font-bold mb-4">INTERESTS</h4>
 									<div className="flex flex-wrap gap-2">
-										{['All', 'City', 'Culture & History', 'Food', 'Adventure'].map((interest) => (
+										{['All', 'Nature', 'Culture', 'History', 'City', 'Cruises'].map((interest) => (
 											<button
 												key={interest}
 												className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
@@ -491,23 +513,23 @@ export default function JourneysPage() {
 									</div>
 								</div>
 
-								{/* Months Filter */}
+								{/* Places Filter */}
 								<div className="mb-8">
-									<h4 className="text-xl font-['Monda'] font-bold mb-4">MONTHS</h4>
-									<div className="flex flex-wrap gap-2">
-										{['All', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map((month) => (
+									<h4 className="text-xl font-['Monda'] font-bold mb-4">PLACES</h4>
+									<div className="flex flex-wrap gap-2 max-h-60 overflow-y-auto">
+										{placeOptions.map((place) => (
 											<button
-												key={month}
+												key={place}
 												className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
-													selectedMonth === month ? 'bg-gray-200' : 'bg-white'
+													selectedPlace === place ? 'bg-gray-200' : 'bg-white'
 												}`}
 												style={{
 													color: 'black',
-													backgroundColor: selectedMonth === month ? '#e5e7eb' : 'white'
+													backgroundColor: selectedPlace === place ? '#e5e7eb' : 'white'
 												}}
-												onClick={() => setSelectedMonth(month)}
+												onClick={() => setSelectedPlace(place)}
 											>
-												{month}
+												{place}
 											</button>
 										))}
 									</div>

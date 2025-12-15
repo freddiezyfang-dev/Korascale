@@ -113,6 +113,7 @@ export async function GET(request: NextRequest) {
         category: row.category,
         journeyType: row.journey_type || undefined, // 版面分类
         region: row.region,
+        place: row.place || undefined,
         city: row.city,
         location: row.location,
         duration: row.duration,
@@ -178,6 +179,7 @@ export async function POST(request: NextRequest) {
       category,
       journeyType,
       region,
+      place,
       city,
       location,
       duration,
@@ -217,13 +219,13 @@ export async function POST(request: NextRequest) {
     const insertSql = `
       INSERT INTO journeys (
         title, slug, description, short_description, 
-        price, original_price, category, journey_type, region, city, location,
+        price, original_price, category, journey_type, region, place, city, location,
         duration, difficulty, max_participants, min_participants,
         image, status, featured, rating, review_count,
         data, created_at, updated_at
       ) VALUES (
-        $2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,
-        $13,$14,$15,$16,$17,$18,$19,$20,$21,
+        $2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,
+        $14,$15,$16,$17,$18,$19,$20,$21,$22,
         $1::jsonb,NOW(),NOW()
       ) RETURNING id, created_at, updated_at
     `;
@@ -238,6 +240,7 @@ export async function POST(request: NextRequest) {
       category || null,
       journeyType || null, // journey_type
       region || null,
+      place || null,
       city || null,
       location || null,
       duration || null,

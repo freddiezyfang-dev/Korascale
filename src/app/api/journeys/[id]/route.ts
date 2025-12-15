@@ -43,6 +43,7 @@ export async function GET(
       category: row.category,
       journeyType: row.journey_type || undefined, // 版面分类
       region: row.region,
+      place: row.place || undefined,
       city: row.city,
       location: row.location,
       duration: row.duration,
@@ -138,6 +139,10 @@ export async function PUT(
     if (updates.region !== undefined) {
       updateFields.push(`region = $${paramIndex++}`);
       updateValues.push(updates.region as any);
+    }
+    if ((updates as any).place !== undefined) {
+      updateFields.push(`place = $${paramIndex++}`);
+      updateValues.push((updates as any).place);
     }
     if ((updates as any).duration !== undefined) {
       updateFields.push(`duration = $${paramIndex++}`);

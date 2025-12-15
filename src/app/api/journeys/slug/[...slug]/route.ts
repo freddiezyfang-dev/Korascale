@@ -49,6 +49,7 @@ export async function GET(
       category: row.category,
       journeyType: row.journey_type || undefined, // 版面分类
       region: row.region,
+      place: row.place || undefined,
       city: row.city,
       location: row.location,
       duration: row.duration,

@@ -82,7 +82,7 @@ export default function InspirationsSection() {
         <Container size="xl">
           <div className="text-center mb-8">
             <Heading level={2} className="text-5xl font-heading">
-              How do you want to travel
+              Get inspired
             </Heading>
           </div>
         </Container>

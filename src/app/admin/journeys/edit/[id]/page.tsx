@@ -29,7 +29,7 @@ import {
 import { uploadAPI } from '@/lib/databaseClient';
 
 const categoryOptions = [
-  'Food', 'Culture & History', 'Adventure', 'City', 'Nature', 'Spiritual'
+  'Nature', 'Culture', 'History', 'City', 'Cruises'
 ];
 
 const journeyTypeOptions: JourneyType[] = [
@@ -41,7 +41,35 @@ const journeyTypeOptions: JourneyType[] = [
 const difficultyOptions = ['Easy', 'Medium', 'Hard'];
 
 const regionOptions = [
-  'Sichuan', 'Chongqing', 'Qinghai', 'Gansu', 'Xinjiang', 'Shaanxi', 'Tibet', 'Yunnan'
+  'Northwest China',
+  'Northwest&Northern Frontier',
+  'North China',
+  'South China',
+  'East&Central China'
+];
+
+const placeOptions = [
+  'Tibetan Plateau & Kham Region',
+  'Yunnan–Guizhou Highlands',
+  'Sichuan Basin & Mountains',
+  'Chongqing & Three Gorges',
+  'Zhangjiajie',
+  'Silk Road Corridor',
+  'Qinghai–Tibet Plateau',
+  'Xi\'an',
+  'Xinjiang Oases & Deserts',
+  'Inner Mongolian Grasslands',
+  'Beijing',
+  'Loess & Shanxi Heritage',
+  'Northeastern Forests',
+  'Canton',
+  'Guilin',
+  'Hakka Fujian',
+  'Wuhan',
+  'Shanghai',
+  'WaterTowns',
+  'Hangzhou',
+  'Yellow Mountain & Southern Anhui'
 ];
 
 const statusOptions = [
@@ -88,11 +116,38 @@ export default function EditJourneyPage() {
     }
   }, [journeyId, journeys, user, router]);
 
+  // 辅助函数：从duration字符串中提取数字
+  const parseDurationDays = (duration: string | undefined): number => {
+    if (!duration) return 1;
+    const match = duration.match(/\d+/);
+    return match ? parseInt(match[0], 10) : 1;
+  };
+
+  // 辅助函数：将数字格式化为duration字符串
+  const formatDuration = (days: number): string => {
+    if (days <= 0) return '1 Day';
+    return days === 1 ? '1 Day' : `${days} Days`;
+  };
+
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
+  };
+
+  // 处理duration输入（只接受数字，自动格式化）
+  const handleDurationChange = (value: string) => {
+    // 只允许数字
+    const numValue = value.replace(/\D/g, '');
+    if (numValue === '') {
+      handleInputChange('duration', '');
+      return;
+    }
+    const days = parseInt(numValue, 10);
+    if (!isNaN(days) && days > 0) {
+      handleInputChange('duration', formatDuration(days));
+    }
   };
 
   const handleExperienceSelection = (experienceId: string, checked: boolean) => {
@@ -171,16 +226,25 @@ export default function EditJourneyPage() {
     if (!journey || isSaving) return;
     setIsSaving(true);
     try {
+      // 确保duration格式正确（如果只是数字，格式化为"X Day"或"X Days"）
+      const saveData = { ...formData };
+      if (saveData.duration && /^\d+$/.test(saveData.duration.trim())) {
+        const days = parseInt(saveData.duration.trim(), 10);
+        if (!isNaN(days) && days > 0) {
+          saveData.duration = formatDuration(days);
+        }
+      }
+      
       // 调试：打印要保存的数据
       console.log('Saving journey data:', {
         journeyId: journey.id,
-        formData: formData,
-        highlights: formData.highlights,
-        highlightsType: Array.isArray(formData.highlights) ? 'array' : typeof formData.highlights,
-        highlightsLength: Array.isArray(formData.highlights) ? formData.highlights.length : 'N/A'
+        formData: saveData,
+        highlights: saveData.highlights,
+        highlightsType: Array.isArray(saveData.highlights) ? 'array' : typeof saveData.highlights,
+        highlightsLength: Array.isArray(saveData.highlights) ? saveData.highlights.length : 'N/A'
       });
       
-      const updated = await updateJourney(journey.id, formData);
+      const updated = await updateJourney(journey.id, saveData);
       
       // 调试：打印保存后的数据
       console.log('Journey saved, updated data:', {
@@ -418,7 +482,7 @@ export default function EditJourneyPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Region</label>
                       <select
@@ -433,6 +497,23 @@ export default function EditJourneyPage() {
                       </select>
                     </div>
 
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Place</label>
+                      <select
+                        value={isEditing ? (formData.place ?? '') : ((journey as any).place ?? '')}
+                        onChange={(e) => handleInputChange('place', e.target.value)}
+                        disabled={!isEditing}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                      >
+                        <option value="">Select Place (Optional)</option>
+                        {placeOptions.map(place => (
+                          <option key={place} value={place}>{place}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
                       <input
@@ -452,14 +533,35 @@ export default function EditJourneyPage() {
                 <Heading level={2} className="text-xl font-semibold mb-4">Pricing & Duration</Heading>
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Duration</label>
-                    <input
-                      type="text"
-                      value={isEditing ? (formData.duration ?? '') : (journey.duration ?? '')}
-                      onChange={(e) => handleInputChange('duration', e.target.value)}
-                      disabled={!isEditing}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                    />
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Duration (Days)</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min="1"
+                        value={isEditing 
+                          ? parseDurationDays(formData.duration) 
+                          : parseDurationDays(journey.duration)}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === '') {
+                            handleDurationChange('');
+                          } else {
+                            const days = parseInt(value, 10);
+                            if (!isNaN(days) && days > 0) {
+                              handleDurationChange(days.toString());
+                            }
+                          }
+                        }}
+                        disabled={!isEditing}
+                        placeholder="Enter days"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                      />
+                      <span className="text-sm text-gray-500 whitespace-nowrap">
+                        {isEditing 
+                          ? formData.duration || 'Day(s)'
+                          : journey.duration || 'Day(s)'}
+                      </span>
+                    </div>
                   </div>
 
                   <div>
@@ -553,9 +655,9 @@ export default function EditJourneyPage() {
                           </div>
                           <div>
                             <label className="block text-xs font-medium text-gray-600 mb-1">Content</label>
-                            <textarea
+                    <textarea
                               value={highlight.description || highlight.title || ''}
-                              onChange={(e) => {
+                      onChange={(e) => {
                                 const currentHighlights = isEditing 
                                   ? (formData.overview?.highlights || [])
                                   : (journey.overview?.highlights || []);
@@ -565,10 +667,10 @@ export default function EditJourneyPage() {
                                   ...formData.overview,
                                   highlights: newHighlights
                                 });
-                              }}
-                              disabled={!isEditing}
+                      }}
+                      disabled={!isEditing}
                               rows={4}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
                               placeholder="输入highlight内容（支持换行）"
                             />
                           </div>

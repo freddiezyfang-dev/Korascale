@@ -2,14 +2,9 @@
 
 import { useState, useEffect, useRef } from "react";
 
-// 视频源配置：
-// 1. 优先使用环境变量 NEXT_PUBLIC_HERO_VIDEO_URL（Vercel Blob URL）
-// 2. 如果没有环境变量，使用本地路径（仅用于开发环境）
-// 3. 如果都没有，使用占位符
-const heroVideo = 
-  typeof window !== 'undefined' && process.env.NEXT_PUBLIC_HERO_VIDEO_URL
-    ? process.env.NEXT_PUBLIC_HERO_VIDEO_URL
-    : "/videos/Herobanner1.mp4"; // 本地路径（开发环境）
+// 使用本地视频资源 - 将视频文件放在 /public/videos/ 文件夹中
+// 支持 .mp4, .webm, .mov 等格式
+const heroVideo = "/videos/hero-video.mp4"; // 主视频文件路径
 
 interface HeroCarouselProps {
   autoSlide?: boolean;

@@ -182,9 +182,10 @@ export interface Journey {
   duration: string;
   price: number;
   originalPrice?: number;
-  category: 'Food' | 'Culture & History' | 'Adventure' | 'City' | 'Nature' | 'Spiritual';
+  category: 'Nature' | 'Culture' | 'History' | 'City' | 'Cruises';
   journeyType?: JourneyType; // 版面分类：Explore Together, Deep Discovery, Signature Journeys
-  region: string;
+  region: 'Northwest China' | 'Northwest&Northern Frontier' | 'North China' | 'South China' | 'East&Central China';
+  place?: string; // 具体地点：Tibetan Plateau & Kham Region, Yunnan–Guizhou Highlands, 等
   city: string;
   location: string;
   difficulty: 'Easy' | 'Medium' | 'Hard';

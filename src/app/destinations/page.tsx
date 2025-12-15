@@ -12,39 +12,50 @@ const imgGansuQinghai = "/images/journey-cards/gansu-zhangye.jpg";
 const imgShaanxi = "/images/journey-cards/shannxi-yejing.jpg";
 const imgXinjiang = "/images/journey-cards/xinjiang-altstadt.webp";
 
-// 省份数据
-const provinces = [
+// 地区数据
+const regions = [
   {
     id: 1,
-    name: "Sichuan & Chongqing",
-    image: imgSichuanChongqing,
-    description: "熊猫之乡，火锅之都"
+    name: "Northwest China",
+    image: imgXinjiang,
+    description: "Explore the vast landscapes and rich cultural heritage of Northwest China",
+    slug: "northwest-china"
   },
   {
     id: 2,
-    name: "Gansu & Qinghai",
+    name: "Northwest & Northern Frontier",
     image: imgGansuQinghai,
-    description: "丝绸之路，高原风光"
+    description: "Discover the frontier regions with stunning natural beauty"
   },
   {
     id: 3,
-    name: "Shaanxi",
+    name: "North China",
     image: imgShaanxi,
-    description: "古都西安，兵马俑"
+    description: "Experience the historical heartland of ancient China"
   },
   {
     id: 4,
-    name: "Xinjiang",
-    image: imgXinjiang,
-    description: "新疆维吾尔自治区"
+    name: "South China",
+    image: imgSichuanChongqing,
+    description: "Immerse yourself in the vibrant culture and cuisine of South China"
+  },
+  {
+    id: 5,
+    name: "East & Central China",
+    image: imgSichuanChongqing,
+    description: "Journey through the economic and cultural centers of China"
   }
 ];
 
 export default function Destinations() {
+  const [selectedRegion, setSelectedRegion] = useState(regions[0].id);
+  
   // 设置页面标题
   useEffect(() => {
     document.title = "Destinations - Korascale";
   }, []);
+
+  const selectedRegionData = regions.find(r => r.id === selectedRegion) || regions[0];
 
   return (
     <main className="min-h-screen bg-white">
@@ -107,60 +118,73 @@ export default function Destinations() {
         </div>
       </Section>
 
-      {/* Provinces Section */}
-      <Section background="secondary" padding="xl" className="py-24">
-        <Container size="xl">
-          <div className="text-center mb-16">
-            <Heading level={2} className="text-5xl font-heading mb-4">
-              Your Next Adventure Awaits
-            </Heading>
-            <Text className="text-2xl text-black max-w-4xl mx-auto">
-              Select a province to discover its unique landscapes, heritage, and experiences.
-            </Text>
+      {/* Regions Section - 左右分栏布局 */}
+      <Section background="secondary" padding="none" className="py-12 bg-white">
+        <div className="flex flex-col md:flex-row items-stretch min-h-[720px]">
+          {/* 左侧图片区域 - 竖长方形 */}
+          <div className="md:w-[45%] h-[640px] flex items-center justify-center p-8">
+            <div className="relative w-full h-full rounded-xl overflow-hidden">
+              <div
+                className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-500 ease-in-out"
+                style={{ backgroundImage: `url('${selectedRegionData.image}')` }}
+              />
+              {/* 图片底部位置标签 */}
+              <div className="absolute bottom-6 left-6 flex items-center gap-2 text-white">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                </svg>
+                <Text className="text-sm" style={{ fontFamily: 'Monda, sans-serif', color: '#FFFFFF' }}>
+                  {selectedRegionData.name}
+                </Text>
+              </div>
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-8">
-            {provinces.map((province, index) => (
-              <div
-                key={province.id}
-                className="relative h-[380px] overflow-hidden rounded-lg group cursor-pointer transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-2xl"
-              >
-                <div
-                  className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-500 ease-in-out group-hover:scale-110"
-                  style={{ backgroundImage: `url('${province.image}')` }}
-                />
-                {/* 渐变遮罩 - 从透明到半黑，让底部文字区域更易读 */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent group-hover:from-black/70 group-hover:via-black/30 transition-all duration-300"></div>
-                
-                {/* 添加额外的hover遮罩层 */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300"></div>
-                
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center transform group-hover:scale-105 transition-all duration-300">
-                    <Heading 
-                      level={3} 
-                      className="text-6xl font-heading mb-2 text-center text-white font-bold drop-shadow-lg group-hover:drop-shadow-2xl transition-all duration-300" 
-                      style={{ color: 'white' }}
-                    >
-                      {province.name}
-                    </Heading>
-                    {province.id === 4 && (
-                      <Text 
-                        className="text-3xl font-heading text-center text-white font-semibold drop-shadow-md group-hover:drop-shadow-xl transition-all duration-300" 
-                        style={{ color: 'white' }}
-                      >
-                        Uygur Autonomous Region
-                      </Text>
-                    )}
+          {/* 右侧地区列表 */}
+          <div className="md:w-[55%] bg-white flex flex-col justify-center px-8 py-12">
+            <div className="space-y-2">
+              {regions.map((region) => {
+                const isSelected = selectedRegion === region.id;
+
+                const label = (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedRegion(region.id)}
+                    className={`
+                      w-full text-left py-4 px-4 transition-all duration-200
+                      ${isSelected
+                        ? 'font-bold text-black'
+                        : 'font-normal text-gray-400 hover:text-gray-600'
+                      }
+                    `}
+                    style={{
+                      fontFamily: 'Montaga, serif',
+                      fontSize: '2rem',
+                      fontWeight: isSelected ? 700 : 400
+                    }}
+                  >
+                    {region.name}
+                  </button>
+                );
+
+                // Northwest China 可点击进入详情页
+                if (region.slug === 'northwest-china') {
+                  return (
+                    <Link key={region.id} href={`/destinations/${region.slug}`} className="block">
+                      {label}
+                    </Link>
+                  );
+                }
+
+                return (
+                  <div key={region.id}>
+                    {label}
                   </div>
-                </div>
-                
-                {/* 添加hover时的边框效果 */}
-                <div className="absolute inset-0 border-2 border-transparent group-hover:border-white/30 rounded-lg transition-all duration-300"></div>
-              </div>
-            ))}
+                );
+              })}
+            </div>
           </div>
-        </Container>
+        </div>
       </Section>
 
       {/* Inspirations Section */}
