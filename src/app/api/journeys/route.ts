@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
     }
     
     // 转换数据库格式到应用格式
-    const journeys = rows.map(row => {
+    const journeys = rows.map((row: any) => {
       const baseData = row.data || {};
       return {
         // 基础字段
