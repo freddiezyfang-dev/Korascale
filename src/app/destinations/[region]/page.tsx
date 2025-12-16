@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/components/common';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { northwestSubRegions } from '../northwestSubRegions';
+import RegionMap from '@/components/map/RegionMap';
 
 // 地区映射
 const regionMap: { [key: string]: { name: string; description: string; image: string } } = {
@@ -349,14 +350,88 @@ export default function RegionDestinationsPage() {
       {/* Northwest China Map Section */}
       {isNorthwestChina && (
         <>
-          <Section id="map" background="primary" padding="xl" className="py-16">
-            <Container size="xl">
-              <Heading level={2} className="text-3xl font-heading mb-4">
-                Map
-              </Heading>
-              <Text className="text-lg text-gray-600">
-                A detailed map of Northwest China and featured journeys will appear here.
-              </Text>
+          <Section id="map" background="primary" padding="none" className="py-16">
+            <Container size="xl" className="px-0">
+              <div className="flex flex-col lg:flex-row h-[800px]">
+                {/* 左侧地图区域 */}
+                <div className="lg:w-1/2 h-full px-4 lg:px-6">
+                  <RegionMap 
+                    journeys={filteredJourneys.map(j => ({
+                      id: j.id,
+                      title: j.title,
+                      image: j.image,
+                      region: j.region,
+                      city: (j as any).city,
+                      location: (j as any).location,
+                      coordinates: (j as any).coordinates || undefined
+                    }))}
+                    regionName={regionInfo.name}
+                    defaultCenter={[104.1954, 35.8617]}
+                    defaultZoom={5}
+                  />
+                </div>
+
+                {/* 右侧旅行点列表 */}
+                <div className="lg:w-1/2 h-full overflow-y-auto px-4 lg:px-6 bg-white">
+                  <div className="py-4">
+                    <Heading level={2} className="text-2xl font-heading mb-6" style={{ fontFamily: 'Montaga, serif' }}>
+                      Where to go
+                    </Heading>
+                    
+                    {filteredJourneys.length === 0 ? (
+                      <div className="text-center py-16">
+                        <Text className="text-gray-600">
+                          No journeys available for {regionInfo.name} yet.
+                        </Text>
+                      </div>
+                    ) : (
+                      <div className="space-y-6">
+                        {filteredJourneys.map((journey) => (
+                          <div
+                            key={journey.id}
+                            id={`journey-${journey.id}`}
+                            className="flex gap-4 pb-6 border-b border-gray-200 last:border-b-0"
+                          >
+                            {/* 图片 */}
+                            <div className="w-32 h-24 flex-shrink-0 rounded overflow-hidden">
+                              <img
+                                src={journey.image}
+                                alt={journey.title}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            
+                            {/* 内容 */}
+                            <div className="flex-1">
+                              <Heading 
+                                level={3} 
+                                className="text-lg font-heading mb-2"
+                                style={{ fontFamily: 'Montaga, serif' }}
+                              >
+                                {journey.title}
+                              </Heading>
+                              <Text 
+                                className="text-sm text-gray-600 mb-3 line-clamp-2"
+                                style={{ fontFamily: 'Monda, sans-serif' }}
+                              >
+                                {journey.shortDescription || journey.description || ''}
+                              </Text>
+                              <Link 
+                                href={`/journeys/${journey.slug || journey.id}`}
+                                className="text-sm text-[#c0a273] hover:underline"
+                                style={{ fontFamily: 'Monda, sans-serif' }}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                Discover more
+                              </Link>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </Container>
           </Section>
 

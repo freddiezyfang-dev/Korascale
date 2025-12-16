@@ -27,39 +27,79 @@ const createTimeoutSignal = (timeoutMs: number): AbortSignal => {
 
 // Journey API调用
 export const journeyAPI = {
-  // 获取所有journeys
-  async getAll(): Promise<Journey[]> {
-    try {
-      const response = await fetch(getApiUrl('/api/journeys'), {
-        // 添加超时控制
-        signal: createTimeoutSignal(10000), // 10秒超时
-      });
-      
-      if (!response.ok) {
-        // 尝试获取详细的错误信息
-        let errorMessage = `Failed to fetch journeys (HTTP ${response.status})`;
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.error || errorMessage;
-        } catch (e) {
-          // 如果无法解析错误响应，使用默认消息
+  // 获取所有journeys（带重试机制）
+  async getAll(retries: number = 2): Promise<Journey[]> {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const timeoutMs = attempt === 0 ? 20000 : 30000; // 第一次20秒，重试30秒
+        const response = await fetch(getApiUrl('/api/journeys'), {
+          // 添加超时控制
+          signal: createTimeoutSignal(timeoutMs),
+          // 添加缓存控制
+          cache: 'no-store',
+        });
+        
+        if (!response.ok) {
+          // 尝试获取详细的错误信息
+          let errorMessage = `Failed to fetch journeys (HTTP ${response.status})`;
+          try {
+            const errorData = await response.json();
+            errorMessage = errorData.error || errorMessage;
+          } catch (e) {
+            // 如果无法解析错误响应，使用默认消息
+          }
+          
+          // 如果是服务器错误且还有重试次数，继续重试
+          if (response.status >= 500 && attempt < retries) {
+            console.warn(`[JourneyAPI] Attempt ${attempt + 1} failed, retrying...`, errorMessage);
+            await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1))); // 递增延迟
+            continue;
+          }
+          
+          console.error('API Error:', errorMessage);
+          throw new Error(errorMessage);
         }
-        console.error('API Error:', errorMessage);
-        throw new Error(errorMessage);
+        
+        const data = await response.json();
+        return data.journeys || [];
+      } catch (error) {
+        // 如果是 AbortError（超时）
+        if (error instanceof Error && error.name === 'AbortError') {
+          const timeoutMsg = `Request timeout: Failed to fetch journeys within ${attempt === 0 ? 20 : 30} seconds`;
+          console.warn(`[JourneyAPI] ${timeoutMsg} (attempt ${attempt + 1}/${retries + 1})`);
+          
+          // 如果还有重试次数，继续重试
+          if (attempt < retries) {
+            await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1))); // 递增延迟
+            continue;
+          }
+          
+          console.error(timeoutMsg);
+        } else {
+          console.error('Error fetching journeys:', error);
+          
+          // 如果是网络错误且还有重试次数，继续重试
+          if (attempt < retries && error instanceof Error && (
+            error.message.includes('fetch') || 
+            error.message.includes('network') ||
+            error.message.includes('Failed to fetch')
+          )) {
+            console.warn(`[JourneyAPI] Network error on attempt ${attempt + 1}, retrying...`);
+            await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+            continue;
+          }
+        }
+        
+        // 最后一次尝试失败，返回空数组
+        if (attempt === retries) {
+          console.warn('[JourneyAPI] All retry attempts failed, returning empty array');
+          return [];
+        }
       }
-      
-      const data = await response.json();
-      return data.journeys || [];
-    } catch (error) {
-      // 如果是 AbortError（超时），提供更友好的错误信息
-      if (error instanceof Error && error.name === 'AbortError') {
-        console.error('Request timeout: Failed to fetch journeys within 10 seconds');
-      } else {
-        console.error('Error fetching journeys:', error);
-      }
-      // 如果请求失败，返回空数组而不是挂起，让页面可以正常加载
-      return [];
     }
+    
+    // 理论上不会到达这里，但为了类型安全
+    return [];
   },
 
   // 获取单个journey

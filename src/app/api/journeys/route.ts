@@ -45,56 +45,57 @@ export async function GET(request: NextRequest) {
     
     console.log('[API /journeys] Database connection info:', connectionInfo);
     
-    // 先检查表是否存在
-    let tableExists = false;
-    try {
-      const checkTableResult = await query(`
-        SELECT EXISTS (
-          SELECT FROM information_schema.tables 
-          WHERE table_schema = 'public' 
-          AND table_name = 'journeys'
-        );
-      `);
-      tableExists = checkTableResult.rows[0]?.exists || false;
-      console.log('[API /journeys] Table exists check:', tableExists);
-      
-      if (!tableExists) {
-        // 列出所有表用于调试
-        const allTablesResult = await query(`
-          SELECT table_name 
-          FROM information_schema.tables 
-          WHERE table_schema = 'public' 
-          ORDER BY table_name;
-        `);
-        console.log('[API /journeys] Available tables:', allTablesResult.rows.map(r => r.table_name));
-        
-        return NextResponse.json(
-          { 
-            error: 'Journeys table does not exist. Please run database migrations.',
-            availableTables: allTablesResult.rows.map(r => r.table_name),
-            details: process.env.NODE_ENV === 'development' ? 'Table check failed' : undefined
-          },
-          { status: 500 }
-        );
-      }
-    } catch (checkError) {
-      console.error('[API /journeys] Error checking table existence:', checkError);
-      return NextResponse.json(
-        { 
-          error: 'Database connection error',
-          details: process.env.NODE_ENV === 'development' ? String(checkError) : undefined
-        },
-        { status: 500 }
-      );
-    }
-    
+    // 直接查询 journeys 表，如果表不存在会在查询时捕获错误
     let rows;
     try {
-      const result = await query('SELECT * FROM journeys ORDER BY created_at DESC');
+      // 使用更简单的查询，只选择必要的字段，减少数据传输量
+      // 添加查询超时控制（使用 Promise.race）
+      const queryPromise = query(`
+        SELECT 
+          id, title, slug, description, short_description,
+          price, original_price, category, journey_type, region, place, city, location,
+          duration, difficulty, max_participants, min_participants,
+          image, status, featured, rating, review_count,
+          data, created_at, updated_at
+        FROM journeys 
+        WHERE status = 'active' OR status IS NULL
+        ORDER BY created_at DESC
+        LIMIT 1000
+      `);
+      
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Database query timeout after 20 seconds')), 20000)
+      );
+      
+      const result = await Promise.race([queryPromise, timeoutPromise]) as any;
       rows = result.rows;
       console.log('[API /journeys] Found', rows.length, 'journeys');
     } catch (dbError) {
       console.error('[API /journeys] Database query error:', dbError);
+      
+      // 检查是否是表不存在的错误
+      const errorMessage = dbError instanceof Error ? dbError.message : String(dbError);
+      if (errorMessage.includes('does not exist') || errorMessage.includes('relation') || errorMessage.includes('table')) {
+        return NextResponse.json(
+          { 
+            error: 'Journeys table does not exist. Please run database migrations.',
+            details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+          },
+          { status: 500 }
+        );
+      }
+      
+      // 如果是超时错误，返回更友好的错误信息
+      if (errorMessage.includes('timeout')) {
+        return NextResponse.json(
+          { 
+            error: 'Database query timeout. The database may be slow or overloaded. Please try again later.',
+            details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+          },
+          { status: 504 } // Gateway Timeout
+        );
+      }
+      
       throw dbError; // 重新抛出其他错误
     }
     
