@@ -41,8 +41,6 @@ function getPool(): Pool {
       max: 10, // 最大连接数
       idleTimeoutMillis: 30000, // 空闲连接超时（30秒）
       connectionTimeoutMillis: 10000, // 连接超时（10秒）
-      // 对于 serverless 环境，使用较短的连接生命周期
-      maxLifetime: 60 * 1000, // 连接最大生命周期（60秒）
     });
   }
   
