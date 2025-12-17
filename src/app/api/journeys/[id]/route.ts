@@ -204,15 +204,33 @@ export async function PUT(
     if ((updates as any).modules !== undefined) jsonbUpdates.modules = (updates as any).modules;
     if ((updates as any).relatedTrips !== undefined) jsonbUpdates.relatedTrips = (updates as any).relatedTrips;
     
+    // 先获取journey ID并验证journey是否存在
+    const { id } = await context.params;
+    
+    // 验证journey是否存在
+    const { rows: existingRows } = await query('SELECT id FROM journeys WHERE id = $1', [id]);
+    if (existingRows.length === 0) {
+      return NextResponse.json(
+        { error: 'Journey not found' },
+        { status: 404 }
+      );
+    }
+    
     if (Object.keys(jsonbUpdates).length > 0) {
       // 合并现有的JSONB数据
-      const { id } = await context.params;
-      const { rows } = await query('SELECT data FROM journeys WHERE id = $1', [id]);
-      const existingData = rows[0]?.data || {};
-      const mergedData = { ...existingData, ...jsonbUpdates };
-      
-      updateFields.push(`data = $${paramIndex++}`);
-      updateValues.push(JSON.stringify(mergedData));
+      try {
+        const { rows } = await query('SELECT data FROM journeys WHERE id = $1', [id]);
+        const existingData = rows[0]?.data || {};
+        const mergedData = { ...existingData, ...jsonbUpdates };
+        
+        updateFields.push(`data = $${paramIndex++}`);
+        updateValues.push(JSON.stringify(mergedData));
+      } catch (jsonbError: any) {
+        console.error('Error merging JSONB data:', jsonbError);
+        // 如果合并失败，直接使用新的数据
+        updateFields.push(`data = $${paramIndex++}`);
+        updateValues.push(JSON.stringify(jsonbUpdates));
+      }
     }
     
     if (updateFields.length === 0) {
@@ -228,15 +246,41 @@ export async function PUT(
       WHERE id = $${paramIndex}
       RETURNING id, updated_at
     `;
-    const { id } = await context.params;
     updateValues.push(id);
-    await query(updateSql, updateValues);
+    
+    try {
+      await query(updateSql, updateValues);
+    } catch (dbError: any) {
+      // 如果是数据库约束错误，提供更详细的错误信息
+      if (dbError.code === '23505') { // 唯一约束违反
+        throw new Error(`Duplicate value: ${dbError.detail || 'Unique constraint violation'}`);
+      } else if (dbError.code === '23503') { // 外键约束违反
+        throw new Error(`Foreign key constraint violation: ${dbError.detail || 'Referenced record does not exist'}`);
+      } else if (dbError.code === '23502') { // 非空约束违反
+        throw new Error(`Not null constraint violation: ${dbError.detail || 'Required field is missing'}`);
+      }
+      throw dbError;
+    }
     
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error updating journey:', error);
+    
+    // 提取更详细的错误信息
+    let errorMessage = 'Failed to update journey';
+    if (error?.message) {
+      errorMessage = error.message;
+    } else if (typeof error === 'string') {
+      errorMessage = error;
+    }
+    
+    // 如果是数据库错误，提取更具体的信息
+    if (error?.code) {
+      errorMessage = `Database error: ${error.code} - ${errorMessage}`;
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to update journey' },
+      { error: errorMessage, details: error?.stack || null },
       { status: 500 }
     );
   }

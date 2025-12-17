@@ -155,8 +155,20 @@ export const journeyAPI = {
       });
       
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to update journey');
+        let errorMessage = 'Failed to update journey';
+        try {
+          const error = await response.json();
+          errorMessage = error.error || errorMessage;
+          // 如果有详细信息，也包含在错误消息中
+          if (error.details) {
+            console.error('Update journey error details:', error.details);
+          }
+        } catch (e) {
+          // 如果无法解析错误响应，尝试获取文本
+          const text = await response.text();
+          errorMessage = text || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
       
       const data = await response.json();
