@@ -533,6 +533,26 @@ export default function AddJourneyPage() {
                     </div>
 
                     <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Min Participants</label>
+                      <input
+                        type="number"
+                        value={formData.minParticipants || 2}
+                        onChange={(e) => handleInputChange('minParticipants', parseInt(e.target.value))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Max Participants</label>
+                      <input
+                        type="number"
+                        value={formData.maxParticipants || 12}
+                        onChange={(e) => handleInputChange('maxParticipants', parseInt(e.target.value))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Max Guests</label>
                       <input
                         type="number"

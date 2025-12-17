@@ -585,6 +585,28 @@ export default function EditJourneyPage() {
                   </div>
 
                   <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Min Participants</label>
+                    <input
+                      type="number"
+                      value={isEditing ? formData.minParticipants || 0 : journey.minParticipants || 0}
+                      onChange={(e) => handleInputChange('minParticipants', parseInt(e.target.value))}
+                      disabled={!isEditing}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Max Participants</label>
+                    <input
+                      type="number"
+                      value={isEditing ? formData.maxParticipants || 0 : journey.maxParticipants || 0}
+                      onChange={(e) => handleInputChange('maxParticipants', parseInt(e.target.value))}
+                      disabled={!isEditing}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                    />
+                  </div>
+
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Max Guests</label>
                     <input
                       type="number"
