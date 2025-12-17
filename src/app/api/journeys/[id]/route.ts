@@ -95,6 +95,9 @@ export async function PUT(
     const updateValues: any[] = [];
     let paramIndex = 1;
     
+    // JSONB字段更新（提前声明，以便在检查place列时使用）
+    const jsonbUpdates: any = {};
+    
     // 基础字段
     if (updates.title !== undefined) {
       updateFields.push(`title = $${paramIndex++}`);
@@ -206,8 +209,7 @@ export async function PUT(
       updateValues.push((updates as any).reviewCount);
     }
     
-    // JSONB字段更新
-    const jsonbUpdates: any = {};
+    // JSONB字段更新（继续添加其他JSONB字段）
     if (updates.itinerary !== undefined) jsonbUpdates.itinerary = updates.itinerary;
     if (updates.overview !== undefined) jsonbUpdates.overview = updates.overview;
     if (updates.includes !== undefined) jsonbUpdates.includes = updates.includes;
