@@ -254,7 +254,8 @@ export default function DynamicJourneyPage() {
     return {
       // Hero区域 - 使用后台设置的内容
       hero: {
-        image: journey.heroImage || journey.image,
+        // 优先使用后台 main image（image 字段），没有时再回退到 heroImage
+        image: journey.image || journey.heroImage,
         title: journey.pageTitle || journey.title,
         stats: journey.heroStats || {
           days: parseInt((journey.duration || '').split(' ')[0]) || 1,

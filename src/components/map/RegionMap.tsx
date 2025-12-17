@@ -149,7 +149,7 @@ export default function RegionMap({
         }}
       />
 
-      <div className="w-full h-full min-h-[600px] rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+      <div className="w-full h-full aspect-square rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
         {!process.env.NEXT_PUBLIC_MAPBOX_TOKEN ? (
           <div className="text-center p-8">
             <p className="text-gray-600 mb-2" style={{ fontFamily: 'Monda, sans-serif' }}>

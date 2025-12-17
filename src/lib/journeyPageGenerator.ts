@@ -259,7 +259,8 @@ export function generateJourneyPageFields(journey: Journey, allJourneys: Journey
     slug: journey.slug || generateSlug(journey.title),
     pageTitle: journey.pageTitle || generatePageTitle(journey.title),
     metaDescription: journey.metaDescription || generateMetaDescription(journey.description || ''),
-    heroImage: journey.heroImage || journey.image || '',
+    // 优先使用后台 main image（image 字段），没有时再回退到 heroImage
+    heroImage: journey.image || journey.heroImage || '',
     heroStats: journey.heroStats || generateHeroStats(journey),
     navigation: journey.navigation || generateNavigation(journey),
     overview: journey.overview || {

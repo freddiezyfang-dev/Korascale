@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
       const queryPromise = query(`
         SELECT 
           id, title, slug, description, short_description,
-          price, original_price, category, journey_type, region, place, city, location,
+          price, original_price, category, journey_type, region, city, location,
           duration, difficulty, max_participants, min_participants,
           image, status, featured, rating, review_count,
           data, created_at, updated_at
@@ -114,7 +114,6 @@ export async function GET(request: NextRequest) {
         category: row.category,
         journeyType: row.journey_type || undefined, // 版面分类
         region: row.region,
-        place: row.place || undefined,
         city: row.city,
         location: row.location,
         duration: row.duration,

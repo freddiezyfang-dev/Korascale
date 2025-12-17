@@ -351,28 +351,30 @@ export default function RegionDestinationsPage() {
       {isNorthwestChina && (
         <>
           <Section id="map" background="primary" padding="none" className="py-16">
-            <Container size="xl" className="px-0">
+            <Container size="xl" className="px-2 lg:px-4">
               <div className="flex flex-col lg:flex-row h-[800px]">
-                {/* 左侧地图区域 */}
-                <div className="lg:w-1/2 h-full px-4 lg:px-6">
-                  <RegionMap 
-                    journeys={filteredJourneys.map(j => ({
-                      id: j.id,
-                      title: j.title,
-                      image: j.image,
-                      region: j.region,
-                      city: (j as any).city,
-                      location: (j as any).location,
-                      coordinates: (j as any).coordinates || undefined
-                    }))}
-                    regionName={regionInfo.name}
-                    defaultCenter={[104.1954, 35.8617]}
-                    defaultZoom={5}
-                  />
+                {/* 左侧地图区域 - 正方形容器 */}
+                <div className="lg:w-1/2 h-full px-1 lg:px-2 flex items-center justify-center">
+                  <div className="w-full aspect-square max-w-[600px]">
+                    <RegionMap 
+                      journeys={filteredJourneys.map(j => ({
+                        id: j.id,
+                        title: j.title,
+                        image: j.image,
+                        region: j.region,
+                        city: (j as any).city,
+                        location: (j as any).location,
+                        coordinates: (j as any).coordinates || undefined
+                      }))}
+                      regionName={regionInfo.name}
+                      defaultCenter={[104.1954, 35.8617]}
+                      defaultZoom={5}
+                    />
+                  </div>
                 </div>
 
                 {/* 右侧旅行点列表 */}
-                <div className="lg:w-1/2 h-full overflow-y-auto px-4 lg:px-6 bg-white">
+                <div className="lg:w-1/2 h-full overflow-y-auto px-1 lg:px-2 bg-white">
                   <div className="py-4">
                     <Heading level={2} className="text-2xl font-heading mb-6" style={{ fontFamily: 'Montaga, serif' }}>
                       Where to go
