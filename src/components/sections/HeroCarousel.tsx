@@ -41,10 +41,41 @@ export default function HeroCarousel({
       if (!video) return;
       
       if (index === currentSlide) {
-        video.play().catch(err => {
-          console.error(`视频 ${index} 播放失败:`, err);
-          setVideoErrors(prev => new Set(prev).add(index));
-        });
+        // 确保视频已加载并可以播放
+        const playVideo = async () => {
+          try {
+            // 如果视频还没有加载元数据，等待加载
+            if (video.readyState < 2) {
+              await new Promise((resolve) => {
+                const handleCanPlay = () => {
+                  video.removeEventListener('canplay', handleCanPlay);
+                  resolve(null);
+                };
+                video.addEventListener('canplay', handleCanPlay);
+                // 如果视频已经可以播放，立即解析
+                if (video.readyState >= 2) {
+                  resolve(null);
+                }
+              });
+            }
+            
+            // 尝试播放视频
+            const playPromise = video.play();
+            if (playPromise !== undefined) {
+              await playPromise;
+            }
+          } catch (err: any) {
+            // 静默处理 NotAllowedError（浏览器自动播放策略阻止）
+            // 这是预期的行为，不需要显示错误
+            if (err.name !== 'NotAllowedError' && err.name !== 'AbortError') {
+              console.warn(`视频 ${index} 播放失败:`, err);
+            }
+            // NotAllowedError 不应该被视为视频错误，只是自动播放被阻止
+            // 用户可以通过交互来播放视频
+          }
+        };
+        
+        playVideo();
       } else {
         video.pause();
         video.currentTime = 0; // 重置到开头
@@ -108,7 +139,16 @@ export default function HeroCarousel({
                 loop
                 muted
                 playsInline
+                preload="auto"
                 onError={() => handleVideoError(index)}
+                onLoadedData={() => {
+                  // 当视频数据加载完成后，如果是当前幻灯片，尝试播放
+                  if (index === currentSlide && videoRefs.current[index]) {
+                    videoRefs.current[index]?.play().catch(() => {
+                      // 静默处理自动播放被阻止的情况
+                    });
+                  }
+                }}
               >
                 <source src={video.src} type="video/mp4" />
                 <source src={video.src.replace('.mp4', '.webm')} type="video/webm" />
