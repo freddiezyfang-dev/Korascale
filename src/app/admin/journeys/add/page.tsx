@@ -571,17 +571,101 @@ export default function AddJourneyPage() {
                 <Card className="p-6">
                   <Heading level={2} className="text-xl font-semibold mb-4">Overview Content & Highlights</Heading>
                   <div className="space-y-4">
+                    {/* Overview Description */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Overview Description</label>
                       <textarea
                         value={formData.overview?.description || formData.description || ''}
-                        onChange={(e) => handleInputChange('overview', { ...formData.overview, description: e.target.value })}
+                        onChange={(e) =>
+                          handleInputChange('overview', { ...formData.overview, description: e.target.value })
+                        }
                         rows={4}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         placeholder="Enter detailed overview description"
                       />
                     </div>
-                    
+
+                    {/* Overview Side Image (左侧图片上传/URL) */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Overview Side Image URL</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={formData.overview?.sideImage || ''}
+                          onChange={(e) =>
+                            handleInputChange('overview', {
+                              ...formData.overview,
+                              sideImage: e.target.value,
+                            })
+                          }
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          placeholder="图片URL（上传后会自动填充）或输入路径，例如：/images/... 或 https://xxx.public.blob.vercel-storage.com/..."
+                        />
+                        <>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            disabled={isUploading}
+                            className="hidden"
+                            id="overview-side-image-upload-add"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+
+                              if (!file.type.startsWith('image/')) {
+                                alert('请选择图片文件');
+                                return;
+                              }
+
+                              setIsUploading(true);
+                              try {
+                                const imageUrl = await uploadAPI.uploadImage(file, 'journeys');
+                                handleInputChange('overview', {
+                                  ...formData.overview,
+                                  sideImage: imageUrl,
+                                });
+                                alert('图片上传成功！');
+                              } catch (error) {
+                                console.error('Overview side image upload failed:', error);
+                                alert('图片上传失败，请重试');
+                              } finally {
+                                setIsUploading(false);
+                              }
+                            }}
+                          />
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            disabled={isUploading}
+                            className="flex items-center gap-2"
+                            onClick={() =>
+                              document.getElementById('overview-side-image-upload-add')?.click()
+                            }
+                          >
+                            <Upload className="w-4 h-4" />
+                            {isUploading ? '上传中...' : '上传'}
+                          </Button>
+                        </>
+                      </div>
+                      <Text size="sm" className="text-gray-500 mt-1">
+                        该图片用于 Journey 详情页 Overview &amp; Highlights 区域左侧展示。
+                      </Text>
+
+                      {/* 预览 */}
+                      <div className="mt-3">
+                        {(() => {
+                          const previewUrl = formData.overview?.sideImage || '';
+                          return previewUrl ? (
+                            <img
+                              src={previewUrl}
+                              alt="Overview side preview"
+                              className="w-full h-40 object-cover rounded-lg"
+                            />
+                          ) : null;
+                        })()}
+                      </div>
+                    </div>
+
                     {/* Overview Highlights */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Overview Highlights</label>
@@ -596,7 +680,7 @@ export default function AddJourneyPage() {
                                   const newHighlights = currentHighlights.filter((_: any, i: number) => i !== index);
                                   handleInputChange('overview', {
                                     ...formData.overview,
-                                    highlights: newHighlights
+                                    highlights: newHighlights,
                                   });
                                 }}
                                 variant="secondary"
@@ -607,19 +691,23 @@ export default function AddJourneyPage() {
                             </div>
                             <div>
                               <label className="block text-xs font-medium text-gray-600 mb-1">Content</label>
-                      <textarea
+                              <textarea
                                 value={highlight.description || highlight.title || ''}
-                        onChange={(e) => {
+                                onChange={(e) => {
                                   const currentHighlights = formData.overview?.highlights || [];
                                   const newHighlights = [...currentHighlights];
-                                  newHighlights[index] = { ...highlight, title: '', description: e.target.value };
+                                  newHighlights[index] = {
+                                    ...highlight,
+                                    title: '',
+                                    description: e.target.value,
+                                  };
                                   handleInputChange('overview', {
                                     ...formData.overview,
-                                    highlights: newHighlights
+                                    highlights: newHighlights,
                                   });
-                        }}
+                                }}
                                 rows={4}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                                 placeholder="输入highlight内容（支持换行）"
                               />
                             </div>
@@ -630,7 +718,7 @@ export default function AddJourneyPage() {
                             const currentHighlights = formData.overview?.highlights || [];
                             handleInputChange('overview', {
                               ...formData.overview,
-                              highlights: [...currentHighlights, { title: '', description: '' }]
+                              highlights: [...currentHighlights, { title: '', description: '' }],
                             });
                           }}
                           variant="secondary"
