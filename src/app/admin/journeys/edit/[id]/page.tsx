@@ -512,19 +512,6 @@ export default function EditJourneyPage() {
                       </select>
                     </div>
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
-                      <input
-                        type="text"
-                        value={isEditing ? (formData.city ?? '') : (journey.city ?? '')}
-                        onChange={(e) => handleInputChange('city', e.target.value)}
-                        disabled={!isEditing}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                      />
-                    </div>
-                  </div>
                 </div>
               </Card>
 
