@@ -154,7 +154,7 @@ export async function PUT(
           updateFields.push(`place = $${paramIndex++}`);
           updateValues.push((updates as any).place);
         } else {
-          console.warn('place column does not exist in journeys table. Skipping place update. Please run migration 004_add_place_field.sql');
+          console.warn('place column does not exist in journeys table. Storing in JSONB data field. Please run migration 004_add_place_field.sql');
           // 如果列不存在，将 place 数据存储到 JSONB data 字段中作为临时方案
           if (!jsonbUpdates.place) {
             jsonbUpdates.place = (updates as any).place;
@@ -162,9 +162,11 @@ export async function PUT(
         }
       } catch (checkError) {
         console.warn('Could not check for place column:', checkError);
-        // 如果检查失败，尝试直接更新（可能会失败，但会被错误处理捕获）
-        updateFields.push(`place = $${paramIndex++}`);
-        updateValues.push((updates as any).place);
+        // 如果检查失败，使用 JSONB 作为安全的后备方案，而不是尝试直接更新
+        console.warn('Using JSONB data field as fallback for place');
+        if (!jsonbUpdates.place) {
+          jsonbUpdates.place = (updates as any).place;
+        }
       }
     }
     if ((updates as any).duration !== undefined) {
