@@ -30,9 +30,9 @@ const regionMap: { [key: string]: { name: string; description: string; image: st
     description: "新疆维吾尔自治区",
     image: "/images/journey-cards/xinjiang-altstadt.webp"
   },
-  "northwest-china": {
-    name: "Northwest China",
-    description: "Vast deserts, high plateaus and ancient Silk Road cities define Northwest China—where cultures, landscapes and histories converge.",
+  "southwest-china": {
+    name: "Southwest China",
+    description: "Mountain ranges, deep gorges and vibrant minority cultures define Southwest China—where landscapes and traditions intertwine.",
     image: "/images/journey-cards/xinjiang-altstadt.webp"
   }
 };
@@ -46,7 +46,7 @@ export default function RegionDestinationsPage() {
   const [loading, setLoading] = useState(true);
 
   const regionInfo = regionMap[region];
-  const isNorthwestChina = region === 'northwest-china';
+  const isNorthwestChina = region === 'southwest-china';
 
   useEffect(() => {
     if (!regionInfo) {
@@ -164,7 +164,7 @@ export default function RegionDestinationsPage() {
         </div>
       </Section>
 
-      {/* Northwest China 子导航 + 5 个分类 */}
+      {/* Southwest China 子导航 + 5 个分类 */}
       {isNorthwestChina && (
         <>
           {/* 顶部四个子导航 */}
@@ -173,7 +173,7 @@ export default function RegionDestinationsPage() {
               {/* 四个栏目：等距分布（container 更窄，间距更紧凑） */}
               <nav
                 className="grid grid-cols-4 gap-1 md:gap-2 text-xs sm:text-sm md:text-base text-center"
-                aria-label="Northwest China subsections"
+              aria-label="Southwest China subsections"
               >
                 <a
                   href="#trip-inspiration"
@@ -347,7 +347,7 @@ export default function RegionDestinationsPage() {
         </Container>
       </Section>
 
-      {/* Northwest China Map Section */}
+      {/* Southwest China Map Section */}
       {isNorthwestChina && (
         <>
           <Section id="map" background="primary" padding="none" className="py-16">
@@ -441,11 +441,11 @@ export default function RegionDestinationsPage() {
           <Section id="why-with-us" background="primary" padding="xl" className="py-16">
             <Container size="xl">
               <Heading level={2} className="text-3xl font-heading mb-4">
-                Why travel with Korascale in Northwest China
+                Why travel with Korascale in Southwest China
               </Heading>
               <Text className="text-lg text-gray-600 max-w-3xl">
                 We combine local expertise, carefully vetted partners, and immersive cultural access to craft journeys
-                across Northwest China that are safe, seamless and deeply enriching.
+                across Southwest China that are safe, seamless and deeply enriching.
               </Text>
             </Container>
           </Section>
@@ -457,7 +457,7 @@ export default function RegionDestinationsPage() {
                 Plan your trip
               </Heading>
               <Text className="text-lg text-gray-600 mb-8 max-w-3xl">
-                Share your group size, timing and interests, and our team will design a Northwest China itinerary just
+                Share your group size, timing and interests, and our team will design a Southwest China itinerary just
                 for you.
               </Text>
               <Link href="/contact">

@@ -66,7 +66,7 @@ const defaultJourneys = [
 		duration: "3 Days",
 		price: "From $599",
 		category: "Nature",
-		region: "Northwest China",
+		region: "Southwest China",
 		place: "Qinghai–Tibet Plateau",
 		link: "/journeys/jiuzhaigou-valley",
     journeyType: "Deep Discovery"
@@ -79,7 +79,7 @@ const defaultJourneys = [
 		duration: "4 Days",
 		price: "From $799",
 		category: "Nature",
-		region: "Northwest China",
+		region: "Southwest China",
 		place: "Qinghai–Tibet Plateau",
 		link: "/journeys/jiuzhaigou-huanglong",
     journeyType: "Deep Discovery"
@@ -168,7 +168,7 @@ export default function JourneysPage() {
 	// Region选项
 	const regionOptions = [
 		'All',
-		'Northwest China',
+		'Southwest China',
 		'Northwest&Northern Frontier',
 		'North China',
 		'South China',

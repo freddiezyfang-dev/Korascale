@@ -41,7 +41,7 @@ const journeyTypeOptions: JourneyType[] = [
 const difficultyOptions = ['Easy', 'Medium', 'Hard'];
 
 const regionOptions = [
-  'Northwest China',
+  'Southwest China',
   'Northwest&Northern Frontier',
   'North China',
   'South China',

@@ -162,7 +162,7 @@ export default function JourneyTypePage() {
   // Region选项
   const regionOptions = [
     'All',
-    'Northwest China',
+    'Southwest China',
     'Northwest&Northern Frontier',
     'North China',
     'South China',

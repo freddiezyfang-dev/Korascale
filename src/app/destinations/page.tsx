@@ -16,9 +16,9 @@ const imgXinjiang = "/images/journey-cards/xinjiang-altstadt.webp";
 const regions = [
   {
     id: 1,
-    name: "Northwest China",
+    name: "Southwest China",
     image: imgXinjiang,
-    description: "Explore the vast landscapes and rich cultural heritage of Northwest China",
+    description: "Explore the diverse landscapes and rich cultural heritage of Southwest China",
     slug: "northwest-china"
   },
   {
@@ -167,7 +167,7 @@ export default function Destinations() {
                   </button>
                 );
 
-                // Northwest China 可点击进入详情页
+                // Southwest China 可点击进入详情页
                 if (region.slug === 'northwest-china') {
                   return (
                     <Link key={region.id} href={`/destinations/${region.slug}`} className="block">

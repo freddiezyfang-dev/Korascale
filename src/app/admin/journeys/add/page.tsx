@@ -32,7 +32,7 @@ const journeyTypeOptions: JourneyType[] = [
 const difficultyOptions = ['Easy', 'Medium', 'Hard'];
 
 const regionOptions = [
-  'Northwest China',
+  'Southwest China',
   'Northwest&Northern Frontier',
   'North China',
   'South China',
@@ -87,7 +87,7 @@ export default function AddJourneyPage() {
     originalPrice: 0,
     category: 'Nature',
     journeyType: 'Explore Together',
-    region: 'Northwest China',
+    region: 'Southwest China',
     place: '',
     city: '',
     location: '',
@@ -419,7 +419,7 @@ export default function AddJourneyPage() {
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Region</label>
                         <select
-                          value={formData.region || 'Northwest China'}
+                        value={formData.region || 'Southwest China'}
                           onChange={(e) => handleInputChange('region', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         >

@@ -155,7 +155,7 @@ export default function AdminJourneysPage() {
   // 固定的分类和区域选项
   const categoryOptions = ['Nature', 'Culture', 'History', 'City', 'Cruises'];
   const regionOptions = [
-    'Northwest China',
+    'Southwest China',
     'Northwest&Northern Frontier',
     'North China',
     'South China',
