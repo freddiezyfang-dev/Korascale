@@ -141,8 +141,31 @@ export async function PUT(
       updateValues.push(updates.region as any);
     }
     if ((updates as any).place !== undefined) {
-      updateFields.push(`place = $${paramIndex++}`);
-      updateValues.push((updates as any).place);
+      // 检查 place 列是否存在（如果不存在，跳过更新该字段）
+      try {
+        // 先检查列是否存在
+        const { rows: columnCheck } = await query(`
+          SELECT column_name 
+          FROM information_schema.columns 
+          WHERE table_name = 'journeys' AND column_name = 'place'
+        `);
+        
+        if (columnCheck.length > 0) {
+          updateFields.push(`place = $${paramIndex++}`);
+          updateValues.push((updates as any).place);
+        } else {
+          console.warn('place column does not exist in journeys table. Skipping place update. Please run migration 004_add_place_field.sql');
+          // 如果列不存在，将 place 数据存储到 JSONB data 字段中作为临时方案
+          if (!jsonbUpdates.place) {
+            jsonbUpdates.place = (updates as any).place;
+          }
+        }
+      } catch (checkError) {
+        console.warn('Could not check for place column:', checkError);
+        // 如果检查失败，尝试直接更新（可能会失败，但会被错误处理捕获）
+        updateFields.push(`place = $${paramIndex++}`);
+        updateValues.push((updates as any).place);
+      }
     }
     if ((updates as any).duration !== undefined) {
       updateFields.push(`duration = $${paramIndex++}`);
