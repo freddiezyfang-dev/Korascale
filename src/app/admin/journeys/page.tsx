@@ -152,8 +152,19 @@ export default function AdminJourneysPage() {
   };
 
   // 获取所有分类和地区列表
-  const categories = Array.from(new Set(journeys.map(journey => journey.category)));
-  const regions = Array.from(new Set(journeys.map(journey => journey.region)));
+  // 固定的分类和区域选项
+  const categoryOptions = ['Nature', 'Culture', 'History', 'City', 'Cruises'];
+  const regionOptions = [
+    'Northwest China',
+    'Northwest&Northern Frontier',
+    'North China',
+    'South China',
+    'East&Central China'
+  ];
+  
+  // 从journeys中提取实际存在的分类和区域（用于过滤）
+  const existingCategories = Array.from(new Set(journeys.map(journey => journey.category).filter(Boolean)));
+  const existingRegions = Array.from(new Set(journeys.map(journey => journey.region).filter(Boolean)));
 
   // 过滤旅行卡片
   const filteredJourneys = journeys.filter(journey => {
@@ -470,7 +481,7 @@ export default function AdminJourneysPage() {
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               >
                 <option value="all">All Categories</option>
-                {categories.map(category => (
+                {categoryOptions.map(category => (
                   <option key={category} value={category}>{category}</option>
                 ))}
               </select>
@@ -482,7 +493,7 @@ export default function AdminJourneysPage() {
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               >
                 <option value="all">All Regions</option>
-                {regions.map(region => (
+                {regionOptions.map(region => (
                   <option key={region} value={region}>{region}</option>
                 ))}
               </select>
@@ -575,15 +586,17 @@ export default function AdminJourneysPage() {
                       <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
                         <div className="flex items-center gap-1">
                           <Clock className="w-4 h-4" />
-                          <Text>{journey.duration}</Text>
+                          <Text>{journey.duration || 'N/A'}</Text>
                         </div>
                         <div className="flex items-center gap-1">
                           <Users className="w-4 h-4" />
-                          <Text>{journey.minParticipants}-{journey.maxParticipants}</Text>
+                          <Text>{journey.minParticipants || 0}-{journey.maxParticipants || 0}</Text>
                         </div>
                         <div className="flex items-center gap-1">
                           <DollarSign className="w-4 h-4" />
-                          <Text className="font-semibold">${journey.price}</Text>
+                          <Text className="font-semibold">
+                            ${typeof journey.price === 'number' ? journey.price.toFixed(2) : journey.price || '0.00'}
+                          </Text>
                         </div>
                       </div>
                       
