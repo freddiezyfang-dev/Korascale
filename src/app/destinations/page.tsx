@@ -19,7 +19,7 @@ const regions = [
     name: "Southwest China",
     image: imgXinjiang,
     description: "Explore the diverse landscapes and rich cultural heritage of Southwest China",
-    slug: "northwest-china"
+    slug: "southwest-china"
   },
   {
     id: 2,
@@ -168,7 +168,7 @@ export default function Destinations() {
                 );
 
                 // Southwest China 可点击进入详情页
-                if (region.slug === 'northwest-china') {
+                if (region.slug === 'southwest-china') {
                   return (
                     <Link key={region.id} href={`/destinations/${region.slug}`} className="block">
                       {label}

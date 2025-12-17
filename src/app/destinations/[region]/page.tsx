@@ -65,7 +65,7 @@ export default function RegionDestinationsPage() {
       // 特殊匹配规则
       if (targetRegion === 'sichuan' && journeyRegion?.includes('sichuan')) return true;
       if (targetRegion === 'gansu' && journeyRegion?.includes('gansu')) return true;
-      if (targetRegion === 'northwest-china' && journeyRegion && journeyRegion.includes('northwest')) return true;
+      if (targetRegion === 'southwest-china' && journeyRegion && journeyRegion.includes('southwest')) return true;
       
       return false;
     });
