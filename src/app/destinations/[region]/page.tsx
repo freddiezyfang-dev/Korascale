@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from "next/link";
 import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/components/common';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
-import { northwestSubRegions } from '../northwestSubRegions';
-import RegionMap from '@/components/map/RegionMap';
+import RegionMap, { RegionMapHandle } from '@/components/map/RegionMap';
+import { getRegionMapping, REGION_MAPPING } from '@/lib/regionMapping';
 
 // 地区映射
 const regionMap: { [key: string]: { name: string; description: string; image: string } } = {
@@ -37,6 +37,35 @@ const regionMap: { [key: string]: { name: string; description: string; image: st
   }
 };
 
+// 区域数据配置（用于 sidebar 显示）
+// 注意：地图数据现在从 GeoJSON 文件加载，bounds 仅用于相机动画的后备方案
+const REGIONS_SIDEBAR_DATA = [
+  {
+    id: 'tibetan-plateau',
+    title: 'Tibetan Plateau & Kham Region',
+    description: 'High-altitude landscapes, ancient monasteries, and the rich cultural heritage of Tibetan communities define this vast plateau region.',
+    image: '/images/journey-cards/tibet-buddhist-journey.jpg'
+  },
+  {
+    id: 'yunnan-guizhou-highlands',
+    title: 'Yunnan–Guizhou Highlands',
+    description: 'Terraced rice fields, karst mountains, and diverse ethnic minority cultures create a stunning mosaic across these highland provinces.',
+    image: '/images/journey-cards/jiuzhaigou-valley-multi-color-lake.jpeg'
+  },
+  {
+    id: 'sichuan-basin',
+    title: 'Sichuan Basin & Mountains',
+    description: 'From the fertile Chengdu Plain to the dramatic peaks of the Tibetan Plateau foothills, experience the contrast of basin and mountain landscapes.',
+    image: '/images/journey-cards/chengdu-deep-dive.jpeg'
+  },
+  {
+    id: 'chongqing-gorges',
+    title: 'Chongqing & Three Gorges',
+    description: 'The mighty Yangtze River carves through dramatic gorges, while the mountain city of Chongqing offers vibrant urban culture and spicy cuisine.',
+    image: '/images/journey-cards/chongqing-wulong-karst-national-park.jpg'
+  }
+];
+
 export default function RegionDestinationsPage() {
   const params = useParams();
   const region = params.region as string;
@@ -44,6 +73,8 @@ export default function RegionDestinationsPage() {
   
   const [filteredJourneys, setFilteredJourneys] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeRegionId, setActiveRegionId] = useState<string | null>(null);
+  const mapRef = useRef<RegionMapHandle>(null);
 
   const regionInfo = regionMap[region];
   const isNorthwestChina = region === 'southwest-china';
@@ -207,33 +238,6 @@ export default function RegionDestinationsPage() {
             </Container>
           </Section>
 
-          {/* 独立的五个标签区域 */}
-          <Section background="primary" padding="none" className="py-10">
-            <Container size="xl" className="max-w-5xl mx-auto">
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-10 lg:gap-14 text-center">
-                {northwestSubRegions.map((item) => (
-                  <div key={item.id} className="flex flex-col items-center">
-                    {/* 图标更大 */}
-                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-[#c0a273] flex items-center justify-center mb-4">
-                      <span
-                        className="text-base md:text-lg"
-                        style={{ fontFamily: 'Monda, sans-serif', fontWeight: 600, color: '#c0a273' }}
-                      >
-                        {item.name.charAt(0)}
-                      </span>
-                    </div>
-                    {/* 文本更大 */}
-                    <div
-                      className="text-xl md:text-2xl tracking-wide"
-                      style={{ fontFamily: 'Montaga, serif', color: '#000000' }}
-                    >
-                      {item.name}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Container>
-          </Section>
         </>
       )}
 
@@ -254,10 +258,11 @@ export default function RegionDestinationsPage() {
             </Text>
           </div>
 
-          {/* 三个 Featured Journeys 卡片 */}
-          {filteredJourneys.length > 0 && (
-            <div className="mb-16 grid grid-cols-1 md:grid-cols-3 gap-6">
-              {filteredJourneys.slice(0, 3).map((journey) => (
+          {/* 三个 Featured Journeys 卡片占位 */}
+          <div className="mb-16 grid grid-cols-1 md:grid-cols-3 gap-6">
+            {filteredJourneys.length > 0 ? (
+              // 如果有数据，显示实际的旅程卡片
+              filteredJourneys.slice(0, 3).map((journey) => (
                 <Card
                   key={`featured-${journey.id}`}
                   className="overflow-hidden bg-white shadow-md hover:shadow-xl transition-shadow"
@@ -293,57 +298,35 @@ export default function RegionDestinationsPage() {
                     </Link>
                   </div>
                 </Card>
-              ))}
-            </div>
-          )}
-
-          {filteredJourneys.length === 0 ? (
-            <div className="text-center py-16">
-              <Text className="text-xl text-gray-600 mb-8">
-                No journeys available for {regionInfo.name} yet.
-              </Text>
-              <Link href="/journeys">
-                <Button variant="primary">
-                  View All Journeys
-                </Button>
-              </Link>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredJourneys.map((journey) => (
-                <Card key={journey.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="aspect-video overflow-hidden">
-                    <img
-                      src={journey.image}
-                      alt={journey.title}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <div className="p-6">
-                    <Heading level={3} className="text-xl font-subheading mb-2">
-                      {journey.title}
-                    </Heading>
-                    <Text className="text-gray-600 mb-4 line-clamp-3">
-                      {journey.shortDescription || journey.description}
+              ))
+            ) : (
+              // 如果没有数据，显示三个占位卡片
+              [1, 2, 3].map((index) => (
+                <Card
+                  key={`placeholder-${index}`}
+                  className="overflow-hidden bg-gray-100 shadow-md"
+                >
+                  <div className="h-56 bg-gray-200 flex items-center justify-center">
+                    <Text className="text-gray-400" style={{ fontFamily: 'Monda, sans-serif' }}>
+                      Journey {index}
                     </Text>
-                    <div className="flex justify-between items-center mb-4">
-                      <Text className="text-sm text-gray-500">
-                        {journey.duration}
-                      </Text>
-                      <Text className="text-lg font-semibold text-primary-600">
-                        ${journey.price}
-                      </Text>
-                    </div>
-                    <Link href={`/journeys/${journey.slug || journey.id}`}>
-                      <Button variant="primary" className="w-full">
-                        View Details
-                      </Button>
-                    </Link>
+                  </div>
+                  <div className="p-5 flex flex-col h-full">
+                    <Text
+                      className="text-xs uppercase tracking-[0.2em] mb-2 text-gray-400"
+                      style={{ fontFamily: 'Monda, sans-serif' }}
+                    >
+                      Featured Journey
+                    </Text>
+                    <div className="h-6 bg-gray-200 rounded mb-3"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-4 w-3/4"></div>
+                    <div className="h-10 bg-gray-200 rounded"></div>
                   </div>
                 </Card>
-              ))}
-            </div>
-          )}
+              ))
+            )}
+          </div>
         </Container>
       </Section>
 
@@ -351,86 +334,102 @@ export default function RegionDestinationsPage() {
       {isNorthwestChina && (
         <>
           <Section id="map" background="primary" padding="none" className="py-16">
-            <Container size="xl" className="px-2 lg:px-4">
-              <div className="flex flex-col lg:flex-row h-[800px]">
-                {/* 左侧地图区域 - 正方形容器 */}
-                <div className="lg:w-1/2 h-full px-1 lg:px-2 flex items-center justify-center">
-                  <div className="w-full aspect-square max-w-[600px]">
+            <Container size="xl" className="px-1 lg:px-2">
+              <div className="flex flex-col lg:flex-row h-[800px] gap-4 lg:gap-6">
+                {/* 左侧地图区域 */}
+                <div className="lg:w-1/2 h-full flex items-center justify-center">
+                  <div className="w-full h-full">
                     <RegionMap 
-                      journeys={filteredJourneys.map(j => ({
-                        id: j.id,
-                        title: j.title,
-                        image: j.image,
-                        region: j.region,
-                        city: (j as any).city,
-                        location: (j as any).location,
-                        coordinates: (j as any).coordinates || undefined
-                      }))}
-                      regionName={regionInfo.name}
-                      defaultCenter={[104.1954, 35.8617]}
-                      defaultZoom={5}
+                      ref={mapRef}
+                      geojsonUrl="/data/china-provinces.geojson"
+                      defaultCenter={[102, 30]}
+                      defaultZoom={5.5}
+                      activeRegionId={activeRegionId}
+                      onRegionClick={setActiveRegionId}
                     />
                   </div>
                 </div>
 
-                {/* 右侧旅行点列表 */}
-                <div className="lg:w-1/2 h-full overflow-y-auto px-1 lg:px-2 bg-white">
-                  <div className="py-4">
+                {/* 右侧区域列表 */}
+                <div className="lg:w-1/2 h-full overflow-y-auto bg-white">
+                  <div className="py-4 px-2 lg:px-4">
                     <Heading level={2} className="text-2xl font-heading mb-6" style={{ fontFamily: 'Montaga, serif' }}>
                       Where to go
                     </Heading>
                     
-                    {filteredJourneys.length === 0 ? (
-                      <div className="text-center py-16">
-                        <Text className="text-gray-600">
-                          No journeys available for {regionInfo.name} yet.
-                        </Text>
-                      </div>
-                    ) : (
-                      <div className="space-y-6">
-                        {filteredJourneys.map((journey) => (
-                          <div
-                            key={journey.id}
-                            id={`journey-${journey.id}`}
-                            className="flex gap-4 pb-6 border-b border-gray-200 last:border-b-0"
-                          >
-                            {/* 图片 */}
-                            <div className="w-32 h-24 flex-shrink-0 rounded overflow-hidden">
-                              <img
-                                src={journey.image}
-                                alt={journey.title}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                            
-                            {/* 内容 */}
-                            <div className="flex-1">
-                              <Heading 
-                                level={3} 
-                                className="text-lg font-heading mb-2"
-                                style={{ fontFamily: 'Montaga, serif' }}
-                              >
-                                {journey.title}
-                              </Heading>
-                              <Text 
-                                className="text-sm text-gray-600 mb-3 line-clamp-2"
-                                style={{ fontFamily: 'Monda, sans-serif' }}
-                              >
-                                {journey.shortDescription || journey.description || ''}
-                              </Text>
-                              <Link 
-                                href={`/journeys/${journey.slug || journey.id}`}
-                                className="text-sm text-[#c0a273] hover:underline"
-                                style={{ fontFamily: 'Monda, sans-serif' }}
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                Discover more
-                              </Link>
-                            </div>
+                    <div className="space-y-6">
+                      {REGIONS_SIDEBAR_DATA.map((region) => (
+                        <div
+                          key={region.id}
+                          className="flex gap-4 pb-6 border-b border-gray-200 last:border-b-0 cursor-pointer hover:bg-gray-50 transition-colors"
+                          onMouseEnter={() => {
+                            const mapping = getRegionMapping(region.id);
+                            if (mapping && mapRef.current) {
+                              // 只在未 selected 时设置 hover
+                              if (activeRegionId !== region.id) {
+                                mapping.geojsonIds.forEach(adcode => {
+                                  mapRef.current?.setHoverState(adcode, true);
+                                });
+                              }
+                            }
+                          }}
+                          onMouseLeave={() => {
+                            const mapping = getRegionMapping(region.id);
+                            if (mapping && mapRef.current) {
+                              // 清除 hover
+                              mapping.geojsonIds.forEach(adcode => {
+                                mapRef.current?.setHoverState(adcode, false);
+                              });
+                            }
+                          }}
+                          onClick={() => {
+                            console.log('[Sidebar] click region', region.id);
+                            console.log('[Sidebar] current activeRegionId before set:', activeRegionId);
+                            setActiveRegionId(region.id);
+                            console.log('[Sidebar] setActiveRegionId called with:', region.id);
+                          }}
+                        >
+                          {/* 图片 */}
+                          <div className="w-32 h-24 flex-shrink-0 rounded overflow-hidden bg-gray-200">
+                            <img
+                              src={region.image}
+                              alt={region.title}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                // 如果图片加载失败，显示占位符
+                                (e.target as HTMLImageElement).style.display = 'none';
+                                (e.target as HTMLImageElement).parentElement!.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400 text-xs">Image</div>';
+                              }}
+                            />
                           </div>
-                        ))}
-                      </div>
-                    )}
+                          
+                          {/* 内容 */}
+                          <div className="flex-1">
+                            <Heading 
+                              level={3} 
+                              className="text-lg font-heading mb-2"
+                              style={{ fontFamily: 'Montaga, serif' }}
+                            >
+                              {region.title}
+                            </Heading>
+                            <Text 
+                              className="text-sm text-gray-600 mb-3"
+                              style={{ fontFamily: 'Monda, sans-serif' }}
+                            >
+                              {region.description}
+                            </Text>
+                            <Link 
+                              href={`#${region.id}`}
+                              className="text-sm text-[#c0a273] hover:underline"
+                              style={{ fontFamily: 'Monda, sans-serif' }}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              Discover more
+                            </Link>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>

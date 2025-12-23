@@ -40,7 +40,7 @@ function getPool(): Pool {
       // 优化连接池配置
       max: 10, // 最大连接数
       idleTimeoutMillis: 30000, // 空闲连接超时（30秒）
-      connectionTimeoutMillis: 10000, // 连接超时（10秒）
+      connectionTimeoutMillis: 15000, // 连接超时（增加到15秒）
     });
   }
   

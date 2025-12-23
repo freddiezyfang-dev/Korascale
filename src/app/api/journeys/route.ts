@@ -47,9 +47,10 @@ export async function GET(request: NextRequest) {
     
     // 直接查询 journeys 表，如果表不存在会在查询时捕获错误
     let rows;
+    const queryStartTime = Date.now();
     try {
       // 使用更简单的查询，只选择必要的字段，减少数据传输量
-      // 添加查询超时控制（使用 Promise.race）
+      // 添加查询超时控制（使用 Promise.race）- 增加到30秒
       const queryPromise = query(`
         SELECT 
           id, title, slug, description, short_description,
@@ -64,14 +65,16 @@ export async function GET(request: NextRequest) {
       `);
       
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Database query timeout after 20 seconds')), 20000)
+        setTimeout(() => reject(new Error('Database query timeout after 30 seconds')), 30000)
       );
       
       const result = await Promise.race([queryPromise, timeoutPromise]) as any;
       rows = result.rows;
-      console.log('[API /journeys] Found', rows.length, 'journeys');
+      const queryDuration = Date.now() - queryStartTime;
+      console.log(`[API /journeys] Found ${rows.length} journeys in ${queryDuration}ms`);
     } catch (dbError) {
-      console.error('[API /journeys] Database query error:', dbError);
+      const queryDuration = Date.now() - queryStartTime;
+      console.error(`[API /journeys] Database query error after ${queryDuration}ms:`, dbError);
       
       // 检查是否是表不存在的错误
       const errorMessage = dbError instanceof Error ? dbError.message : String(dbError);
@@ -87,10 +90,11 @@ export async function GET(request: NextRequest) {
       
       // 如果是超时错误，返回更友好的错误信息
       if (errorMessage.includes('timeout')) {
+        console.error(`[API /journeys] Query timed out after ${queryDuration}ms`);
         return NextResponse.json(
           { 
             error: 'Database query timeout. The database may be slow or overloaded. Please try again later.',
-            details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+            details: process.env.NODE_ENV === 'development' ? `Query took ${queryDuration}ms before timeout` : undefined
           },
           { status: 504 } // Gateway Timeout
         );
