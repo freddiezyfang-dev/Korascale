@@ -193,7 +193,6 @@ export interface Journey {
   maxGuests?: number; // 最大客人数量，用于hero banner显示
   maxParticipants: number;
   minParticipants: number;
-  included: string[];
   excluded: string[];
   highlights: string[];
   itinerary: {
@@ -243,7 +242,7 @@ export interface Journey {
     sideImage: string;
   };
   includes?: string; // 包含内容，用户自定义文本（向后兼容）
-  included?: string[]; // 包含内容，标准化服务列表（新格式）
+  included: string[]; // 包含内容，标准化服务列表（新格式，必需字段，默认为空数组）
   excludes?: string; // 不包含内容，用户自定义文本
   relatedTrips?: {
     title: string;

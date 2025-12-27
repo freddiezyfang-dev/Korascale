@@ -1127,6 +1127,7 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
         id: `journey-${Date.now()}`,
         createdAt: new Date(),
         updatedAt: new Date(),
+        included: journey.included || [], // 确保 included 有默认值
       };
       
       const updatedJourneys = [...journeys, newJourney];
