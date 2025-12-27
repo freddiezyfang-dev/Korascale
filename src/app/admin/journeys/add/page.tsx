@@ -69,6 +69,29 @@ const statusOptions = [
   { value: 'inactive', label: 'Inactive' }
 ];
 
+// 预设的标准服务列表（基于 A&K 风格）
+const STANDARD_INCLUDES = [
+  'English-Speaking Resident Tour Director® and Local Guides',
+  'Airport Meet and Greet with Private Transfers',
+  'Travelling Bell Boy® Luggage Handling',
+  'Traveller\'s Valet® Laundry Service',
+  'Internet Access',
+  'Entrance Fees, Taxes and All Gratuities Except Resident Tour Director',
+  '24/7 A&K On-Call Support',
+  'Accommodation',
+  'Meals',
+  'Domestic Flights',
+  'Travel Insurance',
+  'Visa Support',
+  'Local Guide',
+  'Airport Transfers',
+  'Breakfast',
+  'Lunch',
+  'Dinner',
+  'Hotel',
+  'Transportation',
+];
+
 export default function AddJourneyPage() {
   const { user } = useUser();
   const { addJourney } = useJourneyManagement();
