@@ -25,25 +25,29 @@ const regions = [
     id: 2,
     name: "Northwest & Northern Frontier",
     image: imgGansuQinghai,
-    description: "Discover the frontier regions with stunning natural beauty"
+    description: "Discover the frontier regions with stunning natural beauty",
+    slug: "northwest"
   },
   {
     id: 3,
     name: "North China",
     image: imgShaanxi,
-    description: "Experience the historical heartland of ancient China"
+    description: "Experience the historical heartland of ancient China",
+    slug: "north"
   },
   {
     id: 4,
     name: "South China",
     image: imgSichuanChongqing,
-    description: "Immerse yourself in the vibrant culture and cuisine of South China"
+    description: "Immerse yourself in the vibrant culture and cuisine of South China",
+    slug: "south"
   },
   {
     id: 5,
     name: "East & Central China",
     image: imgSichuanChongqing,
-    description: "Journey through the economic and cultural centers of China"
+    description: "Journey through the economic and cultural centers of China",
+    slug: "east-central"
   }
 ];
 
@@ -167,8 +171,8 @@ export default function Destinations() {
                   </button>
                 );
 
-                // Southwest China 可点击进入详情页
-                if (region.slug === 'southwest-china') {
+                // 有 slug 的地区可点击进入详情页
+                if (region.slug) {
                   return (
                     <Link key={region.id} href={`/destinations/${region.slug}`} className="block">
                       {label}

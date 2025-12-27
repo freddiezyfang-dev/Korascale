@@ -13,14 +13,44 @@
 const fs = require('fs');
 const path = require('path');
 
-// 需要的省份 adcode
+// 中国所有省级行政区 adcode（34 个）
 const REQUIRED_PROVINCES = [
+  // 直辖市
+  '110000', // 北京
+  '120000', // 天津
+  '310000', // 上海
   '500000', // 重庆
+  // 省份
+  '130000', // 河北
+  '140000', // 山西
+  '150000', // 内蒙古
+  '210000', // 辽宁
+  '220000', // 吉林
+  '230000', // 黑龙江
+  '320000', // 江苏
+  '330000', // 浙江
+  '340000', // 安徽
+  '350000', // 福建
+  '360000', // 江西
+  '370000', // 山东
+  '410000', // 河南
+  '420000', // 湖北
+  '430000', // 湖南
+  '440000', // 广东
+  '450000', // 广西
+  '460000', // 海南
   '510000', // 四川
   '520000', // 贵州
   '530000', // 云南
   '540000', // 西藏
+  '610000', // 陕西
+  '620000', // 甘肃
   '630000', // 青海
+  '640000', // 宁夏
+  '650000', // 新疆
+  // 特别行政区
+  '810000', // 香港
+  '820000', // 澳门
 ];
 
 function aggregateProvinceFeatures(features, provinceAdcode) {
@@ -53,9 +83,9 @@ function aggregateProvinceFeatures(features, provinceAdcode) {
 
   return {
     type: 'Feature',
-    id: provinceAdcode,
+    id: String(provinceAdcode), // 确保 id 是字符串
     properties: {
-      adcode: parseInt(provinceAdcode),
+      adcode: String(provinceAdcode), // 确保 adcode 是字符串，与 Mapbox filter 匹配
       name: provinceName || `Province ${provinceAdcode}`,
       level: 'province',
       cityCount: features.length
@@ -82,14 +112,14 @@ function processProvinceFile(filePath, provinceAdcode) {
     String(geojson.features[0].properties?.adcode) === provinceAdcode;
 
   if (isProvinceLevel) {
-    // 已经是省级数据，只需要确保 id 正确
+    // 已经是省级数据，只需要确保 id 和 adcode 正确
     const feature = geojson.features[0];
     return {
       type: 'Feature',
-      id: provinceAdcode,
+      id: String(provinceAdcode), // 确保 id 是字符串
       properties: {
         ...feature.properties,
-        adcode: parseInt(provinceAdcode)
+        adcode: String(provinceAdcode) // 确保 adcode 是字符串，与 Mapbox filter 匹配
       },
       geometry: feature.geometry
     };

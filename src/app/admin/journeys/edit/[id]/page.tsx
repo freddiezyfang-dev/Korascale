@@ -78,6 +78,29 @@ const statusOptions = [
   { value: 'inactive', label: 'Inactive' }
 ];
 
+// 预设的标准服务列表（基于 A&K 风格）
+const STANDARD_INCLUDES = [
+  'English-Speaking Resident Tour Director® and Local Guides',
+  'Airport Meet and Greet with Private Transfers',
+  'Travelling Bell Boy® Luggage Handling',
+  'Traveller\'s Valet® Laundry Service',
+  'Internet Access',
+  'Entrance Fees, Taxes and All Gratuities Except Resident Tour Director',
+  '24/7 A&K On-Call Support',
+  'Accommodation',
+  'Meals',
+  'Domestic Flights',
+  'Travel Insurance',
+  'Visa Support',
+  'Local Guide',
+  'Airport Transfers',
+  'Breakfast',
+  'Lunch',
+  'Dinner',
+  'Hotel',
+  'Transportation',
+];
+
 export default function EditJourneyPage() {
   const { user } = useUser();
   const { journeys, updateJourney, deleteJourney, isLoading } = useJourneyManagement();
@@ -109,8 +132,21 @@ export default function EditJourneyPage() {
 
     const foundJourney = journeys.find(j => j.id === journeyId);
     if (foundJourney) {
-      setJourney(foundJourney);
-      setFormData(foundJourney);
+      // 如果 included 数组不存在，但从 includes 文本存在，则解析文本为数组
+      const processedJourney = { ...foundJourney };
+      if (!processedJourney.included || processedJourney.included.length === 0) {
+        if (processedJourney.includes) {
+          processedJourney.included = processedJourney.includes
+            .split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 0);
+        } else {
+          processedJourney.included = [];
+        }
+      }
+      
+      setJourney(processedJourney);
+      setFormData(processedJourney);
     } else {
       router.push('/admin/journeys');
     }
@@ -944,23 +980,47 @@ export default function EditJourneyPage() {
               {/* Includes & Excludes */}
               <Card className="p-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Includes */}
+                  {/* Includes - 标准化服务清单 */}
                   <div>
                     <Heading level={3} className="text-lg font-semibold mb-4">Includes</Heading>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        包含内容（每行一项，或使用逗号分隔）
+                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                        选择包含的服务（可多选）
                       </label>
-                      <textarea
-                        value={isEditing ? (formData.includes || '') : (journey.includes || '')}
-                        onChange={(e) => handleInputChange('includes', e.target.value)}
-                        disabled={!isEditing}
-                        rows={10}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                        placeholder="例如：&#10;专业导游服务&#10;所有景点门票&#10;酒店住宿（双人间）&#10;每日早餐和午餐&#10;机场接送服务"
-                      />
+                      <div className="space-y-2 max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-4">
+                        {STANDARD_INCLUDES.map((service) => {
+                          const currentIncluded = isEditing 
+                            ? (formData.included || journey.included || [])
+                            : (journey.included || []);
+                          const isSelected = currentIncluded.includes(service);
+                          return (
+                            <label
+                              key={service}
+                              className={`flex items-start space-x-3 p-2 rounded cursor-pointer ${
+                                !isEditing ? 'cursor-not-allowed opacity-60' : 'hover:bg-gray-50'
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={(e) => {
+                                  const prevIncluded = formData.included || journey.included || [];
+                                  if (e.target.checked) {
+                                    handleInputChange('included', [...prevIncluded, service]);
+                                  } else {
+                                    handleInputChange('included', prevIncluded.filter(item => item !== service));
+                                  }
+                                }}
+                                disabled={!isEditing}
+                                className="mt-1 w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 disabled:opacity-50"
+                              />
+                              <span className="text-sm text-gray-700 flex-1">{service}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
                       <Text size="sm" className="text-gray-500 mt-2">
-                        您可以输入多行内容，每行代表一项包含的服务或项目
+                        已选择 {(isEditing ? (formData.included || []) : (journey.included || [])).length} 项服务
                       </Text>
                     </div>
                   </div>

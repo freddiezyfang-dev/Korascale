@@ -242,7 +242,8 @@ export interface Journey {
     }[];
     sideImage: string;
   };
-  includes?: string; // 包含内容，用户自定义文本
+  includes?: string; // 包含内容，用户自定义文本（向后兼容）
+  included?: string[]; // 包含内容，标准化服务列表（新格式）
   excludes?: string; // 不包含内容，用户自定义文本
   relatedTrips?: {
     title: string;

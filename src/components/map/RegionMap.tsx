@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
 import Script from 'next/script';
 import { getProvinceColorExpression, getProvinceBorderColorExpression } from '@/lib/provinceColors';
-import { getRegionMapping, getPageIdByGeoJsonId } from '@/lib/regionMapping';
+import { getRegionMapping, getPageIdByGeoJsonId, getCategoryIds } from '@/lib/regionMapping';
 
 interface RegionData {
   id: string;
@@ -21,6 +21,7 @@ interface RegionMapProps {
   defaultZoom?: number;
   defaultPitch?: number;
   defaultBearing?: number;
+  currentCategory?: string; // 当前页面类别（如 'northwest', 'southwest'），用于初始过滤
   activeRegionId?: string | null; // 当前激活的 region ID（Single Source of Truth）
   onRegionClick?: (regionId: string) => void; // 地图区域点击回调
 }
@@ -133,6 +134,7 @@ const RegionMap = forwardRef<RegionMapHandle, RegionMapProps>(({
   defaultZoom = 5,
   defaultPitch = 0,
   defaultBearing = 0,
+  currentCategory,
   activeRegionId,
   onRegionClick
 }, ref) => {
@@ -280,40 +282,84 @@ const RegionMap = forwardRef<RegionMapHandle, RegionMapProps>(({
 
           console.log('[RegionMap] Loaded GeoJSON with', geojson.features.length, 'features');
 
-          // 将 feature.id 移到 properties 中
+          // 将 feature.id 移到 properties 中，并强制确保 adcode 是字符串
           geojson.features = geojson.features.map((feature: any) => {
             const featureId = feature.id;
-            if (featureId !== undefined && featureId !== null) {
-              const idString = String(featureId);
-              if (!feature.properties) {
-                feature.properties = {};
-              }
-              feature.properties.adcode = idString;
-              delete feature.id;
+            if (!feature.properties) {
+              feature.properties = {};
             }
+            
+            // 优先使用 feature.id，如果没有则使用 properties.adcode
+            let adcodeValue = featureId;
+            if (adcodeValue === undefined || adcodeValue === null) {
+              adcodeValue = feature.properties?.adcode;
+            }
+            
+            // 强制转换为字符串，确保类型一致
+            if (adcodeValue !== undefined && adcodeValue !== null) {
+              const idString = String(adcodeValue);
+              feature.properties.adcode = idString;
+              // 保留 id 作为字符串，Mapbox 可能需要
+              feature.id = idString;
+            } else {
+              console.warn('[RegionMap] Feature missing both id and adcode:', feature);
+            }
+            
             return feature;
           });
 
           // 缓存 GeoJSON 数据
           geojsonDataRef.current = geojson;
 
-          // 缓存所有省份 ID
-          allProvinceIdsRef.current = geojson.features.map((f: any) => f.properties?.adcode).filter(Boolean).map(String);
+          // 缓存所有省份 ID（统一转换为字符串）
+          allProvinceIdsRef.current = geojson.features
+            .map((f: any) => {
+              const adcode = f.properties?.adcode;
+              return adcode ? String(adcode) : null;
+            })
+            .filter(Boolean) as string[];
+          
           console.log('[RegionMap] Cached province IDs:', allProvinceIdsRef.current);
+          console.log(`[RegionMap] Total provinces loaded: ${allProvinceIdsRef.current.length}`);
 
-          // 立即计算并缓存每个省份的 bounds（keyed by feature.id，即 adcode）
+          // 🔍 验证关键省份是否存在
+          const requiredProvinces = ['440000', '500000', '510000', '520000', '530000', '540000', '630000', '650000', '620000', '610000', '110000', '150000', '140000', '230000', '220000', '210000', '430000', '450000', '350000', '420000', '310000', '330000', '320000', '340000'];
+          const missingProvinces = requiredProvinces.filter(id => !allProvinceIdsRef.current.includes(id));
+          if (missingProvinces.length > 0) {
+            console.warn(`[RegionMap] ⚠️ Missing provinces in GeoJSON:`, missingProvinces);
+            console.warn(`[RegionMap] Please ensure your GeoJSON file contains all Chinese provinces.`);
+          } else {
+            console.log(`[RegionMap] ✅ All required provinces found in GeoJSON`);
+          }
+
+          // 立即计算并缓存每个省份的 bounds（keyed by adcode 字符串）
+          let boundsCacheCount = 0;
           geojson.features.forEach((feature: any) => {
             const adcode = feature.properties?.adcode;
             if (adcode && feature.geometry) {
+              const adcodeString = String(adcode); // 统一转换为字符串
               const bounds = calculateBounds(feature.geometry);
               if (bounds) {
-                regionsDataRef.current.set(String(adcode), { bounds });
-                console.log(`[RegionMap] Computed bounds for province ${adcode}:`, bounds);
+                regionsDataRef.current.set(adcodeString, { bounds });
+                boundsCacheCount++;
+                // 只记录前几个，避免日志过多
+                if (boundsCacheCount <= 5) {
+                  console.log(`[RegionMap] Computed bounds for province ${adcodeString}`);
+                }
               } else {
-                console.warn(`[RegionMap] Failed to compute bounds for province ${adcode}`);
+                console.warn(`[RegionMap] Failed to compute bounds for province ${adcodeString}`);
               }
+            } else {
+              console.warn(`[RegionMap] Feature missing adcode or geometry:`, feature);
             }
           });
+          
+          console.log(`[RegionMap] ✅ Cached bounds for ${boundsCacheCount}/${geojson.features.length} provinces`);
+          
+          // 验证是否所有省份都有 bounds
+          if (boundsCacheCount < geojson.features.length) {
+            console.warn(`[RegionMap] ⚠️ Some provinces missing bounds: ${geojson.features.length - boundsCacheCount} failed`);
+          }
         } catch (error) {
           console.error('[RegionMap] Error loading GeoJSON:', error);
         }
@@ -376,12 +422,26 @@ const RegionMap = forwardRef<RegionMapHandle, RegionMapProps>(({
 
     // Source
     if (!map.current.getSource('regions')) {
+      // 🔍 在添加 Source 前，再次确保所有 adcode 都是字符串
+      const normalizedGeoJSON = {
+        ...geojsonDataRef.current,
+        features: geojsonDataRef.current.features.map((feature: any) => {
+          if (feature.properties?.adcode !== undefined) {
+            feature.properties.adcode = String(feature.properties.adcode);
+          }
+          if (feature.id !== undefined) {
+            feature.id = String(feature.id);
+          }
+          return feature;
+        })
+      };
+      
       map.current.addSource('regions', {
         type: 'geojson',
-        data: geojsonDataRef.current,
+        data: normalizedGeoJSON,
         promoteId: 'adcode'
       });
-      console.log('[RegionMap] Source "regions" added');
+      console.log('[RegionMap] Source "regions" added with normalized adcode types');
     }
 
     // Layer: regions-fill（稳定基础版）
@@ -501,10 +561,11 @@ const RegionMap = forwardRef<RegionMapHandle, RegionMapProps>(({
   useImperativeHandle(ref, () => ({
     selectRegion: (regionId: string) => {
       if (!map.current || !mapReadyRef.current || !styleReadyRef.current) return;
+      if (!sourceReadyRef.current) return; // 等待 source 加载完成
 
       // 检查 source 是否存在
       if (!map.current.getSource('regions')) {
-        console.warn('[RegionMap] Source "regions" does not exist yet');
+        // 静默返回，不打印警告（source 可能还在加载中）
         return;
       }
 
@@ -556,10 +617,11 @@ const RegionMap = forwardRef<RegionMapHandle, RegionMapProps>(({
     },
     setHoverState: (adcode: string, hover: boolean) => {
       if (!map.current || !mapReadyRef.current || !styleReadyRef.current) return;
+      if (!sourceReadyRef.current) return; // 等待 source 加载完成
 
       // 检查 source 是否存在
       if (!map.current.getSource('regions')) {
-        console.warn('[RegionMap] Source "regions" does not exist yet');
+        // 静默返回，不打印警告（source 可能还在加载中）
         return;
       }
 
@@ -600,10 +662,11 @@ const RegionMap = forwardRef<RegionMapHandle, RegionMapProps>(({
     },
     clearAllStates: () => {
       if (!map.current || !mapReadyRef.current || !styleReadyRef.current) return;
+      if (!sourceReadyRef.current) return; // 等待 source 加载完成
 
       // 检查 source 是否存在
       if (!map.current.getSource('regions')) {
-        console.warn('[RegionMap] Source "regions" does not exist yet');
+        // 静默返回，不打印警告（source 可能还在加载中）
         return;
       }
 
@@ -860,32 +923,141 @@ const RegionMap = forwardRef<RegionMapHandle, RegionMapProps>(({
   }, [mapboxScriptLoaded]);
 
   // -----------------------------------------------------------------------------
-  // 📍 核心交互逻辑：监听 activeRegionId 变化
+  // 📍 初始 Category 过滤：根据 currentCategory 过滤并 fitBounds
   // -----------------------------------------------------------------------------
   useEffect(() => {
-    if (!map.current || !mapFullyReady) return;
+    if (!map.current || !mapFullyReady || !currentCategory) return;
 
-    // 1. 如果 activeRegionId 为空，显示所有区域 (Reset)
-    if (!activeRegionId) {
-      console.log('[RegionMap] No active region, showing all.');
-      try {
-        map.current.setFilter('regions-fill', null);   // null 代表不过滤，显示全部
-        map.current.setFilter('regions-border', null);
-        
-        // 可选：重置回默认视角
-        map.current.flyTo({
-          center: defaultCenter,
-          zoom: defaultZoom,
-          pitch: defaultPitch,
-          bearing: defaultBearing
-        });
-      } catch (e) {
-        console.warn('[RegionMap] Error resetting filter:', e);
-      }
+    // 1. 强制 resize 以处理布局变化（解决留白问题）
+    // resize() 是同步操作，立即执行以确保地图容器尺寸正确
+    if (mapReadyRef.current) {
+      map.current.resize();
+      console.log('[RegionMap] Map resized after category change');
+    }
+
+    // 2. 获取该 category 的所有 geojsonIds（确保是字符串数组）
+    const categoryIds = getCategoryIds(currentCategory).map(String);
+    
+    if (categoryIds.length === 0) {
+      console.warn(`[RegionMap] No provinces found for category: ${currentCategory}`);
       return;
     }
 
-    // 2. 获取映射关系 (pageId -> geojsonIds)
+    console.log(`[RegionMap] Initializing category filter: ${currentCategory} (${categoryIds.length} provinces)`);
+
+    // 3. 应用过滤器：只显示该 category 的省份
+    try {
+      const filterExpression = ['in', ['get', 'adcode'], ['literal', categoryIds]];
+      map.current.setFilter('regions-fill', filterExpression);
+      map.current.setFilter('regions-border', filterExpression);
+      
+      // 设置默认的 paint properties
+      map.current.setPaintProperty('regions-fill', 'fill-opacity', 0.25);
+      map.current.setPaintProperty('regions-border', 'line-opacity', 1.0);
+      map.current.setPaintProperty('regions-fill', 'fill-color', '#c9b27c');
+      
+      console.log(`[RegionMap] Applied category filter for ${currentCategory}`);
+    } catch (error) {
+      console.error('[RegionMap] Error setting category filter:', error);
+    }
+
+    // 4. 计算整个 category 的 bounds 并 fitBounds（使用字符串 ID）
+    const categoryBounds = categoryIds
+      .map(id => regionsDataRef.current.get(String(id))?.bounds)
+      .filter(Boolean) as Array<[[number, number], [number, number]]>;
+
+    const mergedBounds = mergeBounds(categoryBounds);
+
+    if (mergedBounds) {
+      map.current.stop(); // 停止当前动画
+
+      // 根据 category 确定合适的 maxZoom
+      // 小区域（如北京）使用较小的 maxZoom，大区域使用较大的 maxZoom
+      const maxZoom = categoryIds.length <= 1 ? 7 : categoryIds.length <= 3 ? 6.5 : 5.5;
+
+      map.current.fitBounds(mergedBounds, {
+        padding: { top: 100, bottom: 100, left: 100, right: 100 },
+        duration: 1500,
+        maxZoom: maxZoom
+      });
+
+      console.log(`[RegionMap] Fitted bounds for category ${currentCategory} with maxZoom ${maxZoom}`);
+    } else {
+      console.warn('[RegionMap] Could not calculate bounds for category:', currentCategory);
+    }
+  }, [currentCategory, mapFullyReady]);
+
+  // -----------------------------------------------------------------------------
+  // 📍 核心交互逻辑：监听 activeRegionId 变化（子区域级别）
+  // -----------------------------------------------------------------------------
+  useEffect(() => {
+    if (!map.current || !mapFullyReady || !currentCategory) return;
+
+    // 1. 强制 resize 以处理布局变化（解决留白问题）
+    // resize() 是同步操作，立即执行以确保地图容器尺寸正确
+    if (mapReadyRef.current) {
+      map.current.resize();
+      console.log('[RegionMap] Map resized after activeRegionId change');
+    }
+
+    // 2. 如果没有 activeRegionId，显示整个 category 的全景
+    if (!activeRegionId) {
+      console.log('[RegionMap] No active sub-region, showing category-level view for:', currentCategory);
+      
+      // 获取该 category 的所有 geojsonIds
+      const allIdsInCategory = getCategoryIds(currentCategory);
+      
+      if (allIdsInCategory.length === 0) {
+        console.warn(`[RegionMap] No provinces found for category: ${currentCategory}`);
+        return;
+      }
+
+      // 应用 category 级别的过滤（统一转换为字符串）
+      const categoryIdsString = allIdsInCategory.map(String);
+      
+      try {
+        const filterExpression = ['in', ['get', 'adcode'], ['literal', categoryIdsString]];
+        map.current.setFilter('regions-fill', filterExpression);
+        map.current.setFilter('regions-border', filterExpression);
+        
+        // 重置 paint properties 为默认值（所有省份同等显示）
+        // 使用表达式确保所有省份使用相同样式
+        map.current.setPaintProperty('regions-fill', 'fill-opacity', 0.25);
+        map.current.setPaintProperty('regions-border', 'line-opacity', 1.0);
+        map.current.setPaintProperty('regions-fill', 'fill-color', '#c9b27c');
+        map.current.setPaintProperty('regions-border', 'line-color', '#9e8756');
+        map.current.setPaintProperty('regions-border', 'line-opacity', 1.0);
+        
+        console.log(`[RegionMap] Applied category filter for ${currentCategory} (${categoryIdsString.length} provinces)`);
+      } catch (error) {
+        console.error('[RegionMap] Error setting category filter:', error);
+        return;
+      }
+
+      // 计算整个 category 的 bounds 并 fitBounds（统一使用字符串 ID）
+      const categoryBounds = categoryIdsString
+        .map(id => regionsDataRef.current.get(String(id))?.bounds)
+        .filter(Boolean) as Array<[[number, number], [number, number]]>;
+
+      const mergedBounds = mergeBounds(categoryBounds);
+
+      if (mergedBounds) {
+        map.current.stop();
+        const maxZoom = allIdsInCategory.length <= 1 ? 7 : allIdsInCategory.length <= 3 ? 6.5 : 5.5;
+        
+        map.current.fitBounds(mergedBounds, {
+          padding: { top: 100, bottom: 100, left: 100, right: 100 },
+          duration: 1200,
+          maxZoom: maxZoom
+        });
+        
+        console.log(`[RegionMap] Fitted bounds for category ${currentCategory}`);
+      }
+      
+      return;
+    }
+
+    // 3. 如果有 activeRegionId，获取映射关系 (pageId -> geojsonIds)
     const mapping = getRegionMapping(activeRegionId);
     
     if (!mapping) {
@@ -893,59 +1065,141 @@ const RegionMap = forwardRef<RegionMapHandle, RegionMapProps>(({
       return;
     }
 
-    const targetIds = mapping.geojsonIds; // 例如 ['540000', '630000']
-    console.log(`[RegionMap] Focusing on: ${mapping.name} (IDs: ${targetIds.join(', ')})`);
-
-    // -----------------------------------------------------------
-    // ⚡️ 关键步骤 A: 设置过滤器 (只显示目标区域)
-    // -----------------------------------------------------------
-    try {
-      // 语法含义：筛选出 'adcode' 属性存在于 targetIds 数组中的 Feature
-      // 注意：我们在加载 GeoJSON 时把 id 存为了 properties.adcode
-      const filterExpression = ['in', ['get', 'adcode'], ['literal', targetIds]];
-      
-      map.current.setFilter('regions-fill', filterExpression);
-      map.current.setFilter('regions-border', filterExpression);
-    } catch (error) {
-      console.error('[RegionMap] Error setting filter:', error);
+    // 4. 验证该 sub-region 是否属于当前 category
+    if (mapping.category !== currentCategory) {
+      console.warn(`[RegionMap] ⚠️ Sub-region ${activeRegionId} (category: ${mapping.category}) does not match current category: ${currentCategory}`);
+      // 仍然允许显示，但记录警告
     }
 
-    // -----------------------------------------------------------
-    // ⚡️ 关键步骤 B: 计算边界并飞过去 (FitBounds)
-    // -----------------------------------------------------------
-    // 收集所有目标省份的 bounds
+    // 🔍 确保 targetIds 是字符串数组
+    const targetIds = mapping.geojsonIds.map(String); // 统一转换为字符串
+    console.log(`[RegionMap] Focusing on sub-region: ${mapping.name} (IDs: ${targetIds.join(', ')})`);
+
+    // 5. 检查数据是否存在
+    const hasData = targetIds.some(id => regionsDataRef.current.has(id));
+    
+    if (!hasData) {
+      console.error(`[RegionMap] ⚠️ 数据缺失！GeoJSON 中找不到以下 ID: ${targetIds.join(', ')}`);
+      console.error(`[RegionMap] 请检查 GeoJSON 文件是否包含所有省份数据。`);
+      console.error(`[RegionMap] 当前已加载的省份:`, Array.from(regionsDataRef.current.keys()));
+      return;
+    }
+
+    // 6. 使用双层 Filter + Paint Property 实现高亮效果
+    // 逻辑：选中的省份 100% 不透明，未选中的省份 20% 不透明（但仍在 category 范围内）
+    try {
+      // 首先应用 filter：只显示当前 category 的省份
+      const categoryIds = getCategoryIds(currentCategory).map(String);
+      const categoryFilter = ['in', ['get', 'adcode'], ['literal', categoryIds]];
+      map.current.setFilter('regions-fill', categoryFilter);
+      map.current.setFilter('regions-border', categoryFilter);
+
+      // 然后使用 paint property 控制颜色和透明度：选中的浅棕色高亮，未选中的保持白色底色
+      // ⚠️ 重要：fill-color 必须在 fill-opacity 之前设置，确保高亮效果正确
+      map.current.setPaintProperty('regions-fill', 'fill-color', [
+        'case',
+        ['in', ['get', 'adcode'], ['literal', targetIds]], 
+        '#c9b27c',  // 选中的省份：浅棕色（高亮）
+        '#ffffff'   // 未选中的省份：白色（保持底色）
+      ]);
+
+      // 控制透明度：选中的高亮，未选中的保持底色
+      map.current.setPaintProperty('regions-fill', 'fill-opacity', [
+        'case',
+        ['in', ['get', 'adcode'], ['literal', targetIds]], 
+        1.0,  // 选中的省份：100% 不透明（高亮）
+        0.0   // 未选中的省份：完全透明（显示白色底色）
+      ]);
+
+      // 边框也做类似处理
+      map.current.setPaintProperty('regions-border', 'line-color', [
+        'case',
+        ['in', ['get', 'adcode'], ['literal', targetIds]], 
+        '#9e8756',  // 选中的省份：棕色边框
+        '#9e8756'   // 未选中的省份：默认边框颜色
+      ]);
+
+      map.current.setPaintProperty('regions-border', 'line-opacity', [
+        'case',
+        ['in', ['get', 'adcode'], ['literal', targetIds]], 
+        1.0,  // 选中的省份：100% 不透明
+        0.5   // 未选中的省份：50% 不透明
+      ]);
+
+      map.current.setPaintProperty('regions-border', 'line-width', [
+        'case',
+        ['in', ['get', 'adcode'], ['literal', targetIds]], 
+        2,    // 选中的省份：更粗的边框
+        1     // 未选中的省份：默认边框宽度
+      ]);
+
+      console.log(`[RegionMap] ✅ Applied sub-region filter and highlight for ${mapping.name}`);
+    } catch (error) {
+      console.error('[RegionMap] Error setting sub-region filter and highlight:', error);
+      return;
+    }
+
+    // 7. 计算边界并 fitBounds 到该 sub-region（使用字符串 ID）
     const provinceBounds = targetIds
-      .map(id => regionsDataRef.current.get(id)?.bounds)
+      .map(id => regionsDataRef.current.get(String(id))?.bounds)
       .filter(Boolean) as Array<[[number, number], [number, number]]>;
 
-    // 合并为一个大的 bounds
     const mergedBounds = mergeBounds(provinceBounds);
 
     if (mergedBounds) {
-      // 停止当前任何动画，防止冲突
-      map.current.stop();
+      map.current.stop(); // 停止当前动画
+
+      // 根据省份数量确定 maxZoom
+      const maxZoom = targetIds.length === 1 ? 7 : targetIds.length <= 2 ? 6.5 : 6;
 
       map.current.fitBounds(mergedBounds, {
-        padding: { top: 100, bottom: 100, left: 100, right: 100 }, // 留白，防止贴边
-        duration: 1200, // 飞行时间
-        maxZoom: 8      // 防止只有一个省份时缩放太大
+        padding: { top: 100, bottom: 100, left: 100, right: 100 },
+        duration: 1200,
+        maxZoom: maxZoom
       });
       
       // 可选：飞到位后稍微调整角度，增加 3D 感
       if (cameraTimeoutRef.current) clearTimeout(cameraTimeoutRef.current);
       cameraTimeoutRef.current = setTimeout(() => {
-          if (!map.current) return;
-          map.current.easeTo({ pitch: 45, bearing: 10, duration: 800 });
+        if (!map.current) return;
+        map.current.easeTo({ pitch: 45, bearing: 10, duration: 800 });
       }, 1200);
+      
+      console.log(`[RegionMap] Fitted bounds for sub-region ${mapping.name}`);
     } else {
-      console.warn('[RegionMap] Could not calculate bounds for IDs:', targetIds);
+      console.warn('[RegionMap] Could not calculate bounds for sub-region IDs:', targetIds);
     }
 
     return () => {
       if (cameraTimeoutRef.current) clearTimeout(cameraTimeoutRef.current);
     };
 
-  }, [activeRegionId, mapFullyReady]); // 依赖项：当 ID 变了或地图准备好了就触发
+  }, [activeRegionId, mapFullyReady, currentCategory]); // ⚠️ 必须监听这些变量
+
+  // -----------------------------------------------------------------------------
+  // 📍 容器尺寸变化监听：使用 ResizeObserver 确保地图正确调整大小
+  // -----------------------------------------------------------------------------
+  useEffect(() => {
+    if (!mapContainer.current || !map.current) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      if (map.current && mapReadyRef.current) {
+        // 使用 requestAnimationFrame 确保在下一帧执行，避免频繁调用
+        requestAnimationFrame(() => {
+          if (map.current) {
+            map.current.resize();
+            console.log('[RegionMap] Container resized, map.resize() called');
+          }
+        });
+      }
+    });
+
+    resizeObserver.observe(mapContainer.current);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [mapboxScriptLoaded]); // 当脚本加载后开始监听
 
   return (
     <>
@@ -967,7 +1221,7 @@ const RegionMap = forwardRef<RegionMapHandle, RegionMapProps>(({
       />
 
       {/* 3. 容器 */}
-      <div className="w-full h-full rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center relative">
+      <div className="w-full h-full relative overflow-hidden">
         {!process.env.NEXT_PUBLIC_MAPBOX_TOKEN ? (
           <div className="text-center p-8">
             <p className="text-gray-600 mb-2" style={{ fontFamily: 'Monda, sans-serif' }}>
@@ -978,10 +1232,9 @@ const RegionMap = forwardRef<RegionMapHandle, RegionMapProps>(({
             </p>
           </div>
         ) : (
-          // 确保这里不仅仅是 w-full h-full，父级必须有高度
           <div 
             ref={mapContainer} 
-            className="w-full h-full absolute inset-0" // 加上 absolute inset-0 强制撑开
+            className="absolute inset-0 w-full h-full" // 使用 absolute 铺满，防止尺寸计算差异
           />
         )}
       </div>

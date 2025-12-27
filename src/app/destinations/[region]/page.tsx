@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/components/common';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import RegionMap, { RegionMapHandle } from '@/components/map/RegionMap';
-import { getRegionMapping, REGION_MAPPING } from '@/lib/regionMapping';
+import { getRegionMapping, getSidebarDataByCategory, REGION_MAPPING } from '@/lib/regionMapping';
 
 // 地区映射
 const regionMap: { [key: string]: { name: string; description: string; image: string } } = {
@@ -34,37 +34,61 @@ const regionMap: { [key: string]: { name: string; description: string; image: st
     name: "Southwest China",
     description: "Mountain ranges, deep gorges and vibrant minority cultures define Southwest China—where landscapes and traditions intertwine.",
     image: "/images/journey-cards/xinjiang-altstadt.webp"
+  },
+  "northwest": {
+    name: "Northwest & Northern Frontier",
+    description: "Discover the frontier regions with stunning natural beauty, ancient Silk Road heritage, and diverse landscapes from deserts to grasslands.",
+    image: "/images/journey-cards/gansu-zhangye.jpg"
+  },
+  "north": {
+    name: "North China",
+    description: "Experience the historical heartland of ancient China, where imperial palaces, ancient walls, and rich cultural traditions await.",
+    image: "/images/journey-cards/shannxi-yejing.jpg"
+  },
+  "south": {
+    name: "South China",
+    description: "Immerse yourself in the vibrant culture and cuisine of South China, from tropical coastlines to bustling modern cities.",
+    image: "/images/journey-cards/chengdu-deep-dive.jpeg"
+  },
+  "east-central": {
+    name: "East & Central China",
+    description: "Journey through the economic and cultural centers of China, where ancient traditions meet modern innovation.",
+    image: "/images/journey-cards/chengdu-deep-dive.jpeg"
   }
 };
 
-// 区域数据配置（用于 sidebar 显示）
-// 注意：地图数据现在从 GeoJSON 文件加载，bounds 仅用于相机动画的后备方案
-const REGIONS_SIDEBAR_DATA = [
-  {
-    id: 'tibetan-plateau',
-    title: 'Tibetan Plateau & Kham Region',
-    description: 'High-altitude landscapes, ancient monasteries, and the rich cultural heritage of Tibetan communities define this vast plateau region.',
-    image: '/images/journey-cards/tibet-buddhist-journey.jpg'
+// 区域映射到 category 的转换
+const REGION_TO_CATEGORY: { [key: string]: 'southwest' | 'northwest' | 'north' | 'south' | 'east-central' } = {
+  'southwest-china': 'southwest',
+  'northwest': 'northwest',
+  'north': 'north',
+  'south': 'south',
+  'east-central': 'east-central'
+};
+
+// 地图配置：每个区域的地图中心点和缩放级别
+const MAP_CONFIG: { [key: string]: { center: [number, number]; zoom: number } } = {
+  'southwest-china': {
+    center: [102, 30], // 西南地区中心（四川/云南）
+    zoom: 5.5
   },
-  {
-    id: 'yunnan-guizhou-highlands',
-    title: 'Yunnan–Guizhou Highlands',
-    description: 'Terraced rice fields, karst mountains, and diverse ethnic minority cultures create a stunning mosaic across these highland provinces.',
-    image: '/images/journey-cards/jiuzhaigou-valley-multi-color-lake.jpeg'
+  'northwest': {
+    center: [95, 40], // 西北地区中心（新疆/甘肃）
+    zoom: 4.5
   },
-  {
-    id: 'sichuan-basin',
-    title: 'Sichuan Basin & Mountains',
-    description: 'From the fertile Chengdu Plain to the dramatic peaks of the Tibetan Plateau foothills, experience the contrast of basin and mountain landscapes.',
-    image: '/images/journey-cards/chengdu-deep-dive.jpeg'
+  'north': {
+    center: [116, 40], // 华北地区中心（北京）
+    zoom: 5.5
   },
-  {
-    id: 'chongqing-gorges',
-    title: 'Chongqing & Three Gorges',
-    description: 'The mighty Yangtze River carves through dramatic gorges, while the mountain city of Chongqing offers vibrant urban culture and spicy cuisine.',
-    image: '/images/journey-cards/chongqing-wulong-karst-national-park.jpg'
+  'south': {
+    center: [113, 24], // 华南地区中心（广东/广西）
+    zoom: 6
+  },
+  'east-central': {
+    center: [118, 32], // 华东地区中心（上海/江苏）
+    zoom: 6
   }
-];
+};
 
 export default function RegionDestinationsPage() {
   const params = useParams();
@@ -77,7 +101,37 @@ export default function RegionDestinationsPage() {
   const mapRef = useRef<RegionMapHandle>(null);
 
   const regionInfo = regionMap[region];
-  const isNorthwestChina = region === 'southwest-china';
+  const isFullPageRegion = ['southwest-china', 'northwest', 'north', 'south', 'east-central'].includes(region);
+  
+  // 动态获取当前 category 的 sidebar 数据
+  const currentCategory = REGION_TO_CATEGORY[region];
+  
+  // 🔍 调试日志：检查 currentCategory 是否正确
+  useEffect(() => {
+    console.log('[RegionDestinationsPage] Current Page:', region);
+    console.log('[RegionDestinationsPage] Current Category:', currentCategory);
+    if (!currentCategory) {
+      console.error(`[RegionDestinationsPage] ⚠️ WARNING: No category found for region: ${region}`);
+    }
+  }, [region, currentCategory]);
+  
+  const currentRegionSidebarData = currentCategory ? getSidebarDataByCategory(currentCategory) : [];
+  
+  // 🔍 数据一致性检查：验证 sidebar 数据的 id 是否都在 REGION_MAPPING 中
+  useEffect(() => {
+    if (currentRegionSidebarData.length > 0) {
+      const allPageIds = new Set(REGION_MAPPING.map(m => m.pageId));
+      const missingIds = currentRegionSidebarData
+        .map(item => item.id)
+        .filter(id => !allPageIds.has(id));
+      
+      if (missingIds.length > 0) {
+        console.error(`[RegionDestinationsPage] ⚠️ DATA MISMATCH: Sidebar IDs not found in REGION_MAPPING:`, missingIds);
+      } else {
+        console.log(`[RegionDestinationsPage] ✅ Data consistency check passed: All ${currentRegionSidebarData.length} sidebar items have valid pageIds`);
+      }
+    }
+  }, [currentRegionSidebarData]);
 
   useEffect(() => {
     if (!regionInfo) {
@@ -97,6 +151,10 @@ export default function RegionDestinationsPage() {
       if (targetRegion === 'sichuan' && journeyRegion?.includes('sichuan')) return true;
       if (targetRegion === 'gansu' && journeyRegion?.includes('gansu')) return true;
       if (targetRegion === 'southwest-china' && journeyRegion && journeyRegion.includes('southwest')) return true;
+      if (targetRegion === 'northwest' && journeyRegion && (journeyRegion.includes('northwest') || journeyRegion.includes('north west'))) return true;
+      if (targetRegion === 'north' && journeyRegion && journeyRegion.includes('north') && !journeyRegion.includes('northwest')) return true;
+      if (targetRegion === 'south' && journeyRegion && journeyRegion.includes('south') && !journeyRegion.includes('southwest')) return true;
+      if (targetRegion === 'east-central' && journeyRegion && (journeyRegion.includes('east') || journeyRegion.includes('central'))) return true;
       
       return false;
     });
@@ -195,8 +253,8 @@ export default function RegionDestinationsPage() {
         </div>
       </Section>
 
-      {/* Southwest China 子导航 + 5 个分类 */}
-      {isNorthwestChina && (
+      {/* 子导航 */}
+      {isFullPageRegion && (
         <>
           {/* 顶部四个子导航 */}
           <Section background="primary" padding="none" className="border-b border-gray-200">
@@ -204,7 +262,7 @@ export default function RegionDestinationsPage() {
               {/* 四个栏目：等距分布（container 更窄，间距更紧凑） */}
               <nav
                 className="grid grid-cols-4 gap-1 md:gap-2 text-xs sm:text-sm md:text-base text-center"
-              aria-label="Southwest China subsections"
+                aria-label={`${regionInfo.name} subsections`}
               >
                 <a
                   href="#trip-inspiration"
@@ -243,7 +301,7 @@ export default function RegionDestinationsPage() {
 
       {/* Journeys / Trip Inspiration Section */}
       <Section
-        id={isNorthwestChina ? 'trip-inspiration' : undefined}
+        id={isFullPageRegion ? 'trip-inspiration' : undefined}
         background="secondary"
         padding="xl"
         className="py-24"
@@ -330,20 +388,21 @@ export default function RegionDestinationsPage() {
         </Container>
       </Section>
 
-      {/* Southwest China Map Section */}
-      {isNorthwestChina && (
+      {/* Map Section */}
+      {isFullPageRegion && (
         <>
           <Section id="map" background="primary" padding="none" className="py-16">
-            <Container size="xl" className="px-1 lg:px-2">
-              <div className="flex flex-col lg:flex-row h-[800px] gap-4 lg:gap-6">
+            <Container size="xl" className="px-1 lg:px-2 max-w-[1600px] mx-auto">
+              <div className="grid grid-cols-12 gap-4 lg:gap-6 h-[650px]">
                 {/* 左侧地图区域 */}
-                <div className="lg:w-1/2 h-full flex items-center justify-center">
+                <div className="col-span-12 lg:col-span-7 h-full flex items-center justify-center">
                   <div className="w-full h-full">
                     <RegionMap 
                       ref={mapRef}
                       geojsonUrl="/data/china-provinces.geojson"
-                      defaultCenter={[102, 30]}
-                      defaultZoom={5.5}
+                      defaultCenter={MAP_CONFIG[region]?.center || [104.1954, 35.8617]}
+                      defaultZoom={MAP_CONFIG[region]?.zoom || 5}
+                      currentCategory={currentCategory}
                       activeRegionId={activeRegionId}
                       onRegionClick={setActiveRegionId}
                     />
@@ -351,22 +410,22 @@ export default function RegionDestinationsPage() {
                 </div>
 
                 {/* 右侧区域列表 */}
-                <div className="lg:w-1/2 h-full overflow-y-auto bg-white">
+                <div className="col-span-12 lg:col-span-5 h-full overflow-y-auto bg-white">
                   <div className="py-4 px-2 lg:px-4">
                     <Heading level={2} className="text-2xl font-heading mb-6" style={{ fontFamily: 'Montaga, serif' }}>
                       Where to go
                     </Heading>
                     
                     <div className="space-y-6">
-                      {REGIONS_SIDEBAR_DATA.map((region) => (
+                      {currentRegionSidebarData.map((regionItem) => (
                         <div
-                          key={region.id}
+                          key={regionItem.id}
                           className="flex gap-4 pb-6 border-b border-gray-200 last:border-b-0 cursor-pointer hover:bg-gray-50 transition-colors"
                           onMouseEnter={() => {
-                            const mapping = getRegionMapping(region.id);
+                            const mapping = getRegionMapping(regionItem.id);
                             if (mapping && mapRef.current) {
                               // 只在未 selected 时设置 hover
-                              if (activeRegionId !== region.id) {
+                              if (activeRegionId !== regionItem.id) {
                                 mapping.geojsonIds.forEach(adcode => {
                                   mapRef.current?.setHoverState(adcode, true);
                                 });
@@ -374,7 +433,7 @@ export default function RegionDestinationsPage() {
                             }
                           }}
                           onMouseLeave={() => {
-                            const mapping = getRegionMapping(region.id);
+                            const mapping = getRegionMapping(regionItem.id);
                             if (mapping && mapRef.current) {
                               // 清除 hover
                               mapping.geojsonIds.forEach(adcode => {
@@ -383,17 +442,17 @@ export default function RegionDestinationsPage() {
                             }
                           }}
                           onClick={() => {
-                            console.log('[Sidebar] click region', region.id);
+                            console.log('[Sidebar] click region', regionItem.id);
                             console.log('[Sidebar] current activeRegionId before set:', activeRegionId);
-                            setActiveRegionId(region.id);
-                            console.log('[Sidebar] setActiveRegionId called with:', region.id);
+                            setActiveRegionId(regionItem.id);
+                            console.log('[Sidebar] setActiveRegionId called with:', regionItem.id);
                           }}
                         >
                           {/* 图片 */}
                           <div className="w-32 h-24 flex-shrink-0 rounded overflow-hidden bg-gray-200">
                             <img
-                              src={region.image}
-                              alt={region.title}
+                              src={regionItem.image}
+                              alt={regionItem.title}
                               className="w-full h-full object-cover"
                               onError={(e) => {
                                 // 如果图片加载失败，显示占位符
@@ -410,16 +469,16 @@ export default function RegionDestinationsPage() {
                               className="text-lg font-heading mb-2"
                               style={{ fontFamily: 'Montaga, serif' }}
                             >
-                              {region.title}
+                              {regionItem.title}
                             </Heading>
                             <Text 
                               className="text-sm text-gray-600 mb-3"
                               style={{ fontFamily: 'Monda, sans-serif' }}
                             >
-                              {region.description}
+                              {regionItem.description}
                             </Text>
                             <Link 
-                              href={`#${region.id}`}
+                              href={`#${regionItem.id}`}
                               className="text-sm text-[#c0a273] hover:underline"
                               style={{ fontFamily: 'Monda, sans-serif' }}
                               onClick={(e) => e.stopPropagation()}
@@ -440,11 +499,11 @@ export default function RegionDestinationsPage() {
           <Section id="why-with-us" background="primary" padding="xl" className="py-16">
             <Container size="xl">
               <Heading level={2} className="text-3xl font-heading mb-4">
-                Why travel with Korascale in Southwest China
+                Why travel with Korascale in {regionInfo.name}
               </Heading>
               <Text className="text-lg text-gray-600 max-w-3xl">
                 We combine local expertise, carefully vetted partners, and immersive cultural access to craft journeys
-                across Southwest China that are safe, seamless and deeply enriching.
+                across {regionInfo.name} that are safe, seamless and deeply enriching.
               </Text>
             </Container>
           </Section>
@@ -456,7 +515,7 @@ export default function RegionDestinationsPage() {
                 Plan your trip
               </Heading>
               <Text className="text-lg text-gray-600 mb-8 max-w-3xl">
-                Share your group size, timing and interests, and our team will design a Southwest China itinerary just
+                Share your group size, timing and interests, and our team will design a {regionInfo.name} itinerary just
                 for you.
               </Text>
               <Link href="/contact">
