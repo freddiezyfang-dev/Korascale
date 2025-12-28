@@ -259,6 +259,12 @@ export interface Journey {
     meals?: boolean;
     transportation?: boolean;
     accommodations?: boolean;
+    tourGuides?: boolean; // English-speaking or other language-speaking tour guides
+    highSpeedRails?: boolean; // Mainland China domestic High-speed rails
+    internationalFlights?: boolean; // International flights to and from Mainland China
+    optionalActivities?: boolean; // Optional activities available for purchase on-site
+    handicraftExperiences?: boolean; // Authentic local handicraft experiences
+    personalExpenses?: boolean; // Personal expenses during leisure time
   };
   excludes?: string; // 不包含内容，用户自定义文本（已弃用，不再显示）
   // Offers 优惠信息（新格式）

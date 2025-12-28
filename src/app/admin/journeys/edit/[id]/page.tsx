@@ -1007,6 +1007,12 @@ export default function EditJourneyPage() {
                           { key: 'meals', label: 'Daily Breakfast, Lunch, and Dinner' },
                           { key: 'transportation', label: 'Premium Private Transportation' },
                           { key: 'accommodations', label: 'Hand-selected Luxury Hotels' },
+                          { key: 'tourGuides', label: 'English-speaking or other language-speaking tour guides' },
+                          { key: 'highSpeedRails', label: 'Mainland China domestic High-speed rails' },
+                          { key: 'internationalFlights', label: 'International flights to and from Mainland China' },
+                          { key: 'optionalActivities', label: 'Optional activities available for purchase on-site' },
+                          { key: 'handicraftExperiences', label: 'Authentic local handicraft experiences' },
+                          { key: 'personalExpenses', label: 'Personal expenses during leisure time' },
                         ].map((item) => {
                           const currentInclusions = isEditing 
                             ? (formData.standardInclusions || journey.standardInclusions || {})

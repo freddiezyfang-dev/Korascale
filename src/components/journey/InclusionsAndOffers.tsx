@@ -133,6 +133,12 @@ export default function InclusionsAndOffers({ journey, onBookingClick }: Inclusi
       meals: 'Daily Breakfast, Lunch, and Dinner',
       transportation: 'Premium Private Transportation',
       accommodations: 'Hand-selected Luxury Hotels',
+      tourGuides: 'English-speaking or other language-speaking tour guides',
+      highSpeedRails: 'Mainland China domestic High-speed rails',
+      internationalFlights: 'International flights to and from Mainland China',
+      optionalActivities: 'Optional activities available for purchase on-site',
+      handicraftExperiences: 'Authentic local handicraft experiences',
+      personalExpenses: 'Personal expenses during leisure time',
     };
     
     return Object.entries(journey.standardInclusions)
