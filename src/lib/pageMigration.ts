@@ -13,7 +13,7 @@ export function migrateExistingPage(existingJourney: Journey): Partial<Journey> 
     // 基础页面字段
     slug: existingJourney.slug || generateSlugFromTitle(existingJourney.title),
     pageTitle: existingJourney.pageTitle || existingJourney.title,
-    metaDescription: existingJourney.metaDescription || generateMetaDescription(existingJourney.description),
+    metaDescription: existingJourney.metaDescription || generateMetaDescription(existingJourney.description || existingJourney.shortDescription),
     heroImage: existingJourney.heroImage || existingJourney.image,
     
     // 英雄统计数据
@@ -36,9 +36,9 @@ export function migrateExistingPage(existingJourney: Journey): Partial<Journey> 
     // 概述区域
     overview: existingJourney.overview || {
       breadcrumb: ['Home', 'Journey', existingJourney.category, existingJourney.title],
-      description: existingJourney.description,
-      highlights: generateHighlightsFromArray(existingJourney.highlights),
-      sideImage: existingJourney.images[1] || existingJourney.image
+      description: existingJourney.description || existingJourney.shortDescription || '',
+      highlights: generateHighlightsFromArray(existingJourney.highlights || []),
+      sideImage: existingJourney.images?.[1] || existingJourney.image || ''
     },
     
     // 包含项目
@@ -53,7 +53,12 @@ export function migrateExistingPage(existingJourney: Journey): Partial<Journey> 
 /**
  * 从标题生成slug
  */
-function generateSlugFromTitle(title: string): string {
+function generateSlugFromTitle(title: string | null | undefined): string {
+  // 处理 null、undefined 或空字符串的情况
+  if (!title || typeof title !== 'string' || title.trim().length === 0) {
+    return 'journey-' + Date.now();
+  }
+  
   return title
     .toLowerCase()
     .replace(/[^a-z0-9\s-]/g, '')
@@ -65,7 +70,12 @@ function generateSlugFromTitle(title: string): string {
 /**
  * 生成meta描述
  */
-function generateMetaDescription(description: string, maxLength: number = 160): string {
+function generateMetaDescription(description: string | null | undefined, maxLength: number = 160): string {
+  // 处理 null、undefined 或空字符串的情况
+  if (!description || typeof description !== 'string' || description.trim().length === 0) {
+    return 'Discover an unforgettable journey with us.';
+  }
+  
   if (description.length <= maxLength) {
     return description;
   }
@@ -87,7 +97,12 @@ function generateMetaDescription(description: string, maxLength: number = 160): 
 /**
  * 从持续时间提取天数
  */
-function extractDaysFromDuration(duration: string): number {
+function extractDaysFromDuration(duration: string | null | undefined): number {
+  // 处理 null、undefined 或空字符串的情况
+  if (!duration || typeof duration !== 'string') {
+    return 1;
+  }
+  
   const match = duration.match(/(\d+)\s*day/i);
   return match ? parseInt(match[1]) : 1;
 }
@@ -95,7 +110,11 @@ function extractDaysFromDuration(duration: string): number {
 /**
  * 从亮点数组生成结构化亮点
  */
-function generateHighlightsFromArray(highlights: string[]) {
+function generateHighlightsFromArray(highlights: string[] | null | undefined) {
+  // 处理 null、undefined 或空数组的情况
+  if (!highlights || !Array.isArray(highlights) || highlights.length === 0) {
+    return [];
+  }
   const iconMap: { [key: string]: string } = {
     'panda': '🐼',
     'food': '🥢',
@@ -135,9 +154,10 @@ function generateHighlightsFromArray(highlights: string[]) {
  */
 function generateInclusionsFromJourney(journey: Journey) {
   const inclusions = [];
+  const included = journey.included || [];
   
   // 检查交通
-  if (journey.included.some(item => 
+  if (included.some(item => 
     item.toLowerCase().includes('transport') || 
     item.toLowerCase().includes('bus') ||
     item.toLowerCase().includes('vehicle')
@@ -150,7 +170,7 @@ function generateInclusionsFromJourney(journey: Journey) {
   }
   
   // 检查住宿
-  if (journey.included.some(item => 
+  if (included.some(item => 
     item.toLowerCase().includes('accommodation') || 
     item.toLowerCase().includes('hotel')
   )) {
@@ -168,7 +188,7 @@ function generateInclusionsFromJourney(journey: Journey) {
   }
   
   // 检查导游
-  if (journey.included.some(item => 
+  if (included.some(item => 
     item.toLowerCase().includes('guide') || 
     item.toLowerCase().includes('tour guide')
   )) {
@@ -180,7 +200,7 @@ function generateInclusionsFromJourney(journey: Journey) {
   }
   
   // 检查餐饮
-  if (journey.included.some(item => 
+  if (included.some(item => 
     item.toLowerCase().includes('meal') || 
     item.toLowerCase().includes('food') ||
     item.toLowerCase().includes('dinner') ||

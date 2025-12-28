@@ -29,7 +29,6 @@ const journeyTypeOptions: JourneyType[] = [
   'Signature Journeys'
 ];
 
-const difficultyOptions = ['Easy', 'Medium', 'Hard'];
 
 const regionOptions = [
   'Southwest China',
@@ -114,7 +113,6 @@ export default function AddJourneyPage() {
     place: '',
     city: '',
     location: '',
-    difficulty: 'Easy',
     maxParticipants: 12,
     minParticipants: 2,
     included: [],
@@ -139,7 +137,17 @@ export default function AddJourneyPage() {
     },
     includes: '',
     excludes: '',
-    slug: ''
+    slug: '',
+    standardInclusions: {
+      airportTransfers: false,
+      entranceFees: false,
+      support24_7: false,
+      insurance: false,
+      meals: false,
+      transportation: false,
+      accommodations: false
+    },
+    offers: []
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -282,6 +290,7 @@ export default function AddJourneyPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Form submitted with data:', formData);
+    console.log('Offers data:', formData.offers);
     setIsSubmitting(true);
 
     try {
@@ -289,6 +298,11 @@ export default function AddJourneyPage() {
       
       // 确保duration格式正确（如果只是数字，格式化为"X Day"或"X Days"）
       const submitData = { ...formData };
+      
+      // 确保 offers 字段存在
+      if (!submitData.offers) {
+        submitData.offers = [];
+      }
       if (submitData.duration && /^\d+$/.test(submitData.duration.trim())) {
         const days = parseInt(submitData.duration.trim(), 10);
         if (!isNaN(days) && days > 0) {
@@ -395,6 +409,66 @@ export default function AddJourneyPage() {
                       />
                     </div>
 
+                    {/* Main Image Upload */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Main Image <span className="text-red-500">*</span>
+                      </label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={formData.image || ''}
+                          onChange={(e) => handleInputChange('image', e.target.value)}
+                          required
+                          placeholder="图片URL（上传后会自动填充）或输入路径，例如：/images/journey-cards/xxx.jpg 或 https://xxx.public.blob.vercel-storage.com/..."
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          disabled={isUploading}
+                          className="hidden"
+                          id="main-image-upload-input"
+                        />
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          disabled={isUploading}
+                          className="flex items-center gap-2"
+                          onClick={() => document.getElementById('main-image-upload-input')?.click()}
+                        >
+                          <Upload className="w-4 h-4" />
+                          {isUploading ? '上传中...' : '上传'}
+                        </Button>
+                      </div>
+                      <Text size="sm" className="text-gray-500 mt-1">
+                        {(() => {
+                          if (!formData.image) {
+                            return '💡 提示：点击"上传"按钮可将图片上传到 Vercel Blob 云存储，或直接输入图片URL（支持本地路径 /images/... 或云存储URL）';
+                          } else if (formData.image.startsWith('https://') && formData.image.includes('vercel-storage.com')) {
+                            return '✅ 云存储URL（已上传到 Vercel Blob 云存储）';
+                          } else if (formData.image.startsWith('/')) {
+                            return '💡 本地路径（存储在 public 目录），建议使用"上传"按钮上传到云存储';
+                          } else {
+                            return '💡 外部URL或云存储URL';
+                          }
+                        })()}
+                      </Text>
+                      {formData.image && (
+                        <div className="mt-3">
+                          <img
+                            src={formData.image}
+                            alt="Main image preview"
+                            className="w-full h-40 object-cover rounded-lg border border-gray-300"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        </div>
+                      )}
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
@@ -418,21 +492,6 @@ export default function AddJourneyPage() {
                         >
                           {journeyTypeOptions.map(type => (
                             <option key={type} value={type}>{type}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Difficulty</label>
-                        <select
-                          value={formData.difficulty || 'Easy'}
-                          onChange={(e) => handleInputChange('difficulty', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                        >
-                          {difficultyOptions.map(difficulty => (
-                            <option key={difficulty} value={difficulty}>{difficulty}</option>
                           ))}
                         </select>
                       </div>
@@ -464,28 +523,6 @@ export default function AddJourneyPage() {
                             <option key={place} value={place}>{place}</option>
                           ))}
                         </select>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
-                        <input
-                          type="text"
-                          value={formData.city || ''}
-                          onChange={(e) => handleInputChange('city', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                        <input
-                          type="text"
-                          value={formData.location || ''}
-                          onChange={(e) => handleInputChange('location', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                        />
                       </div>
                     </div>
                   </div>
@@ -873,65 +910,164 @@ export default function AddJourneyPage() {
                   </div>
                 </Card>
 
-                {/* Includes & Excludes */}
+                {/* Standard Inclusions & Offers */}
                 <Card className="p-6">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Includes - 标准化服务清单 */}
+                  <div className="space-y-6">
+                    {/* Standard Inclusions - 标准化 Checkbox 模式 */}
                     <div>
-                      <Heading level={3} className="text-lg font-semibold mb-4">Includes</Heading>
+                      <Heading level={3} className="text-lg font-semibold mb-4">Standard Inclusions</Heading>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-3">
-                          选择包含的服务（可多选）
+                          选择包含的标准化服务（勾选后会在前端显示）
                         </label>
-                        <div className="space-y-2 max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-4">
-                          {STANDARD_INCLUDES.map((service) => {
-                            const isSelected = (formData.included || []).includes(service);
+                        <div className="space-y-3 border border-gray-200 rounded-lg p-4">
+                          {[
+                            { key: 'airportTransfers', label: 'Airport Meet and Greet with Private Transfers' },
+                            { key: 'entranceFees', label: 'Entrance Fees, Taxes and All Gratuities Except Resident Tour Director' },
+                            { key: 'support24_7', label: '24/7 On-Call Support' },
+                            { key: 'insurance', label: 'Comprehensive Travel Insurance' },
+                            { key: 'meals', label: 'Daily Breakfast, Lunch, and Dinner' },
+                            { key: 'transportation', label: 'Premium Private Transportation' },
+                            { key: 'accommodations', label: 'Hand-selected Luxury Hotels' },
+                          ].map((item) => {
+                            const isChecked = formData.standardInclusions?.[item.key as keyof typeof formData.standardInclusions] || false;
                             return (
                               <label
-                                key={service}
+                                key={item.key}
                                 className="flex items-start space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer"
                               >
                                 <input
                                   type="checkbox"
-                                  checked={isSelected}
+                                  checked={isChecked}
                                   onChange={(e) => {
-                                    const currentIncluded = formData.included || [];
-                                    if (e.target.checked) {
-                                      handleInputChange('included', [...currentIncluded, service]);
-                                    } else {
-                                      handleInputChange('included', currentIncluded.filter(item => item !== service));
-                                    }
+                                    handleInputChange('standardInclusions', {
+                                      ...formData.standardInclusions,
+                                      [item.key]: e.target.checked
+                                    });
                                   }}
                                   className="mt-1 w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500"
                                 />
-                                <span className="text-sm text-gray-700 flex-1">{service}</span>
+                                <span className="text-sm text-gray-700 flex-1">{item.label}</span>
                               </label>
                             );
                           })}
                         </div>
                         <Text size="sm" className="text-gray-500 mt-2">
-                          已选择 {(formData.included || []).length} 项服务
+                          已选择 {Object.values(formData.standardInclusions || {}).filter(Boolean).length} 项标准化服务
                         </Text>
                       </div>
                     </div>
 
-                    {/* Excludes */}
-                    <div>
-                      <Heading level={3} className="text-lg font-semibold mb-4">Excludes</Heading>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          不包含内容（每行一项，或使用逗号分隔）
-                        </label>
-                        <textarea
-                          value={formData.excludes || ''}
-                          onChange={(e) => handleInputChange('excludes', e.target.value)}
-                          rows={10}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                          placeholder="例如：&#10;国际航班费用&#10;个人消费&#10;旅游保险&#10;晚餐费用&#10;小费"
-                        />
-                        <Text size="sm" className="text-gray-500 mt-2">
-                          您可以输入多行内容，每行代表一项不包含的服务或项目
-                        </Text>
+                    {/* Offers - 优惠信息 */}
+                    <div className="mt-6">
+                      <Heading level={3} className="text-lg font-semibold mb-4">Offers</Heading>
+                      <div className="space-y-4">
+                        {(formData.offers || []).map((offer, index) => (
+                          <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                            <div className="flex items-center justify-between">
+                              <Heading level={4} className="text-sm font-semibold">Offer {index + 1}</Heading>
+                              <Button
+                                onClick={() => {
+                                  const currentOffers = formData.offers || [];
+                                  handleInputChange('offers', currentOffers.filter((_, i) => i !== index));
+                                }}
+                                variant="secondary"
+                                size="sm"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-1">Offer Type</label>
+                              <select
+                                value={offer.type || 'Promotional Offer'}
+                                onChange={(e) => {
+                                  const currentOffers = formData.offers || [];
+                                  const newOffers = [...currentOffers];
+                                  newOffers[index] = { ...offer, type: e.target.value };
+                                  handleInputChange('offers', newOffers);
+                                }}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                              >
+                                <option value="Promotional Offer">Promotional Offer</option>
+                                <option value="Companion Discount">Companion Discount</option>
+                                <option value="Government Subsidy">Government Subsidy</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-1">Discount Value</label>
+                              <input
+                                type="text"
+                                value={offer.discount || ''}
+                                onChange={(e) => {
+                                  const currentOffers = formData.offers || [];
+                                  const newOffers = [...currentOffers];
+                                  newOffers[index] = { ...offer, discount: e.target.value };
+                                  handleInputChange('offers', newOffers);
+                                }}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                placeholder="例如：$1500 或 10%"
+                              />
+                              <Text size="sm" className="text-gray-500 mt-1">
+                                只填写数值部分，如 $1500 或 10%，系统会自动生成完整文案
+                              </Text>
+                            </div>
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-1">Deadline</label>
+                              <input
+                                type="date"
+                                value={offer.deadline || ''}
+                                onChange={(e) => {
+                                  const currentOffers = formData.offers || [];
+                                  const newOffers = [...currentOffers];
+                                  newOffers[index] = { ...offer, deadline: e.target.value };
+                                  handleInputChange('offers', newOffers);
+                                }}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                              />
+                              <Text size="sm" className="text-gray-500 mt-1">
+                                选择截至日期，系统会自动生成完整文案
+                              </Text>
+                            </div>
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-1">Custom Description (可选)</label>
+                              <textarea
+                                value={offer.description || ''}
+                                onChange={(e) => {
+                                  const currentOffers = formData.offers || [];
+                                  const newOffers = [...currentOffers];
+                                  newOffers[index] = { ...offer, description: e.target.value };
+                                  handleInputChange('offers', newOffers);
+                                }}
+                                rows={3}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                placeholder="仅限特殊情况覆盖自动文案时使用，平时留空"
+                              />
+                              <Text size="sm" className="text-gray-500 mt-1">
+                                如果填写了自定义描述，将覆盖自动生成的文案
+                              </Text>
+                            </div>
+                          </div>
+                        ))}
+                        <Button
+                          onClick={() => {
+                            const currentOffers = formData.offers || [];
+                            handleInputChange('offers', [
+                              ...currentOffers,
+                              {
+                                type: 'Promotional Offer',
+                                discount: '',
+                                deadline: '',
+                                description: '' // Custom Description (可选)
+                              }
+                            ]);
+                          }}
+                          variant="secondary"
+                          size="sm"
+                        >
+                          <Plus className="w-4 h-4 mr-1" />
+                          Add Offer
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -1231,72 +1367,66 @@ export default function AddJourneyPage() {
                   allJourneys={[]} // 这里可以传入所有旅行卡片用于生成相关推荐
                 /> */}
 
-                {/* Image Upload */}
+                {/* Image Upload - 备用入口（主入口已在 Basic Information 中） */}
                 <Card className="p-6">
                   <Heading level={2} className="text-xl font-semibold mb-4">Images</Heading>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Main Image <span className="text-red-500">*</span>
-                      </label>
-                      
-                      {/* 文件上传按钮 */}
-                      <div className="mb-3">
-                        <label className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg cursor-pointer hover:bg-primary-700 transition-colors">
-                          <Upload className="w-4 h-4 mr-2" />
-                          {isUploading ? '上传中...' : '上传图片到云存储'}
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                            className="hidden"
-                            disabled={isUploading}
-                          />
-                        </label>
-                        <Text size="sm" className="text-gray-500 ml-3 inline-block">
-                          或手动输入图片URL
-                        </Text>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Main Image URL</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={formData.image || ''}
+                          onChange={(e) => handleInputChange('image', e.target.value)}
+                          required
+                          placeholder="图片URL（上传后会自动填充）或输入路径，例如：/images/journey-cards/xxx.jpg 或 https://xxx.public.blob.vercel-storage.com/..."
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          disabled={isUploading}
+                          className="hidden"
+                          id="image-upload-input-sidebar"
+                        />
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          disabled={isUploading}
+                          className="flex items-center gap-2"
+                          onClick={() => document.getElementById('image-upload-input-sidebar')?.click()}
+                        >
+                          <Upload className="w-4 h-4" />
+                          {isUploading ? '上传中...' : '上传'}
+                        </Button>
                       </div>
-                      
-                      {/* URL 输入框 */}
-                      <input
-                        type="text"
-                        value={formData.image || ''}
-                        onChange={(e) => handleInputChange('image', e.target.value)}
-                        required
-                        placeholder="图片URL（上传后会自动填充）或输入路径，例如：/images/journey-cards/xxx.jpg 或 https://xxx.public.blob.vercel-storage.com/..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      />
                       <Text size="sm" className="text-gray-500 mt-1">
                         {(() => {
-                          if (!formData.image) {
-                            return '💡 提示：点击"上传图片"按钮可将图片上传到 Vercel Blob 云存储，或直接输入图片URL（支持本地路径 /images/... 或云存储URL）';
-                          } else if (formData.image.startsWith('https://') && formData.image.includes('vercel-storage.com')) {
+                          const currentImage = formData.image || '';
+                          if (currentImage?.startsWith('https://') && currentImage.includes('vercel-storage.com')) {
                             return '✅ 云存储URL（已上传到 Vercel Blob 云存储）';
-                          } else if (formData.image.startsWith('/')) {
+                          } else if (currentImage?.startsWith('/')) {
                             return '💡 本地路径（存储在 public 目录），建议使用"上传"按钮上传到云存储';
-                          } else {
+                          } else if (currentImage) {
                             return '💡 外部URL或云存储URL';
                           }
+                          return '💡 提示：点击"上传"按钮可将图片上传到 Vercel Blob 云存储，或直接输入图片URL';
                         })()}
                       </Text>
-                    </div>
-                    
-                    {formData.image && (
-                      <div className="mt-4">
-                        <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-300">
+                      {formData.image && (
+                        <div className="mt-3">
                           <img
                             src={formData.image}
-                            alt="Preview"
-                            className="w-full h-full object-cover"
+                            alt="Main image preview"
+                            className="w-full h-48 object-cover rounded-lg border border-gray-300"
                             onError={(e) => {
                               e.currentTarget.style.display = 'none';
-                              e.currentTarget.parentElement!.innerHTML = '<div class="w-full h-48 flex items-center justify-center text-gray-500">图片加载失败</div>';
                             }}
                           />
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </Card>
 

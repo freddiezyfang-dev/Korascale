@@ -31,6 +31,7 @@ interface JourneyMapProps {
   currentDay?: number; // Current day to display (for progressive rendering)
   activeDay?: number; // Active day from scroll intersection observer
   className?: string;
+  routeGeoJsonPath?: string; // Optional GeoJSON path for route visualization
 }
 
 declare global {
@@ -49,15 +50,16 @@ export default function JourneyMap({
   dayLocations,
   currentDay,
   activeDay,
-  className = '' 
+  className = '',
+  routeGeoJsonPath
 }: JourneyMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<any>(null);
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const layersInitializedRef = useRef(false);
-  const fitBoundsDoneRef = useRef(false);
   const lastCurrentDayRef = useRef<number | undefined>(undefined);
   const markersRef = useRef<Map<string, any>>(new Map());
+  const routeGeoJsonDataRef = useRef<any>(null);
 
   // Stable reference for locations array (prevents dependency array size changes)
   const locationsLength = locations?.length ?? 0;
@@ -146,11 +148,12 @@ export default function JourneyMap({
 
     try {
       console.log("[JourneyMap] Initializing Mapbox Instance...");
+      // 移除固定的成都经纬度兜底逻辑，使用默认中心点
       const m = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
-        center: [104, 30],
-        zoom: 4,
+        center: [0, 0], // 默认中心点，后续会根据实际数据计算边界
+        zoom: 2,
         attributionControl: false
       });
 
@@ -400,6 +403,78 @@ export default function JourneyMap({
     }
   };
 
+  // 加载 GeoJSON 路径数据（可选功能，静默失败）
+  useEffect(() => {
+    // 更严格的检查：包括 undefined、null、空字符串
+    if (!routeGeoJsonPath || routeGeoJsonPath.trim() === '') {
+      routeGeoJsonDataRef.current = null;
+      return;
+    }
+
+    const loadGeoJson = async () => {
+      try {
+        console.log("[JourneyMap] Loading route GeoJSON from:", routeGeoJsonPath);
+        const response = await fetch(routeGeoJsonPath);
+        if (!response.ok) {
+          // 404 或其他错误：静默失败，不抛出异常（GeoJSON 是可选的）
+          console.warn(`[JourneyMap] GeoJSON not found or failed to load: ${response.status} ${response.statusText}. This is optional, continuing without GeoJSON route.`);
+          routeGeoJsonDataRef.current = null;
+          return;
+        }
+        const geojson = await response.json();
+        
+        // 验证 GeoJSON 格式 - 支持 FeatureCollection 或单个 Feature
+        if (!geojson) {
+          console.warn('[JourneyMap] Invalid GeoJSON: empty data. Continuing without GeoJSON route.');
+          routeGeoJsonDataRef.current = null;
+          return;
+        }
+        
+        // 如果是 FeatureCollection，提取第一个 LineString feature
+        if (geojson.type === 'FeatureCollection' && Array.isArray(geojson.features)) {
+          const lineFeature = geojson.features.find((f: any) => 
+            f.geometry && f.geometry.type === 'LineString'
+          );
+          if (lineFeature) {
+            routeGeoJsonDataRef.current = lineFeature;
+            console.log("[JourneyMap] Route GeoJSON loaded successfully (FeatureCollection)", {
+              featuresCount: geojson.features.length,
+              usingFeature: lineFeature.id || 'first LineString'
+            });
+          } else {
+            console.warn('[JourneyMap] No LineString feature found in GeoJSON FeatureCollection. Continuing without GeoJSON route.');
+            routeGeoJsonDataRef.current = null;
+            return;
+          }
+        } else if (geojson.type === 'Feature' && geojson.geometry && geojson.geometry.type === 'LineString') {
+          // 如果是单个 Feature，直接使用
+          routeGeoJsonDataRef.current = geojson;
+          console.log("[JourneyMap] Route GeoJSON loaded successfully (Feature)");
+        } else {
+          console.warn('[JourneyMap] Invalid GeoJSON format: expected FeatureCollection with LineString feature or LineString Feature. Continuing without GeoJSON route.');
+          routeGeoJsonDataRef.current = null;
+          return;
+        }
+        
+        // 如果地图已初始化，立即更新路线
+        const m = map.current;
+        if (m && m.isStyleLoaded() && mode === 'multi-stop-route') {
+          const source = m.getSource('multi-day-route');
+          if (source && source.type === 'geojson') {
+            (source as any).setData(routeGeoJsonDataRef.current);
+            console.log("[JourneyMap] Route updated with GeoJSON data");
+          }
+        }
+      } catch (error) {
+        // 网络错误或其他异常：静默失败，不抛出异常
+        console.warn("[JourneyMap] Error loading route GeoJSON (this is optional):", error);
+        routeGeoJsonDataRef.current = null;
+      }
+    };
+
+    loadGeoJson();
+  }, [routeGeoJsonPath, mode]);
+
   // Multi-stop route mode: 初始化图层
   const initializeMultiDayLayers = (m: any) => {
     if (!m.isStyleLoaded() || layersInitializedRef.current) return;
@@ -411,15 +486,18 @@ export default function JourneyMap({
       if (m.getLayer(layerId)) m.removeLayer(layerId);
       if (m.getSource(sourceId)) m.removeSource(sourceId);
 
+      // 如果有 GeoJSON 路径数据，使用它；否则使用空 LineString
+      const initialData = routeGeoJsonDataRef.current || {
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: []
+        }
+      };
+
       m.addSource(sourceId, {
         type: 'geojson',
-        data: {
-          type: 'Feature',
-          geometry: {
-            type: 'LineString',
-            coordinates: []
-          }
-        }
+        data: initialData
       });
 
       m.addLayer({
@@ -439,7 +517,9 @@ export default function JourneyMap({
       });
 
       layersInitializedRef.current = true;
-      console.log("[JourneyMap] Multi-day layers initialized");
+      console.log("[JourneyMap] Multi-day layers initialized", {
+        hasGeoJsonRoute: !!routeGeoJsonDataRef.current
+      });
     } catch (err) {
       console.error("[JourneyMap] Error initializing multi-day layers:", err);
     }
@@ -548,26 +628,37 @@ export default function JourneyMap({
         setTimeout(() => {
           const newSource = m.getSource(sourceId);
           if (newSource && newSource.type === 'geojson') {
-            (newSource as any).setData({
+            // 如果有预加载的 GeoJSON 路径数据，优先使用它
+            const dataToUse = routeGeoJsonDataRef.current || {
               type: 'Feature',
               geometry: {
                 type: 'LineString',
                 coordinates: curvedCoords
               }
-            });
+            };
+            (newSource as any).setData(dataToUse);
           }
         }, 100);
         return;
       }
 
       if (source && source.type === 'geojson') {
-        const geoJsonData = {
-          type: 'Feature',
-          geometry: {
-            type: 'LineString',
-            coordinates: curvedCoords
-          }
-        };
+        // 如果有预加载的 GeoJSON 路径数据，优先使用它
+        let geoJsonData;
+        if (routeGeoJsonDataRef.current) {
+          // 使用 GeoJSON 路径数据
+          geoJsonData = routeGeoJsonDataRef.current;
+          console.log("[JourneyMap] Using preloaded GeoJSON route data");
+        } else {
+          // 否则使用计算出的曲线坐标
+          geoJsonData = {
+            type: 'Feature',
+            geometry: {
+              type: 'LineString',
+              coordinates: curvedCoords
+            }
+          };
+        }
         
         // 强制更新数据源，即使只有一个点也要更新
         (source as any).setData(geoJsonData);
@@ -596,20 +687,19 @@ export default function JourneyMap({
         }
       }
 
-      // 自动缩放：首次加载时执行 fitBounds
-      if (!fitBoundsDoneRef.current && allCoords.length > 0) {
+      // 自动缩放：计算所有点的边界并执行 fitBounds
+      if (allCoords.length > 0) {
         const bounds = new mapboxgl.LngLatBounds();
         allCoords.forEach(c => bounds.extend(c));
         
         m.fitBounds(bounds, { 
-          padding: 80, 
+          padding: 50, 
           duration: 1200, 
           maxZoom: 10,
           essential: true
         });
         
-        fitBoundsDoneRef.current = true;
-        console.log("[JourneyMap] Auto-zoom fitBounds completed");
+        console.log("[JourneyMap] Auto-zoom fitBounds completed with padding: 50");
       } else if (activeDayCoords && targetDay) {
         // 当 activeDay 变化时，使用 flyTo
         m.flyTo({
@@ -644,13 +734,44 @@ export default function JourneyMap({
     }
   }, [mode, locationsKey, locationsLength, radius, isScriptLoaded]);
 
+  // 标准化依赖项：使用稳定的字符串值，避免数组长度变化
+  const routeUrlForUpdate = routeGeoJsonPath || '';
+  const mapModeForUpdate = mode || 'single-location';
+  const currentDayValue = currentDay !== undefined ? currentDay : -1;
+  const activeDayValue = activeDay !== undefined ? activeDay : -1;
+  
   // Multi-stop route mode: 更新多日路线 - 使用 journeySteps 作为单一数据源
   useEffect(() => {
     const m = map.current;
-    if (!m || mode !== 'multi-stop-route' || journeyStepsLength === 0) return;
+    if (!m || mapModeForUpdate !== 'multi-stop-route' || journeyStepsLength === 0) return;
 
     const updateRoute = () => {
       if (!m.isStyleLoaded()) return;
+      
+      // 如果 GeoJSON 数据已加载，等待一下确保数据可用
+      if (routeUrlForUpdate && !routeGeoJsonDataRef.current) {
+        // 等待 GeoJSON 加载完成
+        const checkInterval = setInterval(() => {
+          if (routeGeoJsonDataRef.current || !routeUrlForUpdate) {
+            clearInterval(checkInterval);
+            if (!m.getSource('multi-day-route')) {
+              initializeMultiDayLayers(m);
+            }
+            updateMultiDayRoute(m);
+          }
+        }, 100);
+        
+        // 超时保护：5秒后即使没有加载也继续
+        setTimeout(() => {
+          clearInterval(checkInterval);
+          if (!m.getSource('multi-day-route')) {
+            initializeMultiDayLayers(m);
+          }
+          updateMultiDayRoute(m);
+        }, 5000);
+        
+        return;
+      }
       
       if (!m.getSource('multi-day-route')) {
         initializeMultiDayLayers(m);
@@ -663,17 +784,95 @@ export default function JourneyMap({
     } else {
       m.once('style.load', updateRoute);
     }
-  }, [mode, journeyStepsKey, journeyStepsLength, currentDay, activeDay, isScriptLoaded]);
+  }, [mapModeForUpdate, journeyStepsKey, journeyStepsLength, currentDayValue, activeDayValue, isScriptLoaded, routeUrlForUpdate]); // 使用稳定的值，确保数组长度固定为 7
+
+  // 监听 journeyData 变化，重新计算边界并执行 fitBounds
+  useEffect(() => {
+    const m = map.current;
+    if (!m || !m.isStyleLoaded()) return;
+
+    const mapboxgl = (window as any).mapboxgl;
+    if (!mapboxgl) return;
+
+    // 获取所有行程点的坐标
+    let allCoords: [number, number][] = [];
+
+    // 优先从 GeoJSON 路径数据中提取坐标
+    if (routeGeoJsonDataRef.current) {
+      const geoJsonData = routeGeoJsonDataRef.current;
+      if (geoJsonData.geometry && geoJsonData.geometry.type === 'LineString' && Array.isArray(geoJsonData.geometry.coordinates)) {
+        allCoords = geoJsonData.geometry.coordinates as [number, number][];
+        console.log("[JourneyMap] Extracted coordinates from GeoJSON route data", {
+          coordinatesCount: allCoords.length
+        });
+      }
+    }
+
+    // 如果没有从 GeoJSON 获取到坐标，从 journeySteps 或 locations 获取
+    if (allCoords.length === 0) {
+      if (mapModeForUpdate === 'multi-stop-route' && journeySteps.length > 0) {
+        // 多日路线模式：从 journeySteps 获取所有坐标
+        allCoords = journeySteps.map(step => [step.lng, step.lat]);
+      } else if (mapModeForUpdate === 'single-location' && locations && locations.length > 0) {
+        // 单点模式：从 locations 获取坐标
+        allCoords = locations.map(loc => [Number(loc.lng), Number(loc.lat)]);
+      }
+    }
+
+    // 如果有坐标点，计算边界并执行 fitBounds
+    if (allCoords.length > 0) {
+      try {
+        const bounds = new mapboxgl.LngLatBounds();
+        allCoords.forEach(c => {
+          // 验证坐标有效性
+          if (!isNaN(c[0]) && !isNaN(c[1]) && c[0] >= -180 && c[0] <= 180 && c[1] >= -90 && c[1] <= 90) {
+            bounds.extend(c);
+          }
+        });
+
+        // 确保边界有效
+        if (bounds.getNorth() !== bounds.getSouth() || bounds.getEast() !== bounds.getWest()) {
+          m.fitBounds(bounds, { 
+            padding: 80, // 给边缘留点呼吸感，参考 A&K 的精致布局
+            duration: 2000, // 平滑飞向新行程所在的区域
+            maxZoom: 10,
+            essential: true
+          });
+          console.log("[JourneyMap] fitBounds executed on journeyData change", {
+            bounds: {
+              north: bounds.getNorth(),
+              south: bounds.getSouth(),
+              east: bounds.getEast(),
+              west: bounds.getWest()
+            },
+            pointsCount: allCoords.length,
+            source: routeGeoJsonDataRef.current ? 'GeoJSON' : 'journeySteps/locations'
+          });
+        } else {
+          // 如果所有点都相同，只移动到该点
+          const center = allCoords[0];
+          m.easeTo({
+            center: center,
+            zoom: 9,
+            duration: 1200
+          });
+          console.log("[JourneyMap] All points are the same, centered on single point", center);
+        }
+      } catch (err) {
+        console.error("[JourneyMap] Error calculating bounds:", err);
+      }
+    }
+  }, [routeUrlForUpdate, mapModeForUpdate, journeyStepsKey, locationsKey, isScriptLoaded]); // 使用稳定的字符串值，确保数组长度固定为 5
 
   // FlyTo 动画：监听 currentDay 变化 - 使用 journeySteps 作为单一数据源
   useEffect(() => {
     const m = map.current;
-    if (!m || mode !== 'multi-stop-route' || journeyStepsLength === 0) return;
+    if (!m || mapModeForUpdate !== 'multi-stop-route' || journeyStepsLength === 0) return;
     if (!m.isStyleLoaded()) return;
 
-    const targetDay = activeDay !== undefined ? activeDay : currentDay;
+    const targetDay = activeDayValue !== -1 ? activeDayValue : (currentDayValue !== -1 ? currentDayValue : undefined);
     
-    if (targetDay === undefined || targetDay === lastCurrentDayRef.current) return;
+    if (targetDay === undefined || targetDay === -1 || targetDay === lastCurrentDayRef.current) return;
     
     // Find first step of targetDay using journeySteps (single source of truth)
     const firstStepOfDay = journeySteps.find(step => step.day === targetDay);
@@ -694,26 +893,26 @@ export default function JourneyMap({
 
     lastCurrentDayRef.current = targetDay;
     console.log(`[JourneyMap] FlyTo executed for day ${targetDay} at:`, [firstStepOfDay.lng, firstStepOfDay.lat]);
-  }, [mode, journeyStepsKey, journeyStepsLength, currentDay, activeDay, isScriptLoaded]);
+  }, [mapModeForUpdate, journeyStepsKey, journeyStepsLength, currentDayValue, activeDayValue, isScriptLoaded]); // 使用稳定的值，确保数组长度固定为 6
 
   // 动态高亮：根据 activeDay 高亮 Marker
   useEffect(() => {
-    if (!map.current || mode !== 'multi-stop-route') return;
+    if (!map.current || mapModeForUpdate !== 'multi-stop-route') return;
     
-    const targetDay = activeDay !== undefined ? activeDay : currentDay;
+    const targetDay = activeDayValue !== -1 ? activeDayValue : (currentDayValue !== -1 ? currentDayValue : undefined);
 
     markersRef.current.forEach(({ element, day }) => {
-      if (targetDay !== undefined && day === targetDay) {
+      if (targetDay !== undefined && targetDay !== -1 && day === targetDay) {
         element.classList.add('is-active');
       } else {
         element.classList.remove('is-active');
       }
     });
 
-    if (targetDay !== undefined) {
+    if (targetDay !== undefined && targetDay !== -1) {
       console.log(`[JourneyMap] Markers highlighted for day ${targetDay}`);
     }
-  }, [mode, currentDay, activeDay]);
+  }, [mapModeForUpdate, currentDayValue, activeDayValue]); // 使用稳定的值，确保数组长度固定为 3
 
   return (
     <>

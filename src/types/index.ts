@@ -240,10 +240,34 @@ export interface Journey {
       image?: string;
     }[];
     sideImage: string;
+    routeGeojson?: string; // GeoJSON 路径，用于地图路线显示
+    mapInitialBounds?: {
+      north: number;
+      south: number;
+      east: number;
+      west: number;
+    }; // 地图初始边界（可选，如果提供则优先使用）
   };
   includes?: string; // 包含内容，用户自定义文本（向后兼容）
-  included: string[]; // 包含内容，标准化服务列表（新格式，必需字段，默认为空数组）
-  excludes?: string; // 不包含内容，用户自定义文本
+  included: string[]; // 包含内容，标准化服务列表（向后兼容）
+  // 标准化 Inclusions（Checkbox 模式，向后兼容）
+  standardInclusions?: {
+    airportTransfers?: boolean;
+    entranceFees?: boolean;
+    support24_7?: boolean;
+    insurance?: boolean;
+    meals?: boolean;
+    transportation?: boolean;
+    accommodations?: boolean;
+  };
+  excludes?: string; // 不包含内容，用户自定义文本（已弃用，不再显示）
+  // Offers 优惠信息（新格式）
+  offers?: {
+    type: string; // 如 "Promotional Offer", "Companion Discount", "Government Subsidy"
+    discount: string; // 完整的折扣描述，如 "Save $1500 per person"
+    deadline?: string; // ISO 日期字符串，如 "2026-02-28"
+    description?: string; // 描述文本，如 "Booked by February 28, 2026"
+  }[];
   relatedTrips?: {
     title: string;
     duration: string;

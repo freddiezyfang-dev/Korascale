@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Container, Section, Heading, Text, Card, Button } from '@/components/common';
 import { useUser } from '@/context/UserContext';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
-import { Journey, JourneyStatus } from '@/types';
+import { Journey, JourneyStatus, JourneyType } from '@/types';
 import { migrateExistingPage, validateMigratedPage } from '@/lib/pageMigration';
 import { DeleteConfirmationModal } from '@/components/modals/DeleteConfirmationModal';
 import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation';
@@ -65,11 +65,29 @@ const categoryConfig = {
   'Cruises': { label: 'Cruises', color: 'bg-cyan-100 text-cyan-800' },
 };
 
-const difficultyConfig = {
-  'Easy': { label: 'Easy', color: 'bg-green-100 text-green-800' },
-  'Medium': { label: 'Medium', color: 'bg-yellow-100 text-yellow-800' },
-  'Hard': { label: 'Hard', color: 'bg-red-100 text-red-800' },
+// Journey Type 配置
+const journeyTypeConfig: Record<JourneyType, { label: string; color: string }> = {
+  'Explore Together': { label: 'Explore Together', color: 'bg-blue-100 text-blue-800' },
+  'Deep Discovery': { label: 'Deep Discovery', color: 'bg-purple-100 text-purple-800' },
+  'Signature Journeys': { label: 'Signature Journeys', color: 'bg-amber-100 text-amber-800' },
+  'Group Tours': { label: 'Group Tours', color: 'bg-green-100 text-green-800' },
 };
+
+// 解析 journey type 的辅助函数
+const resolveJourneyType = (journey: any): JourneyType => {
+  if ('journeyType' in journey && journey.journeyType) {
+    return journey.journeyType as JourneyType;
+  }
+  // 根据 duration 推断（可选）
+  if (journey.duration?.includes('1 Day')) {
+    return 'Explore Together';
+  }
+  if (journey.duration?.match(/\d+ Days?/) && !journey.duration?.includes('1 Day')) {
+    return 'Deep Discovery';
+  }
+  return 'Explore Together'; // 默认
+};
+
 
 export default function AdminJourneysPage() {
   const { user, logout } = useUser();
@@ -99,7 +117,7 @@ export default function AdminJourneysPage() {
   } = useDeleteConfirmation();
   
   const [selectedStatus, setSelectedStatus] = useState<JourneyStatus | 'all'>('all');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedJourneyType, setSelectedJourneyType] = useState<JourneyType | 'all'>('all');
   const [selectedRegion, setSelectedRegion] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -154,6 +172,7 @@ export default function AdminJourneysPage() {
   // 获取所有分类和地区列表
   // 固定的分类和区域选项
   const categoryOptions = ['Nature', 'Culture', 'History', 'City', 'Cruises'];
+  const journeyTypeOptions: JourneyType[] = ['Explore Together', 'Deep Discovery', 'Signature Journeys', 'Group Tours'];
   const regionOptions = [
     'Southwest China',
     'Northwest&Northern Frontier',
@@ -169,7 +188,8 @@ export default function AdminJourneysPage() {
   // 过滤旅行卡片
   const filteredJourneys = journeys.filter(journey => {
     const matchesStatus = selectedStatus === 'all' || journey.status === selectedStatus;
-    const matchesCategory = selectedCategory === 'all' || journey.category === selectedCategory;
+    const journeyType = resolveJourneyType(journey);
+    const matchesJourneyType = selectedJourneyType === 'all' || journeyType === selectedJourneyType;
     const matchesRegion = selectedRegion === 'all' || journey.region === selectedRegion;
     const matchesSearch = searchTerm === '' || 
       journey.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -177,7 +197,7 @@ export default function AdminJourneysPage() {
       journey.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
       journey.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    return matchesStatus && matchesCategory && matchesRegion && matchesSearch;
+    return matchesStatus && matchesJourneyType && matchesRegion && matchesSearch;
   });
 
   // 统计数据
@@ -474,15 +494,15 @@ export default function AdminJourneysPage() {
                 </Button>
               </div>
 
-              {/* Category Filter */}
+              {/* Journey Type Filter */}
               <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
+                value={selectedJourneyType}
+                onChange={(e) => setSelectedJourneyType(e.target.value as JourneyType | 'all')}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               >
-                <option value="all">All Categories</option>
-                {categoryOptions.map(category => (
-                  <option key={category} value={category}>{category}</option>
+                <option value="all">All Journey Types</option>
+                {journeyTypeOptions.map(journeyType => (
+                  <option key={journeyType} value={journeyType}>{journeyType}</option>
                 ))}
               </select>
 
@@ -530,7 +550,6 @@ export default function AdminJourneysPage() {
               filteredJourneys.map((journey) => {
                 const statusInfo = statusConfig[journey.status] || statusConfig.draft;
                 const categoryInfo = categoryConfig[journey.category] || { label: journey.category || 'Other', color: 'bg-gray-100 text-gray-700' };
-                const difficultyInfo = difficultyConfig[journey.difficulty] || { label: journey.difficulty || 'Easy', color: 'bg-gray-100 text-gray-700' };
                 
                 return (
                   <Card key={journey.id} className="overflow-hidden">
@@ -573,9 +592,6 @@ export default function AdminJourneysPage() {
                         </div>
                         <span className={`px-2 py-1 rounded text-xs font-medium ${categoryInfo?.color || 'bg-gray-100 text-gray-700'}`}>
                           {categoryInfo?.label || 'Other'}
-                        </span>
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${difficultyInfo?.color || 'bg-gray-100 text-gray-700'}`}>
-                          {difficultyInfo?.label || 'Easy'}
                         </span>
                       </div>
                       

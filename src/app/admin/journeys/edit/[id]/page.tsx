@@ -38,7 +38,6 @@ const journeyTypeOptions: JourneyType[] = [
   'Signature Journeys'
 ];
 
-const difficultyOptions = ['Easy', 'Medium', 'Hard'];
 
 const regionOptions = [
   'Southwest China',
@@ -143,6 +142,11 @@ export default function EditJourneyPage() {
         } else {
           processedJourney.included = [];
         }
+      }
+      
+      // 确保 offers 字段存在
+      if (!processedJourney.offers) {
+        processedJourney.offers = [];
       }
       
       setJourney(processedJourney);
@@ -271,10 +275,17 @@ export default function EditJourneyPage() {
         }
       }
       
+      // 确保 offers 字段存在
+      if (!saveData.offers) {
+        saveData.offers = [];
+      }
+      
       // 调试：打印要保存的数据
       console.log('Saving journey data:', {
         journeyId: journey.id,
         formData: saveData,
+        offers: saveData.offers,
+        offersLength: saveData.offers?.length || 0,
         highlights: saveData.highlights,
         highlightsType: Array.isArray(saveData.highlights) ? 'array' : typeof saveData.highlights,
         highlightsLength: Array.isArray(saveData.highlights) ? saveData.highlights.length : 'N/A'
@@ -977,72 +988,195 @@ export default function EditJourneyPage() {
                 </div>
               </Card>
 
-              {/* Includes & Excludes */}
+              {/* Standard Inclusions & Offers */}
               <Card className="p-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Includes - 标准化服务清单 */}
+                <div className="space-y-6">
+                  {/* Standard Inclusions - 标准化 Checkbox 模式 */}
                   <div>
-                    <Heading level={3} className="text-lg font-semibold mb-4">Includes</Heading>
+                    <Heading level={3} className="text-lg font-semibold mb-4">Standard Inclusions</Heading>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-3">
-                        选择包含的服务（可多选）
+                        选择包含的标准化服务（勾选后会在前端显示）
                       </label>
-                      <div className="space-y-2 max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-4">
-                        {STANDARD_INCLUDES.map((service) => {
-                          const currentIncluded = isEditing 
-                            ? (formData.included || journey.included || [])
-                            : (journey.included || []);
-                          const isSelected = currentIncluded.includes(service);
+                      <div className="space-y-3 border border-gray-200 rounded-lg p-4">
+                        {[
+                          { key: 'airportTransfers', label: 'Airport Meet and Greet with Private Transfers' },
+                          { key: 'entranceFees', label: 'Entrance Fees, Taxes and All Gratuities Except Resident Tour Director' },
+                          { key: 'support24_7', label: '24/7 On-Call Support' },
+                          { key: 'insurance', label: 'Comprehensive Travel Insurance' },
+                          { key: 'meals', label: 'Daily Breakfast, Lunch, and Dinner' },
+                          { key: 'transportation', label: 'Premium Private Transportation' },
+                          { key: 'accommodations', label: 'Hand-selected Luxury Hotels' },
+                        ].map((item) => {
+                          const currentInclusions = isEditing 
+                            ? (formData.standardInclusions || journey.standardInclusions || {})
+                            : (journey.standardInclusions || {});
+                          const isChecked = currentInclusions[item.key as keyof typeof currentInclusions] || false;
                           return (
                             <label
-                              key={service}
+                              key={item.key}
                               className={`flex items-start space-x-3 p-2 rounded cursor-pointer ${
                                 !isEditing ? 'cursor-not-allowed opacity-60' : 'hover:bg-gray-50'
                               }`}
                             >
                               <input
                                 type="checkbox"
-                                checked={isSelected}
+                                checked={isChecked}
                                 onChange={(e) => {
-                                  const prevIncluded = formData.included || journey.included || [];
-                                  if (e.target.checked) {
-                                    handleInputChange('included', [...prevIncluded, service]);
-                                  } else {
-                                    handleInputChange('included', prevIncluded.filter(item => item !== service));
-                                  }
+                                  const prevInclusions = formData.standardInclusions || journey.standardInclusions || {};
+                                  handleInputChange('standardInclusions', {
+                                    ...prevInclusions,
+                                    [item.key]: e.target.checked
+                                  });
                                 }}
                                 disabled={!isEditing}
                                 className="mt-1 w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 disabled:opacity-50"
                               />
-                              <span className="text-sm text-gray-700 flex-1">{service}</span>
+                              <span className="text-sm text-gray-700 flex-1">{item.label}</span>
                             </label>
                           );
                         })}
                       </div>
                       <Text size="sm" className="text-gray-500 mt-2">
-                        已选择 {(isEditing ? (formData.included || []) : (journey.included || [])).length} 项服务
+                        已选择 {Object.values(isEditing ? (formData.standardInclusions || {}) : (journey.standardInclusions || {})).filter(Boolean).length} 项标准化服务
                       </Text>
                     </div>
                   </div>
 
-                  {/* Excludes */}
-                  <div>
-                    <Heading level={3} className="text-lg font-semibold mb-4">Excludes</Heading>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        不包含内容（每行一项，或使用逗号分隔）
-                      </label>
-                      <textarea
-                        value={isEditing ? (formData.excludes || '') : (journey.excludes || '')}
-                        onChange={(e) => handleInputChange('excludes', e.target.value)}
-                        disabled={!isEditing}
-                        rows={10}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                        placeholder="例如：&#10;国际航班费用&#10;个人消费&#10;旅游保险&#10;晚餐费用&#10;小费"
-                      />
-                      <Text size="sm" className="text-gray-500 mt-2">
-                        您可以输入多行内容，每行代表一项不包含的服务或项目
-                      </Text>
+                  {/* Offers - 优惠信息 */}
+                  <div className="mt-6">
+                    <Heading level={3} className="text-lg font-semibold mb-4">Offers</Heading>
+                    <div className="space-y-4">
+                      {((isEditing ? formData.offers : journey.offers) || []).length > 0 ? (
+                        ((isEditing ? formData.offers : journey.offers) || []).map((offer, index) => {
+                          const currentOffer = isEditing 
+                            ? (formData.offers || [])[index]
+                            : (journey.offers || [])[index];
+                          return (
+                            <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                              <div className="flex items-center justify-between">
+                                <Heading level={4} className="text-sm font-semibold">Offer {index + 1}</Heading>
+                                {isEditing && (
+                                  <Button
+                                    onClick={() => {
+                                      const currentOffers = formData.offers || journey.offers || [];
+                                      handleInputChange('offers', currentOffers.filter((_, i) => i !== index));
+                                    }}
+                                    variant="secondary"
+                                    size="sm"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                )}
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium text-gray-600 mb-1">Offer Type</label>
+                                <select
+                                  value={currentOffer?.type || 'Promotional Offer'}
+                                  onChange={(e) => {
+                                    const currentOffers = formData.offers || journey.offers || [];
+                                    const newOffers = [...currentOffers];
+                                    newOffers[index] = { ...currentOffer, type: e.target.value };
+                                    handleInputChange('offers', newOffers);
+                                  }}
+                                  disabled={!isEditing}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                                >
+                                  <option value="Promotional Offer">Promotional Offer</option>
+                                  <option value="Companion Discount">Companion Discount</option>
+                                  <option value="Government Subsidy">Government Subsidy</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium text-gray-600 mb-1">Discount Value</label>
+                                <input
+                                  type="text"
+                                  value={currentOffer?.discount || ''}
+                                  onChange={(e) => {
+                                    const currentOffers = formData.offers || journey.offers || [];
+                                    const newOffers = [...currentOffers];
+                                    newOffers[index] = { ...currentOffer, discount: e.target.value };
+                                    handleInputChange('offers', newOffers);
+                                  }}
+                                  disabled={!isEditing}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                                  placeholder="例如：$1500 或 10%"
+                                />
+                                <Text size="sm" className="text-gray-500 mt-1">
+                                  只填写数值部分，如 $1500 或 10%，系统会自动生成完整文案
+                                </Text>
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium text-gray-600 mb-1">Deadline</label>
+                                <input
+                                  type="date"
+                                  value={currentOffer?.deadline || ''}
+                                  onChange={(e) => {
+                                    const currentOffers = formData.offers || journey.offers || [];
+                                    const newOffers = [...currentOffers];
+                                    newOffers[index] = { ...currentOffer, deadline: e.target.value };
+                                    handleInputChange('offers', newOffers);
+                                  }}
+                                  disabled={!isEditing}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                                />
+                                <Text size="sm" className="text-gray-500 mt-1">
+                                  选择截至日期，系统会自动生成完整文案
+                                </Text>
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium text-gray-600 mb-1">Custom Description (可选)</label>
+                                <textarea
+                                  value={currentOffer?.description || ''}
+                                  onChange={(e) => {
+                                    const currentOffers = formData.offers || journey.offers || [];
+                                    const newOffers = [...currentOffers];
+                                    newOffers[index] = { ...currentOffer, description: e.target.value };
+                                    handleInputChange('offers', newOffers);
+                                  }}
+                                  disabled={!isEditing}
+                                  rows={3}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                                  placeholder="仅限特殊情况覆盖自动文案时使用，平时留空"
+                                />
+                                <Text size="sm" className="text-gray-500 mt-1">
+                                  如果填写了自定义描述，将覆盖自动生成的文案
+                                </Text>
+                              </div>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="border border-gray-200 rounded-lg p-6 text-center text-gray-500 bg-gray-50">
+                          <Text size="sm">暂无 Offers</Text>
+                          {!isEditing && (
+                            <Text size="sm" className="mt-2 text-gray-400">
+                              点击右上角 "Edit Journey" 按钮可以添加 Offers
+                            </Text>
+                          )}
+                        </div>
+                      )}
+                      {isEditing && (
+                        <Button
+                          onClick={() => {
+                            const currentOffers = formData.offers || journey.offers || [];
+                            handleInputChange('offers', [
+                              ...currentOffers,
+                              {
+                                type: 'Promotional Offer',
+                                discount: '',
+                                deadline: '',
+                                description: '' // Custom Description (可选)
+                              }
+                            ]);
+                          }}
+                          variant="secondary"
+                          size="sm"
+                        >
+                          <Plus className="w-4 h-4 mr-1" />
+                          Add Offer
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>

@@ -15,8 +15,58 @@ import { useHotelManagement } from '@/context/HotelManagementContext';
 import { generateStandardPageConfig, JOURNEY_PAGE_TEMPLATE } from '@/lib/journeyPageTemplate';
 import { useCart } from '@/context/CartContext';
 import { Journey } from '@/types';
-import { Heart, MapPin, Clock, Users } from 'lucide-react';
+import { Heart, MapPin, Clock, Users, ChevronDown, ChevronUp } from 'lucide-react';
 import JourneyMap from '@/components/map/JourneyMap';
+import StandardInclusions from '@/components/journey/StandardInclusions';
+import OfferCard from '@/components/journey/OfferCard';
+import OfferIcon from '@/components/journey/OfferIcon';
+import InclusionsAndOffers from '@/components/journey/InclusionsAndOffers';
+
+// Details Accordion 组件 - 用于可折叠的技术细节
+function DetailsAccordion({ meals, accommodation, transportation }: { meals?: string[]; accommodation?: string; transportation?: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const hasDetails = (meals && meals.length > 0) || accommodation || transportation;
+  
+  if (!hasDetails) return null;
+  
+  return (
+    <div className="mt-6 border-t border-gray-200 pt-4">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center justify-between w-full text-left text-sm text-gray-600 hover:text-gray-900 transition-colors"
+      >
+        <span className="font-medium">Details</span>
+        {isOpen ? (
+          <ChevronUp className="w-4 h-4" />
+        ) : (
+          <ChevronDown className="w-4 h-4" />
+        )}
+      </button>
+      {isOpen && (
+        <div className="mt-3 space-y-2 text-xs text-gray-500">
+          {meals && meals.length > 0 && (
+            <div>
+              <span className="font-medium text-gray-600">Meals: </span>
+              {meals.join(', ')}
+            </div>
+          )}
+          {accommodation && (
+            <div>
+              <span className="font-medium text-gray-600">Accommodation: </span>
+              {accommodation}
+            </div>
+          )}
+          {transportation && (
+            <div>
+              <span className="font-medium text-gray-600">Transportation: </span>
+              {transportation}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 // Journey Type slugs 映射（移到组件外部，避免每次渲染都创建新数组）
 // 注意：这里用于路由识别和重定向，必须包含所有 journey type 的 slug
@@ -36,6 +86,73 @@ const CITY_GEO_DB: Record<string, { lng: number; lat: number; name: string }> = 
   '黄龙': { lng: 103.82, lat: 32.75, name: 'Huanglong' },
   'meishan': { lng: 103.85, lat: 30.05, name: 'Meishan' },
   '眉山': { lng: 103.85, lat: 30.05, name: 'Meishan' },
+  
+  // 北京地区
+  'beijing': { lng: 116.4074, lat: 39.9042, name: 'Beijing' },
+  '北京': { lng: 116.4074, lat: 39.9042, name: 'Beijing' },
+  'peking': { lng: 116.4074, lat: 39.9042, name: 'Beijing' },
+  'forbidden city': { lng: 116.3972, lat: 39.9163, name: 'Forbidden City' },
+  '故宫': { lng: 116.3972, lat: 39.9163, name: 'Forbidden City' },
+  'tiananmen': { lng: 116.3974, lat: 39.9037, name: 'Tiananmen Square' },
+  '天安门': { lng: 116.3974, lat: 39.9037, name: 'Tiananmen Square' },
+  'temple of heaven': { lng: 116.4075, lat: 39.8823, name: 'Temple of Heaven' },
+  '天坛': { lng: 116.4075, lat: 39.8823, name: 'Temple of Heaven' },
+  'summer palace': { lng: 116.2734, lat: 39.9990, name: 'Summer Palace' },
+  '颐和园': { lng: 116.2734, lat: 39.9990, name: 'Summer Palace' },
+  'great wall': { lng: 116.5704, lat: 40.4319, name: 'Great Wall' },
+  '长城': { lng: 116.5704, lat: 40.4319, name: 'Great Wall' },
+  'badaling': { lng: 116.0147, lat: 40.3592, name: 'Badaling' },
+  '八达岭': { lng: 116.0147, lat: 40.3592, name: 'Badaling' },
+  'mutianyu': { lng: 116.5704, lat: 40.4319, name: 'Mutianyu' },
+  '慕田峪': { lng: 116.5704, lat: 40.4319, name: 'Mutianyu' },
+  'beihai park': { lng: 116.3883, lat: 39.9254, name: 'Beihai Park' },
+  '北海公园': { lng: 116.3883, lat: 39.9254, name: 'Beihai Park' },
+  'hutong': { lng: 116.3974, lat: 39.9042, name: 'Hutong' },
+  '胡同': { lng: 116.3974, lat: 39.9042, name: 'Hutong' },
+  
+  // 山西地区
+  'shanxi': { lng: 112.5624, lat: 37.8739, name: 'Shanxi' },
+  '山西': { lng: 112.5624, lat: 37.8739, name: 'Shanxi' },
+  'taiyuan': { lng: 112.5492, lat: 37.8570, name: 'Taiyuan' },
+  '太原': { lng: 112.5492, lat: 37.8570, name: 'Taiyuan' },
+  'datong': { lng: 113.2953, lat: 40.0903, name: 'Datong' },
+  '大同': { lng: 113.2953, lat: 40.0903, name: 'Datong' },
+  'yungang grottoes': { lng: 113.2953, lat: 40.0903, name: 'Yungang Grottoes' },
+  '云冈石窟': { lng: 113.2953, lat: 40.0903, name: 'Yungang Grottoes' },
+  'pingyao': { lng: 112.1781, lat: 37.1988, name: 'Pingyao' },
+  '平遥': { lng: 112.1781, lat: 37.1988, name: 'Pingyao' },
+  'pingyao ancient city': { lng: 112.1781, lat: 37.1988, name: 'Pingyao Ancient City' },
+  '平遥古城': { lng: 112.1781, lat: 37.1988, name: 'Pingyao Ancient City' },
+  'wutai mountain': { lng: 113.5901, lat: 38.9944, name: 'Wutai Mountain' },
+  '五台山': { lng: 113.5901, lat: 38.9944, name: 'Wutai Mountain' },
+  'wutai': { lng: 113.5901, lat: 38.9944, name: 'Wutai Mountain' },
+  'hanging temple': { lng: 113.5901, lat: 39.6167, name: 'Hanging Temple' },
+  '悬空寺': { lng: 113.5901, lat: 39.6167, name: 'Hanging Temple' },
+  'xuan kong si': { lng: 113.5901, lat: 39.6167, name: 'Hanging Temple' },
+  'jinci temple': { lng: 112.5492, lat: 37.8570, name: 'Jinci Temple' },
+  '晋祠': { lng: 112.5492, lat: 37.8570, name: 'Jinci Temple' },
+  'qiao family compound': { lng: 112.1781, lat: 37.1988, name: 'Qiao Family Compound' },
+  '乔家大院': { lng: 112.1781, lat: 37.1988, name: 'Qiao Family Compound' },
+  'wang family compound': { lng: 111.7521, lat: 36.6908, name: 'Wang Family Compound' },
+  '王家大院': { lng: 111.7521, lat: 36.6908, name: 'Wang Family Compound' },
+  'yanmen pass': { lng: 112.5624, lat: 39.0167, name: 'Yanmen Pass' },
+  '雁门关': { lng: 112.5624, lat: 39.0167, name: 'Yanmen Pass' },
+  'changzhi': { lng: 113.1136, lat: 36.1911, name: 'Changzhi' },
+  '长治': { lng: 113.1136, lat: 36.1911, name: 'Changzhi' },
+  'jincheng': { lng: 112.8513, lat: 35.4976, name: 'Jincheng' },
+  '晋城': { lng: 112.8513, lat: 35.4976, name: 'Jincheng' },
+  'yangquan': { lng: 113.5833, lat: 37.8612, name: 'Yangquan' },
+  '阳泉': { lng: 113.5833, lat: 37.8612, name: 'Yangquan' },
+  'xi county': { lng: 110.93, lat: 36.69, name: 'Xi County' },
+  '隰县': { lng: 110.93, lat: 36.69, name: 'Xi County' },
+  'xi xian': { lng: 110.93, lat: 36.69, name: 'Xi County' },
+  'xixian': { lng: 110.93, lat: 36.69, name: 'Xi County' },
+  'xian': { lng: 108.9398, lat: 34.3416, name: 'Xi\'an' },
+  'xi\'an': { lng: 108.9398, lat: 34.3416, name: 'Xi\'an' },
+  '西安': { lng: 108.9398, lat: 34.3416, name: 'Xi\'an' },
+  'xian city': { lng: 108.9398, lat: 34.3416, name: 'Xi\'an' },
+  'terracotta warriors': { lng: 109.2778, lat: 34.3853, name: 'Terracotta Warriors' },
+  '兵马俑': { lng: 109.2778, lat: 34.3853, name: 'Terracotta Warriors' },
   
   // 内蒙古呼伦贝尔地区
   'hailar': { lng: 119.76, lat: 49.21, name: 'Hailar' },
@@ -162,9 +279,29 @@ export default function DynamicJourneyPage() {
     if (!journey || isDayTour || !journey.itinerary) return undefined;
     
     // 【关键修复点】：获取行程的总中心点作为保底（行程区域感知）
-    // 如果 journey 有 longitude/latitude，使用它；否则使用默认值（成都）
-    const baseLng = (journey as any).longitude ? Number((journey as any).longitude) : 104.06;
-    const baseLat = (journey as any).latitude ? Number((journey as any).latitude) : 30.67;
+    // 如果 journey 有 longitude/latitude，使用它；否则根据城市判断
+    // 对于北京-山西行程，使用北京和山西之间的中点作为默认值
+    let baseLng = 116.4074; // 北京经度
+    let baseLat = 39.9042; // 北京纬度
+    
+    // 如果 journey 有明确的坐标，使用它
+    if ((journey as any).longitude && (journey as any).latitude) {
+      baseLng = Number((journey as any).longitude);
+      baseLat = Number((journey as any).latitude);
+    } else {
+      // 根据城市或标题判断区域
+      const journeyCity = (journey.city || journey.title || '').toLowerCase();
+      if (journeyCity.includes('beijing') || journeyCity.includes('北京')) {
+        baseLng = 116.4074;
+        baseLat = 39.9042;
+      } else if (journeyCity.includes('shanxi') || journeyCity.includes('山西')) {
+        baseLng = 112.5624;
+        baseLat = 37.8739;
+      } else if (journeyCity.includes('chengdu') || journeyCity.includes('成都')) {
+        baseLng = 104.06;
+        baseLat = 30.67;
+      }
+    }
     
     // 调试：打印原始数据和行程中心点
     console.log('[page.tsx] Processing dayLocations with Geo Dictionary + Region-Aware Fallback', {
@@ -211,25 +348,47 @@ export default function DynamicJourneyPage() {
       // 优先级 3: 使用行程总中心点（行程区域感知兜底）
       // 【关键修复点】：优先参考整个行程的中心点，而不是死守固定坐标
       if (!finalLng || !finalLat) {
-        finalLng = baseLng;
-        finalLat = baseLat;
-        // 从标题中提取城市名称（处理 "Day X — 城市名" 格式）
-        const titleParts = day.title?.split('—') || day.title?.split('-') || [];
-        finalCity = titleParts[0]?.trim() || day.title || `Day ${day.day}`;
-        console.log(`[page.tsx] Day ${day.day}: Using journey center point (region-aware fallback)`, { 
-          finalCity, 
-          finalLng, 
-          finalLat,
-          source: 'journey center'
+        // 如果仍然无法匹配，尝试从标题中提取更多信息
+        const titleLower = day.title?.toLowerCase() || '';
+        const descLower = day.description?.toLowerCase() || '';
+        const combinedText = `${titleLower} ${descLower}`;
+        
+        // 再次尝试匹配（可能标题格式不同）
+        const retryMatch = Object.entries(CITY_GEO_DB).find(([key]) => {
+          const lowerKey = key.toLowerCase();
+          return combinedText.includes(lowerKey);
         });
+        
+        if (retryMatch) {
+          const [, geoData] = retryMatch;
+          finalLng = geoData.lng;
+          finalLat = geoData.lat;
+          finalCity = geoData.name;
+          console.log(`[page.tsx] Day ${day.day}: Retry match from Geo Dictionary:`, { key: retryMatch[0], finalCity, finalLng, finalLat });
+        } else {
+          // 如果仍然无法匹配，使用行程中心点，但确保 finalCity 有值
+          finalLng = baseLng;
+          finalLat = baseLat;
+          // 从标题中提取城市名称（处理 "Day X — 城市名" 格式）
+          const titleParts = day.title?.split('—') || day.title?.split('-') || day.title?.split(' ') || [];
+          // 尝试从标题中提取最后一个部分作为城市名
+          finalCity = titleParts[titleParts.length - 1]?.trim() || day.title || `Day ${day.day}`;
+          console.log(`[page.tsx] Day ${day.day}: Using journey center point (region-aware fallback)`, { 
+            finalCity, 
+            finalLng, 
+            finalLat,
+            source: 'journey center',
+            title: day.title
+          });
+        }
       }
       
       // 优先级 4: 绝对默认值（仅在以上都失败时使用）
       if (!finalLng || !finalLat || isNaN(finalLng) || isNaN(finalLat)) {
-        finalLng = 104.06; // 成都
-        finalLat = 30.67;
+        finalLng = baseLng; // 使用行程中心点，而不是固定的成都
+        finalLat = baseLat;
         finalCity = day.title || `Day ${day.day}`;
-        console.warn(`[page.tsx] Day ${day.day}: Using absolute default coordinates`, { finalCity, finalLng, finalLat });
+        console.warn(`[page.tsx] Day ${day.day}: Using journey center as absolute default`, { finalCity, finalLng, finalLat });
       }
       
       // 最终坐标验证
@@ -237,6 +396,13 @@ export default function DynamicJourneyPage() {
         console.warn(`[page.tsx] Day ${day.day}: Coordinates out of range, using journey center`, { finalLng, finalLat });
         finalLng = baseLng;
         finalLat = baseLat;
+      }
+
+      // 确保 finalCity 有值，如果没有则从标题中提取
+      if (!finalCity || finalCity.trim() === '') {
+        // 尝试从标题中提取城市名
+        const titleParts = day.title?.split('—') || day.title?.split('-') || day.title?.split(' ') || [];
+        finalCity = titleParts[titleParts.length - 1]?.trim() || day.title || `Day ${day.day}`;
       }
 
       return {
@@ -248,6 +414,7 @@ export default function DynamicJourneyPage() {
           lat: finalLat,
           name: finalCity,
           city: finalCity,
+          label: finalCity, // 确保 label 字段也有值，用于 Marker 显示
           day: day.day
         }]
       };
@@ -390,7 +557,9 @@ export default function DynamicJourneyPage() {
         ],
         description: journey.overview?.description || journey.description,
         highlights: journey.overview?.highlights || [],
-        sideImage: journey.overview?.sideImage || journey.images?.[1] || journey.image
+        sideImage: journey.overview?.sideImage || journey.images?.[1] || journey.image,
+        routeGeojson: journey.overview?.routeGeojson, // 从后台获取 GeoJSON 路径
+        mapInitialBounds: journey.overview?.mapInitialBounds // 从后台获取地图初始边界
       },
 
       // 行程区域 - 使用后台设置的 itinerary
@@ -412,6 +581,10 @@ export default function DynamicJourneyPage() {
       // 包含和排除项目
       included: journey.included || [],
       excluded: journey.excluded || [],
+
+      // 标准化 Inclusions 和 Offers
+      standardInclusions: journey.standardInclusions,
+      offers: journey.offers || [],
 
       // 相关推荐
       relatedTrips: journey.relatedTrips || []
@@ -676,34 +849,84 @@ export default function DynamicJourneyPage() {
       {/* Wishlist Sidebar */}
       <WishlistSidebar />
 
-      {/* Hero Banner */}
+      {/* Hero Banner - 底部对齐布局 */}
       <section className={`relative ${JOURNEY_PAGE_TEMPLATE.hero.height} overflow-hidden`}>
+        {/* 背景图片 */}
         <div
           className="absolute inset-0 bg-center bg-cover bg-no-repeat"
           style={{ backgroundImage: `url('${pageConfig.hero.image}')` }}
         />
         
-        <div className="relative z-10 flex items-center justify-center h-full">
-          <div className="text-center text-white">
-            <Heading 
-              level={1} 
-              className={`${JOURNEY_PAGE_TEMPLATE.hero.titleSize} font-bold mb-6`}
-              style={{ color: '#ffffff' }}
-            >
-              {pageConfig.hero.title}
-            </Heading>
-            <div className={JOURNEY_PAGE_TEMPLATE.hero.statsLayout}>
-              <div className={JOURNEY_PAGE_TEMPLATE.hero.statsItem.container} style={{ color: '#ffffff' }}>
-                <div className={JOURNEY_PAGE_TEMPLATE.hero.statsItem.number}>{pageConfig.hero.stats.days}</div>
-                <div className={JOURNEY_PAGE_TEMPLATE.hero.statsItem.label}>DAYS</div>
+        {/* 底部渐变遮罩 - 从透明到深绿色，增强文字可读性 */}
+        <div 
+          className="absolute inset-0 bg-gradient-to-t from-[#1e3b32]/90 via-[#1e3b32]/40 to-transparent z-0"
+        />
+        
+        {/* 内容容器 - 底部对齐 */}
+        <div className="relative z-10 flex items-end h-full pb-16 px-8 lg:px-16">
+          <div className="w-full flex flex-col lg:flex-row justify-between items-end gap-8">
+            {/* 左侧：标题区域 - 左下角 */}
+            <div className="flex-1 max-w-2xl">
+              <Heading 
+                level={1} 
+                className="text-4xl lg:text-5xl xl:text-6xl mb-4"
+                style={{ 
+                  fontFamily: 'Montaga, serif',
+                  fontWeight: 400,
+                  letterSpacing: '0.1em',
+                  lineHeight: '1.2',
+                  color: '#ffffff'
+                }}
+              >
+                {pageConfig.hero.title}
+              </Heading>
+            </div>
+            
+            {/* 右侧：核心参数 - 右下角，用细线分割 */}
+            <div className="flex items-end gap-6 lg:gap-8">
+              {/* 天数 */}
+              <div className="flex flex-col items-end">
+                <div 
+                  className="text-4xl lg:text-5xl font-light text-white mb-1"
+                  style={{ fontFamily: 'Montaga, serif' }}
+                >
+                  {pageConfig.hero.stats.days}
+                </div>
+                <div className="text-xs uppercase tracking-widest text-white/80 font-light">
+                  DAYS
+                </div>
               </div>
-              <div className={JOURNEY_PAGE_TEMPLATE.hero.statsItem.container} style={{ color: '#ffffff' }}>
-                <div className={JOURNEY_PAGE_TEMPLATE.hero.statsItem.number}>{pageConfig.hero.stats.destinations}</div>
-                <div className={JOURNEY_PAGE_TEMPLATE.hero.statsItem.label}>DESTINATIONS</div>
+              
+              {/* 分割线 */}
+              <div className="h-16 w-px bg-white/30" />
+              
+              {/* 目的地数量 */}
+              <div className="flex flex-col items-end">
+                <div 
+                  className="text-4xl lg:text-5xl font-light text-white mb-1"
+                  style={{ fontFamily: 'Montaga, serif' }}
+                >
+                  {pageConfig.hero.stats.destinations}
+                </div>
+                <div className="text-xs uppercase tracking-widest text-white/80 font-light">
+                  DESTINATIONS
+                </div>
               </div>
-              <div className={JOURNEY_PAGE_TEMPLATE.hero.statsItem.container} style={{ color: '#ffffff' }}>
-                <div className={JOURNEY_PAGE_TEMPLATE.hero.statsItem.number}>{pageConfig.hero.stats.maxGuests}</div>
-                <div className={JOURNEY_PAGE_TEMPLATE.hero.statsItem.label}>GUESTS MAX</div>
+              
+              {/* 分割线 */}
+              <div className="h-16 w-px bg-white/30" />
+              
+              {/* 最大客人 */}
+              <div className="flex flex-col items-end">
+                <div 
+                  className="text-4xl lg:text-5xl font-light text-white mb-1"
+                  style={{ fontFamily: 'Montaga, serif' }}
+                >
+                  {pageConfig.hero.stats.maxGuests}
+                </div>
+                <div className="text-xs uppercase tracking-widest text-white/80 font-light">
+                  GUESTS MAX
+                </div>
               </div>
             </div>
           </div>
@@ -776,12 +999,19 @@ export default function DynamicJourneyPage() {
 
       {/* Journey Overview */}
       <section id="overview" className="w-full bg-[#FAF9F6] overflow-hidden">
-        <div className="max-w-[1440px] mx-auto px-10 py-24 flex flex-col lg:flex-row items-stretch gap-20">
-          {/* 左侧内容 - 垂直居中对齐，确保文字少时留白均匀分布 */}
-          <div className="lg:w-[58%] flex flex-col justify-center space-y-16 min-h-0">
+        <div className="max-w-[1440px] mx-auto px-10 py-24 flex flex-col lg:flex-row items-center gap-20">
+          {/* 左侧内容 - 文字和图片比例 6:4，垂直居中对齐 */}
+          <div className="lg:w-[60%] flex flex-col justify-center space-y-16 w-full">
             {/* 标题和描述 */}
             <div className="space-y-8">
-              <h2 className="text-5xl font-serif text-gray-900 leading-[1.15]">
+              <h2 
+                className="text-4xl lg:text-5xl text-gray-900"
+                style={{ 
+                  fontFamily: 'Montaga, serif',
+                  fontWeight: 300,
+                  lineHeight: '1.2'
+                }}
+              >
                 {pageConfig.overview.description}
               </h2>
               {journey.shortDescription && (
@@ -791,7 +1021,7 @@ export default function DynamicJourneyPage() {
               )}
             </div>
 
-            {/* 特色亮点 - 网格布局，带分隔线 */}
+            {/* 特色亮点 - 两列 Grid 布局，统一使用十字星图标 */}
             {(() => {
               const highlights = pageConfig.overview?.highlights || [];
               
@@ -803,17 +1033,25 @@ export default function DynamicJourneyPage() {
                 );
               }
               
-              // 图标映射（可以根据需要扩展）
-              const iconMap: Record<number, string> = {
-                0: '✨',
-                1: '🚂',
-                2: '🏔️',
-                3: '🌸',
-                4: '🏛️',
-                5: '🍜',
-                6: '🎭',
-                7: '🌿',
-              };
+              // 十字星图标 SVG - 1px 细线
+              const StarIcon = () => (
+                <svg 
+                  width="16" 
+                  height="16" 
+                  viewBox="0 0 16 16" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="inline-block mr-2"
+                >
+                  <path 
+                    d="M8 0L9.5 5.5L15 7L9.5 8.5L8 14L6.5 8.5L1 7L6.5 5.5L8 0Z" 
+                    stroke="currentColor" 
+                    strokeWidth="1" 
+                    fill="none"
+                    className="text-gray-900"
+                  />
+                </svg>
+              );
               
               return (
                 <div className="grid grid-cols-2 gap-x-12 gap-y-10 pt-12 border-t border-gray-200">
@@ -821,12 +1059,12 @@ export default function DynamicJourneyPage() {
                     // 优先使用title作为标题，description作为描述
                     const title = highlight.title || `Highlight ${index + 1}`;
                     const description = highlight.description || '';
-                    const icon = iconMap[index] || '✨';
                     
                     return (
                       <div key={index} className="space-y-2">
-                        <h4 className="font-medium text-gray-900">
-                          {icon} {title}
+                        <h4 className="font-medium text-gray-900 flex items-center">
+                          <StarIcon />
+                          {title}
                         </h4>
                         {description && (
                           <p className="text-sm text-gray-500 leading-normal">
@@ -841,8 +1079,8 @@ export default function DynamicJourneyPage() {
             })()}
           </div>
 
-          {/* 右侧图片 - 最小高度 + 最大高度限制 + 动态高度适配 */}
-          <div className="lg:w-[42%] relative flex items-center">
+          {/* 右侧图片 - 文字和图片比例 6:4 */}
+          <div className="lg:w-[40%] relative flex items-center">
             <div className="w-full h-full min-h-[400px] max-h-[70vh] relative group">
               <img 
                 src={pageConfig.overview.sideImage} 
@@ -856,13 +1094,13 @@ export default function DynamicJourneyPage() {
         </div>
       </section>
 
-      {/* Itinerary - A&K 风格双栏布局：左侧 Mapbox 地图 + 右侧白色卡片行程 */}
+      {/* Itinerary - 优化后的双栏布局：左侧 Mapbox 地图 + 右侧浅色卡片行程 */}
       <section 
         id="itinerary" 
-        className="w-full bg-[#1e3b32] min-h-screen flex flex-col lg:flex-row items-stretch"
+        className="w-full bg-[#f5f1e6] min-h-screen flex flex-col lg:flex-row items-stretch"
       >
-        {/* 左侧：地图容器 (45%) - A&K 视觉对齐：lg:sticky lg:top-0 h-screen */}
-        <div className="w-full lg:w-[45%] lg:sticky lg:top-0 h-[500px] lg:h-screen">
+        {/* 左侧：地图容器 (40%) - 非对称布局 */}
+        <div className="w-full lg:w-[40%] lg:sticky lg:top-0 h-[500px] lg:h-screen">
           {journey && journeyLocations.length > 0 ? (
             <JourneyMap
               mode={isDayTour ? 'single-location' : 'multi-stop-route'}
@@ -872,6 +1110,17 @@ export default function DynamicJourneyPage() {
               currentDay={currentDay}
               activeDay={activeDay}
               className="w-full h-full"
+              routeGeoJsonPath={(() => {
+                // 优先使用后台配置的 routeGeojson（如果存在且非空）
+                if (pageConfig?.overview?.routeGeojson && pageConfig.overview.routeGeojson.trim() !== '') {
+                  return pageConfig.overview.routeGeojson;
+                }
+                
+                // 不再使用硬编码的 GeoJSON 路径，因为现在使用地理字典自动匹配坐标
+                // 如果需要特定路线的 GeoJSON，请在后台配置 routeGeojson 字段
+                
+                return undefined;
+              })()}
             />
           ) : (
             <div className="w-full h-full bg-gray-100 flex items-center justify-center">
@@ -880,9 +1129,10 @@ export default function DynamicJourneyPage() {
           )}
         </div>
 
-        {/* 右侧：行程详情 (55%) */}
-        <div className="w-full lg:w-[55%] py-12 px-6 lg:px-16 overflow-y-auto">
-          <h2 className="text-white text-3xl font-serif mb-12">Daily Itinerary</h2>
+        {/* 右侧：行程详情 (60%) - 增加容器宽度 */}
+        <div className="w-full lg:w-[60%] py-12 px-6 lg:px-16 overflow-y-auto">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-gray-900 text-3xl mb-12" style={{ fontFamily: 'Montaga, serif', fontWeight: 400 }}>Daily Itinerary</h2>
           
           {pageConfig && pageConfig.itinerary && pageConfig.itinerary.map((day, index) => {
             const cityName = (day as any).city || 
@@ -901,18 +1151,18 @@ export default function DynamicJourneyPage() {
                   }
                 }}
                 data-day={day.day}
-                className="itinerary-card bg-white text-gray-900 rounded-2xl p-8 mb-10 shadow-2xl transition-all hover:shadow-none flex flex-col md:flex-row gap-6 items-start"
+                className="itinerary-card bg-white text-gray-900 rounded-lg p-8 mb-10 shadow-sm border border-gray-100 transition-all hover:shadow-md flex flex-col md:flex-row gap-8 items-start"
               >
                 {/* 左侧文字内容 */}
-                <div className="flex-1">
-                  {/* Day 标签 */}
-                  <span className="text-[#1e3b32] font-bold text-sm tracking-widest uppercase">
-                    Day {day.day}
+                <div className="flex-1 min-w-0">
+                  {/* Day 标签 - 优化后的样式 */}
+                  <span className="text-gray-500 font-medium text-xs tracking-widest uppercase block mb-3">
+                    DAY {day.day}
                   </span>
                   
                   {/* 城市标签 - 橙棕色 Badge（如果有） */}
                   {cityName && (
-                    <div className="mt-2 mb-2">
+                    <div className="mb-3">
                       <span 
                         className="inline-block px-3 py-1 text-xs font-semibold rounded-full"
                         style={{ 
@@ -925,11 +1175,16 @@ export default function DynamicJourneyPage() {
                     </div>
                   )}
 
-                  {/* 标题 */}
-                  <h3 className="text-2xl font-serif text-gray-900 mt-2 mb-4">{day.title}</h3>
+                  {/* 标题 - 使用 Montaga，与 hero banner 保持一致 */}
+                  <h3 
+                    className="text-3xl text-gray-900 mt-2 mb-6 leading-tight"
+                    style={{ fontFamily: 'Montaga, serif', fontWeight: 400 }}
+                  >
+                    {day.title}
+                  </h3>
                   
-                  {/* 描述 */}
-                  <p className="text-gray-600 leading-relaxed whitespace-pre-line">
+                  {/* 核心体验描述 - 只保留核心内容 */}
+                  <p className="text-gray-700 leading-relaxed text-base mb-6 whitespace-pre-line">
                     {day.description}
                   </p>
                   
@@ -938,34 +1193,37 @@ export default function DynamicJourneyPage() {
                     <div className="mt-6 space-y-2">
                       {(day as any).activities.map((activity: string, actIndex: number) => (
                         <div key={actIndex} className="flex items-start gap-2">
-                          <span className="text-[#1e3b32] mt-1">•</span>
+                          <span className="text-gray-400 mt-1">•</span>
                           <p className="text-gray-700 text-sm">{activity}</p>
                         </div>
                       ))}
                     </div>
                   )}
 
-                  {/* 餐食信息（如果有） */}
-                  {(day as any).meals && Array.isArray((day as any).meals) && (day as any).meals.length > 0 && (
-                    <div className="mt-4">
-                      <p className="text-gray-600 text-sm italic">
-                        Meals: {(day as any).meals.join(', ')}
-                      </p>
-                    </div>
+                  {/* 可折叠 Details 部分 - 用于技术细节 */}
+                  {((day as any).meals || (day as any).accommodation || (day as any).transportation) && (
+                    <DetailsAccordion
+                      meals={(day as any).meals}
+                      accommodation={(day as any).accommodation}
+                      transportation={(day as any).transportation}
+                    />
                   )}
                 </div>
                 
-                {/* 右侧图片 - 行程小图 w-32 h-32 */}
+                {/* 右侧图片 - 优化后的尺寸和比例 */}
                 {day.image && (
-                  <img 
-                    src={day.image} 
-                    alt={day.title || 'Itinerary image'} 
-                    className="w-32 h-32 rounded-lg object-cover flex-shrink-0" 
-                  />
+                  <div className="w-full md:w-[45%] flex-shrink-0">
+                    <img 
+                      src={day.image} 
+                      alt={day.title || 'Itinerary image'} 
+                      className="w-full aspect-[16/9] rounded-sm object-cover" 
+                    />
+                  </div>
                 )}
               </div>
             );
           })}
+          </div>
         </div>
       </section>
 
@@ -1036,205 +1294,16 @@ export default function DynamicJourneyPage() {
         </Section>
       )}
 
-      {/* Includes & Select Your Date Section - A&K 风格 */}
-      <section id="details" className="w-full bg-[#F9F7F2] py-20">
-        <div className="max-w-7xl mx-auto px-10">
-          <div className="flex flex-col lg:flex-row gap-16 items-stretch">
-            {/* 左侧：Includes (40%) */}
-            <div className="lg:w-[40%] flex flex-col justify-center">
-              <h3 className="text-2xl font-serif text-gray-900 mb-8">Includes</h3>
-              
-              {/* 标准化清单 - 网格布局 */}
-              {(() => {
-                // 图标映射库（匹配预设服务）
-                const iconMap: Record<string, string> = {
-                  'English-Speaking Resident Tour Director® and Local Guides': '👤',
-                  'Airport Meet and Greet with Private Transfers': '🚗',
-                  'Travelling Bell Boy® Luggage Handling': '🧳',
-                  'Traveller\'s Valet® Laundry Service': '🔑',
-                  'Internet Access': '📶',
-                  'Entrance Fees, Taxes and All Gratuities Except Resident Tour Director': '🎫',
-                  '24/7 A&K On-Call Support': '🎧',
-                  'Accommodation': '🏨',
-                  'Meals': '🍽️',
-                  'Domestic Flights': '✈️',
-                  'Travel Insurance': '🛡️',
-                  'Visa Support': '📋',
-                  'Local Guide': '🗺️',
-                  'Airport Transfers': '🚕',
-                  'Breakfast': '🥐',
-                  'Lunch': '🍱',
-                  'Dinner': '🍽️',
-                  'Hotel': '🏨',
-                  'Transportation': '🚌',
-                };
-                
-                // 优先使用 journey.included 数组，如果没有则从 journey.includes 文本解析
-                const includedItems = journey.included && journey.included.length > 0
-                  ? journey.included
-                  : journey.includes
-                    ? journey.includes.split('\n').filter(line => line.trim())
-                    : [];
-                
-                if (includedItems.length === 0) {
-                  return (
-                    <div className="text-gray-500 text-sm">
-                      No inclusion details available for this journey.
-                    </div>
-                  );
-                }
-                
-                return (
-                  <div className="grid grid-cols-2 gap-x-8 gap-y-6">
-                    {includedItems.map((item: string, index: number) => {
-                      const itemKey = item.trim();
-                      const icon = iconMap[itemKey] || '✓';
-                      
-                      return (
-                        <div key={index} className="flex items-start gap-3">
-                          <span className="text-gray-600 text-sm mt-0.5 flex-shrink-0">{icon}</span>
-                          <p className="text-sm text-gray-700 leading-relaxed">{itemKey}</p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })()}
-              
-              {/* Excludes - 折叠式，弱化显示 */}
-              {journey.excludes && (
-                <details className="mt-8 pt-8 border-t border-gray-200">
-                  <summary className="text-sm text-gray-600 cursor-pointer hover:text-gray-900 transition-colors">
-                    What&apos;s not included
-                  </summary>
-                  <div className="mt-4 space-y-2">
-                    {journey.excludes.split('\n').filter(line => line.trim()).map((line, index) => (
-                      <p key={index} className="text-sm text-gray-500">{line.trim()}</p>
-                    ))}
-                  </div>
-                </details>
-              )}
-            </div>
-
-            {/* 右侧：Select Your Date (60%) */}
-            <div className="lg:w-[60%]">
-              <h3 className="text-2xl font-serif text-gray-900 mb-8">Select Your Date</h3>
-              
-              {/* 年份切换 */}
-              <div className="flex gap-4 mb-6">
-                {[2025, 2026].map((year) => (
-                  <button
-                    key={year}
-                    className={`px-4 py-2 text-sm font-medium transition-colors ${
-                      baseDate.getFullYear() === year
-                        ? 'text-gray-900 border-b-2 border-gray-900'
-                        : 'text-gray-500 hover:text-gray-700'
-                    }`}
-                    onClick={() => {
-                      const currentMonth = baseDate.getMonth();
-                      const newDate = new Date(year, currentMonth, 1);
-                      const today = new Date();
-                      const monthsDiff = (newDate.getFullYear() - today.getFullYear()) * 12 + (newDate.getMonth() - today.getMonth());
-                      setMonthOffset(Math.max(0, Math.min(11, monthsDiff)));
-                    }}
-                  >
-                    {year}
-                  </button>
-                ))}
-              </div>
-              
-              {/* 日期列表 */}
-              <div className="space-y-4">
-                {(() => {
-                  // 生成未来一年的日期列表（示例数据，实际应从 API 获取）
-                  const dateList: Array<{
-                    startDate: Date;
-                    endDate: Date;
-                    price: number;
-                    originalPrice?: number;
-                    status: 'Available' | 'Limited' | 'Call';
-                  }> = [];
-                  
-                  // 生成示例日期（每月第一个可用日期）
-                  const today = new Date();
-                  for (let i = 0; i < 12; i++) {
-                    const monthDate = new Date(today.getFullYear(), today.getMonth() + i, 1);
-                    if (monthDate < today) continue;
-                    
-                    const startDate = new Date(monthDate);
-                    const days = parseInt(journey.duration?.split(' ')[0] || '9');
-                    const endDate = new Date(startDate);
-                    endDate.setDate(endDate.getDate() + days - 1);
-                    
-                    dateList.push({
-                      startDate,
-                      endDate,
-                      price: journey.price,
-                      originalPrice: journey.originalPrice,
-                      status: i < 3 ? 'Available' : i < 6 ? 'Limited' : 'Call'
-                    });
-                  }
-                  
-                  // 过滤当前年份
-                  const filteredDates = dateList.filter(item => 
-                    item.startDate.getFullYear() === baseDate.getFullYear()
-                  );
-                  
-                  return filteredDates.map((item, index) => {
-                    const startStr = item.startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                    const endStr = item.endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                    const dateRange = `${startStr} - ${endStr}`;
-                    
-                    return (
-                      <div
-                        key={index}
-                        className="bg-white p-6 rounded-sm shadow-sm hover:shadow-md transition-shadow flex items-center justify-between gap-6"
-                      >
-                        <div className="flex-1">
-                          <div className="flex items-center gap-4 mb-2">
-                            <span className="text-gray-900 font-medium">{dateRange}</span>
-                            <span className={`text-xs px-2 py-1 rounded ${
-                              item.status === 'Available' 
-                                ? 'bg-green-100 text-green-700'
-                                : item.status === 'Limited'
-                                ? 'bg-yellow-100 text-yellow-700'
-                                : 'bg-gray-100 text-gray-700'
-                            }`}>
-                              {item.status === 'Call' ? 'Call for Availability' : `${item.status} Availability`}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg font-serif text-gray-900">
-                              ${item.price.toLocaleString()}
-                            </span>
-                            {item.originalPrice && item.originalPrice > item.price && (
-                              <span className="text-sm text-gray-500 line-through">
-                                ${item.originalPrice.toLocaleString()}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => {
-                            setConfirmedDate(item.startDate);
-                            // 延迟执行以确保状态更新
-                            setTimeout(() => {
-                              handleDirectBooking();
-                            }, 100);
-                          }}
-                          className="px-6 py-2 bg-black text-white text-xs tracking-widest uppercase hover:bg-gray-800 transition-colors whitespace-nowrap"
-                        >
-                          Book Now
-                        </button>
-                      </div>
-                    );
-                  });
-                })()}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Inclusions & Offers Section - 新设计（包含 Select Your Date） */}
+      <InclusionsAndOffers 
+        journey={journey} 
+        onBookingClick={(date) => {
+          setConfirmedDate(date);
+          setTimeout(() => {
+            handleDirectBooking();
+          }, 100);
+        }}
+      />
 
       {/* Related Trips */}
       {pageConfig.relatedTrips && pageConfig.relatedTrips.length > 0 && (
