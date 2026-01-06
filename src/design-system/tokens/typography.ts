@@ -5,15 +5,15 @@ export const typography = {
     // 标题字体 - 优雅的衬线字体
     heading: ['Montaga', 'serif'],
     // 副标题字体 - 古典衬线字体
-    subheading: ['Inknut_Antiqua', 'serif'],
+    subheading: ['Inknut Antiqua', 'serif'],
     // 正文字体 - 现代无衬线字体
     body: ['Monda', 'sans-serif'],
     // 代码字体
-    mono: ['Geist_Mono', 'monospace'],
+    mono: ['Geist Mono', 'monospace'],
     // 特殊字体
     montserrat: ['Montserrat', 'sans-serif'],
-    dancingScript: ['Dancing_Script', 'cursive'],
-    montaguSlab: ['Montagu_Slab', 'serif'],
+    dancingScript: ['Dancing Script', 'cursive'],
+    montaguSlab: ['Montagu Slab', 'serif'],
   },
   
   // 字体大小

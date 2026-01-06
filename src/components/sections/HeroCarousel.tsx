@@ -119,7 +119,7 @@ export default function HeroCarousel({
   };
 
   return (
-    <div className="relative w-full h-[400px] sm:h-[500px] md:h-[600px] overflow-hidden -mx-0" data-name="Hero Banner/Homepage" data-node-id="186:81">
+    <div className="relative w-full h-[80vh] min-h-[500px] overflow-hidden -mx-0" data-name="Hero Banner/Homepage" data-node-id="186:81">
       {/* 视频播放区域 */}
       <div className="relative w-full h-full">
         {videos.map((video, index) => (
@@ -160,11 +160,20 @@ export default function HeroCarousel({
                 style={getBackgroundStyle(video, index)}
               />
             )}
+            {/* 遮罩层 - 增强文字可读性 */}
+            <div className="absolute inset-0 bg-black bg-opacity-40 z-10" />
           </div>
         ))}
       </div>
 
-      {/* 内容层文字与按钮移除，保留纯视觉背景 */}
+      {/* 内容层 - 标题覆盖层 */}
+      <div className="absolute inset-0 flex items-center justify-center z-20">
+        <div className="text-center text-white px-6 max-w-5xl">
+          <h1 className="text-4xl md:text-7xl font-normal font-['Playfair_Display'] leading-[1.1] tracking-tight drop-shadow-lg">
+            Korascale designs journeys through a <br className="hidden md:block" /> China that is still in motion.
+          </h1>
+        </div>
+      </div>
 
       {/* 导航箭头 - 仅在多个视频时显示 */}
       {showArrows && videos.length > 1 && (

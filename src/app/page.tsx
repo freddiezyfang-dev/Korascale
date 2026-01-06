@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from "next/link";
-import HeroCarousel from "@/components/sections/HeroCarousel";
 import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
-import { InspirationsSection, HomeJourneyStrip } from '@/components/sections';
+import { InspirationsSection, CategoryExplorer } from '@/components/sections';
+import { useJourneyManagement } from '@/context/JourneyManagementContext';
+import hotelsData from '@/data/hotels.json';
 
 // 使用本地图片资源 - 按功能分类的图片路径
 // 1. 主页主要功能卡片 (Main Action Cards)
@@ -29,6 +30,8 @@ const imgArticle4 = "/images/article-cards/tibet-buddhist-journey.jpg"; // 西�
 const imgArticle5 = "/images/article-cards/sacred-horizons.jpg"; // 神圣地平线
 
 export default function Home() {
+  const { journeys } = useJourneyManagement();
+  
   // 确保页面加载时滚动到顶部
   useEffect(() => {
     // 如果 URL 中没有 hash，滚动到顶部
@@ -39,132 +42,144 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Carousel - Figma Design */}
-      <div className="w-full overflow-hidden">
-        <HeroCarousel 
-        videoSrc={process.env.NEXT_PUBLIC_HERO_VIDEO_URL || "/videos/Herobanner1.mp4"}
-        autoSlide={true}
-        slideInterval={5000}
-        showIndicators={true}
-        showArrows={true}
-        />
+      {/* 修复后的全宽容器 */}
+      <div className="w-full flex flex-col">
+        
+        {/* 1. Hero Section */}
+        <div className="relative w-full h-[85vh] min-h-[600px] overflow-hidden">
+          
+          {/* 核心修复：确保视频组件内部有正确的 video 标签属性 */}
+          <div className="absolute inset-0 z-0">
+            {/* 如果 HeroCarousel 内部有问题，可以暂时用原生 video 测试 */}
+            <video
+              src={process.env.NEXT_PUBLIC_HERO_VIDEO_URL || "/videos/Herobanner1.mp4"}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+            />
+            {/* A&K 风格遮罩层：不要太黑，20%-30% 即可 */}
+            <div className="absolute inset-0 bg-black/20 z-10" />
+          </div>
+
+          {/* 2. 文字覆盖层：确保 z-index 高于视频和遮罩 */}
+          <div className="relative z-20 flex items-center justify-center h-full">
+            <div className="text-center text-white px-6 max-w-6xl">
+              <h1 className="text-5xl md:text-8xl font-heading leading-[1.05] tracking-tight drop-shadow-2xl text-white" style={{ color: '#FFFFFF' }}>
+                Korascale designs journeys through a <br className="hidden md:block" /> China that is still in motion.
+              </h1>
+            </div>
+          </div>
+        </div>
+
+        {/* 2. Brand Philosophy Block - 平衡后的比例 */}
+        <section className="w-full bg-[#FAF9F6] py-24 md:py-48 border-b border-gray-100">
+          <div className="max-w-7xl mx-auto px-8 text-center flex flex-col gap-16 md:gap-20">
+            
+            {/* 引言：从 9xl 降至 5xl，保持精致感 */}
+            <p className="text-3xl md:text-5xl font-heading italic text-[#111] leading-[1.3] tracking-tight max-w-5xl mx-auto">
+              "China is often presented in extremes — ancient civilizations or futuristic megacities. We work in the space in between."
+            </p>
+
+            {/* 正文：从 3xl 降至 xl，增加行高，复刻 A&K 质感 */}
+            <p className="text-lg md:text-xl font-body font-light text-[#555] leading-[2.0] tracking-wide max-w-3xl mx-auto opacity-90">
+              Our journeys move through borderlands, highlands, and evolving communities, where traditions are negotiated rather than preserved, and landscapes are lived in rather than staged. We choose places carefully, return to them often, and leave when they no longer make sense.
+            </p>
+            
+          </div>
+        </section>
       </div>
 
-      {/* Intro text between Hero and Main Cards */}
-      <section className="bg-[#F5F1E6]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-6 md:py-10">
-          <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-relaxed text-[#1e3b32] font-[Montaga]">
-            Korascale crafts journeys of depth, not just distance. We specialize in immersive cultural experiences and exclusive access, guiding travelers beyond sightseeing to forge genuine connections—with places, heritage, and fellow explorers. From curated small groups to fully bespoke itineraries, we turn travel into a story that becomes part of you.
-          </p>
-        </div>
-      </section>
-
-      {/* Main Action Cards - Figma Design */}
-      <Section background="tertiary" padding="sm" className="py-4 md:py-6">
-        <Container size="xl" padding="md">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 items-center justify-center">
-            {/* Destinations Card */}
-            <Link href="/destinations" className="group w-full">
-              <div 
-                className="relative h-[300px] sm:h-[400px] lg:h-[463px] w-full bg-center bg-cover bg-no-repeat overflow-hidden transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-2xl rounded-lg"
-                style={{ 
-                  backgroundImage: `url('${imgDestinationsButton}')`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center'
-                }}
-              >
-                {/* 渐变遮罩 - 从透明到半黑，让底部文字区域更易读 */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent group-hover:from-black/70 group-hover:via-black/30 transition-all duration-300"></div>
-                
-                <div className="absolute bottom-4 sm:bottom-6 lg:bottom-6 left-1/2 transform -translate-x-1/2 text-center w-[90%] sm:w-[222px] flex flex-col items-center justify-end">
-                  <div className="rounded-lg px-3 sm:px-4 w-full flex flex-col items-center justify-end">
-                    <Heading level={3} className="text-lg sm:text-xl lg:text-2xl font-subheading text-center text-white font-bold drop-shadow-lg" style={{ color: 'white' }}>Destinations</Heading>
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            {/* Journeys Card */}
-            <Link href="/journeys" className="group w-full">
-              <div 
-                className="relative h-[300px] sm:h-[400px] lg:h-[463px] w-full bg-center bg-cover bg-no-repeat overflow-hidden transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-2xl rounded-lg"
-                style={{ 
-                  backgroundImage: `url('${imgJourneysButton}')`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center'
-                }}
-              >
-                {/* 渐变遮罩 - 从透明到半黑，让底部文字区域更易读 */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent group-hover:from-black/70 group-hover:via-black/30 transition-all duration-300"></div>
-                
-                <div className="absolute bottom-4 sm:bottom-6 lg:bottom-6 left-1/2 transform -translate-x-1/2 text-center w-[90%] sm:w-[222px] flex flex-col items-center justify-end">
-                  <div className="rounded-lg px-3 sm:px-4 w-full flex flex-col items-center justify-end">
-                    <Heading level={3} className="text-lg sm:text-xl lg:text-2xl font-subheading text-center text-white font-bold drop-shadow-lg" style={{ color: 'white' }}>Journeys</Heading>
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            {/* Inspirations Card */}
-            <Link href="/inspirations" className="group w-full">
-              <div 
-                className="relative h-[300px] sm:h-[400px] lg:h-[463px] w-full bg-center bg-cover bg-no-repeat overflow-hidden transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-2xl rounded-lg"
-                style={{ 
-                  backgroundImage: `url('${imgInspirationsButton}')`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center'
-                }}
-              >
-                {/* 渐变遮罩 - 从透明到半黑，让底部文字区域更易读 */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent group-hover:from-black/50 group-hover:via-black/20 transition-all duration-300"></div>
-                
-                <div className="absolute bottom-4 sm:bottom-6 lg:bottom-6 left-1/2 transform -translate-x-1/2 text-center w-[90%] sm:w-[222px] flex flex-col items-center justify-end">
-                  <div className="rounded-lg px-3 sm:px-4 w-full flex flex-col items-center justify-end">
-                    <Heading level={3} className="text-lg sm:text-xl lg:text-2xl font-subheading text-center text-white font-bold drop-shadow-lg" style={{ color: 'white' }}>Inspirations</Heading>
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            {/* Accommodations Card */}
-            <Link href="/accommodations" className="group w-full">
-              <div 
-                className="relative h-[300px] sm:h-[400px] lg:h-[463px] w-full bg-center bg-cover bg-no-repeat overflow-hidden transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-2xl rounded-lg"
-                style={{ 
-                  backgroundImage: `url('${imgAccommodationsButton}')`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center'
-                }}
-              >
-                {/* 渐变遮罩 - 从透明到半黑，让底部文字区域更易读 */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent group-hover:from-black/70 group-hover:via-black/30 transition-all duration-300"></div>
-                
-                <div className="absolute bottom-4 sm:bottom-6 lg:bottom-6 left-1/2 transform -translate-x-1/2 text-center w-[90%] sm:w-[222px] flex flex-col items-center justify-end">
-                  <div className="rounded-lg px-3 sm:px-4 w-full flex flex-col items-center justify-end">
-                    <Heading level={3} className="text-lg sm:text-xl lg:text-2xl font-subheading text-center text-white font-bold drop-shadow-lg" style={{ color: 'white' }}>Accommodations</Heading>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          </div>
-        </Container>
-      </Section>
-
-      {/* What do you want to travel - 使用与 journeys filter 相同卡片样式，单行自动轮播 */}
-      <Section background="secondary" padding="xl">
-        <Container size="xl">
-          <div className="text-center mb-10 md:mb-12 px-4">
-            <Heading 
-              level={2} 
-              className="text-3xl sm:text-4xl md:text-5xl font-[Montaga]"
-            >
-              What do you want to travel
-            </Heading>
-          </div>
-
-          <HomeJourneyStrip />
-        </Container>
-      </Section>
+      {/* Category Explorer - 替换原有的 Main Action Cards */}
+      <CategoryExplorer 
+        journeys={journeys}
+        destinations={[
+          {
+            id: '1',
+            title: 'Southwest China',
+            shortDescription: 'Explore the diverse landscapes and rich cultural heritage',
+            image: '/images/journey-cards/chengdu-deep-dive.jpeg',
+            slug: 'southwest-china',
+            href: '/destinations/southwest-china'
+          },
+          {
+            id: '2',
+            title: 'Northwest & Northern Frontier',
+            shortDescription: 'Discover the frontier regions with stunning natural beauty',
+            image: '/images/journey-cards/gansu-zhangye.jpg',
+            slug: 'northwest',
+            href: '/destinations/northwest'
+          },
+          {
+            id: '3',
+            title: 'North China',
+            shortDescription: 'Experience the historical heartland of ancient China',
+            image: '/images/journey-cards/shannxi-yejing.jpg',
+            slug: 'north',
+            href: '/destinations/north'
+          },
+          {
+            id: '4',
+            title: 'South China',
+            shortDescription: 'Immerse yourself in the vibrant culture and cuisine',
+            image: '/images/journey-cards/chengdu-deep-dive.jpeg',
+            slug: 'south',
+            href: '/destinations/south'
+          },
+          {
+            id: '5',
+            title: 'East & Central China',
+            shortDescription: 'Journey through the economic and cultural centers',
+            image: '/images/journey-cards/chengdu-deep-dive.jpeg',
+            slug: 'east-central',
+            href: '/destinations/east-central'
+          }
+        ]}
+        accommodations={hotelsData.hotels.slice(0, 3).map(hotel => ({
+          id: hotel.id,
+          title: hotel.name,
+          shortDescription: hotel.location,
+          description: hotel.description,
+          image: hotel.images[0] || '/images/placeholder.jpg',
+          slug: hotel.id,
+          href: '/accommodations'
+        }))}
+        inspirations={[
+          {
+            id: '1',
+            title: 'Food Journey',
+            shortDescription: 'Embark on a flavorful journey through Western China\'s soul',
+            image: '/images/inspirations/food-journey.jpg',
+            slug: 'food-journey',
+            href: '/inspirations/food-journey'
+          },
+          {
+            id: '2',
+            title: 'Great Outdoors',
+            shortDescription: 'Answer the call of the wild where China\'s epic landscapes unfold',
+            image: '/images/inspirations/great-outdoors.jpeg',
+            slug: 'great-outdoors',
+            href: '/inspirations/great-outdoors'
+          },
+          {
+            id: '3',
+            title: 'Immersive Encounters',
+            shortDescription: 'Go beyond observation and step into the role of an apprentice',
+            image: '/images/inspirations/traditional%20craft.png',
+            slug: 'immersive-encounters',
+            href: '/inspirations/immersive-encounters'
+          },
+          {
+            id: '4',
+            title: 'Spiritual Retreat',
+            shortDescription: 'Approach with respect and an open heart',
+            image: '/images/inspirations/spiritual%20retreat.webp',
+            slug: 'spiritual-retreat',
+            href: '/inspirations/spiritual-retreat'
+          }
+        ]}
+      />
 
       {/* Content Articles */}
       <Section background="tertiary" padding="xl">
@@ -177,7 +192,7 @@ export default function Home() {
             />
             <div className="w-full lg:w-1/2 p-4 md:p-6 lg:p-8 text-white" style={{ color: 'white' }}>
               <h3 
-                className="text-2xl sm:text-3xl lg:text-4xl font-[Barlow_Semi_Condensed] mb-4 md:mb-6 text-white" 
+                className="text-2xl sm:text-3xl lg:text-4xl font-heading mb-4 md:mb-6 text-white" 
                 style={{ color: 'white' }}
               >
                 Adventures Custom Made For You
@@ -209,13 +224,13 @@ export default function Home() {
               </Link>
               <div className="p-4 md:p-6 lg:p-8 text-white" style={{ color: 'white' }}>
                 <h3 
-                  className="text-2xl sm:text-3xl lg:text-4xl font-[Barlow_Semi_Condensed] mb-4 md:mb-6 text-white" 
+                  className="text-2xl sm:text-3xl lg:text-4xl font-heading mb-4 md:mb-6 text-white" 
                   style={{ color: 'white' }}
                 >
                   Cyber-City Chongqing
                 </h3>
                 <p 
-                  className="text-base sm:text-lg mb-6 md:mb-8 font-[Monda] text-white" 
+                  className="text-base sm:text-lg mb-6 md:mb-8 font-body text-white" 
                   style={{ color: 'white' }}
                 >
                   Where neon-drenched skyscrapers pierce the mist, rising from ancient hills. Experience the breathtaking fusion of cutting-edge lightscapes and timeless tradition.
@@ -239,13 +254,13 @@ export default function Home() {
               </Link>
               <div className="p-4 md:p-6 lg:p-8 text-white" style={{ color: 'white' }}>
                 <h3 
-                  className="text-2xl sm:text-3xl lg:text-4xl font-[Barlow_Semi_Condensed] mb-4 md:mb-6 text-white" 
+                  className="text-2xl sm:text-3xl lg:text-4xl font-heading mb-4 md:mb-6 text-white" 
                   style={{ color: 'white' }}
                 >
                   Chinese Food Tour
                 </h3>
                 <p 
-                  className="text-base sm:text-lg mb-6 md:mb-8 font-[Monda] text-white" 
+                  className="text-base sm:text-lg mb-6 md:mb-8 font-body text-white" 
                   style={{ color: 'white' }}
                 >
                   Embark on the ultimate sensory adventure. Let your taste buds explode with flavors from China&apos;s diverse regions, guided by the wisdom of generations of culinary masters.
@@ -272,13 +287,13 @@ export default function Home() {
               </Link>
               <div className="p-4 md:p-6 lg:p-8 text-white text-center" style={{ color: 'white' }}>
                 <h3 
-                  className="text-2xl sm:text-3xl lg:text-4xl font-[Barlow_Semi_Condensed] mb-4 md:mb-6 text-white" 
+                  className="text-2xl sm:text-3xl lg:text-4xl font-heading mb-4 md:mb-6 text-white" 
                   style={{ color: 'white' }}
                 >
                   Sacred Horizons · A Tibetan Buddhist Journey
                 </h3>
                 <p 
-                  className="text-base sm:text-lg mb-6 md:mb-8 font-[Monda] text-white" 
+                  className="text-base sm:text-lg mb-6 md:mb-8 font-body text-white" 
                   style={{ color: 'white' }}
                 >
                   Discover the serene beauty of snow-capped mountains, ancient monasteries, and timeless Tibetan traditions. Immerse yourself in a cultural journey where spirituality meets breathtaking landscapes.
@@ -302,13 +317,13 @@ export default function Home() {
               </Link>
               <div className="p-4 md:p-6 lg:p-8 text-white text-center" style={{ color: 'white' }}>
                 <h3 
-                  className="text-2xl sm:text-3xl lg:text-4xl font-[Barlow_Semi_Condensed] mb-4 md:mb-6 text-white" 
+                  className="text-2xl sm:text-3xl lg:text-4xl font-heading mb-4 md:mb-6 text-white" 
                   style={{ color: 'white' }}
                 >
                   Sacred Horizons
                 </h3>
                 <p 
-                  className="text-base sm:text-lg mb-6 md:mb-8 font-[Monda] text-white" 
+                  className="text-base sm:text-lg mb-6 md:mb-8 font-body text-white" 
                   style={{ color: 'white' }}
                 >
                   Discover the serene beauty of sacred landscapes and ancient traditions that have shaped civilizations for centuries.
@@ -334,7 +349,7 @@ export default function Home() {
         <Container size="xl">
           <div className="text-center mb-8 md:mb-16 px-4">
             <Text size="lg" className="sm:text-xl mb-3 sm:mb-4 font-body">About Us</Text>
-            <Heading level={2} className="text-3xl sm:text-4xl md:text-5xl font-[Montaga]">Who will you travel with</Heading>
+            <Heading level={2} className="text-3xl sm:text-4xl md:text-5xl font-heading">Who will you travel with</Heading>
           </div>
         </Container>
       </Section>

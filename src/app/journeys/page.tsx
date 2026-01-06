@@ -225,6 +225,7 @@ export default function JourneysPage() {
 				selectedRegion,
 				selectedDuration,
 				selectedInterest,
+				selectedPlace,
 				searchTerm,
 				journeys: journeys.map(j => ({
 					id: j.id,
@@ -232,6 +233,7 @@ export default function JourneysPage() {
 					status: 'status' in j ? j.status : 'undefined',
 					journeyType: resolveJourneyType(j),
 					region: j.region,
+					place: 'place' in j ? j.place : 'undefined',
 					duration: j.duration,
 					category: j.category
 				}))

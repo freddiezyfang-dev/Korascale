@@ -37,6 +37,7 @@ module.exports = {
         montserrat: typography.fontFamily.montserrat,
         dancingScript: typography.fontFamily.dancingScript,
         montaguSlab: typography.fontFamily.montaguSlab,
+        serif: ['"Playfair Display"', 'serif'],
       },
       
       // 使用设计令牌中的字体大小
