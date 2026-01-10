@@ -33,27 +33,27 @@ const regionMap: { [key: string]: { name: string; description: string; image: st
   "southwest-china": {
     name: "Southwest China",
     description: "Mountain ranges, deep gorges and vibrant minority cultures define Southwest China—where landscapes and traditions intertwine.",
-    image: "/images/journey-cards/xinjiang-altstadt.webp"
+    image: "/images/hero/chuanxi.jpg"
   },
   "northwest": {
     name: "Northwest & Northern Frontier",
     description: "Discover the frontier regions with stunning natural beauty, ancient Silk Road heritage, and diverse landscapes from deserts to grasslands.",
-    image: "/images/journey-cards/gansu-zhangye.jpg"
+    image: "/images/hero/jiangyuguan.jpg"
   },
   "north": {
     name: "North China",
     description: "Experience the historical heartland of ancient China, where imperial palaces, ancient walls, and rich cultural traditions await.",
-    image: "/images/journey-cards/shannxi-yejing.jpg"
+    image: "/images/hero/Gugong.jpg"
   },
   "south": {
     name: "South China",
     description: "Immerse yourself in the vibrant culture and cuisine of South China, from tropical coastlines to bustling modern cities.",
-    image: "/images/journey-cards/chengdu-deep-dive.jpeg"
+    image: "/images/hero/Guilin.jpg"
   },
   "east-central": {
     name: "East & Central China",
     description: "Journey through the economic and cultural centers of China, where ancient traditions meet modern innovation.",
-    image: "/images/journey-cards/chengdu-deep-dive.jpeg"
+    image: "/images/hero/Jiangnan.jpg"
   }
 };
 
@@ -203,14 +203,51 @@ export default function RegionDestinationsPage() {
     );
   }
 
+  // 判断是否需要旋转图片
+  const shouldRotateImage = region === 'north' || region === 'east-central' || region === 'southwest-china';
+
   return (
     <main className="min-h-screen bg-white">
-      {/* Hero Banner */}
-      <Section background="primary" padding="none" className="relative h-[600px]">
+      {/* Hero Banner 容器：必须有 overflow-hidden */}
+      <Section background="primary" padding="none" className="relative h-[600px] w-full overflow-hidden">
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-85"
-          style={{ backgroundImage: `url('${regionInfo.image}')` }}
+          className="absolute inset-0 opacity-85 transition-all duration-700"
+          style={shouldRotateImage ? {
+            backgroundImage: `url('${regionInfo.image}')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            
+            // 核心逻辑：
+            // 1. 旋转 270 度
+            // 2. 将宽度设为容器的高 (600px)，高度设为容器的宽 (100%)
+            // 3. 使用 object-fit 的逻辑（background-size: cover 配合正确的宽高比）
+            transform: 'rotate(270deg)',
+            transformOrigin: 'center center',
+            
+            // 当图片旋转 270 度后：
+            // 原本的 'height' 变成了视觉上的宽度
+            // 因此我们需要强制让它的"长边"覆盖容器的宽
+            width: '600px',   // 对应容器的 h-[600px]
+            height: '100vw',  // 对应容器的 w-full
+            
+            // 居中定位：将旋转中心移至容器中央
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            marginTop: '-50vw', // height 的一半
+            marginLeft: '-300px' // width 的一半
+          } : {
+            backgroundImage: `url('${regionInfo.image}')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            width: '100%',
+            height: '100%'
+          }}
         />
+        
+        {/* 可以在这里添加 A&K 风格的文字遮罩 */}
+        <div className="absolute inset-0 bg-black/20" />
+        
         <div className="relative z-10 h-full flex flex-col">
           {/* Breadcrumb */}
           <div className="px-9 pt-2">
@@ -417,77 +454,93 @@ export default function RegionDestinationsPage() {
                     </Heading>
                     
                     <div className="space-y-6">
-                      {currentRegionSidebarData.map((regionItem) => (
-                        <div
-                          key={regionItem.id}
-                          className="flex gap-4 pb-6 border-b border-gray-200 last:border-b-0 cursor-pointer hover:bg-gray-50 transition-colors"
-                          onMouseEnter={() => {
-                            const mapping = getRegionMapping(regionItem.id);
-                            if (mapping && mapRef.current) {
-                              // 只在未 selected 时设置 hover
-                              if (activeRegionId !== regionItem.id) {
+                      {currentRegionSidebarData.map((regionItem) => {
+                        // 检查是否是 Tibetan Plateau，如果是则链接到 Place 页面
+                        const isTibetanPlateau = regionItem.id === 'tibetan-plateau';
+                        const linkHref = isTibetanPlateau 
+                          ? '/places/tibetan-plateau' 
+                          : `/places/${regionItem.id}`;
+
+                        const content = (
+                          <div
+                            id={regionItem.id}
+                            className="flex gap-4 pb-6 border-b border-gray-200 last:border-b-0 cursor-pointer hover:bg-gray-50 transition-colors scroll-mt-20"
+                            onMouseEnter={() => {
+                              const mapping = getRegionMapping(regionItem.id);
+                              if (mapping && mapRef.current) {
+                                // 只在未 selected 时设置 hover
+                                if (activeRegionId !== regionItem.id) {
+                                  mapping.geojsonIds.forEach(adcode => {
+                                    mapRef.current?.setHoverState(adcode, true);
+                                  });
+                                }
+                              }
+                            }}
+                            onMouseLeave={() => {
+                              const mapping = getRegionMapping(regionItem.id);
+                              if (mapping && mapRef.current) {
+                                // 清除 hover
                                 mapping.geojsonIds.forEach(adcode => {
-                                  mapRef.current?.setHoverState(adcode, true);
+                                  mapRef.current?.setHoverState(adcode, false);
                                 });
                               }
-                            }
-                          }}
-                          onMouseLeave={() => {
-                            const mapping = getRegionMapping(regionItem.id);
-                            if (mapping && mapRef.current) {
-                              // 清除 hover
-                              mapping.geojsonIds.forEach(adcode => {
-                                mapRef.current?.setHoverState(adcode, false);
-                              });
-                            }
-                          }}
-                          onClick={() => {
-                            console.log('[Sidebar] click region', regionItem.id);
-                            console.log('[Sidebar] current activeRegionId before set:', activeRegionId);
-                            setActiveRegionId(regionItem.id);
-                            console.log('[Sidebar] setActiveRegionId called with:', regionItem.id);
-                          }}
-                        >
-                          {/* 图片 */}
-                          <div className="w-32 h-24 flex-shrink-0 rounded overflow-hidden bg-gray-200">
-                            <img
-                              src={regionItem.image}
-                              alt={regionItem.title}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                // 如果图片加载失败，显示占位符
-                                (e.target as HTMLImageElement).style.display = 'none';
-                                (e.target as HTMLImageElement).parentElement!.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400 text-xs">Image</div>';
-                              }}
-                            />
+                            }}
+                            onClick={() => {
+                              if (!isTibetanPlateau) {
+                                console.log('[Sidebar] click region', regionItem.id);
+                                console.log('[Sidebar] current activeRegionId before set:', activeRegionId);
+                                setActiveRegionId(regionItem.id);
+                                console.log('[Sidebar] setActiveRegionId called with:', regionItem.id);
+                              }
+                            }}
+                          >
+                            {/* 图片 */}
+                            <div className="w-32 h-24 flex-shrink-0 rounded overflow-hidden bg-gray-200">
+                              <img
+                                src={regionItem.image}
+                                alt={regionItem.title}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  // 如果图片加载失败，显示占位符
+                                  (e.target as HTMLImageElement).style.display = 'none';
+                                  (e.target as HTMLImageElement).parentElement!.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400 text-xs">Image</div>';
+                                }}
+                              />
+                            </div>
+                            
+                            {/* 内容 */}
+                            <div className="flex-1">
+                              <Heading 
+                                level={3} 
+                                className="text-lg font-heading mb-2"
+                                style={{ fontFamily: 'Montaga, serif' }}
+                              >
+                                {regionItem.title}
+                              </Heading>
+                              <Text 
+                                className="text-sm text-gray-600 mb-3"
+                                style={{ fontFamily: 'Monda, sans-serif' }}
+                              >
+                                {regionItem.description}
+                              </Text>
+                              {/* Discover more 文本 - 整个区域已经是链接，所以这里只显示文本 */}
+                              <span 
+                                className="text-sm text-[#c0a273]"
+                                style={{ fontFamily: 'Monda, sans-serif' }}
+                              >
+                                Discover more
+                              </span>
+                            </div>
                           </div>
-                          
-                          {/* 内容 */}
-                          <div className="flex-1">
-                            <Heading 
-                              level={3} 
-                              className="text-lg font-heading mb-2"
-                              style={{ fontFamily: 'Montaga, serif' }}
-                            >
-                              {regionItem.title}
-                            </Heading>
-                            <Text 
-                              className="text-sm text-gray-600 mb-3"
-                              style={{ fontFamily: 'Monda, sans-serif' }}
-                            >
-                              {regionItem.description}
-                            </Text>
-                            <Link 
-                              href={`#${regionItem.id}`}
-                              className="text-sm text-[#c0a273] hover:underline"
-                              style={{ fontFamily: 'Monda, sans-serif' }}
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              Discover more
-                            </Link>
-                          </div>
-                        </div>
-                      ))}
+                        );
+
+                        // 所有区域都可以点击跳转到对应的 place 详情页
+                        return (
+                          <Link key={regionItem.id} href={linkHref} className="block">
+                            {content}
+                          </Link>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>

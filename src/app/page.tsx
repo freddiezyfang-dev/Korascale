@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import Link from "next/link";
 import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
 import { InspirationsSection, CategoryExplorer } from '@/components/sections';
+import OurPerspectiveSection from '@/components/sections/OurPerspectiveSection';
+import TheLensBehindKorascaleSection from '@/components/sections/TheLensBehindKorascaleSection';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import hotelsData from '@/data/hotels.json';
 
@@ -344,15 +346,18 @@ export default function Home() {
       {/* Inspirations Section */}
       <InspirationsSection />
 
-      {/* About Us Section */}
-      <Section background="tertiary" padding="xl">
-        <Container size="xl">
-          <div className="text-center mb-8 md:mb-16 px-4">
-            <Text size="lg" className="sm:text-xl mb-3 sm:mb-4 font-body">About Us</Text>
-            <Heading level={2} className="text-3xl sm:text-4xl md:text-5xl font-heading">Who will you travel with</Heading>
-          </div>
-        </Container>
-      </Section>
+      {/* Brand Philosophy Section 1: Our Perspective */}
+      <OurPerspectiveSection 
+        imageSrc="/images/brand-philosophy/WechatIMG160.jpg"
+        videoSrc="/videos/brand-philosophy/1月7日 .mp4"
+      />
+
+      {/* Brand Philosophy Section 2: The Lens Behind Korascale */}
+      {/* 注意：如果你有专门的背景图片，请替换下面的路径 */}
+      <TheLensBehindKorascaleSection 
+        backgroundImage="/images/brand-philosophy/WechatIMG160.jpg"
+        // backgroundVideo="/videos/brand-philosophy/1月7日 .mp4" // 如果需要使用视频作为背景，取消注释这行
+      />
     </div>
   );
 }

@@ -169,7 +169,7 @@ export default function HeroCarousel({
       {/* 内容层 - 标题覆盖层 */}
       <div className="absolute inset-0 flex items-center justify-center z-20">
         <div className="text-center text-white px-6 max-w-5xl">
-          <h1 className="text-4xl md:text-7xl font-normal font-['Playfair_Display'] leading-[1.1] tracking-tight drop-shadow-lg">
+          <h1 className="text-4xl md:text-7xl font-normal font-serif leading-[1.1] tracking-tight drop-shadow-lg">
             Korascale designs journeys through a <br className="hidden md:block" /> China that is still in motion.
           </h1>
         </div>

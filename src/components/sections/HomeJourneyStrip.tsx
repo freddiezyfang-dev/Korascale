@@ -143,7 +143,7 @@ export default function HomeJourneyStrip() {
               />
               <div className="p-4 flex flex-col flex-1">
                 <h3
-                  className="text-lg font-['Montaga'] mb-2 leading-tight flex-shrink-0 font-normal"
+                  className="text-lg font-heading mb-2 leading-tight flex-shrink-0 font-normal"
                   style={{ fontWeight: 400 }}
                 >
                   {item.title}

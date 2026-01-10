@@ -179,7 +179,7 @@ export default function InclusionsAndOffers({ journey, onBookingClick }: Inclusi
           
           {/* 左侧：Inclusions 垂直列表 */}
           <div className="flex-1">
-            <h3 className="text-2xl font-serif mb-8 text-gray-900">Includes</h3>
+            <h3 className="text-2xl font-heading mb-8 text-gray-900">Includes</h3>
             {inclusionsList.length > 0 ? (
               <div className="flex flex-col gap-6">
                 {inclusionsList.map((item, idx) => (
@@ -200,7 +200,7 @@ export default function InclusionsAndOffers({ journey, onBookingClick }: Inclusi
 
           {/* 右侧：Select Your Date 模块 */}
           <div className="lg:w-[500px] lg:flex-shrink-0 lg:border-l lg:pl-16 border-gray-200">
-            <h3 className="text-2xl font-serif mb-8 text-gray-900">Select Your Date</h3>
+            <h3 className="text-2xl font-heading mb-8 text-gray-900">Select Your Date</h3>
             
             {/* 年份切换 */}
             <div className="flex gap-8 border-b border-gray-200 mb-8">
@@ -251,7 +251,7 @@ export default function InclusionsAndOffers({ journey, onBookingClick }: Inclusi
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-lg font-serif text-gray-900">
+                        <span className="text-lg font-heading text-gray-900">
                           ${item.price.toLocaleString()}
                         </span>
                         {item.originalPrice && item.originalPrice > item.price && (

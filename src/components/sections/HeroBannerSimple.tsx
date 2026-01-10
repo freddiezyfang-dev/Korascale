@@ -82,7 +82,7 @@ export default function HeroBannerSimple({
       {/* 内容层 */}
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="text-center text-white px-4 max-w-4xl">
-          <h1 className="text-5xl md:text-6xl font-normal mb-8 font-[Montserrat] max-w-4xl">
+          <h1 className="text-5xl md:text-6xl font-normal mb-8 font-heading max-w-4xl">
             {slides[currentSlide].title}
           </h1>
           <Link 

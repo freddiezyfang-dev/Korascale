@@ -37,7 +37,11 @@ module.exports = {
         montserrat: typography.fontFamily.montserrat,
         dancingScript: typography.fontFamily.dancingScript,
         montaguSlab: typography.fontFamily.montaguSlab,
+        // 强制定义，避免被 globals.css 覆盖
+        // 对应 AK 的优雅衬线体
         serif: ['"Playfair Display"', 'serif'],
+        // 对应 AK 的现代无衬线体
+        sans: ['Montserrat', 'ui-sans-serif', 'system-ui'],
       },
       
       // 使用设计令牌中的字体大小

@@ -157,17 +157,9 @@ export default function JourneysPage() {
 	
 	// 优先使用Context中的journeys数据，如果为空则使用默认数据
 	const journeys = contextJourneys.length > 0 ? contextJourneys : defaultJourneys;
-	const [selectedRegion, setSelectedRegion] = useState('All');
-	const [selectedDuration, setSelectedDuration] = useState('All');
-	const [selectedInterest, setSelectedInterest] = useState('All');
-	const [selectedPlace, setSelectedPlace] = useState('All');
-	const [searchTerm, setSearchTerm] = useState('');
-	const [selectedJourneyType, setSelectedJourneyType] = useState<JourneyType | 'All'>('All');
-	const [isPlanTripModalOpen, setIsPlanTripModalOpen] = useState(false);
 
-	// Region选项
+	// Region选项 - 移除 'All'
 	const regionOptions = [
-		'All',
 		'Southwest China',
 		'Northwest&Northern Frontier',
 		'North China',
@@ -175,9 +167,8 @@ export default function JourneysPage() {
 		'East&Central China'
 	];
 
-	// Places选项
+	// Places选项 - 移除 'All'
 	const placeOptions = [
-		'All',
 		'Tibetan Plateau & Kham Region',
 		'Yunnan–Guizhou Highlands',
 		'Sichuan Basin & Mountains',
@@ -201,18 +192,35 @@ export default function JourneysPage() {
 		'Yellow Mountain & Southern Anhui'
 	];
 
+	// Duration选项 - 移除 'All'
+	const durationOptions = ['1 Day', '2 Days', '3 Days', '4 Days'];
+
+	// Interests选项 - 移除 'All'
+	const interestOptions = ['Nature', 'Culture', 'History', 'City', 'Cruises'];
+
+	// 初始化状态 - 使用 null 表示未选择（不应用过滤）
+	const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
+	const [selectedDuration, setSelectedDuration] = useState<string | null>(null);
+	const [selectedInterest, setSelectedInterest] = useState<string | null>(null);
+	const [selectedPlace, setSelectedPlace] = useState<string | null>(null);
+	const [searchTerm, setSearchTerm] = useState('');
+	const [selectedJourneyType, setSelectedJourneyType] = useState<JourneyType | null>(null);
+	const [isPlanTripModalOpen, setIsPlanTripModalOpen] = useState(false);
+
 	const filteredJourneys = useMemo(() => {
 		const filtered = journeys.filter(journey => {
 			// 安全地检查 status 属性（默认 journeys 可能没有这个属性）
 			const isActive = 'status' in journey ? journey.status === 'active' : true;
 			const journeyType = resolveJourneyType(journey);
-			const matchesJourneyType = selectedJourneyType === 'All' || journeyType === selectedJourneyType;
-			const matchesRegion = selectedRegion === 'All' || journey.region === selectedRegion;
-			const matchesDuration = selectedDuration === 'All' || journey.duration === selectedDuration;
-			const matchesInterest = selectedInterest === 'All' || journey.category === selectedInterest;
-			const matchesPlace = selectedPlace === 'All' || ('place' in journey && journey.place && journey.place === selectedPlace);
-			const matchesSearch = journey.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-								 journey.description.toLowerCase().includes(searchTerm.toLowerCase());
+			// 只有当 filter 有值时才应用过滤，null 表示不过滤
+			const matchesJourneyType = selectedJourneyType === null || journeyType === selectedJourneyType;
+			const matchesRegion = selectedRegion === null || journey.region === selectedRegion;
+			const matchesDuration = selectedDuration === null || journey.duration === selectedDuration;
+			const matchesInterest = selectedInterest === null || journey.category === selectedInterest;
+			const matchesPlace = selectedPlace === null || ('place' in journey && journey.place && journey.place === selectedPlace);
+			const matchesSearch = searchTerm === '' || 
+				journey.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				(journey.description && journey.description.toLowerCase().includes(searchTerm.toLowerCase()));
 			return isActive && matchesJourneyType && matchesRegion && matchesDuration && matchesInterest && matchesPlace && matchesSearch;
 		});
 		
@@ -438,19 +446,19 @@ export default function JourneysPage() {
 								<div className="mb-8">
 									<h4 className="text-base font-['Monda'] font-bold mb-4">JOURNEY TYPE</h4>
 									<div className="flex flex-wrap gap-2">
-										{['All', ...journeyTypeOptions.map(opt => opt.value)].map((type) => (
+										{journeyTypeOptions.map((opt) => (
 											<button
-												key={type}
+												key={opt.value}
 												className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
-													selectedJourneyType === type ? 'bg-gray-200' : 'bg-white'
+													selectedJourneyType === opt.value ? 'bg-gray-200' : 'bg-white'
 												}`}
 												style={{
 													color: 'black',
-													backgroundColor: selectedJourneyType === type ? '#e5e7eb' : 'white'
+													backgroundColor: selectedJourneyType === opt.value ? '#e5e7eb' : 'white'
 												}}
-												onClick={() => setSelectedJourneyType(type as JourneyType | 'All')}
+												onClick={() => setSelectedJourneyType(selectedJourneyType === opt.value ? null : opt.value)}
 											>
-												{type}
+												{opt.label}
 											</button>
 										))}
 									</div>
@@ -470,7 +478,7 @@ export default function JourneysPage() {
 													color: 'black',
 													backgroundColor: selectedRegion === region ? '#e5e7eb' : 'white'
 												}}
-												onClick={() => setSelectedRegion(region)}
+												onClick={() => setSelectedRegion(selectedRegion === region ? null : region)}
 											>
 												{region}
 											</button>
@@ -492,7 +500,7 @@ export default function JourneysPage() {
 													color: 'black',
 													backgroundColor: selectedPlace === place ? '#e5e7eb' : 'white'
 												}}
-												onClick={() => setSelectedPlace(place)}
+												onClick={() => setSelectedPlace(selectedPlace === place ? null : place)}
 											>
 												{place}
 											</button>
@@ -504,7 +512,7 @@ export default function JourneysPage() {
 								<div className="mb-8">
 									<h4 className="text-base font-['Monda'] font-bold mb-4">INTERESTS</h4>
 									<div className="flex flex-wrap gap-2">
-										{['All', 'Nature', 'Culture', 'History', 'City', 'Cruises'].map((interest) => (
+										{interestOptions.map((interest) => (
 											<button
 												key={interest}
 												className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
@@ -514,7 +522,7 @@ export default function JourneysPage() {
 													color: 'black',
 													backgroundColor: selectedInterest === interest ? '#e5e7eb' : 'white'
 												}}
-												onClick={() => setSelectedInterest(interest)}
+												onClick={() => setSelectedInterest(selectedInterest === interest ? null : interest)}
 											>
 												{interest}
 											</button>
@@ -526,7 +534,7 @@ export default function JourneysPage() {
 								<div className="mb-8">
 									<h4 className="text-base font-['Monda'] font-bold mb-4">DURATION</h4>
 									<div className="flex flex-wrap gap-2">
-										{['All', '1 Day', '2 Days', '3 Days', '4 Days'].map((duration) => (
+										{durationOptions.map((duration) => (
 											<button
 												key={duration}
 												className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
@@ -536,7 +544,7 @@ export default function JourneysPage() {
 													color: 'black',
 													backgroundColor: selectedDuration === duration ? '#e5e7eb' : 'white'
 												}}
-												onClick={() => setSelectedDuration(duration)}
+												onClick={() => setSelectedDuration(selectedDuration === duration ? null : duration)}
 											>
 												{duration}
 											</button>

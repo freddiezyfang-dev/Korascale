@@ -1,5 +1,6 @@
 /* 导入 Google Fonts - 必须在最顶部 */
-@import url('https://fonts.googleapis.com/css2?family=Montaga&family=Inknut+Antiqua:wght@300;400;500;600;700&family=Monda:wght@300;400;500;600;700&family=Dancing+Script:wght@400;500;600;700&family=Montagu+Slab:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montaga&family=Inknut+Antiqua:wght@300;400;500;600;700&family=Monda:wght@300;400;500;600;700&family=Dancing+Script:wght@400;500;600;700&family=Montagu+Slab:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap');
 
 @import "tailwindcss";
 @import "../styles/variables.css";
@@ -7,6 +8,7 @@
 :root {
   --background: var(--color-bg-primary);
   --foreground: var(--color-text-primary);
+  --font-serif: 'Playfair Display', serif;
 }
 
 @theme inline {
@@ -19,54 +21,12 @@
 html, body {
   margin: 0;
   padding: 0;
+  font-family: inherit;
+  color: inherit;
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-body);
-  font-size: var(--text-base);
-  line-height: var(--leading-normal);
-}
-
-/* 标题样式 */
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
-  font-weight: var(--font-bold);
-  line-height: var(--leading-tight);
-  color: var(--color-text-primary);
-}
-
-h1 {
-  font-size: var(--text-6xl);
-}
-
-h2 {
-  font-size: var(--text-4xl);
-}
-
-h3 {
-  font-size: var(--text-2xl);
-}
-
-h4 {
-  font-size: var(--text-xl);
-}
-
-h5 {
-  font-size: var(--text-lg);
-}
-
-h6 {
-  font-size: var(--text-base);
-}
-
-/* 段落样式 */
-p {
-  font-family: var(--font-body);
-  font-size: var(--text-base);
-  line-height: var(--leading-relaxed);
-  color: var(--color-text-primary);
 }
 
 /* 链接样式 */

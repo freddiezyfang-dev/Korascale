@@ -7,45 +7,46 @@ import { useState, useEffect } from 'react';
 
 // 图片资源 - 使用本地图片
 const imgHeroBanner = "/images/hero/slide6.jpeg";
-const imgSichuanChongqing = "/images/journey-cards/chengdu-deep-dive.jpeg";
-const imgGansuQinghai = "/images/journey-cards/gansu-zhangye.jpg";
-const imgShaanxi = "/images/journey-cards/shannxi-yejing.jpg";
-const imgXinjiang = "/images/journey-cards/xinjiang-altstadt.webp";
+const imgSouthwest = "/images/journey-cards/chengdu-deep-dive.jpeg";
+const imgNorthwest = "/images/journey-cards/Northwest.jpg";
+const imgNorth = "/images/journey-cards/North China.jpg";
+const imgSouth = "/images/journey-cards/South.jpg";
+const imgEastCentral = "/images/journey-cards/East.jpg";
 
 // 地区数据
 const regions = [
   {
     id: 1,
     name: "Southwest China",
-    image: imgXinjiang,
+    image: imgSouthwest,
     description: "Explore the diverse landscapes and rich cultural heritage of Southwest China",
     slug: "southwest-china"
   },
   {
     id: 2,
     name: "Northwest & Northern Frontier",
-    image: imgGansuQinghai,
+    image: imgNorthwest,
     description: "Discover the frontier regions with stunning natural beauty",
     slug: "northwest"
   },
   {
     id: 3,
     name: "North China",
-    image: imgShaanxi,
+    image: imgNorth,
     description: "Experience the historical heartland of ancient China",
     slug: "north"
   },
   {
     id: 4,
     name: "South China",
-    image: imgSichuanChongqing,
+    image: imgSouth,
     description: "Immerse yourself in the vibrant culture and cuisine of South China",
     slug: "south"
   },
   {
     id: 5,
     name: "East & Central China",
-    image: imgSichuanChongqing,
+    image: imgEastCentral,
     description: "Journey through the economic and cultural centers of China",
     slug: "east-central"
   }
@@ -60,6 +61,7 @@ export default function Destinations() {
   }, []);
 
   const selectedRegionData = regions.find(r => r.id === selectedRegion) || regions[0];
+  const currentImage = regions.find(r => r.id === selectedRegion)?.image;
 
   return (
     <main className="min-h-screen bg-white">
@@ -127,13 +129,15 @@ export default function Destinations() {
         <div className="flex flex-col md:flex-row items-stretch min-h-[720px]">
           {/* 左侧图片区域 - 竖长方形 */}
           <div className="md:w-[45%] h-[640px] flex items-center justify-center p-8">
-            <div className="relative w-full h-full rounded-xl overflow-hidden">
-              <div
-                className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-500 ease-in-out"
-                style={{ backgroundImage: `url('${selectedRegionData.image}')` }}
+            <div className="relative w-full h-full rounded-xl overflow-hidden bg-gray-200">
+              <img
+                key={selectedRegion}
+                src={currentImage}
+                alt={selectedRegionData.name}
+                className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out"
               />
               {/* 图片底部位置标签 */}
-              <div className="absolute bottom-6 left-6 flex items-center gap-2 text-white">
+              <div className="absolute bottom-6 left-6 flex items-center gap-2 text-white z-10">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                 </svg>
@@ -153,18 +157,18 @@ export default function Destinations() {
                 const label = (
                   <button
                     type="button"
-                    onClick={() => setSelectedRegion(region.id)}
+                    onMouseEnter={() => setSelectedRegion(region.id)}
                     className={`
-                      w-full text-left py-4 px-4 transition-all duration-200
+                      w-full text-left py-4 px-4 transition-all duration-300 ease-in-out
                       ${isSelected
-                        ? 'font-bold text-black'
-                        : 'font-normal text-gray-400 hover:text-gray-600'
+                        ? 'font-normal text-black'
+                        : 'font-normal text-gray-300 hover:text-black'
                       }
                     `}
                     style={{
-                      fontFamily: 'Montaga, serif',
-                      fontSize: '2rem',
-                      fontWeight: isSelected ? 700 : 400
+                      fontFamily: 'Playfair Display, serif',
+                      fontSize: '2.25rem',
+                      fontWeight: 400
                     }}
                   >
                     {region.name}
@@ -174,7 +178,7 @@ export default function Destinations() {
                 // 有 slug 的地区可点击进入详情页
                 if (region.slug) {
                   return (
-                    <Link key={region.id} href={`/destinations/${region.slug}`} className="block">
+                    <Link key={region.id} href={`/destinations/${region.slug}`} className="block group">
                       {label}
                     </Link>
                   );

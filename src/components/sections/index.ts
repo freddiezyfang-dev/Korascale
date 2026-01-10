@@ -12,4 +12,6 @@ export { default as InspirationsSection } from './InspirationsSection';
 export { default as PlanningSectionNew } from './PlanningSectionNew';
 export { default as HomeJourneyStrip } from './HomeJourneyStrip';
 export { default as CategoryExplorer } from './CategoryExplorer';
+export { default as OurPerspectiveSection } from './OurPerspectiveSection';
+export { default as TheLensBehindKorascaleSection } from './TheLensBehindKorascaleSection';
 
