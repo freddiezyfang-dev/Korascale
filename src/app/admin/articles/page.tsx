@@ -148,8 +148,8 @@ ${localArticles.length > 0 ? '💾 localStorage 有备份数据' : '💾 localSt
                         alert(message);
                         
                         console.log('📊 对比结果:', {
-                          数据库: dbArticles.map(a => ({ title: a.title, slug: a.slug, status: a.status })),
-                          localStorage: localArticles.map(a => ({ title: a.title, slug: a.slug, status: a.status }))
+                          数据库: dbArticles.map((a: Article) => ({ title: a.title, slug: a.slug, status: a.status })),
+                          localStorage: localArticles.map((a: Article) => ({ title: a.title, slug: a.slug, status: a.status }))
                         });
                       } catch (error) {
                         console.error('对比失败:', error);
