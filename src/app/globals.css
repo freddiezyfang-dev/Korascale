@@ -1,6 +1,9 @@
 /* 导入 Google Fonts - 必须在最顶部 */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montaga&family=Inknut+Antiqua:wght@300;400;500;600;700&family=Monda:wght@300;400;500;600;700&family=Dancing+Script:wght@400;500;600;700&family=Montagu+Slab:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap');
+/* Geist 字体 - 通过 CSS 变量使用 */
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
 @import "tailwindcss";
 @import "../styles/variables.css";
@@ -9,6 +12,9 @@
   --background: var(--color-bg-primary);
   --foreground: var(--color-text-primary);
   --font-serif: 'Playfair Display', serif;
+  /* Geist 字体变量 - 用于替代 next/font/google */
+  --font-geist-sans: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  --font-geist-mono: 'Geist Mono', 'Courier New', monospace;
 }
 
 @theme inline {
@@ -16,6 +22,10 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-body);
   --font-mono: var(--font-mono);
+}
+
+html {
+  scroll-behavior: smooth; /* 启用平滑滚动 */
 }
 
 html, body {
@@ -38,6 +48,127 @@ a {
 
 a:hover {
   color: var(--color-primary-600);
+}
+
+/* Prose 样式 - 用于富文本内容渲染 */
+.prose {
+  color: inherit;
+  max-width: 65ch;
+}
+
+.prose-lg {
+  font-size: 1.125rem;
+  line-height: 1.75;
+}
+
+.prose-base {
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  margin-top: 2em;
+  margin-bottom: 1em;
+  line-height: 1.2;
+}
+
+.prose h1 {
+  font-size: 2.25em;
+}
+
+.prose h2 {
+  font-size: 1.875em;
+  margin-top: 3em; /* 增加 H2 的顶部间距，匹配 mt-12 */
+  font-family: 'Playfair Display', serif;
+}
+
+.prose h3 {
+  font-size: 1.5em;
+}
+
+.prose p {
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  font-family: 'Montserrat', sans-serif;
+  line-height: 1.8; /* 增加行高，提供更多呼吸空间 */
+}
+
+.prose ul,
+.prose ol {
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  padding-left: 1.625em;
+}
+
+.prose li {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.prose a {
+  color: #1e3b32;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.prose a:hover {
+  color: #1a342c;
+}
+
+.prose strong {
+  font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.prose em {
+  font-style: italic;
+}
+
+.prose code {
+  font-size: 0.875em;
+  font-weight: 600;
+  padding: 0.125em 0.25em;
+  border-radius: 0.25rem;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.prose blockquote {
+  border-left: 4px solid #1e3b32;
+  padding-left: 1em;
+  margin: 1.5em 0;
+  font-style: italic;
+  color: #4a4a4a;
+}
+
+.prose img {
+  margin: 2em 0;
+  border-radius: 0.5rem;
+}
+
+.prose hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 2em 0;
+}
+
+.prose.max-w-none {
+  max-width: none;
+}
+
+/* 强制文本换行样式 - 防止单词拆分 */
+.prose-force-wrap {
+  word-break: normal !important;
+  white-space: normal !important;
+  hyphens: none !important;
+  overflow-wrap: break-word !important;
 }
 
 /* 按钮基础样式 */

@@ -1,5 +1,18 @@
 // 最简单的测试路由 - 用于验证 API 路由是否工作
+import { NextResponse } from 'next/server';
+
 export async function GET() {
-  return Response.json({ pong: true, timestamp: new Date().toISOString() });
+  try {
+    return NextResponse.json({ 
+      pong: true, 
+      timestamp: new Date().toISOString() 
+    });
+  } catch (error) {
+    console.error('[API /ping] Error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error', details: error instanceof Error ? error.message : String(error) },
+      { status: 500 }
+    );
+  }
 }
 

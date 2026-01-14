@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "react-quill-new/dist/quill.snow.css";
 import Header from "@/components/layout/Header";
 import NavMenu from "@/components/layout/NavMenu";
 import Footer from "@/components/layout/Footer";
@@ -14,15 +14,15 @@ import { ExperienceManagementProvider } from "@/context/ExperienceManagementCont
 import { ArticleManagementProvider } from "@/context/ArticleManagementContext";
 import { CartProvider } from "@/context/CartContext";
 
-const geistSans = Geist({
+// 暂时移除 next/font/google 以避免 Turbopack 兼容性问题
+// 字体通过 globals.css 中的 @import 加载
+const geistSans = {
 	variable: "--font-geist-sans",
-	subsets: ["latin"],
-});
+};
 
-const geistMono = Geist_Mono({
+const geistMono = {
 	variable: "--font-geist-mono",
-	subsets: ["latin"],
-});
+};
 
 export const metadata: Metadata = {
 	title: "Korascale - Craft Your Own Adventure",

@@ -9,7 +9,11 @@ function getPool(): Pool {
     const connectionString = process.env.NEON_POSTGRES_URL || process.env.POSTGRES_URL;
     
     if (!connectionString) {
-      throw new Error('Missing POSTGRES_URL or NEON_POSTGRES_URL in environment');
+      // 在开发环境中，如果没有数据库连接，返回一个友好的错误而不是抛出异常
+      // 这样可以让 API 路由返回明确的错误信息，而不是导致整个模块加载失败
+      const error = new Error('Missing POSTGRES_URL or NEON_POSTGRES_URL in environment');
+      console.error('[DB]', error.message);
+      throw error;
     }
 
     // 解析连接字符串以诊断问题（不显示密码）
@@ -51,8 +55,17 @@ function getPool(): Pool {
 export { getPool as pool };
 
 export async function query<T extends QueryResultRow = any>(text: string, params?: any[]): Promise<QueryResult<T>> {
-  const dbPool = getPool();
-  return dbPool.query<T>(text, params);
+  try {
+    const dbPool = getPool();
+    return await dbPool.query<T>(text, params);
+  } catch (error) {
+    console.error('[DB Query Error]', {
+      query: text.substring(0, 100),
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    throw error;
+  }
 }
 
 

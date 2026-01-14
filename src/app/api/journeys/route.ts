@@ -2,8 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { Journey } from '@/types';
 
+// Route Segment Config - 确保路由被正确识别
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 // GET: 获取所有journeys
-export async function GET(request: NextRequest) {
+export async function GET(request?: NextRequest) {
   try {
     // 检查数据库连接（支持 NEON_POSTGRES_URL 或 POSTGRES_URL）
     const connectionString = process.env.NEON_POSTGRES_URL || process.env.POSTGRES_URL;
@@ -50,7 +54,7 @@ export async function GET(request: NextRequest) {
     const queryStartTime = Date.now();
     try {
       // 使用更简单的查询，只选择必要的字段，减少数据传输量
-      // 添加查询超时控制（使用 Promise.race）- 增加到30秒
+      // 添加查询超时控制（使用 Promise.race）- 增加到60秒
       const queryPromise = query(`
         SELECT 
           id, title, slug, description, short_description,
@@ -65,7 +69,7 @@ export async function GET(request: NextRequest) {
       `);
       
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Database query timeout after 30 seconds')), 30000)
+        setTimeout(() => reject(new Error('Database query timeout after 60 seconds')), 60000)
       );
       
       const result = await Promise.race([queryPromise, timeoutPromise]) as any;
@@ -94,7 +98,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json(
           { 
             error: 'Database query timeout. The database may be slow or overloaded. Please try again later.',
-            details: process.env.NODE_ENV === 'development' ? `Query took ${queryDuration}ms before timeout` : undefined
+            details: process.env.NODE_ENV === 'development' ? `Query took ${queryDuration}ms before timeout (60s limit)` : undefined
           },
           { status: 504 } // Gateway Timeout
         );
@@ -138,7 +142,7 @@ export async function GET(request: NextRequest) {
       };
     });
     
-    // 设置响应头，禁用缓存
+    // 设置响应头，禁用缓存并添加 CORS
     return NextResponse.json(
       { journeys },
       {
@@ -146,6 +150,9 @@ export async function GET(request: NextRequest) {
           'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
           'Pragma': 'no-cache',
           'Expires': '0',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
         },
       }
     );

@@ -5,12 +5,16 @@ import { Journey, JourneyStatus } from '@/types';
 
 // 使用相对路径，在客户端自动使用当前域名
 const getApiUrl = (path: string) => {
-  // 在客户端使用相对路径，在服务端使用完整URL
-  if (typeof window === 'undefined') {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.VERCEL_URL || 'http://localhost:3000';
-    return `${baseUrl}${path}`;
+  // 在客户端始终使用相对路径，避免 CORS 问题
+  if (typeof window !== 'undefined') {
+    // 客户端：确保使用相对路径
+    return path.startsWith('/') ? path : `/${path}`;
   }
-  return path;
+  // 服务端：使用环境变量或默认值
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 
+                  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 
+                  'http://localhost:3000';
+  return `${baseUrl}${path}`;
 };
 
 // 创建带超时的 AbortSignal（兼容性处理）
@@ -31,12 +35,19 @@ export const journeyAPI = {
   async getAll(retries: number = 2): Promise<Journey[]> {
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
-        const timeoutMs = attempt === 0 ? 20000 : 30000; // 第一次20秒，重试30秒
-        const response = await fetch(getApiUrl('/api/journeys'), {
+        // 增加超时时间：第一次45秒，重试60秒（给数据库更多时间）
+        const timeoutMs = attempt === 0 ? 45000 : 60000;
+        const apiUrl = getApiUrl('/api/journeys');
+        const response = await fetch(apiUrl, {
           // 添加超时控制
           signal: createTimeoutSignal(timeoutMs),
           // 添加缓存控制
           cache: 'no-store',
+          // 添加 headers
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Content-Type': 'application/json',
+          },
         });
         
         if (!response.ok) {
@@ -65,16 +76,33 @@ export const journeyAPI = {
       } catch (error) {
         // 如果是 AbortError（超时）
         if (error instanceof Error && error.name === 'AbortError') {
-          const timeoutMsg = `Request timeout: Failed to fetch journeys within ${attempt === 0 ? 20 : 30} seconds`;
+          const timeoutMsg = `Request timeout: Failed to fetch journeys within ${attempt === 0 ? 45 : 60} seconds`;
           console.warn(`[JourneyAPI] ${timeoutMsg} (attempt ${attempt + 1}/${retries + 1})`);
           
           // 如果还有重试次数，继续重试
           if (attempt < retries) {
-            await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1))); // 递增延迟
+            const delay = 2000 * (attempt + 1); // 递增延迟：2秒、4秒
+            console.log(`[JourneyAPI] Retrying after ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
             continue;
           }
           
           console.error(timeoutMsg);
+          // 超时后尝试从 localStorage 加载（降级方案）
+          try {
+            const stored = localStorage.getItem('journeys');
+            if (stored) {
+              console.warn('[JourneyAPI] Falling back to localStorage data due to timeout');
+              const parsed = JSON.parse(stored).map((j: any) => ({
+                ...j,
+                createdAt: new Date(j.createdAt),
+                updatedAt: new Date(j.updatedAt),
+              }));
+              return parsed;
+            }
+          } catch (e) {
+            console.error('[JourneyAPI] Failed to load from localStorage:', e);
+          }
         } else {
           console.error('Error fetching journeys:', error);
           

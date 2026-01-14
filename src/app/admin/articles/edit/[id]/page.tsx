@@ -4,8 +4,11 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Heading, Text, Card, Button, Container, Section } from '@/components/common';
 import { useArticleManagement } from '@/context/ArticleManagementContext';
-import { Article, ArticleCategory } from '@/types/article';
+import { Article, ArticleCategory, ContentBlock, ContentBlockType } from '@/types/article';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
+import { uploadAPI } from '@/lib/databaseClient';
+import { Upload } from 'lucide-react';
+import { RichTextEditor } from '@/components/admin/RichTextEditor';
 
 export default function EditArticlePage() {
   const params = useParams();
@@ -17,9 +20,22 @@ export default function EditArticlePage() {
   const target = useMemo(() => articles.find(a => a.id === id), [articles, id]);
 
   const [form, setForm] = useState({
-    title: '', author: '', coverImage: '', category: 'Food Journey' as ArticleCategory,
-    content: '', excerpt: '', relatedJourneyIds: [] as string[], status: 'draft' as Article['status'], slug: ''
+    title: '',
+    author: '',
+    coverImage: '',
+    heroImage: '',
+    readingTime: '12 min read',
+    category: 'Food Journey' as ArticleCategory,
+    content: '',
+    contentBlocks: [] as ContentBlock[],
+    excerpt: '',
+    relatedJourneyIds: [] as string[],
+    status: 'draft' as Article['status'],
+    slug: ''
   });
+
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const [isUploadingHero, setIsUploadingHero] = useState(false);
 
   useEffect(() => {
     if (target) {
@@ -27,8 +43,11 @@ export default function EditArticlePage() {
         title: target.title,
         author: target.author,
         coverImage: target.coverImage,
+        heroImage: target.heroImage || '',
+        readingTime: target.readingTime || '12 min read',
         category: target.category,
-        content: target.content,
+        content: target.content || '',
+        contentBlocks: target.contentBlocks || [],
         excerpt: target.excerpt || '',
         relatedJourneyIds: target.relatedJourneyIds,
         status: target.status,
@@ -45,9 +64,52 @@ export default function EditArticlePage() {
     );
   }
 
+  const addContentBlock = (type: ContentBlockType) => {
+    const newBlock: ContentBlock = {
+      id: `block-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      type,
+      text: '',
+      level: type === 'heading' ? 2 : undefined,
+      imageWidth: type === 'image' ? 'contained' : undefined
+    };
+    setForm(prev => ({
+      ...prev,
+      contentBlocks: [...prev.contentBlocks, newBlock]
+    }));
+  };
+
+  const updateContentBlock = (blockId: string, updates: Partial<ContentBlock>) => {
+    setForm(prev => ({
+      ...prev,
+      contentBlocks: prev.contentBlocks.map(block =>
+        block.id === blockId ? { ...block, ...updates } : block
+      )
+    }));
+  };
+
+  const removeContentBlock = (blockId: string) => {
+    setForm(prev => ({
+      ...prev,
+      contentBlocks: prev.contentBlocks.filter(block => block.id !== blockId)
+    }));
+  };
+
+  const moveBlock = (index: number, direction: 'up' | 'down') => {
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= form.contentBlocks.length) return;
+    
+    const blocks = [...form.contentBlocks];
+    [blocks[index], blocks[newIndex]] = [blocks[newIndex], blocks[index]];
+    setForm(prev => ({ ...prev, contentBlocks: blocks }));
+  };
+
   const onSubmit = () => {
     const metaDescription = form.excerpt || form.content.replace(/<[^>]+>/g,'').slice(0, 150);
-    updateArticle(target.id, { ...form, metaDescription });
+    updateArticle(target.id, {
+      ...form,
+      metaDescription,
+      contentBlocks: form.contentBlocks.length > 0 ? form.contentBlocks : undefined
+    });
     router.push('/admin/articles');
   };
 
@@ -62,6 +124,52 @@ export default function EditArticlePage() {
         ? prev.relatedJourneyIds.filter(x => x !== jid)
         : [...prev.relatedJourneyIds, jid]
     }));
+  };
+
+  const handleCoverImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('请选择图片文件');
+      return;
+    }
+
+    setIsUploadingCover(true);
+    try {
+      const imageUrl = await uploadAPI.uploadImage(file, 'journeys');
+      setForm(prev => ({ ...prev, coverImage: imageUrl }));
+      alert('封面图上传成功！');
+    } catch (error) {
+      console.error('Cover image upload failed:', error);
+      alert('封面图上传失败，请重试');
+    } finally {
+      setIsUploadingCover(false);
+      event.target.value = '';
+    }
+  };
+
+  const handleHeroImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('请选择图片文件');
+      return;
+    }
+
+    setIsUploadingHero(true);
+    try {
+      const imageUrl = await uploadAPI.uploadImage(file, 'journeys');
+      setForm(prev => ({ ...prev, heroImage: imageUrl }));
+      alert('Hero 图上传成功！');
+    } catch (error) {
+      console.error('Hero image upload failed:', error);
+      alert('Hero 图上传失败，请重试');
+    } finally {
+      setIsUploadingHero(false);
+      event.target.value = '';
+    }
   };
 
   return (
@@ -81,7 +189,115 @@ export default function EditArticlePage() {
               </div>
               <div>
                 <label className="block text-sm text-gray-600 mb-1">封面图 URL</label>
-                <input className="w-full border rounded px-3 py-2" value={form.coverImage} onChange={e=>setForm({...form,coverImage:e.target.value})} />
+                <div className="flex gap-2">
+                  <input 
+                    className="flex-1 border rounded px-3 py-2" 
+                    value={form.coverImage} 
+                    onChange={e=>setForm({...form,coverImage:e.target.value})}
+                    placeholder="图片URL（上传后会自动填充）或输入路径"
+                  />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCoverImageUpload}
+                    disabled={isUploadingCover}
+                    className="hidden"
+                    id="cover-image-upload-input"
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={isUploadingCover}
+                    className="flex items-center gap-2"
+                    onClick={() => document.getElementById('cover-image-upload-input')?.click()}
+                  >
+                    <Upload className="w-4 h-4" />
+                    {isUploadingCover ? '上传中...' : '上传'}
+                  </Button>
+                </div>
+                <Text size="sm" className="text-gray-500 mt-1">
+                  {(() => {
+                    if (!form.coverImage) {
+                      return '💡 提示：点击"上传"按钮可将图片上传到 Vercel Blob 云存储，或直接输入图片URL';
+                    } else if (form.coverImage.startsWith('https://') && form.coverImage.includes('vercel-storage.com')) {
+                      return '✅ 云存储URL（已上传到 Vercel Blob 云存储）';
+                    } else if (form.coverImage.startsWith('/')) {
+                      return '💡 本地路径（存储在 public 目录）';
+                    } else {
+                      return '💡 外部URL或云存储URL';
+                    }
+                  })()}
+                </Text>
+                {form.coverImage && (
+                  <div className="mt-3">
+                    <img
+                      src={form.coverImage}
+                      alt="Cover image preview"
+                      className="w-full h-40 object-cover rounded-lg border border-gray-300"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">Hero 图 URL（可选）</label>
+                <div className="flex gap-2">
+                  <input 
+                    className="flex-1 border rounded px-3 py-2" 
+                    value={form.heroImage} 
+                    onChange={e=>setForm({...form,heroImage:e.target.value})}
+                    placeholder="图片URL（上传后会自动填充）或输入路径"
+                  />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleHeroImageUpload}
+                    disabled={isUploadingHero}
+                    className="hidden"
+                    id="hero-image-upload-input"
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={isUploadingHero}
+                    className="flex items-center gap-2"
+                    onClick={() => document.getElementById('hero-image-upload-input')?.click()}
+                  >
+                    <Upload className="w-4 h-4" />
+                    {isUploadingHero ? '上传中...' : '上传'}
+                  </Button>
+                </div>
+                <Text size="sm" className="text-gray-500 mt-1">
+                  {(() => {
+                    if (!form.heroImage) {
+                      return '💡 提示：点击"上传"按钮可将图片上传到 Vercel Blob 云存储，或直接输入图片URL';
+                    } else if (form.heroImage.startsWith('https://') && form.heroImage.includes('vercel-storage.com')) {
+                      return '✅ 云存储URL（已上传到 Vercel Blob 云存储）';
+                    } else if (form.heroImage.startsWith('/')) {
+                      return '💡 本地路径（存储在 public 目录）';
+                    } else {
+                      return '💡 外部URL或云存储URL';
+                    }
+                  })()}
+                </Text>
+                {form.heroImage && (
+                  <div className="mt-3">
+                    <img
+                      src={form.heroImage}
+                      alt="Hero image preview"
+                      className="w-full h-40 object-cover rounded-lg border border-gray-300"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">阅读时间</label>
+                <input className="w-full border rounded px-3 py-2" value={form.readingTime} onChange={e=>setForm({...form,readingTime:e.target.value})} placeholder="12 min read" />
               </div>
               <div>
                 <label className="block text-sm text-gray-600 mb-1">分类</label>
@@ -107,8 +323,191 @@ export default function EditArticlePage() {
               <label className="block text-sm text-gray-600 mb-1">摘要（选填）</label>
               <textarea className="w-full border rounded px-3 py-2" value={form.excerpt} onChange={e=>setForm({...form,excerpt:e.target.value})} rows={2} />
             </div>
+
+            {/* Content Blocks Editor */}
             <div>
-              <label className="block text-sm text-gray-600 mb-1">内容</label>
+              <div className="flex items-center justify-between mb-4">
+                <label className="block text-sm font-semibold text-gray-700">内容块（推荐使用）</label>
+                <div className="flex gap-2 flex-wrap">
+                  <Button size="sm" variant="outline" onClick={() => addContentBlock('heading')}>添加标题</Button>
+                  <Button size="sm" variant="outline" onClick={() => addContentBlock('paragraph')}>添加段落</Button>
+                  <Button size="sm" variant="outline" onClick={() => addContentBlock('image')}>添加图片</Button>
+                  <Button size="sm" variant="outline" onClick={() => addContentBlock('callout')}>添加高亮框</Button>
+                  <Button size="sm" variant="outline" onClick={() => addContentBlock('trip_cta')}>添加行程 CTA</Button>
+                </div>
+              </div>
+
+              <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
+                {form.contentBlocks.length === 0 ? (
+                  <Text className="text-gray-500 text-center py-4">暂无内容块，点击上方按钮添加</Text>
+                ) : (
+                  form.contentBlocks.map((block, index) => (
+                    <div key={block.id} className="bg-white border rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-semibold text-gray-600 uppercase">{block.type}</span>
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => moveBlock(index, 'up')}
+                              disabled={index === 0}
+                              className="text-xs px-2 py-1 border rounded disabled:opacity-50"
+                            >
+                              ↑
+                            </button>
+                            <button
+                              onClick={() => moveBlock(index, 'down')}
+                              disabled={index === form.contentBlocks.length - 1}
+                              className="text-xs px-2 py-1 border rounded disabled:opacity-50"
+                            >
+                              ↓
+                            </button>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => removeContentBlock(block.id)}
+                          className="text-red-600 text-sm hover:underline"
+                        >
+                          删除
+                        </button>
+                      </div>
+
+                      {block.type === 'heading' && (
+                        <div className="space-y-2">
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">级别</label>
+                            <select
+                              className="w-full border rounded px-2 py-1 text-sm"
+                              value={block.level || 2}
+                              onChange={e => updateContentBlock(block.id, { level: parseInt(e.target.value) })}
+                            >
+                              {[1, 2, 3, 4, 5, 6].map(l => <option key={l} value={l}>H{l}</option>)}
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">文本</label>
+                            <input
+                              className="w-full border rounded px-2 py-1 text-sm"
+                              value={block.text || ''}
+                              onChange={e => updateContentBlock(block.id, { text: e.target.value })}
+                              placeholder="标题文本"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {block.type === 'paragraph' && (
+                        <div>
+                          <label className="block text-xs text-gray-600 mb-1 mb-2">文本内容</label>
+                          <RichTextEditor
+                            value={block.text || ''}
+                            onChange={(value) => updateContentBlock(block.id, { text: value })}
+                            placeholder="输入段落内容..."
+                            className="w-full"
+                          />
+                        </div>
+                      )}
+
+                      {block.type === 'image' && (
+                        <div className="space-y-2">
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">图片 URL</label>
+                            <input
+                              className="w-full border rounded px-2 py-1 text-sm"
+                              value={block.imageSrc || ''}
+                              onChange={e => updateContentBlock(block.id, { imageSrc: e.target.value })}
+                              placeholder="图片 URL"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">图片说明</label>
+                            <input
+                              className="w-full border rounded px-2 py-1 text-sm"
+                              value={block.caption || ''}
+                              onChange={e => updateContentBlock(block.id, { caption: e.target.value })}
+                              placeholder="图片说明（可选）"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">宽度</label>
+                            <select
+                              className="w-full border rounded px-2 py-1 text-sm"
+                              value={block.imageWidth || 'contained'}
+                              onChange={e => updateContentBlock(block.id, { imageWidth: e.target.value as 'contained' | 'full-bleed' })}
+                            >
+                              <option value="contained">Contained（行内）</option>
+                              <option value="full-bleed">Full Bleed（全宽）</option>
+                            </select>
+                          </div>
+                        </div>
+                      )}
+
+                      {block.type === 'callout' && (
+                        <div className="space-y-2">
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">月份标签（可选）</label>
+                            <input
+                              className="w-full border rounded px-2 py-1 text-sm"
+                              value={block.monthTag || ''}
+                              onChange={e => updateContentBlock(block.id, { monthTag: e.target.value })}
+                              placeholder="例如：January in Botswana"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">强调色（可选）</label>
+                            <input
+                              className="w-full border rounded px-2 py-1 text-sm"
+                              value={block.highlightColor || '#c0a273'}
+                              onChange={e => updateContentBlock(block.id, { highlightColor: e.target.value })}
+                              placeholder="#c0a273"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1 mb-2">文本内容</label>
+                            <RichTextEditor
+                              value={block.text || ''}
+                              onChange={(value) => updateContentBlock(block.id, { text: value })}
+                              placeholder="输入高亮框内容..."
+                              className="w-full"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {block.type === 'trip_cta' && (
+                        <div className="space-y-2">
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">关联行程</label>
+                            <select
+                              className="w-full border rounded px-2 py-1 text-sm"
+                              value={block.journeyId || ''}
+                              onChange={e => updateContentBlock(block.id, { journeyId: e.target.value })}
+                            >
+                              <option value="">选择行程</option>
+                              {journeys.map(j => (
+                                <option key={j.id} value={j.id}>{j.title}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">CTA 文本（可选）</label>
+                            <input
+                              className="w-full border rounded px-2 py-1 text-sm"
+                              value={block.ctaText || ''}
+                              onChange={e => updateContentBlock(block.id, { ctaText: e.target.value })}
+                              placeholder="Trip Inspiration"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Legacy Content Field (for backward compatibility) */}
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">内容（旧版，如果使用内容块则无需填写）</label>
               <textarea className="w-full border rounded px-3 py-2" value={form.content} onChange={e=>setForm({...form,content:e.target.value})} rows={10} />
             </div>
 
@@ -134,5 +533,3 @@ export default function EditArticlePage() {
     </div>
   );
 }
-
-

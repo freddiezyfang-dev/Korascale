@@ -9,13 +9,26 @@ import { ArticleCard } from '@/components/cards/ArticleCard';
 
 export default function InspirationCategoryPage() {
   const params = useParams();
-  const { articles } = useArticleManagement();
+  const { articles, isLoading } = useArticleManagement();
   const slug = Array.isArray(params?.category) ? params?.category[0] : (params?.category as string);
   const category = ArticleSlugToCategory(slug || '');
   const list = useMemo(() => {
     if (!category) return [];
-    return articles.filter(a => a.category === category && a.status === 'active');
-  }, [articles, category]);
+    const filtered = articles.filter(a => a.category === category && a.status === 'active');
+    // 调试信息
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Category Page Debug:', {
+        categorySlug: slug,
+        category,
+        totalArticles: articles.length,
+        activeArticles: articles.filter(a => a.status === 'active').length,
+        categoryArticles: articles.filter(a => a.category === category).length,
+        filteredArticles: filtered.length,
+        allArticles: articles.map(a => ({ id: a.id, title: a.title, category: a.category, status: a.status, slug: a.slug }))
+      });
+    }
+    return filtered;
+  }, [articles, category, slug]);
   const hero = category ? ArticleCategoryToHeroImage[category] : '';
 
   return (
@@ -39,16 +52,34 @@ export default function InspirationCategoryPage() {
 
       <Section background="secondary" padding="xl">
         <Container size="xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {list.map(a => (
-              <ArticleCard key={a.id} article={a} />
-            ))}
-            {list.length === 0 && (
-              <div className="col-span-full text-center py-10">
-                <Text className="text-gray-600">暂无文章</Text>
+          {isLoading ? (
+            <div className="text-center py-10">
+              <Text className="text-gray-600">加载中...</Text>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {list.map(a => (
+                  <ArticleCard key={a.id} article={a} />
+                ))}
               </div>
-            )}
-          </div>
+              {list.length === 0 && (
+                <div className="col-span-full text-center py-10">
+                  <Text className="text-gray-600 mb-2">暂无文章</Text>
+                  {process.env.NODE_ENV === 'development' && (
+                    <div className="text-xs text-gray-500 mt-4 space-y-1">
+                      <p>调试信息：</p>
+                      <p>分类: {category || '未识别'}</p>
+                      <p>分类 Slug: {slug}</p>
+                      <p>总文章数: {articles.length}</p>
+                      <p>Active 文章数: {articles.filter(a => a.status === 'active').length}</p>
+                      <p>该分类文章数: {articles.filter(a => a.category === category).length}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          )}
         </Container>
       </Section>
     </main>

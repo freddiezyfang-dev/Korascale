@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Container, Section, Heading, Text, Button, Breadcrumb } from '@/components/common';
 import { PlanningSectionNew } from '@/components/sections';
 import { useState, useEffect } from 'react';
+import { useArticleManagement } from '@/context/ArticleManagementContext';
 
 // 图片资源
 const imgHeroBanner = "/images/hero/slide7-emeishan.jpg";
@@ -57,10 +58,16 @@ const inspirations = [
 ];
 
 export default function Inspirations() {
+  const { articles } = useArticleManagement();
   // 设置页面标题
   useEffect(() => {
     document.title = "Inspirations - Korascale";
   }, []);
+
+  // 获取特色文章（取前4篇活跃文章）
+  const featuredArticles = articles
+    .filter(article => article.status === 'active')
+    .slice(0, 4);
 
   return (
     <main>
@@ -98,6 +105,73 @@ export default function Inspirations() {
           </div>
         </div>
       </Section>
+
+      {/* Narrative Header Section */}
+      <Section background="secondary" padding="xl" className="py-20">
+        <Container size="xl">
+          <div className="max-w-4xl mx-auto text-center">
+            <Text 
+              className="text-lg md:text-xl font-body font-light leading-relaxed text-[#4A4A4A]"
+              style={{
+                fontFamily: 'Monda, sans-serif',
+                lineHeight: '2.0',
+                letterSpacing: '0.01em'
+              }}
+            >
+              From chic retreats nestled in ancient mountain villages to soul-stirring locations where tradition meets transformation, our inspirations guide you to places that resonate beyond the surface. Each destination we feature has been carefully selected not just for its beauty, but for its ability to offer genuine encounters with the living culture of Western China.
+            </Text>
+          </div>
+        </Container>
+      </Section>
+
+      {/* Featured Articles Grid */}
+      {featuredArticles.length > 0 && (
+        <Section background="secondary" padding="xl" className="py-20">
+          <Container size="xl">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+              {featuredArticles.map((article) => {
+                const categorySlug = article.category.toLowerCase().replace(/\s+/g, '-');
+                const articleHref = `/inspirations/${categorySlug}/${article.slug}`;
+                
+                return (
+                  <Link 
+                    key={article.id} 
+                    href={articleHref}
+                    className="group cursor-pointer transition-all duration-300 hover:scale-[1.02]"
+                  >
+                    <div className="relative w-full overflow-hidden rounded-lg mb-4">
+                      {/* Image with 4:3 aspect ratio */}
+                      <div className="relative w-full aspect-[4/3] overflow-hidden">
+                        <img
+                          src={article.coverImage}
+                          alt={article.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                      </div>
+                    </div>
+                    {/* Optional Title Section */}
+                    <div className="px-2">
+                      <p 
+                        className="text-xs font-montserrat uppercase tracking-widest text-gray-600 mb-2"
+                        style={{ fontFamily: 'Montserrat, sans-serif' }}
+                      >
+                        {article.category}
+                      </p>
+                      <Heading 
+                        level={3} 
+                        className="text-2xl md:text-3xl font-heading text-[#111] leading-tight"
+                        style={{ fontFamily: 'Montaga, serif' }}
+                      >
+                        {article.title}
+                      </Heading>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </Container>
+        </Section>
+      )}
 
       {/* Ways to Explore Section */}
       <Section background="secondary" padding="xl" className="py-24">
