@@ -22,29 +22,56 @@ export async function GET(request?: NextRequest) {
     console.log('[API /articles] Fetching articles from database...');
     
     // 查询所有文章
-    const { rows } = await query(`
-      SELECT 
-        id,
-        title,
-        slug,
-        author,
-        cover_image,
-        hero_image,
-        reading_time,
-        category,
-        content,
-        content_blocks,
-        excerpt,
-        page_title,
-        meta_description,
-        related_journey_ids,
-        tags,
-        status,
-        created_at,
-        updated_at
-      FROM articles
-      ORDER BY updated_at DESC
-    `, []);
+    let rows;
+    try {
+      const result = await query(`
+        SELECT 
+          id,
+          title,
+          slug,
+          author,
+          cover_image,
+          hero_image,
+          reading_time,
+          category,
+          content,
+          content_blocks,
+          excerpt,
+          page_title,
+          meta_description,
+          related_journey_ids,
+          tags,
+          status,
+          created_at,
+          updated_at
+        FROM articles
+        ORDER BY updated_at DESC
+      `, []);
+      rows = result.rows;
+    } catch (dbError) {
+      const errorMessage = dbError instanceof Error ? dbError.message : String(dbError);
+      console.error('[API /articles] Database query error:', errorMessage);
+      
+      // 检查是否是表不存在的错误
+      if (errorMessage.includes('does not exist') || 
+          errorMessage.includes('relation') || 
+          errorMessage.includes('table') ||
+          errorMessage.includes('articles')) {
+        return NextResponse.json(
+          { 
+            error: 'Articles table does not exist. Please run database migration.',
+            details: process.env.NODE_ENV === 'development' 
+              ? 'Execute the SQL in database/migrations/005_create_articles_table.sql' 
+              : undefined,
+            migrationFile: 'database/migrations/005_create_articles_table.sql'
+          },
+          { status: 500 }
+        );
+      }
+      
+      // 重新抛出其他错误
+      throw dbError;
+    }
     
     // 转换数据库行到 Article 类型
     const articles: Article[] = rows.map((row: any) => ({

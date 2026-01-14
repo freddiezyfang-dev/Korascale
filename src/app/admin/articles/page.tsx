@@ -87,13 +87,34 @@ export default function AdminArticlesPage() {
                 💡 提示：只有状态为 <strong>active</strong> 的文章才会在前端显示。新文章默认为 <strong>draft</strong>，请在列表中切换状态。
               </Text>
               {process.env.NODE_ENV === 'development' && (
-                <div className="text-xs text-gray-500 mt-2">
+                <div className="text-xs text-gray-500 mt-2 space-x-4">
+                  <button
+                    onClick={async () => {
+                      try {
+                        const response = await fetch('/api/articles');
+                        const data = await response.json();
+                        if (data.articles) {
+                          console.log('📊 数据库中的文章:', data.articles);
+                          alert(`数据库中有 ${data.articles.length} 篇文章\n\n请在控制台查看详细信息`);
+                        } else {
+                          alert('API 返回格式错误，请查看控制台');
+                          console.error('API 响应:', data);
+                        }
+                      } catch (error) {
+                        console.error('检查数据库失败:', error);
+                        alert('检查数据库失败，请查看控制台');
+                      }
+                    }}
+                    className="underline"
+                  >
+                    🔍 检查数据库
+                  </button>
                   <button
                     onClick={() => {
                       const stored = localStorage.getItem('articles');
                       if (stored) {
                         const parsed = JSON.parse(stored);
-                        console.log('📦 localStorage 中的文章数据:', parsed);
+                        console.log('💾 localStorage 中的文章数据:', parsed);
                         alert(`localStorage 中有 ${parsed.length} 篇文章\n\n请在控制台查看详细信息`);
                       } else {
                         alert('localStorage 中没有文章数据');
@@ -101,7 +122,43 @@ export default function AdminArticlesPage() {
                     }}
                     className="underline"
                   >
-                    🔍 调试：检查 localStorage 数据
+                    💾 检查 localStorage
+                  </button>
+                  <button
+                    onClick={async () => {
+                      try {
+                        // 从数据库获取
+                        const dbResponse = await fetch('/api/articles');
+                        const dbData = await dbResponse.json();
+                        const dbArticles = dbData.articles || [];
+                        
+                        // 从 localStorage 获取
+                        const localRaw = localStorage.getItem('articles');
+                        const localArticles = localRaw ? JSON.parse(localRaw) : [];
+                        
+                        const message = `
+数据库: ${dbArticles.length} 篇文章
+localStorage: ${localArticles.length} 篇文章
+
+${dbArticles.length > 0 ? '✅ 文章已保存到数据库' : '⚠️ 数据库中暂无文章'}
+${localArticles.length > 0 ? '💾 localStorage 有备份数据' : '💾 localStorage 无数据'}
+
+请在控制台查看详细对比信息
+                        `;
+                        alert(message);
+                        
+                        console.log('📊 对比结果:', {
+                          数据库: dbArticles.map(a => ({ title: a.title, slug: a.slug, status: a.status })),
+                          localStorage: localArticles.map(a => ({ title: a.title, slug: a.slug, status: a.status }))
+                        });
+                      } catch (error) {
+                        console.error('对比失败:', error);
+                        alert('对比失败，请查看控制台');
+                      }
+                    }}
+                    className="underline"
+                  >
+                    🔄 对比数据库 vs localStorage
                   </button>
                 </div>
               )}
