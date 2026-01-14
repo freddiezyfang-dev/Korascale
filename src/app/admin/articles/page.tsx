@@ -14,7 +14,7 @@ import { Plus, Edit, Trash2, Eye, Filter } from 'lucide-react';
 export default function AdminArticlesPage() {
   const { user } = useUser();
   const router = useRouter();
-  const { articles, deleteArticle } = useArticleManagement();
+  const { articles, deleteArticle, updateArticleStatus } = useArticleManagement();
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const { 
@@ -41,7 +41,14 @@ export default function AdminArticlesPage() {
       description: 'This will permanently remove the article and all associated data.',
       itemName: article.title,
       itemType: 'article',
-      onConfirm: () => deleteArticle(article.id)
+      onConfirm: async () => {
+        try {
+          await deleteArticle(article.id);
+        } catch (error) {
+          console.error('[AdminArticles] Error deleting article:', error);
+          alert('删除文章时出错，请检查控制台');
+        }
+      }
     });
   };
 
@@ -76,6 +83,28 @@ export default function AdminArticlesPage() {
             <div>
               <Heading level={1} className="text-3xl font-bold mb-2">Article Management</Heading>
               <Text className="text-gray-600">管理灵感文章，支持分类、SEO 与关联行程</Text>
+              <Text className="text-sm text-amber-600 mt-2">
+                💡 提示：只有状态为 <strong>active</strong> 的文章才会在前端显示。新文章默认为 <strong>draft</strong>，请在列表中切换状态。
+              </Text>
+              {process.env.NODE_ENV === 'development' && (
+                <div className="text-xs text-gray-500 mt-2">
+                  <button
+                    onClick={() => {
+                      const stored = localStorage.getItem('articles');
+                      if (stored) {
+                        const parsed = JSON.parse(stored);
+                        console.log('📦 localStorage 中的文章数据:', parsed);
+                        alert(`localStorage 中有 ${parsed.length} 篇文章\n\n请在控制台查看详细信息`);
+                      } else {
+                        alert('localStorage 中没有文章数据');
+                      }
+                    }}
+                    className="underline"
+                  >
+                    🔍 调试：检查 localStorage 数据
+                  </button>
+                </div>
+              )}
             </div>
             <Link href="/admin/articles/new" className="inline-flex">
               <Button>
@@ -116,7 +145,21 @@ export default function AdminArticlesPage() {
               <Card key={article.id} className="overflow-hidden">
                 <img src={article.coverImage} alt={article.title} className="w-full h-40 object-cover" />
                 <div className="p-4">
-                  <Text className="text-xs text-gray-500 mb-1">{article.category} • {article.status}</Text>
+                  <div className="flex items-center justify-between mb-1">
+                    <Text className="text-xs text-gray-500">{article.category}</Text>
+                    <select
+                      className="text-xs border rounded px-2 py-1 bg-white"
+                      value={article.status}
+                      onChange={(e) => {
+                        updateArticleStatus(article.id, e.target.value as Article['status']);
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <option value="draft">draft</option>
+                      <option value="active">active</option>
+                      <option value="inactive">inactive</option>
+                    </select>
+                  </div>
                   <Heading level={3} className="text-lg font-semibold mb-1">{article.title}</Heading>
                   <Text className="text-sm text-gray-600 mb-3">作者：{article.author}</Text>
                   <div className="flex items-center gap-2">

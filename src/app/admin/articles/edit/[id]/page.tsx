@@ -103,14 +103,19 @@ export default function EditArticlePage() {
     setForm(prev => ({ ...prev, contentBlocks: blocks }));
   };
 
-  const onSubmit = () => {
-    const metaDescription = form.excerpt || form.content.replace(/<[^>]+>/g,'').slice(0, 150);
-    updateArticle(target.id, {
-      ...form,
-      metaDescription,
-      contentBlocks: form.contentBlocks.length > 0 ? form.contentBlocks : undefined
-    });
-    router.push('/admin/articles');
+  const onSubmit = async () => {
+    try {
+      const metaDescription = form.excerpt || (form.content ? form.content.replace(/<[^>]+>/g,'').slice(0, 150) : '');
+      await updateArticle(target.id, {
+        ...form,
+        metaDescription,
+        contentBlocks: form.contentBlocks.length > 0 ? form.contentBlocks : undefined
+      });
+      router.push('/admin/articles');
+    } catch (error) {
+      console.error('[EditArticle] Error updating article:', error);
+      alert('更新文章时出错，请检查控制台');
+    }
   };
 
   const categories: ArticleCategory[] = [

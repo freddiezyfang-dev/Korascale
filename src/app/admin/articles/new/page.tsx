@@ -76,19 +76,35 @@ export default function NewArticlePage() {
     setForm(prev => ({ ...prev, contentBlocks: blocks }));
   };
 
-  const onSubmit = () => {
-    const slug = form.slug || form.title.trim().toLowerCase().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-');
-    const pageTitle = form.title;
-    const metaDescription = form.excerpt || form.content.replace(/<[^>]+>/g,'').slice(0, 150);
-    addArticle({
-      ...form,
-      slug,
-      pageTitle,
-      metaDescription,
-      // Only include contentBlocks if it has items, otherwise use legacy content
-      contentBlocks: form.contentBlocks.length > 0 ? form.contentBlocks : undefined
-    } as Omit<Article, 'id'|'createdAt'|'updatedAt'>);
-    router.push('/admin/articles');
+  const onSubmit = async () => {
+    try {
+      const slug = form.slug || form.title.trim().toLowerCase().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-');
+      const pageTitle = form.title;
+      const metaDescription = form.excerpt || (form.content ? form.content.replace(/<[^>]+>/g,'').slice(0, 150) : '');
+      
+      console.log('[NewArticle] Submitting article:', {
+        title: form.title,
+        slug,
+        category: form.category,
+        status: form.status,
+        hasContentBlocks: form.contentBlocks.length > 0,
+        hasContent: !!form.content
+      });
+      
+      await addArticle({
+        ...form,
+        slug,
+        pageTitle,
+        metaDescription,
+        // Only include contentBlocks if it has items, otherwise use legacy content
+        contentBlocks: form.contentBlocks.length > 0 ? form.contentBlocks : undefined
+      } as Omit<Article, 'id'|'createdAt'|'updatedAt'>);
+      
+      router.push('/admin/articles');
+    } catch (error) {
+      console.error('[NewArticle] Error submitting article:', error);
+      alert('保存文章时出错，请检查控制台');
+    }
   };
 
   const toggleJourney = (id: string) => {

@@ -2,6 +2,7 @@
 // 自动处理与PostgreSQL的交互
 
 import { Journey, JourneyStatus } from '@/types';
+import { Article } from '@/types/article';
 
 // 使用相对路径，在客户端自动使用当前域名
 const getApiUrl = (path: string) => {
@@ -314,6 +315,186 @@ export const uploadAPI = {
       return await Promise.all(uploadPromises);
     } catch (error) {
       console.error('Error uploading images:', error);
+      throw error;
+    }
+  },
+};
+
+// Article API调用
+export const articleAPI = {
+  // 获取所有articles（带重试机制和fallback）
+  async getAll(retries: number = 2): Promise<Article[]> {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const timeoutMs = attempt === 0 ? 30000 : 45000;
+        const apiUrl = getApiUrl('/api/articles');
+        const response = await fetch(apiUrl, {
+          signal: createTimeoutSignal(timeoutMs),
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (!response.ok) {
+          let errorMessage = `Failed to fetch articles (HTTP ${response.status})`;
+          try {
+            const errorData = await response.json();
+            errorMessage = errorData.error || errorMessage;
+          } catch (e) {}
+          
+          if (response.status >= 500 && attempt < retries) {
+            console.warn(`[ArticleAPI] Attempt ${attempt + 1} failed, retrying...`, errorMessage);
+            await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+            continue;
+          }
+          
+          throw new Error(errorMessage);
+        }
+        
+        const data = await response.json();
+        const articles = (data.articles || []).map((a: any) => ({
+          ...a,
+          createdAt: new Date(a.createdAt),
+          updatedAt: new Date(a.updatedAt),
+        }));
+        return articles;
+      } catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') {
+          const timeoutMsg = `Request timeout: Failed to fetch articles within ${attempt === 0 ? 30 : 45} seconds`;
+          console.warn(`[ArticleAPI] ${timeoutMsg} (attempt ${attempt + 1}/${retries + 1})`);
+          
+          if (attempt < retries) {
+            const delay = 2000 * (attempt + 1);
+            console.log(`[ArticleAPI] Retrying after ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            continue;
+          }
+          
+          // Fallback to localStorage
+          try {
+            const stored = localStorage.getItem('articles');
+            if (stored) {
+              console.warn('[ArticleAPI] Falling back to localStorage data due to timeout');
+              return JSON.parse(stored).map((a: any) => ({
+                ...a,
+                createdAt: new Date(a.createdAt),
+                updatedAt: new Date(a.updatedAt),
+              }));
+            }
+          } catch (e) {
+            console.error('[ArticleAPI] Failed to load from localStorage:', e);
+          }
+        } else {
+          console.error('[ArticleAPI] Error fetching articles:', error);
+          
+          if (attempt < retries && error instanceof Error && (
+            error.message.includes('fetch') || 
+            error.message.includes('network') ||
+            error.message.includes('Failed to fetch')
+          )) {
+            console.warn(`[ArticleAPI] Network error on attempt ${attempt + 1}, retrying...`);
+            await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+            continue;
+          }
+        }
+        
+        if (attempt === retries) {
+          // Fallback to localStorage on final failure
+          try {
+            const stored = localStorage.getItem('articles');
+            if (stored) {
+              console.warn('[ArticleAPI] Falling back to localStorage data after all retries failed');
+              return JSON.parse(stored).map((a: any) => ({
+                ...a,
+                createdAt: new Date(a.createdAt),
+                updatedAt: new Date(a.updatedAt),
+              }));
+            }
+          } catch (e) {
+            console.error('[ArticleAPI] Failed to load from localStorage:', e);
+          }
+          console.warn('[ArticleAPI] All retry attempts failed, returning empty array');
+          return [];
+        }
+      }
+    }
+    return [];
+  },
+
+  // 创建新article
+  async create(article: Omit<Article, 'id' | 'createdAt' | 'updatedAt'>): Promise<Article> {
+    try {
+      const response = await fetch(getApiUrl('/api/articles'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(article),
+        signal: createTimeoutSignal(30000),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create article');
+      }
+
+      const data = await response.json();
+      return {
+        ...data.article,
+        createdAt: new Date(data.article.createdAt),
+        updatedAt: new Date(data.article.updatedAt),
+      };
+    } catch (error) {
+      console.error('[ArticleAPI] Error creating article:', error);
+      throw error;
+    }
+  },
+
+  // 更新article
+  async update(id: string, updates: Partial<Omit<Article, 'id' | 'createdAt' | 'updatedAt'>>): Promise<Article> {
+    try {
+      const response = await fetch(getApiUrl(`/api/articles/${id}`), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updates),
+        signal: createTimeoutSignal(30000),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update article');
+      }
+
+      const data = await response.json();
+      return {
+        ...data.article,
+        createdAt: new Date(data.article.createdAt),
+        updatedAt: new Date(data.article.updatedAt),
+      };
+    } catch (error) {
+      console.error('[ArticleAPI] Error updating article:', error);
+      throw error;
+    }
+  },
+
+  // 删除article
+  async delete(id: string): Promise<void> {
+    try {
+      const response = await fetch(getApiUrl(`/api/articles/${id}`), {
+        method: 'DELETE',
+        signal: createTimeoutSignal(30000),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete article');
+      }
+    } catch (error) {
+      console.error('[ArticleAPI] Error deleting article:', error);
       throw error;
     }
   },
