@@ -11,7 +11,7 @@ interface ArticleCardProps {
 
 export const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
   const href = `/inspirations/${ArticleCategoryToSlug[article.category]}/${article.slug}`;
-  const excerpt = article.excerpt || article.content.replace(/<[^>]+>/g, '').slice(0, 140) + '...';
+  const excerpt = article.excerpt || (article.content ? article.content.replace(/<[^>]+>/g, '').slice(0, 140) + '...' : '');
   return (
     <Link href={href} className="block group">
       <Card className="overflow-hidden h-full">
