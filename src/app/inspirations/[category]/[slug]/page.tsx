@@ -212,11 +212,12 @@ export default function ArticleDetailPage() {
         if (!block.imageSrc) return null;
         const isFullBleed = block.imageWidth === 'full-bleed';
         return (
-          <div className={`mb-8 ${isFullBleed ? 'w-full -mx-4 md:-mx-8 lg:-mx-16' : 'max-w-prose mx-auto'}`}>
+          <div className={`mb-8 ${isFullBleed ? 'w-full -mx-4 md:-mx-8 lg:-mx-16 max-w-full overflow-hidden' : 'max-w-prose mx-auto w-full'}`}>
             <img
               src={block.imageSrc}
               alt={block.caption || ''}
-              className={`w-full ${isFullBleed ? 'object-cover' : 'object-contain'} rounded-lg`}
+              className={`w-full max-w-full h-auto ${isFullBleed ? 'object-cover' : 'object-contain'} rounded-lg`}
+              style={{ maxWidth: '100%', height: 'auto' }}
             />
             {block.caption && (
               <p className="text-sm text-gray-600 mt-2 text-center italic" style={{ fontFamily: 'Montserrat, sans-serif' }}>
@@ -287,7 +288,7 @@ export default function ArticleDetailPage() {
   };
 
   return (
-    <main>
+    <main className="overflow-x-hidden w-full max-w-full">
       <Head>
         <title>{safeArticle.pageTitle || safeArticle.title}</title>
         {safeArticle.metaDescription && <meta name="description" content={safeArticle.metaDescription} />}
@@ -313,8 +314,8 @@ export default function ArticleDetailPage() {
       </Section>
 
       {/* Article Header (Jacada Style) */}
-      <Section background="secondary" padding="xl" className="pt-12 pb-8 flex flex-col">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      <Section background="secondary" padding="xl" className="pt-12 pb-8 flex flex-col overflow-x-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full min-w-0">
           {/* 统一容器：标题和正文使用相同的 max-w-4xl 约束，左对齐 */}
           <div className="max-w-4xl mx-0 mb-8 min-w-0 w-full">
             <Text className="text-sm text-gray-600 mb-4 uppercase tracking-widest font-sans">
@@ -393,9 +394,9 @@ export default function ArticleDetailPage() {
       </Section>
 
       {/* Content Stream */}
-      <Section background="secondary" padding="xl" className="overflow-hidden flex flex-col">
+      <Section background="secondary" padding="xl" className="overflow-x-hidden flex flex-col">
         {/* 使用与标题相同的 max-w 约束，确保对齐 */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full min-w-0">
           {/* 直接使用 max-w-4xl 匹配标题宽度，左对齐 */}
           <div className="max-w-4xl mx-0 w-full">
             <article className="w-full min-w-0 overflow-x-hidden">

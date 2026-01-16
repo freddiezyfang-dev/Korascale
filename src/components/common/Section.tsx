@@ -37,6 +37,7 @@ export function Section({
       className={cn(
         backgroundClasses[background],
         paddingClasses[padding],
+        'w-full overflow-x-hidden', // 防止水平滚动
         className
       )}
     >

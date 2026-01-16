@@ -26,6 +26,9 @@
 
 html {
   scroll-behavior: smooth; /* 启用平滑滚动 */
+  overflow-x: hidden; /* 防止水平滚动 */
+  width: 100%;
+  max-width: 100vw; /* 确保不超过视口宽度 */
 }
 
 html, body {
@@ -33,6 +36,30 @@ html, body {
   padding: 0;
   font-family: inherit;
   color: inherit;
+  overflow-x: hidden; /* 防止水平滚动 */
+  width: 100%;
+  max-width: 100vw; /* 确保不超过视口宽度 */
+  position: relative;
+}
+
+/* 全局防止所有元素溢出 */
+* {
+  box-sizing: border-box;
+}
+
+/* 移动端全局溢出控制 */
+@media (max-width: 640px) {
+  * {
+    max-width: 100% !important;
+  }
+  
+  /* 排除某些需要溢出的元素 */
+  pre,
+  code,
+  textarea {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+  }
 }
 
 body {
@@ -173,23 +200,90 @@ a:hover {
 
 /* 移动端响应式优化 */
 @media (max-width: 640px) {
+  /* 全局防止水平滚动 */
+  html, body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    position: relative;
+  }
+  
+  main {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  /* 所有 section 和容器防止溢出 */
+  section,
+  div,
+  article {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+  
+  /* 确保 flex 和 grid 容器不会溢出 */
+  [class*="flex"],
+  [class*="grid"] {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  
+  /* 图片防止溢出 */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  
   .prose-force-wrap {
     /* 核心：只在必要时折行，不乱拆单词 */
     word-break: normal !important; 
     overflow-wrap: break-word !important;
     hyphens: none !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow-x: hidden !important;
   }
   
   .prose-force-wrap p {
     /* 增加行高，提升 A&K 风格的阅读感 */
     line-height: 1.8 !important;
     white-space: normal !important;
+    max-width: 100% !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    overflow-x: hidden !important;
   }
   
   /* 只有这些"长钉子"才允许乱断 */
   .prose-force-wrap a, 
-  .prose-force-wrap code {
+  .prose-force-wrap code,
+  .prose-force-wrap pre {
     word-break: break-all !important;
+    overflow-wrap: anywhere !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+  }
+  
+  /* 确保所有文本元素都能换行 */
+  .prose-force-wrap h1,
+  .prose-force-wrap h2,
+  .prose-force-wrap h3,
+  .prose-force-wrap h4,
+  .prose-force-wrap h5,
+  .prose-force-wrap h6 {
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+  
+  /* 表格防止溢出 */
+  .prose-force-wrap table {
+    display: block !important;
+    overflow-x: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 }
 
