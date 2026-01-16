@@ -227,9 +227,9 @@ a:hover {
 
 /* 确保所有段落继承该逻辑 */
 .prose-force-wrap p {
-  /* 1. 最核心修改：严禁任何形式的单词内断行 */
-  word-break: keep-all !important; 
-  /* 2. 只有在空格处才允许换行 */
+  /* 1. 使用 normal，配合 overflow-wrap: break-word 实现智能换行 */
+  word-break: normal !important; 
+  /* 2. 只有在空格处才允许换行，如果一行放不下整个单词，将整个单词移到下一行 */
   overflow-wrap: break-word !important; 
   word-wrap: break-word !important;
   /* 3. 彻底关掉连字符渲染 */
@@ -317,9 +317,9 @@ a:hover {
   
   /* 确保所有段落继承该逻辑 */
   .prose-force-wrap p {
-    /* 1. 最核心修改：严禁任何形式的单词内断行 */
-    word-break: keep-all !important; 
-    /* 2. 只有在空格处才允许换行 */
+    /* 1. 使用 normal，配合 overflow-wrap: break-word 实现智能换行 */
+    word-break: normal !important; 
+    /* 2. 只有在空格处才允许换行，如果一行放不下整个单词，将整个单词移到下一行 */
     overflow-wrap: break-word !important; 
     word-wrap: break-word !important;
     /* 3. 彻底关掉连字符渲染 */
