@@ -414,7 +414,7 @@ export default function ArticleDetailPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full min-w-0">
           {/* 直接使用 max-w-4xl 匹配标题宽度，左对齐 */}
           <div className="max-w-4xl mx-0 w-full min-w-0" style={{ paddingRight: '2px' }}>
-            <article className="w-full min-w-0 max-w-full">
+            <article className="w-full min-w-0 max-w-full prose-force-wrap">
               <div
                 className="prose prose-lg prose-slate w-full max-w-none prose-force-wrap
                            prose-headings:font-serif prose-headings:text-[#111] 

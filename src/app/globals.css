@@ -227,14 +227,22 @@ a:hover {
 
 /* 确保所有段落继承该逻辑 */
 .prose-force-wrap p {
-  /* 移除任何可能导致文字挤压的内边距，交给父级处理 */
-  margin-right: 0 !important;
-  /* 强制段落继承不折断单词的逻辑 */
-  word-break: keep-all !important;
-  overflow-wrap: break-word !important;
+  /* 1. 彻底禁用连字符，防止出现 slo-wly */
+  -webkit-hyphens: none !important;
+  -ms-hyphens: none !important;
+  hyphens: none !important;
+
+  /* 2. 强制浏览器将整个单词移到下一行 */
+  word-break: break-word !important; /* 兼容旧版 */
+  overflow-wrap: break-word !important; 
   word-wrap: break-word !important;
-  /* 增加一个极其微小的右边距，给浏览器留出计算"余地" */
-  padding-right: 1px !important; 
+  
+  /* 3. 严禁 keep-all，因为它在某些浏览器下会导致计算溢出后暴力截断 */
+  /* 改回 normal 配合 break-word 是最稳妥的排版方式 */
+  word-break: normal !important; 
+
+  /* 4. 解决亚像素挤压：给右侧留出一点余量 */
+  padding-right: 5px !important;
   text-align: left !important;
   line-height: 1.8 !important;
   white-space: normal !important;
@@ -311,14 +319,22 @@ a:hover {
   
   /* 确保所有段落继承该逻辑 */
   .prose-force-wrap p {
-    /* 移除任何可能导致文字挤压的内边距，交给父级处理 */
-    margin-right: 0 !important;
-    /* 强制段落继承不折断单词的逻辑 */
-    word-break: keep-all !important;
-    overflow-wrap: break-word !important;
+    /* 1. 彻底禁用连字符，防止出现 slo-wly */
+    -webkit-hyphens: none !important;
+    -ms-hyphens: none !important;
+    hyphens: none !important;
+
+    /* 2. 强制浏览器将整个单词移到下一行 */
+    word-break: break-word !important; /* 兼容旧版 */
+    overflow-wrap: break-word !important; 
     word-wrap: break-word !important;
-    /* 增加一个极其微小的右边距，给浏览器留出计算"余地" */
-    padding-right: 1px !important; 
+    
+    /* 3. 严禁 keep-all，因为它在某些浏览器下会导致计算溢出后暴力截断 */
+    /* 改回 normal 配合 break-word 是最稳妥的排版方式 */
+    word-break: normal !important; 
+
+    /* 4. 解决亚像素挤压：给右侧留出一点余量 */
+    padding-right: 5px !important;
     text-align: left !important;
     line-height: 1.8 !important;
     white-space: normal !important;
