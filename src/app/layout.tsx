@@ -49,7 +49,7 @@ export default function RootLayout({
 					rel="stylesheet"
 				/>
 			</head>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden`}>
+			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
 				<UserProvider>
 					<OrderManagementProvider>
 						<HotelManagementProvider>
