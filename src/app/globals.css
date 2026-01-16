@@ -108,6 +108,7 @@ a:hover {
   overflow-wrap: break-word;
   word-wrap: break-word;
   hyphens: none;
+  text-align: left; /* 防止 justify 导致的问题 */
 }
 
 .prose h1 {
@@ -134,6 +135,8 @@ a:hover {
   word-wrap: break-word;
   hyphens: none;
   display: block;
+  text-align: left; /* 防止 justify 导致的问题 */
+  min-width: 0; /* 防止宽度计算误差 */
 }
 
 .prose ul,
@@ -199,32 +202,44 @@ a:hover {
   max-width: none;
 }
 
-/* 强制文本换行样式 - 允许正常折行，但保护单词不被拆分 */
+/* 修改后的强制换行样式 */
 .prose-force-wrap {
-  /* 允许正常折行，但保护单词不被拆分 */
   word-break: normal !important; 
-  /* 关键修改：使用 break-word。它会优先寻找空格换行，
-     只有当整行都放不下一个超长字符串时才会断开，这才是"自动换行"的正确姿势 */
+  /* anywhere 比 break-word 更智能，但重点是我们要配合对其方式 */
   overflow-wrap: break-word !important; 
   word-wrap: break-word !important; 
   
   hyphens: none !important;
   max-width: 100% !important;
   width: 100% !important;
-  /* 移除溢出隐藏，或者确保父级有正确的宽度 */
-  overflow-x: visible !important;
   white-space: normal !important;
+  /* 关键：确保文本左对齐，防止 justify 导致的宽度计算波动 */
+  text-align: left !important;
 }
 
 .prose-force-wrap p {
   line-height: 1.8 !important;
   white-space: normal !important;
-  max-width: 100% !important;
-  /* 确保段落能够感知容器宽度 */
   display: block !important;
+  word-break: normal !important;
+  /* 确保段落不会因为某种缩放属性而产生 0.5px 的宽度误差 */
+  min-width: 0 !important;
+  overflow-wrap: break-word !important;
+  word-wrap: break-word !important;
+  text-align: left !important;
+}
+
+/* 针对标题也做同样的保护 */
+.prose-force-wrap h1,
+.prose-force-wrap h2,
+.prose-force-wrap h3,
+.prose-force-wrap h4,
+.prose-force-wrap h5,
+.prose-force-wrap h6 {
   word-break: normal !important;
   overflow-wrap: break-word !important;
   word-wrap: break-word !important;
+  text-align: left !important;
 }
 
 /* 移动端响应式优化 */
@@ -264,29 +279,27 @@ a:hover {
   }
   
   .prose-force-wrap {
-    /* 允许正常折行，但保护单词不被拆分 */
     word-break: normal !important; 
-    /* 关键修改：使用 break-word。它会优先寻找空格换行，
-       只有当整行都放不下一个超长字符串时才会断开 */
     overflow-wrap: break-word !important; 
     word-wrap: break-word !important; 
     hyphens: none !important;
     max-width: 100% !important;
     width: 100% !important;
-    overflow-x: visible !important;
     white-space: normal !important;
+    /* 关键：确保文本左对齐，防止 justify 导致的宽度计算波动 */
+    text-align: left !important;
   }
   
   .prose-force-wrap p {
-    /* 增加行高，提升 A&K 风格的阅读感 */
     line-height: 1.8 !important;
     white-space: normal !important;
-    max-width: 100% !important;
-    /* 确保段落能够感知容器宽度 */
     display: block !important;
     word-break: normal !important;
+    /* 确保段落不会因为某种缩放属性而产生 0.5px 的宽度误差 */
+    min-width: 0 !important;
     overflow-wrap: break-word !important;
     word-wrap: break-word !important;
+    text-align: left !important;
   }
   
   /* 只有这些"长钉子"才允许乱断 */
@@ -299,7 +312,7 @@ a:hover {
     overflow-x: auto !important;
   }
   
-  /* 确保所有文本元素都能换行，但不拆分单词 */
+  /* 针对标题也做同样的保护 */
   .prose-force-wrap h1,
   .prose-force-wrap h2,
   .prose-force-wrap h3,
@@ -309,6 +322,7 @@ a:hover {
     word-break: normal !important;
     overflow-wrap: break-word !important;
     word-wrap: break-word !important;
+    text-align: left !important;
     max-width: 100% !important;
   }
   
@@ -319,6 +333,8 @@ a:hover {
     word-break: normal !important;
     overflow-wrap: break-word !important;
     word-wrap: break-word !important;
+    text-align: left !important;
+    min-width: 0 !important;
   }
   
   /* 表格防止溢出 */
