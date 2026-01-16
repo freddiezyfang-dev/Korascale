@@ -227,25 +227,19 @@ a:hover {
 
 /* 确保所有段落继承该逻辑 */
 .prose-force-wrap p {
-  /* 1. 使用 normal，配合 overflow-wrap: break-word 实现智能换行 */
-  word-break: normal !important; 
-  /* 2. 只有在空格处才允许换行，如果一行放不下整个单词，将整个单词移到下一行 */
-  overflow-wrap: break-word !important; 
-  word-wrap: break-word !important;
-  /* 3. 彻底关掉连字符渲染 */
-  -webkit-hyphens: none !important;
-  -ms-hyphens: none !important;
+  /* 1. 彻底回归标准换行：这是解决单词折断的工业标准 */
+  word-break: break-word !important; 
+  overflow-wrap: break-word !important;
+  
+  /* 2. 严禁任何连字符：防止 i-mpressive 里的那个小横杠 */
   hyphens: none !important;
-  /* 4. 增加微小字间距，有时能缓解浏览器的计算误差 */
-  letter-spacing: 0.01em;
-  /* 5. 确保左对齐 */
-  text-align: left !important;
-  /* 6. 关键：把之前设置的 padding-right 改大，给浏览器留缓冲 */
-  padding-right: 1.5rem !important; 
-  line-height: 1.8 !important;
-  white-space: normal !important;
+  
+  /* 3. 移除 padding：不要给浏览器增加计算负担 */
+  padding-right: 0 !important;
+  
+  /* 4. 确保宽度计算是基于包含块的 */
   display: block !important;
-  min-width: 0 !important;
+  width: auto !important; 
 }
 
 /* 针对标题也做同样的保护 */
@@ -317,25 +311,19 @@ a:hover {
   
   /* 确保所有段落继承该逻辑 */
   .prose-force-wrap p {
-    /* 1. 使用 normal，配合 overflow-wrap: break-word 实现智能换行 */
-    word-break: normal !important; 
-    /* 2. 只有在空格处才允许换行，如果一行放不下整个单词，将整个单词移到下一行 */
-    overflow-wrap: break-word !important; 
-    word-wrap: break-word !important;
-    /* 3. 彻底关掉连字符渲染 */
-    -webkit-hyphens: none !important;
-    -ms-hyphens: none !important;
+    /* 1. 彻底回归标准换行：这是解决单词折断的工业标准 */
+    word-break: break-word !important; 
+    overflow-wrap: break-word !important;
+    
+    /* 2. 严禁任何连字符：防止 i-mpressive 里的那个小横杠 */
     hyphens: none !important;
-    /* 4. 增加微小字间距，有时能缓解浏览器的计算误差 */
-    letter-spacing: 0.01em;
-    /* 5. 确保左对齐 */
-    text-align: left !important;
-    /* 6. 关键：把之前设置的 padding-right 改大，给浏览器留缓冲 */
-    padding-right: 1.5rem !important; 
-    line-height: 1.8 !important;
-    white-space: normal !important;
+    
+    /* 3. 移除 padding：不要给浏览器增加计算负担 */
+    padding-right: 0 !important;
+    
+    /* 4. 确保宽度计算是基于包含块的 */
     display: block !important;
-    min-width: 0 !important;
+    width: auto !important; 
   }
   
   /* 只有这些"长钉子"才允许乱断 */
