@@ -314,20 +314,20 @@ export default function ArticleDetailPage() {
 
       {/* Article Header (Jacada Style) */}
       <Section background="secondary" padding="xl" className="pt-12 pb-8 flex flex-col">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           {/* 统一容器：标题和正文使用相同的 max-w-4xl 约束，左对齐 */}
-          <div className="max-w-4xl mx-0 mb-8 min-w-0">
+          <div className="max-w-4xl mx-0 mb-8 min-w-0 w-full">
             <Text className="text-sm text-gray-600 mb-4 uppercase tracking-widest font-sans">
               {readingTime}
             </Text>
             <Heading 
               level={1} 
-              className="text-4xl md:text-5xl lg:text-6xl font-heading text-[#111] leading-tight min-w-0"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-heading text-[#111] leading-tight min-w-0 break-words"
               style={{ 
                 fontFamily: 'Playfair Display, serif',
-                wordBreak: 'normal',      // 保证单词不被拆分
-                overflowWrap: 'anywhere',  // 仅在必要时换行
-                hyphens: 'none'           // 禁用浏览器自动连字符
+                wordBreak: 'break-word',
+                overflowWrap: 'break-word',
+                hyphens: 'auto'
               }}
             >
               {safeArticle.title}
@@ -395,10 +395,10 @@ export default function ArticleDetailPage() {
       {/* Content Stream */}
       <Section background="secondary" padding="xl" className="overflow-hidden flex flex-col">
         {/* 使用与标题相同的 max-w 约束，确保对齐 */}
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           {/* 直接使用 max-w-4xl 匹配标题宽度，左对齐 */}
-          <div className="max-w-4xl mx-0">
-            <article className="w-full min-w-0">
+          <div className="max-w-4xl mx-0 w-full">
+            <article className="w-full min-w-0 overflow-x-hidden">
               <div
                 className="prose prose-lg prose-slate w-full max-w-none prose-force-wrap
                            prose-headings:font-serif prose-headings:text-[#111] 

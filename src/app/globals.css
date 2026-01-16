@@ -171,6 +171,28 @@ a:hover {
   overflow-wrap: break-word !important;
 }
 
+/* 移动端响应式优化 */
+@media (max-width: 640px) {
+  .prose-force-wrap {
+    /* 核心：只在必要时折行，不乱拆单词 */
+    word-break: normal !important; 
+    overflow-wrap: break-word !important;
+    hyphens: none !important;
+  }
+  
+  .prose-force-wrap p {
+    /* 增加行高，提升 A&K 风格的阅读感 */
+    line-height: 1.8 !important;
+    white-space: normal !important;
+  }
+  
+  /* 只有这些"长钉子"才允许乱断 */
+  .prose-force-wrap a, 
+  .prose-force-wrap code {
+    word-break: break-all !important;
+  }
+}
+
 /* 按钮基础样式 */
 button {
   font-family: var(--font-body);
