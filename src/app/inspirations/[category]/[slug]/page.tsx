@@ -323,12 +323,12 @@ export default function ArticleDetailPage() {
             </Text>
             <Heading 
               level={1} 
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-heading text-[#111] leading-tight min-w-0 break-words"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-heading text-[#111] leading-tight min-w-0"
               style={{ 
                 fontFamily: 'Playfair Display, serif',
-                wordBreak: 'break-word',
-                overflowWrap: 'break-word',
-                hyphens: 'auto'
+                wordBreak: 'normal',
+                overflowWrap: 'normal',
+                hyphens: 'none'
               }}
             >
               {safeArticle.title}

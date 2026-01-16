@@ -104,6 +104,9 @@ a:hover {
   margin-top: 2em;
   margin-bottom: 1em;
   line-height: 1.2;
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
 }
 
 .prose h1 {
@@ -125,6 +128,9 @@ a:hover {
   margin-bottom: 1.25em;
   font-family: 'Montserrat', sans-serif;
   line-height: 1.8; /* 增加行高，提供更多呼吸空间 */
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
 }
 
 .prose ul,
@@ -195,7 +201,8 @@ a:hover {
   word-break: normal !important;
   white-space: normal !important;
   hyphens: none !important;
-  overflow-wrap: break-word !important;
+  overflow-wrap: normal !important; /* 改为 normal，只在空格处换行 */
+  word-wrap: normal !important; /* 兼容旧浏览器 */
 }
 
 /* 移动端响应式优化 */
@@ -236,9 +243,10 @@ a:hover {
   }
   
   .prose-force-wrap {
-    /* 核心：只在必要时折行，不乱拆单词 */
+    /* 核心：只在空格处折行，绝不拆分单词 */
     word-break: normal !important; 
-    overflow-wrap: break-word !important;
+    overflow-wrap: normal !important; /* 只在空格处换行 */
+    word-wrap: normal !important; /* 兼容旧浏览器 */
     hyphens: none !important;
     max-width: 100% !important;
     width: 100% !important;
@@ -251,7 +259,8 @@ a:hover {
     white-space: normal !important;
     max-width: 100% !important;
     word-break: normal !important;
-    overflow-wrap: break-word !important;
+    overflow-wrap: normal !important; /* 只在空格处换行 */
+    word-wrap: normal !important;
     overflow-x: hidden !important;
   }
   
@@ -265,7 +274,7 @@ a:hover {
     overflow-x: auto !important;
   }
   
-  /* 确保所有文本元素都能换行 */
+  /* 确保所有文本元素都能换行，但不拆分单词 */
   .prose-force-wrap h1,
   .prose-force-wrap h2,
   .prose-force-wrap h3,
@@ -273,9 +282,19 @@ a:hover {
   .prose-force-wrap h5,
   .prose-force-wrap h6 {
     word-break: normal !important;
-    overflow-wrap: break-word !important;
+    overflow-wrap: normal !important; /* 只在空格处换行 */
+    word-wrap: normal !important;
     max-width: 100% !important;
     overflow-x: hidden !important;
+  }
+  
+  /* 所有文本内容元素 */
+  .prose-force-wrap div,
+  .prose-force-wrap span,
+  .prose-force-wrap li {
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    word-wrap: normal !important;
   }
   
   /* 表格防止溢出 */
