@@ -47,6 +47,12 @@ export default function ArticleDetailPage() {
     return items;
   }, [article]);
 
+  // 清理软换行字符（&shy; 和 \u00AD）
+  const cleanContent = (content: string | undefined): string => {
+    if (!content) return '';
+    return content.replace(/&shy;|\u00AD/g, '');
+  };
+
   // 调试信息：获取所有文章用于诊断
   const { articles } = useArticleManagement();
   
@@ -204,7 +210,7 @@ export default function ArticleDetailPage() {
         return (
           <div
             className="prose prose-lg prose-slate max-w-none w-full prose-force-wrap prose-headings:font-serif prose-headings:text-[#111] prose-p:font-sans prose-p:text-[#333] prose-p:leading-[1.8] prose-img:rounded-sm prose-img:w-full mb-6"
-            dangerouslySetInnerHTML={{ __html: block.text }}
+            dangerouslySetInnerHTML={{ __html: cleanContent(block.text) }}
           />
         );
 
@@ -245,7 +251,7 @@ export default function ArticleDetailPage() {
             {block.text && (
               <div
                 className="prose prose-base prose-slate max-w-none w-full prose-force-wrap prose-headings:font-serif prose-headings:text-[#111] prose-p:font-sans prose-p:text-[#333] prose-p:leading-[1.8] prose-img:rounded-sm prose-img:w-full"
-                dangerouslySetInnerHTML={{ __html: block.text }}
+                dangerouslySetInnerHTML={{ __html: cleanContent(block.text) }}
               />
             )}
           </div>
@@ -398,7 +404,7 @@ export default function ArticleDetailPage() {
         {/* 使用与标题相同的 max-w 约束，确保对齐 */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full min-w-0">
           {/* 直接使用 max-w-4xl 匹配标题宽度，左对齐 */}
-          <div className="max-w-4xl mx-0 w-full min-w-0">
+          <div className="max-w-4xl mx-0 w-full min-w-0" style={{ paddingRight: '2px' }}>
             <article className="w-full min-w-0 max-w-full">
               <div
                 className="prose prose-lg prose-slate w-full max-w-none prose-force-wrap
@@ -413,7 +419,7 @@ export default function ArticleDetailPage() {
                   ))
                 ) : (
                   safeArticle.content && (
-                    <div dangerouslySetInnerHTML={{ __html: safeArticle.content as string }} />
+                    <div dangerouslySetInnerHTML={{ __html: cleanContent(safeArticle.content) }} />
                   )
                 )}
               </div>

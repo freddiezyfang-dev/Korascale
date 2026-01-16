@@ -209,20 +209,22 @@ a:hover {
 
 /* 消除行尾折断：改"暴力断行"为"智能换行" */
 .prose-force-wrap {
-  /* 1. 恢复正常单词折行，严禁 break-all */
+  /* 1. 核心：严禁在单词中间拆分 */
+  word-break: keep-all !important; /* 针对中英文混排更稳健 */
   word-break: normal !important; 
   
-  /* 2. 关键：使用 break-word。它会在行尾放不下单词时，将整个单词移到下一行 */
+  /* 2. 只有在单词实在太长超过一整行时才允许折断（兜底） */
   overflow-wrap: break-word !important; 
   word-wrap: break-word !important; 
   
-  /* 3. 核心修复：严禁两端对齐 (Justify) */
-  /* 因为两端对齐会为了填满行尾而导致浏览器在不该断的地方计算错误 */
-  text-align: left !important; 
+  /* 3. 关键：强制左对齐，取消任何可能的两端对齐计算 */
+  text-align: left !important;
   
-  /* 4. 辅助属性 */
-  white-space: normal !important;
+  /* 4. 给右侧留出 1px 的呼吸空间，防止亚像素溢出触发折断 */
+  padding-right: 1px !important; 
+  
   hyphens: none !important;
+  white-space: normal !important;
   display: block !important;
   max-width: 100% !important;
   width: 100% !important;
@@ -231,6 +233,7 @@ a:hover {
 
 /* 确保所有段落继承该逻辑 */
 .prose-force-wrap p {
+  /* 确保段落继承上述逻辑 */
   word-break: normal !important;
   overflow-wrap: break-word !important;
   word-wrap: break-word !important;
@@ -292,19 +295,22 @@ a:hover {
   }
   
   .prose-force-wrap {
-    /* 1. 恢复正常单词折行，严禁 break-all */
+    /* 1. 核心：严禁在单词中间拆分 */
+    word-break: keep-all !important; /* 针对中英文混排更稳健 */
     word-break: normal !important; 
     
-    /* 2. 关键：使用 break-word。它会在行尾放不下单词时，将整个单词移到下一行 */
+    /* 2. 只有在单词实在太长超过一整行时才允许折断（兜底） */
     overflow-wrap: break-word !important; 
     word-wrap: break-word !important; 
     
-    /* 3. 核心修复：严禁两端对齐 (Justify) */
-    text-align: left !important; 
+    /* 3. 关键：强制左对齐，取消任何可能的两端对齐计算 */
+    text-align: left !important;
     
-    /* 4. 辅助属性 */
-    white-space: normal !important;
+    /* 4. 给右侧留出 1px 的呼吸空间，防止亚像素溢出触发折断 */
+    padding-right: 1px !important; 
+    
     hyphens: none !important;
+    white-space: normal !important;
     display: block !important;
     max-width: 100% !important;
     width: 100% !important;
@@ -313,6 +319,7 @@ a:hover {
   
   /* 确保所有段落继承该逻辑 */
   .prose-force-wrap p {
+    /* 确保段落继承上述逻辑 */
     word-break: normal !important;
     overflow-wrap: break-word !important;
     word-wrap: break-word !important;
