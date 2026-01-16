@@ -409,12 +409,11 @@ export default function ArticleDetailPage() {
       </Section>
 
       {/* Content Stream */}
-      <Section background="secondary" padding="xl" className="flex flex-col">
-        {/* 使用与标题相同的 max-w 约束，确保对齐 */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full min-w-0">
-          {/* 直接使用 max-w-4xl 匹配标题宽度，左对齐 */}
-          <div className="max-w-4xl mx-0 w-full min-w-0" style={{ paddingRight: '2px' }}>
-            <article className="w-full min-w-0 max-w-full prose-force-wrap">
+      <Section background="secondary" padding="xl" className="w-full overflow-hidden">
+        <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6">
+          {/* 重点：不要让 Grid 容器限制死 article 的宽度计算 */}
+          <div className="flex flex-col gap-8">
+            <article className="flex-1 min-w-0 prose-force-wrap w-full">
               <div
                 className="prose prose-lg prose-slate w-full max-w-none prose-force-wrap
                            prose-headings:font-serif prose-headings:text-[#111] 
