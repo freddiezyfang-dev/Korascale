@@ -210,33 +210,31 @@ a:hover {
 /* 消除行尾折断：改"暴力断行"为"智能换行" */
 .prose-force-wrap {
   /* 1. 核心：严禁在单词中间拆分 */
-  word-break: keep-all !important; /* 针对中英文混排更稳健 */
-  word-break: normal !important; 
-  
-  /* 2. 只有在单词实在太长超过一整行时才允许折断（兜底） */
+  word-break: keep-all !important; 
+  /* 2. 兼容性保障：寻找空格换行 */
   overflow-wrap: break-word !important; 
   word-wrap: break-word !important; 
-  
-  /* 3. 关键：强制左对齐，取消任何可能的两端对齐计算 */
-  text-align: left !important;
-  
-  /* 4. 给右侧留出 1px 的呼吸空间，防止亚像素溢出触发折断 */
-  padding-right: 1px !important; 
-  
+  /* 3. 禁止浏览器自动添加连字符（防止 slo-wly 现象） */
   hyphens: none !important;
-  white-space: normal !important;
+  /* 4. 关键：强制左对齐，不使用两端对齐 */
+  text-align: left !important;
+  /* 5. 布局稳定性：防止容器宽度计算误差 */
   display: block !important;
-  max-width: 100% !important;
   width: 100% !important;
+  max-width: 100% !important;
   min-width: 0 !important;
 }
 
 /* 确保所有段落继承该逻辑 */
 .prose-force-wrap p {
-  /* 确保段落继承上述逻辑 */
-  word-break: normal !important;
+  /* 移除任何可能导致文字挤压的内边距，交给父级处理 */
+  margin-right: 0 !important;
+  /* 强制段落继承不折断单词的逻辑 */
+  word-break: keep-all !important;
   overflow-wrap: break-word !important;
   word-wrap: break-word !important;
+  /* 增加一个极其微小的右边距，给浏览器留出计算"余地" */
+  padding-right: 1px !important; 
   text-align: left !important;
   line-height: 1.8 !important;
   white-space: normal !important;
@@ -296,33 +294,31 @@ a:hover {
   
   .prose-force-wrap {
     /* 1. 核心：严禁在单词中间拆分 */
-    word-break: keep-all !important; /* 针对中英文混排更稳健 */
-    word-break: normal !important; 
-    
-    /* 2. 只有在单词实在太长超过一整行时才允许折断（兜底） */
+    word-break: keep-all !important; 
+    /* 2. 兼容性保障：寻找空格换行 */
     overflow-wrap: break-word !important; 
     word-wrap: break-word !important; 
-    
-    /* 3. 关键：强制左对齐，取消任何可能的两端对齐计算 */
-    text-align: left !important;
-    
-    /* 4. 给右侧留出 1px 的呼吸空间，防止亚像素溢出触发折断 */
-    padding-right: 1px !important; 
-    
+    /* 3. 禁止浏览器自动添加连字符（防止 slo-wly 现象） */
     hyphens: none !important;
-    white-space: normal !important;
+    /* 4. 关键：强制左对齐，不使用两端对齐 */
+    text-align: left !important;
+    /* 5. 布局稳定性：防止容器宽度计算误差 */
     display: block !important;
-    max-width: 100% !important;
     width: 100% !important;
+    max-width: 100% !important;
     min-width: 0 !important;
   }
   
   /* 确保所有段落继承该逻辑 */
   .prose-force-wrap p {
-    /* 确保段落继承上述逻辑 */
-    word-break: normal !important;
+    /* 移除任何可能导致文字挤压的内边距，交给父级处理 */
+    margin-right: 0 !important;
+    /* 强制段落继承不折断单词的逻辑 */
+    word-break: keep-all !important;
     overflow-wrap: break-word !important;
     word-wrap: break-word !important;
+    /* 增加一个极其微小的右边距，给浏览器留出计算"余地" */
+    padding-right: 1px !important; 
     text-align: left !important;
     line-height: 1.8 !important;
     white-space: normal !important;

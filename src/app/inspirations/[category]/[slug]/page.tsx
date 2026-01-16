@@ -21,7 +21,7 @@ export default function ArticleDetailPage() {
   const slug = Array.isArray(params?.slug) ? params?.slug[0] : (params?.slug as string);
   const categorySlug = Array.isArray(params?.category) ? params?.category[0] : (params?.category as string);
   const category = ArticleSlugToCategory(categorySlug || '');
-  const { getArticleBySlug } = useArticleManagement();
+  const { getArticleBySlug, isLoading, articles } = useArticleManagement();
   const { journeys } = useJourneyManagement();
 
   const article = getArticleBySlug(slug || '');
@@ -52,9 +52,18 @@ export default function ArticleDetailPage() {
     if (!content) return '';
     return content.replace(/&shy;|\u00AD/g, '');
   };
-
-  // 调试信息：获取所有文章用于诊断
-  const { articles } = useArticleManagement();
+  
+  // 显示加载状态，避免闪烁
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#1e3b32] mb-4"></div>
+          <Text className="text-lg text-gray-600">加载中...</Text>
+        </div>
+      </div>
+    );
+  }
   
   // 调试信息：检查文章是否存在
   if (!category) {
