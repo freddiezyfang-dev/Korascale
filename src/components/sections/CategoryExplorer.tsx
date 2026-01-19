@@ -233,9 +233,10 @@ export default function CategoryExplorer({
         <div className="text-center mt-12 md:mt-16">
           <Link
             href={categories.find(c => c.key === activeCategory)?.href || '/journeys'}
-            className="inline-block px-8 py-3 border-2 border-[#A65E3F] text-[#A65E3F] font-heading text-lg hover:bg-[#A65E3F] hover:text-white transition-all duration-300"
+            className="inline-block px-8 py-3 bg-[#1e3b32] text-white font-body text-lg uppercase hover:bg-[#1a342c] transition-all duration-300 rounded-lg"
+            style={{ color: '#FFFFFF' }}
           >
-            Explore All {categories.find(c => c.key === activeCategory)?.label}
+            EXPLORE ALL {categories.find(c => c.key === activeCategory)?.label.toUpperCase()}
           </Link>
         </div>
       </div>

@@ -5,6 +5,7 @@ import { Journey } from '@/types';
 // Route Segment Config - 确保路由被正确识别
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
+export const fetchCache = 'force-no-store';
 
 // GET: 获取所有journeys
 export async function GET(request?: NextRequest) {

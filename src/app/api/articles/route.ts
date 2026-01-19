@@ -2,12 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { Article, ContentBlock } from '@/types/article';
 
-// Route Segment Config - 确保路由被正确识别
+// Route Segment Config - 确保路由被正确识别（Next.js 15 必需）
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
 
 // GET: 获取所有articles
-export async function GET(request?: NextRequest) {
+export async function GET(request: NextRequest) {
+  // 简化日志，避免打印过多信息导致崩溃
+  console.log('[API /articles] GET request received');
+  
   try {
     // 检查数据库连接
     const connectionString = process.env.NEON_POSTGRES_URL || process.env.POSTGRES_URL;
@@ -15,7 +20,12 @@ export async function GET(request?: NextRequest) {
       console.error('[API /articles] Both POSTGRES_URL and NEON_POSTGRES_URL are missing');
       return NextResponse.json(
         { error: 'Database not configured. POSTGRES_URL or NEON_POSTGRES_URL is missing.' },
-        { status: 500 }
+        { 
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
       );
     }
     
@@ -65,7 +75,12 @@ export async function GET(request?: NextRequest) {
               : undefined,
             migrationFile: 'database/migrations/005_create_articles_table.sql'
           },
-          { status: 500 }
+          { 
+            status: 500,
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          }
         );
       }
       
@@ -102,12 +117,13 @@ export async function GET(request?: NextRequest) {
       {
         status: 200,
         headers: {
+          'Content-Type': 'application/json',
           'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
           'Pragma': 'no-cache',
           'Expires': '0',
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type',
+          'Access-Control-Allow-Headers': 'Content-Type, Accept',
         },
       }
     );
@@ -124,9 +140,27 @@ export async function GET(request?: NextRequest) {
         error: errorMessage,
         details: process.env.NODE_ENV === 'development' ? String(error) : undefined
       },
-      { status: 500 }
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
     );
   }
+}
+
+// OPTIONS: 处理 CORS 预检请求
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Accept',
+      'Access-Control-Max-Age': '86400',
+    },
+  });
 }
 
 // POST: 创建新article

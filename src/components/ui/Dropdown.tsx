@@ -44,31 +44,38 @@ export function DestinationsDropdown() {
   return (
     <div className="bg-white p-[20px] min-w-[200px] shadow-lg border border-gray-300 border-t-0" data-name="Destinations Dropdown" data-node-id="236:90">
       <div className="flex flex-col gap-[8px]">
-        <Link href="/destinations/sichuan" className="block">
+        <Link href="/destinations/southwest-china" className="block">
           <div className="px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group">
             <p className="text-gray-700 text-[18px] font-subheading leading-normal capitalize group-hover:text-black transition-colors duration-200">
-              Sichuan & Chongqing
+              Southwest China
             </p>
           </div>
         </Link>
-        <Link href="/destinations/gansu" className="block">
+        <Link href="/destinations/northwest" className="block">
           <div className="px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group">
             <p className="text-gray-700 text-[18px] font-subheading leading-normal capitalize group-hover:text-black transition-colors duration-200">
-              Gansu & Qinghai
+              Northwest & Northern Frontier
             </p>
           </div>
         </Link>
-        <Link href="/destinations/shaanxi" className="block">
+        <Link href="/destinations/north" className="block">
           <div className="px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group">
             <p className="text-gray-700 text-[18px] font-subheading leading-normal capitalize group-hover:text-black transition-colors duration-200">
-              Shaanxi
+              North China
             </p>
           </div>
         </Link>
-        <Link href="/destinations/xinjiang" className="block">
+        <Link href="/destinations/south" className="block">
           <div className="px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group">
             <p className="text-gray-700 text-[18px] font-subheading leading-normal capitalize group-hover:text-black transition-colors duration-200">
-              Xinjiang
+              South China
+            </p>
+          </div>
+        </Link>
+        <Link href="/destinations/east-central" className="block">
+          <div className="px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group">
+            <p className="text-gray-700 text-[18px] font-subheading leading-normal capitalize group-hover:text-black transition-colors duration-200">
+              East & Central China
             </p>
           </div>
         </Link>

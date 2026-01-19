@@ -108,7 +108,7 @@ function SocialAndSearch() {
 				</a>
 				{/* TikTok图标 */}
 				<a 
-					href="https://www.tiktok.com/@korascale" 
+					href="https://www.tiktok.com/@korascale_" 
 					className="shrink-0 size-6 hover:opacity-80 transition-opacity cursor-pointer" 
 					data-name="tiktok" 
 					target="_blank"

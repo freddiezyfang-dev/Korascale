@@ -7,6 +7,7 @@ import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/c
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import RegionMap, { RegionMapHandle } from '@/components/map/RegionMap';
 import { getRegionMapping, getSidebarDataByCategory, REGION_MAPPING } from '@/lib/regionMapping';
+import PlanningSectionNew from '@/components/sections/PlanningSectionNew';
 
 // 地区映射
 const regionMap: { [key: string]: { name: string; description: string; image: string } } = {
@@ -562,22 +563,7 @@ export default function RegionDestinationsPage() {
           </Section>
 
           {/* Plan Your Trip Section */}
-          <Section id="plan-your-trip" background="secondary" padding="xl" className="py-16">
-            <Container size="xl">
-              <Heading level={2} className="text-3xl font-heading mb-4">
-                Plan your trip
-              </Heading>
-              <Text className="text-lg text-gray-600 mb-8 max-w-3xl">
-                Share your group size, timing and interests, and our team will design a {regionInfo.name} itinerary just
-                for you.
-              </Text>
-              <Link href="/contact">
-                <Button variant="primary">
-                  Start planning
-                </Button>
-              </Link>
-            </Container>
-          </Section>
+          <PlanningSectionNew />
         </>
       )}
     </main>

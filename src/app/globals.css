@@ -1,7 +1,6 @@
-/* 导入 Google Fonts - 必须在最顶部 */
+/* 标题字体 - Playfair Display (衬线体) */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Montaga&family=Inknut+Antiqua:wght@300;400;500;600;700&family=Monda:wght@300;400;500;600;700&family=Dancing+Script:wght@400;500;600;700&family=Montagu+Slab:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap');
-/* Geist 字体 - 通过 CSS 变量使用 */
+/* Geist 字体 - 通过 CSS 变量使用（保留，因为代码中仍在使用） */
 @import url('https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
@@ -11,8 +10,18 @@
 :root {
   --background: var(--color-bg-primary);
   --foreground: var(--color-text-primary);
-  --font-serif: 'Playfair Display', serif;
-  /* Geist 字体变量 - 用于替代 next/font/google */
+  
+  /* 无衬线系统字体 - 用于正文和所有 UI 组件 */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  
+  /* 衬线字体 - 用于所有标题 */
+  --font-serif: 'Playfair Display', ui-serif, Georgia, serif;
+  
+  /* 字体变量映射 */
+  --font-heading: var(--font-serif);  /* 标题使用衬线体 */
+  --font-body: var(--font-sans);      /* 正文使用无衬线系统字体 */
+  
+  /* Geist 字体变量 - 用于替代 next/font/google（保留） */
   --font-geist-sans: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   --font-geist-mono: 'Geist Mono', 'Courier New', monospace;
 }
@@ -20,7 +29,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-body);
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
   --font-mono: var(--font-mono);
 }
 
@@ -69,6 +79,17 @@ main, section, article {
 
 body {
   background: var(--background);
+  font-family: var(--font-sans);  /* 正文使用无衬线系统字体 */
+  color: var(--foreground);
+}
+
+/* 全局标题样式 - 统一使用衬线字体 */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);  /* 标题使用衬线体 */
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: 0;
+  margin-bottom: 0.5em;
 }
 
 /* 链接样式 */
@@ -104,7 +125,7 @@ a:hover {
 .prose h4,
 .prose h5,
 .prose h6 {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-serif);  /* 标题使用衬线体 */
   font-weight: 700;
   margin-top: 2em;
   margin-bottom: 1em;
@@ -123,7 +144,7 @@ a:hover {
 .prose h2 {
   font-size: 1.875em;
   margin-top: 3em; /* 增加 H2 的顶部间距，匹配 mt-12 */
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-serif);  /* 标题使用衬线体 */
 }
 
 .prose h3 {
@@ -133,7 +154,7 @@ a:hover {
 .prose p {
   margin-top: 1.25em;
   margin-bottom: 1.25em;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-sans);  /* 正文使用无衬线系统字体 */
   line-height: 1.8; /* 增加行高，提供更多呼吸空间 */
   word-break: normal;
   overflow-wrap: break-word;
@@ -154,7 +175,7 @@ a:hover {
 .prose li {
   margin-top: 0.5em;
   margin-bottom: 0.5em;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-sans);  /* 正文使用无衬线系统字体 */
 }
 
 .prose a {
@@ -169,7 +190,7 @@ a:hover {
 
 .prose strong {
   font-weight: 600;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-sans);  /* 正文使用无衬线系统字体 */
 }
 
 .prose em {
@@ -227,6 +248,7 @@ a:hover {
 
 /* 确保所有段落继承该逻辑 */
 .prose-force-wrap p {
+  font-family: var(--font-sans);  /* 正文使用无衬线系统字体 */
   /* 1. 彻底回归标准换行：这是解决单词折断的工业标准 */
   word-break: break-word !important; 
   overflow-wrap: break-word !important;
@@ -249,6 +271,7 @@ a:hover {
 .prose-force-wrap h4,
 .prose-force-wrap h5,
 .prose-force-wrap h6 {
+  font-family: var(--font-serif) !important;  /* 标题使用衬线体 */
   word-break: normal !important;
   overflow-wrap: break-word !important;
   word-wrap: break-word !important;
@@ -354,6 +377,7 @@ a:hover {
   .prose-force-wrap div,
   .prose-force-wrap span,
   .prose-force-wrap li {
+    font-family: var(--font-sans) !important;  /* 正文使用无衬线系统字体 */
     word-break: normal !important;
     overflow-wrap: break-word !important;
     word-wrap: break-word !important;
@@ -372,7 +396,7 @@ a:hover {
 
 /* 按钮基础样式 */
 button {
-  font-family: var(--font-body);
+  font-family: var(--font-sans);  /* UI 组件使用无衬线系统字体 */
   font-weight: var(--font-medium);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -380,7 +404,7 @@ button {
 
 /* 输入框样式 */
 input, textarea, select {
-  font-family: var(--font-body);
+  font-family: var(--font-sans);  /* UI 组件使用无衬线系统字体 */
   font-size: var(--text-base);
 }
 
@@ -423,7 +447,7 @@ input, textarea, select {
 }
 
 .react-datepicker {
-  font-family: var(--font-body);
+  font-family: var(--font-sans);  /* UI 组件使用无衬线系统字体 */
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);

@@ -55,7 +55,7 @@ export default function Footer() {
 						</a>
 						{/* TikTok图标 */}
 						<a 
-							href="https://www.tiktok.com/@korascale" 
+							href="https://www.tiktok.com/@korascale_" 
 							className="shrink-0 size-6 hover:opacity-80 transition-opacity cursor-pointer"
 							target="_blank"
 							rel="noopener noreferrer"

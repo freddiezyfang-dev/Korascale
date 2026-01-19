@@ -7,6 +7,7 @@ import { AccommodationCard } from '@/components/cards/AccommodationCard';
 import { PlanTripModal } from '@/components/modals/PlanTripModal';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { useHotelManagement } from '@/context/HotelManagementContext';
+import PlanningSectionNew from '@/components/sections/PlanningSectionNew';
 
 // 图片资源
 const imgHeroBanner = "/images/journey-cards/chengdu-deep-dive.jpeg";
@@ -554,41 +555,8 @@ export default function SichuanChongqingPage() {
         </Container>
       </div>
 
-      {/* Plan Your Journey Section */}
-      <Section background="primary" padding="none" className="py-12">
-        <Container
-          size="xl"
-          padding="none"
-          className="bg-tertiary mx-4 sm:mx-8 lg:mx-20 rounded-lg p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6"
-        >
-          <div>
-            <Heading
-              level={2}
-              className="text-2xl sm:text-3xl mb-4"
-              style={{ color: '#FFFFFF', fontFamily: 'Montaga, serif' }}
-            >
-              Plan your journey in China with Korascale
-            </Heading>
-            <Text
-              className="text-sm sm:text-base"
-              style={{ color: '#FFFFFF', fontFamily: 'Monda, sans-serif' }}
-            >
-              Tell us what you are looking for and our team will craft a tailored itinerary that matches your
-              interests, timing and budget.
-            </Text>
-          </div>
-          <Button
-            variant="primary"
-            size="lg"
-            className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-body text-sm hover:bg-white hover:text-tertiary transition-all duration-300"
-            onClick={() => setIsPlanTripModalOpen(true)}
-          >
-            PLAN YOUR JOURNEY
-          </Button>
-        </Container>
-
-        <PlanTripModal isOpen={isPlanTripModalOpen} onClose={() => setIsPlanTripModalOpen(false)} />
-      </Section>
+      {/* Plan Your Trip Section */}
+      <PlanningSectionNew />
     </main>
   );
 }

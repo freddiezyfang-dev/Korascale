@@ -4,18 +4,30 @@
 import { Journey, JourneyStatus } from '@/types';
 import { Article } from '@/types/article';
 
-// 使用相对路径，在客户端自动使用当前域名
+// 使用相对路径，在客户端和服务端都使用相对路径，避免连接问题
 const getApiUrl = (path: string) => {
-  // 在客户端始终使用相对路径，避免 CORS 问题
+  // 确保路径以 / 开头
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  
+  // 在客户端始终使用相对路径，避免 CORS 问题和连接被拒绝
   if (typeof window !== 'undefined') {
-    // 客户端：确保使用相对路径
-    return path.startsWith('/') ? path : `/${path}`;
+    return normalizedPath;
   }
-  // 服务端：使用环境变量或默认值
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 
-                  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 
-                  'http://localhost:3000';
-  return `${baseUrl}${path}`;
+  
+  // 服务端：优先使用相对路径（Next.js 内部路由）
+  // 只有在明确需要外部 URL 时才使用绝对路径
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return `${process.env.NEXT_PUBLIC_API_URL}${normalizedPath}`;
+  }
+  
+  // 在 Vercel 等部署环境中使用完整 URL
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}${normalizedPath}`;
+  }
+  
+  // 开发环境：使用相对路径，让 Next.js 内部处理
+  // 这样可以避免 "连接被拒绝" 的问题
+  return normalizedPath;
 };
 
 // 创建带超时的 AbortSignal（兼容性处理）
@@ -39,15 +51,20 @@ export const journeyAPI = {
         // 增加超时时间：第一次45秒，重试60秒（给数据库更多时间）
         const timeoutMs = attempt === 0 ? 45000 : 60000;
         const apiUrl = getApiUrl('/api/journeys');
+        
+        // 调试：打印完整的请求 URL
+        console.log(`[JourneyAPI] Fetching from: ${apiUrl} (attempt ${attempt + 1}/${retries + 1})`);
+        
         const response = await fetch(apiUrl, {
+          method: 'GET',
           // 添加超时控制
           signal: createTimeoutSignal(timeoutMs),
           // 添加缓存控制
           cache: 'no-store',
           // 添加 headers
           headers: {
+            'Accept': 'application/json',
             'Cache-Control': 'no-cache',
-            'Content-Type': 'application/json',
           },
         });
         
@@ -55,10 +72,19 @@ export const journeyAPI = {
           // 尝试获取详细的错误信息
           let errorMessage = `Failed to fetch journeys (HTTP ${response.status})`;
           try {
-            const errorData = await response.json();
-            errorMessage = errorData.error || errorMessage;
+            // 检查响应是否是 JSON 格式
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+              const errorData = await response.json();
+              errorMessage = errorData.error || errorMessage;
+            } else {
+              // 如果不是 JSON，尝试获取文本
+              const text = await response.text();
+              errorMessage = text || errorMessage;
+            }
           } catch (e) {
-            // 如果无法解析错误响应，使用默认消息
+            // 如果解析失败，使用状态码和状态文本
+            errorMessage = `HTTP ${response.status}: ${response.statusText || errorMessage}`;
           }
           
           // 如果是服务器错误且还有重试次数，继续重试
@@ -134,10 +160,29 @@ export const journeyAPI = {
   // 获取单个journey
   async getById(id: string): Promise<Journey | null> {
     try {
-      const response = await fetch(getApiUrl(`/api/journeys/${id}`), {
+      const apiUrl = getApiUrl(`/api/journeys/${id}`);
+      console.log(`[JourneyAPI] Fetching journey by ID from: ${apiUrl}`);
+      
+      const response = await fetch(apiUrl, {
+        method: 'GET',
         signal: createTimeoutSignal(10000),
+        headers: {
+          'Accept': 'application/json',
+        },
       });
-      if (!response.ok) throw new Error('Failed to fetch journey');
+      if (!response.ok) {
+        let errorMessage = `Failed to fetch journey (HTTP ${response.status})`;
+        try {
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const errorData = await response.json();
+            errorMessage = errorData.error || errorMessage;
+          }
+        } catch (e) {
+          // 忽略解析错误
+        }
+        throw new Error(errorMessage);
+      }
       const data = await response.json();
       return data.journey || null;
     } catch (error) {
@@ -149,18 +194,34 @@ export const journeyAPI = {
   // 创建journey（自动保存到数据库）
   async create(journey: Omit<Journey, 'id' | 'createdAt' | 'updatedAt'>): Promise<Journey> {
     try {
-      const response = await fetch(getApiUrl('/api/journeys'), {
+      const apiUrl = getApiUrl('/api/journeys');
+      console.log(`[JourneyAPI] Creating journey at: ${apiUrl}`);
+      
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify(journey),
         signal: createTimeoutSignal(15000),
       });
       
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to create journey');
+        let errorMessage = 'Failed to create journey';
+        try {
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const error = await response.json();
+            errorMessage = error.error || errorMessage;
+          } else {
+            const text = await response.text();
+            errorMessage = text || errorMessage;
+          }
+        } catch (e) {
+          errorMessage = `HTTP ${response.status}: ${response.statusText || errorMessage}`;
+        }
+        throw new Error(errorMessage);
       }
       
       const data = await response.json();
@@ -174,10 +235,14 @@ export const journeyAPI = {
   // 更新journey（自动保存到数据库）
   async update(id: string, updates: Partial<Journey>): Promise<Journey> {
     try {
-      const response = await fetch(getApiUrl(`/api/journeys/${id}`), {
+      const apiUrl = getApiUrl(`/api/journeys/${id}`);
+      console.log(`[JourneyAPI] Updating journey at: ${apiUrl}`);
+      
+      const response = await fetch(apiUrl, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify(updates),
         signal: createTimeoutSignal(15000),
@@ -217,14 +282,32 @@ export const journeyAPI = {
   // 删除journey（自动从数据库删除）
   async delete(id: string): Promise<void> {
     try {
-      const response = await fetch(getApiUrl(`/api/journeys/${id}`), {
+      const apiUrl = getApiUrl(`/api/journeys/${id}`);
+      console.log(`[JourneyAPI] Deleting journey at: ${apiUrl}`);
+      
+      const response = await fetch(apiUrl, {
         method: 'DELETE',
+        headers: {
+          'Accept': 'application/json',
+        },
         signal: createTimeoutSignal(10000),
       });
       
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to delete journey');
+        let errorMessage = 'Failed to delete journey';
+        try {
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const error = await response.json();
+            errorMessage = error.error || errorMessage;
+          } else {
+            const text = await response.text();
+            errorMessage = text || errorMessage;
+          }
+        } catch (e) {
+          errorMessage = `HTTP ${response.status}: ${response.statusText || errorMessage}`;
+        }
+        throw new Error(errorMessage);
       }
     } catch (error) {
       console.error('Error deleting journey:', error);
@@ -328,21 +411,39 @@ export const articleAPI = {
       try {
         const timeoutMs = attempt === 0 ? 30000 : 45000;
         const apiUrl = getApiUrl('/api/articles');
+        
+        // 调试：打印完整的请求 URL（简化日志）
+        if (attempt === 0) {
+          console.log(`[ArticleAPI] Fetching from: ${apiUrl}`);
+        }
+        
         const response = await fetch(apiUrl, {
+          method: 'GET',
           signal: createTimeoutSignal(timeoutMs),
           cache: 'no-store',
           headers: {
+            'Accept': 'application/json',
             'Cache-Control': 'no-cache',
-            'Content-Type': 'application/json',
           },
         });
         
         if (!response.ok) {
           let errorMessage = `Failed to fetch articles (HTTP ${response.status})`;
           try {
-            const errorData = await response.json();
-            errorMessage = errorData.error || errorMessage;
-          } catch (e) {}
+            // 检查响应是否是 JSON 格式
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+              const errorData = await response.json();
+              errorMessage = errorData.error || errorMessage;
+            } else {
+              // 如果不是 JSON，尝试获取文本
+              const text = await response.text();
+              errorMessage = text || errorMessage;
+            }
+          } catch (e) {
+            // 如果解析失败，使用状态码和状态文本
+            errorMessage = `HTTP ${response.status}: ${response.statusText || errorMessage}`;
+          }
           
           if (response.status >= 500 && attempt < retries) {
             console.warn(`[ArticleAPI] Attempt ${attempt + 1} failed, retrying...`, errorMessage);
@@ -426,18 +527,34 @@ export const articleAPI = {
   // 创建新article
   async create(article: Omit<Article, 'id' | 'createdAt' | 'updatedAt'>): Promise<Article> {
     try {
-      const response = await fetch(getApiUrl('/api/articles'), {
+      const apiUrl = getApiUrl('/api/articles');
+      console.log(`[ArticleAPI] Creating article at: ${apiUrl}`);
+      
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify(article),
         signal: createTimeoutSignal(30000),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to create article');
+        let errorMessage = 'Failed to create article';
+        try {
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const error = await response.json();
+            errorMessage = error.error || errorMessage;
+          } else {
+            const text = await response.text();
+            errorMessage = text || errorMessage;
+          }
+        } catch (e) {
+          errorMessage = `HTTP ${response.status}: ${response.statusText || errorMessage}`;
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -455,18 +572,34 @@ export const articleAPI = {
   // 更新article
   async update(id: string, updates: Partial<Omit<Article, 'id' | 'createdAt' | 'updatedAt'>>): Promise<Article> {
     try {
-      const response = await fetch(getApiUrl(`/api/articles/${id}`), {
+      const apiUrl = getApiUrl(`/api/articles/${id}`);
+      console.log(`[ArticleAPI] Updating article at: ${apiUrl}`);
+      
+      const response = await fetch(apiUrl, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify(updates),
         signal: createTimeoutSignal(30000),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to update article');
+        let errorMessage = 'Failed to update article';
+        try {
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const error = await response.json();
+            errorMessage = error.error || errorMessage;
+          } else {
+            const text = await response.text();
+            errorMessage = text || errorMessage;
+          }
+        } catch (e) {
+          errorMessage = `HTTP ${response.status}: ${response.statusText || errorMessage}`;
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -484,14 +617,32 @@ export const articleAPI = {
   // 删除article
   async delete(id: string): Promise<void> {
     try {
-      const response = await fetch(getApiUrl(`/api/articles/${id}`), {
+      const apiUrl = getApiUrl(`/api/articles/${id}`);
+      console.log(`[ArticleAPI] Deleting article at: ${apiUrl}`);
+      
+      const response = await fetch(apiUrl, {
         method: 'DELETE',
+        headers: {
+          'Accept': 'application/json',
+        },
         signal: createTimeoutSignal(30000),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to delete article');
+        let errorMessage = 'Failed to delete article';
+        try {
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const error = await response.json();
+            errorMessage = error.error || errorMessage;
+          } else {
+            const text = await response.text();
+            errorMessage = text || errorMessage;
+          }
+        } catch (e) {
+          errorMessage = `HTTP ${response.status}: ${response.statusText || errorMessage}`;
+        }
+        throw new Error(errorMessage);
       }
     } catch (error) {
       console.error('[ArticleAPI] Error deleting article:', error);
@@ -505,18 +656,34 @@ export const userAPI = {
   // 保存用户信息（自动保存到数据库）
   async saveUserInfo(userData: any): Promise<void> {
     try {
-      const response = await fetch(getApiUrl('/api/users'), {
+      const apiUrl = getApiUrl('/api/users');
+      console.log(`[UserAPI] Saving user info at: ${apiUrl}`);
+      
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify(userData),
         signal: createTimeoutSignal(10000),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to save user info');
+        let errorMessage = 'Failed to save user info';
+        try {
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const error = await response.json();
+            errorMessage = error.error || errorMessage;
+          } else {
+            const text = await response.text();
+            errorMessage = text || errorMessage;
+          }
+        } catch (e) {
+          errorMessage = `HTTP ${response.status}: ${response.statusText || errorMessage}`;
+        }
+        throw new Error(errorMessage);
       }
     } catch (error) {
       console.error('Error saving user info:', error);

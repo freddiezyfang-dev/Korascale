@@ -11,6 +11,7 @@ import {
   JourneyFilterSidebar
 } from '@/components/place';
 import { getRegionMapping } from '@/lib/regionMapping';
+import PlanningSectionNew from '@/components/sections/PlanningSectionNew';
 
 // 根据 regionCategory 获取对应的 region 名称和 URL
 const getRegionInfo = (category: string): { name: string; slug: string } => {
@@ -518,6 +519,9 @@ export default function PlacePage() {
           autoSelectPlace={placeName}
         />
       </div>
+
+      {/* Plan Your Trip Section */}
+      <PlanningSectionNew />
     </main>
   );
 }
