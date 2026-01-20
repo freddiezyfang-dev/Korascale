@@ -5,7 +5,6 @@ import { Container, Section, Heading, Text, Button } from '@/components/common';
 import { ExperienceCard } from '@/components/cards/ExperienceCard';
 import { AccommodationCard } from '@/components/cards/AccommodationCard';
 import { WishlistSidebar } from '@/components/wishlist/WishlistSidebar';
-import { useWishlist } from '@/context/WishlistContext';
 import { Heart } from 'lucide-react';
 
 // 演示数据
@@ -59,11 +58,9 @@ const demoAccommodations = [
 ];
 
 export default function WishlistDemoPage() {
-  const { toggleWishlist, items } = useWishlist();
-
   return (
     <div className="min-h-screen bg-white">
-      {/* Wishlist Sidebar */}
+      {/* Wishlist Sidebar 示例 */}
       <WishlistSidebar />
 
       {/* Header */}
@@ -75,17 +72,9 @@ export default function WishlistDemoPage() {
                 Wishlist Feature Demo
               </Heading>
               <Text className="text-gray-600">
-                Experience adding items to your wishlist
+                Wishlist sidebar UI preview (buttons removed in main site)
               </Text>
             </div>
-            <Button
-              variant="secondary"
-              onClick={toggleWishlist}
-              className="flex items-center gap-2"
-            >
-              <Heart className="w-5 h-5" />
-              Wishlist ({items.length})
-            </Button>
           </div>
         </Container>
       </Section>

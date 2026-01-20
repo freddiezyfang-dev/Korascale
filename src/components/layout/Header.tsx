@@ -7,7 +7,7 @@ import Dropdown from '@/components/ui/Dropdown';
 import { UserDropdown } from '@/components/ui/UserDropdown';
 
 // 使用本地图片资源 - 你的logo图片
-const imgLogo = "/logo.png"; // 使用你的logo文件
+const imgLogo = "/logo.png"; // 使用logo文件
 const imgMail = "/icons/mail.svg";
 const imgInstagram = "/icons/instagram.svg";
 const imgTiktok = "/icons/tiktok.svg";
@@ -17,17 +17,33 @@ const imgUser = "/icons/user.svg";
 
 function HeaderLeft() {
 	return (
-		<Link href="/" className="flex items-center gap-2 lg:gap-[19px] h-[85px] overflow-hidden px-px shrink-0 hover:opacity-80 transition-opacity" data-name="Logo" data-node-id="770:178">
-			<div className="shrink-0 size-12 lg:size-[80px] flex items-center justify-center" data-name="Logo" data-node-id="770:179">
+		<Link href="/" className="flex items-center gap-3 lg:gap-4 h-[85px] overflow-hidden px-px shrink-0 hover:opacity-80 transition-opacity" data-name="Logo" data-node-id="770:178">
+			{/* Logo 图片 - 响应式尺寸，移动端较小 */}
+			<div className="shrink-0 h-6 w-6 sm:h-8 sm:w-8 lg:h-12 lg:w-12 flex items-center justify-center" data-name="Logo" data-node-id="770:179">
 				<img 
 					src={imgLogo} 
 					alt="Korascale Logo" 
 					className="w-full h-full object-contain"
-					style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+					style={{ 
+						width: '100%', 
+						height: '100%', 
+						objectFit: 'contain',
+						filter: 'brightness(0) invert(1)'
+					}}
 				/>
 			</div>
-			<div className="not-italic text-lg lg:text-[24px] !text-white w-[100px] lg:w-[135px] leading-none font-subheading shrink-0" data-node-id="770:180" style={{ color: 'white !important' }}>
-				<p className="leading-normal" style={{ color: 'white !important' }}>Korascale</p>
+			{/* 品牌名称 - 使用 Playfair Display 字体 */}
+			<div className="shrink-0" data-node-id="770:180">
+				<p 
+					className="text-xl font-serif font-bold tracking-widest leading-none"
+					style={{ 
+						color: '#F5F2E9',
+						fontFamily: 'Playfair Display, serif',
+						letterSpacing: '0.1em'
+					}}
+				>
+					KORASCALE
+				</p>
 			</div>
 		</Link>
 	);

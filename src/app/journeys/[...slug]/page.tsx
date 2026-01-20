@@ -6,16 +6,14 @@ import { useRouter, useParams } from 'next/navigation';
 import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/components/common';
 import { ExperienceCard } from '@/components/cards/ExperienceCard';
 import { AccommodationCard } from '@/components/cards/AccommodationCard';
-import { WishlistSidebar } from '@/components/wishlist/WishlistSidebar';
 // import { HotelDetailModal } from '@/components/modals/HotelDetailModal';
-import { useWishlist } from '@/context/WishlistContext';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { useExperienceManagement } from '@/context/ExperienceManagementContext';
 import { useHotelManagement } from '@/context/HotelManagementContext';
 import { generateStandardPageConfig, JOURNEY_PAGE_TEMPLATE } from '@/lib/journeyPageTemplate';
 import { useCart } from '@/context/CartContext';
 import { Journey } from '@/types';
-import { Heart, MapPin, Clock, Users, ChevronDown, ChevronUp } from 'lucide-react';
+import { MapPin, Clock, Users, ChevronDown, ChevronUp } from 'lucide-react';
 import JourneyMap from '@/components/map/JourneyMap';
 import StandardInclusions from '@/components/journey/StandardInclusions';
 import OfferCard from '@/components/journey/OfferCard';
@@ -178,7 +176,6 @@ const CITY_GEO_DB: Record<string, { lng: number; lat: number; name: string }> = 
 };
 
 export default function DynamicJourneyPage() {
-  const { toggleWishlist, items } = useWishlist();
   const { journeys, isLoading: journeysLoading } = useJourneyManagement();
   const { experiences } = useExperienceManagement();
   const { hotels } = useHotelManagement();
@@ -846,9 +843,6 @@ export default function DynamicJourneyPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Wishlist Sidebar */}
-      <WishlistSidebar />
-
       {/* Hero Banner - 底部对齐布局 */}
       <section className={`relative ${JOURNEY_PAGE_TEMPLATE.hero.height} overflow-hidden`}>
         {/* 背景图片 */}
@@ -866,15 +860,15 @@ export default function DynamicJourneyPage() {
         <div className="relative z-10 flex items-end h-full pb-16 px-8 lg:px-16">
           <div className="w-full flex flex-col lg:flex-row justify-between items-end gap-8">
             {/* 左侧：标题区域 - 左下角 */}
-            <div className="flex-1 max-w-2xl">
+            <div className="flex-1 max-w-2xl prose-force-wrap">
               <Heading 
                 level={1} 
-                className="text-4xl lg:text-5xl xl:text-6xl mb-4"
+                className="text-4xl lg:text-5xl xl:text-6xl mb-4 tracking-tight leading-[1.1]"
                 style={{ 
-                  fontFamily: 'Montaga, serif',
+                  fontFamily: 'Playfair Display, serif',
                   fontWeight: 400,
-                  letterSpacing: '0.1em',
-                  lineHeight: '1.2',
+                  letterSpacing: '-0.02em',
+                  lineHeight: '1.1',
                   color: '#ffffff'
                 }}
               >
@@ -883,12 +877,13 @@ export default function DynamicJourneyPage() {
             </div>
             
             {/* 右侧：核心参数 - 右下角，用细线分割 */}
-            <div className="flex items-end gap-6 lg:gap-8">
+            {/* 桌面端：垂直排列，移动端：水平居中分布 */}
+            <div className="flex flex-row lg:flex-row items-center lg:items-end justify-center lg:justify-end gap-6 lg:gap-8">
               {/* 天数 */}
-              <div className="flex flex-col items-end">
+              <div className="flex flex-col items-center lg:items-end">
                 <div 
                   className="text-4xl lg:text-5xl font-light text-white mb-1"
-                  style={{ fontFamily: 'Montaga, serif' }}
+                  style={{ fontFamily: 'Playfair Display, serif' }}
                 >
                   {pageConfig.hero.stats.days}
                 </div>
@@ -897,14 +892,14 @@ export default function DynamicJourneyPage() {
                 </div>
               </div>
               
-              {/* 分割线 */}
-              <div className="h-16 w-px bg-white/30" />
+              {/* 分割线 - 移动端隐藏，桌面端显示 */}
+              <div className="hidden lg:block h-16 w-px bg-white/30" />
               
               {/* 目的地数量 */}
-              <div className="flex flex-col items-end">
+              <div className="flex flex-col items-center lg:items-end">
                 <div 
                   className="text-4xl lg:text-5xl font-light text-white mb-1"
-                  style={{ fontFamily: 'Montaga, serif' }}
+                  style={{ fontFamily: 'Playfair Display, serif' }}
                 >
                   {pageConfig.hero.stats.destinations}
                 </div>
@@ -913,14 +908,14 @@ export default function DynamicJourneyPage() {
                 </div>
               </div>
               
-              {/* 分割线 */}
-              <div className="h-16 w-px bg-white/30" />
+              {/* 分割线 - 移动端隐藏，桌面端显示 */}
+              <div className="hidden lg:block h-16 w-px bg-white/30" />
               
               {/* 最大客人 */}
-              <div className="flex flex-col items-end">
+              <div className="flex flex-col items-center lg:items-end">
                 <div 
                   className="text-4xl lg:text-5xl font-light text-white mb-1"
-                  style={{ fontFamily: 'Montaga, serif' }}
+                  style={{ fontFamily: 'Playfair Display, serif' }}
                 >
                   {pageConfig.hero.stats.maxGuests}
                 </div>
@@ -932,17 +927,6 @@ export default function DynamicJourneyPage() {
           </div>
         </div>
 
-        {/* Wishlist Button - 固定定位跟随屏幕 */}
-        <div className="fixed top-6 right-6 z-40">
-          <Button
-            variant="secondary"
-            onClick={toggleWishlist}
-            className="flex items-center gap-2 bg-white text-tertiary hover:bg-gray-100 shadow-lg hover:shadow-xl transition-all duration-300"
-          >
-            <Heart className="w-5 h-5" />
-            Wishlist ({items.length})
-          </Button>
-        </div>
       </section>
 
       {/* Navigation - A&K 风格精致导航栏 */}
@@ -999,23 +983,26 @@ export default function DynamicJourneyPage() {
 
       {/* Journey Overview */}
       <section id="overview" className="w-full bg-[#FAF9F6] overflow-hidden">
-        <div className="max-w-[1440px] mx-auto px-10 py-24 flex flex-col lg:flex-row items-center gap-20">
-          {/* 左侧内容 - 文字和图片比例 6:4，垂直居中对齐 */}
-          <div className="lg:w-[60%] flex flex-col justify-center space-y-16 w-full">
+        <div className="max-w-[1440px] mx-auto px-10 py-24 flex flex-col lg:flex-row items-start justify-between gap-12">
+          {/* 左侧内容 - 文字区域，设置最大宽度避免行太长 */}
+          <div className="lg:w-[60%] flex flex-col w-full max-w-2xl">
             {/* 标题和描述 */}
-            <div className="space-y-8">
+            <div className="space-y-8 prose-force-wrap">
               <h2 
-                className="text-4xl lg:text-5xl text-gray-900"
+                className="text-2xl lg:text-3xl text-gray-900 leading-relaxed"
                 style={{ 
-                  fontFamily: 'Montaga, serif',
-                  fontWeight: 300,
-                  lineHeight: '1.2'
+                  fontFamily: 'Playfair Display, serif',
+                  fontWeight: 400,
+                  lineHeight: '1.6'
                 }}
               >
                 {pageConfig.overview.description}
               </h2>
               {journey.shortDescription && (
-                <p className="text-xl text-gray-600 font-light leading-relaxed">
+                <p 
+                  className="text-xl text-gray-600 font-light leading-relaxed prose-force-wrap"
+                  style={{ lineHeight: '1.6' }}
+                >
                   {journey.shortDescription}
                 </p>
               )}
@@ -1027,7 +1014,7 @@ export default function DynamicJourneyPage() {
               
               if (highlights.length === 0) {
                 return (
-                  <div className="text-gray-500 text-sm pt-12 border-t border-gray-200">
+                  <div className="text-gray-500 text-sm mt-16">
                     No highlights available. Please add highlights in the admin panel.
                   </div>
                 );
@@ -1054,7 +1041,7 @@ export default function DynamicJourneyPage() {
               );
               
               return (
-                <div className="grid grid-cols-2 gap-x-12 gap-y-10 pt-12 border-t border-gray-200">
+                <div className="grid grid-cols-2 gap-x-12 gap-y-10 mt-16">
                   {highlights.map((highlight, index) => {
                     // 优先使用title作为标题，description作为描述
                     const title = highlight.title || `Highlight ${index + 1}`;
@@ -1062,12 +1049,15 @@ export default function DynamicJourneyPage() {
                     
                     return (
                       <div key={index} className="space-y-2">
-                        <h4 className="font-medium text-gray-900 flex items-center">
+                        <h4 
+                          className="text-xs tracking-widest font-bold text-gray-900 flex items-center uppercase prose-force-wrap"
+                          style={{ letterSpacing: '0.1em' }}
+                        >
                           <StarIcon />
                           {title}
                         </h4>
                         {description && (
-                          <p className="text-sm text-gray-500 leading-normal">
+                          <p className="text-sm text-gray-600 leading-normal prose-force-wrap">
                             {description}
                           </p>
                         )}
@@ -1079,9 +1069,9 @@ export default function DynamicJourneyPage() {
             })()}
           </div>
 
-          {/* 右侧图片 - 文字和图片比例 6:4 */}
-          <div className="lg:w-[40%] relative flex items-center">
-            <div className="w-full h-full min-h-[400px] max-h-[70vh] relative group">
+          {/* 右侧图片 - 固定高度，与左侧文字区域高度匹配 */}
+          <div className="lg:w-[40%] relative flex items-start">
+            <div className="w-full h-[600px] lg:h-[700px] relative group">
               <img 
                 src={pageConfig.overview.sideImage} 
                 alt={journey.title || 'Journey image'}
@@ -1094,13 +1084,13 @@ export default function DynamicJourneyPage() {
         </div>
       </section>
 
-      {/* Itinerary - 优化后的双栏布局：左侧 Mapbox 地图 + 右侧浅色卡片行程 */}
+      {/* Itinerary - 固定高度双栏布局：左侧 Mapbox 地图 + 右侧浅色卡片行程 */}
       <section 
         id="itinerary" 
-        className="w-full bg-[#f5f1e6] min-h-screen flex flex-col lg:flex-row items-stretch"
+        className="w-full bg-[#f5f1e6] h-[calc(100vh-80px)] flex flex-col lg:flex-row items-stretch overflow-hidden"
       >
-        {/* 左侧：地图容器 (40%) - 非对称布局 */}
-        <div className="w-full lg:w-[40%] lg:sticky lg:top-0 h-[500px] lg:h-screen">
+        {/* 左侧：地图容器 (40%) - 高度与父容器一致 */}
+        <div className="w-full lg:w-[40%] h-[300px] lg:h-full">
           {journey && journeyLocations.length > 0 ? (
             <JourneyMap
               mode={isDayTour ? 'single-location' : 'multi-stop-route'}
@@ -1129,8 +1119,8 @@ export default function DynamicJourneyPage() {
           )}
         </div>
 
-        {/* 右侧：行程详情 (60%) - 增加容器宽度 */}
-        <div className="w-full lg:w-[60%] py-12 px-6 lg:px-16 overflow-y-auto">
+        {/* 右侧：行程详情 (60%) - 固定高度内独立滚动 */}
+        <div className="w-full lg:w-[60%] h-full overflow-y-auto bg-[#f5f1e6] py-12 px-6 lg:px-16 scrollbar-hide">
           <div className="max-w-7xl mx-auto">
             <h2 className="text-gray-900 text-3xl mb-12" style={{ fontFamily: 'Montaga, serif', fontWeight: 400 }}>Daily Itinerary</h2>
           

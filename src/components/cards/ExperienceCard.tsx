@@ -1,9 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useWishlist } from '@/context/WishlistContext';
 import { Button, Card, Heading, Text } from '@/components/common';
-import { Plus, Heart } from 'lucide-react';
 
 export interface ExperienceCardProps {
   id: string;
@@ -24,29 +22,6 @@ export const ExperienceCard: React.FC<ExperienceCardProps> = ({
   duration,
   description,
 }) => {
-  const { addToWishlist, isInWishlist, removeFromWishlist } = useWishlist();
-  const inWishlist = isInWishlist(id);
-
-  const handleWishlistToggle = () => {
-    if (inWishlist) {
-      removeFromWishlist(id);
-    } else {
-      let journeySlug: string | undefined;
-      try {
-        journeySlug = localStorage.getItem('last_selected_journey_slug') || undefined;
-      } catch {}
-      addToWishlist({
-        id,
-        type: 'experience',
-        title,
-        location,
-        image,
-        price,
-        duration,
-        journeySlug,
-      });
-    }
-  };
 
   return (
     <Card className="overflow-hidden p-0 group h-full flex flex-col">
@@ -95,26 +70,8 @@ export const ExperienceCard: React.FC<ExperienceCardProps> = ({
           </div>
         )}
 
-        {/* 添加到愿望清单按钮 */}
-        <div className="mt-auto">
-          <Button
-            variant={inWishlist ? "secondary" : "outline"}
-            onClick={handleWishlistToggle}
-            className="w-full flex items-center justify-center gap-2"
-          >
-          {inWishlist ? (
-            <>
-              <Heart className="w-4 h-4 fill-current" />
-              Added to Wishlist
-            </>
-          ) : (
-            <>
-              <Plus className="w-4 h-4" />
-              Add to Wishlist
-            </>
-          )}
-          </Button>
-        </div>
+        {/* 底部占位，保持卡片高度结构一致 */}
+        <div className="mt-auto" />
       </div>
     </Card>
   );

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from "next/link";
 import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
-import { InspirationsSection, CategoryExplorer } from '@/components/sections';
+import { CategoryExplorer } from '@/components/sections';
 import OurPerspectiveSection from '@/components/sections/OurPerspectiveSection';
 import TheLensBehindKorascaleSection from '@/components/sections/TheLensBehindKorascaleSection';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
@@ -342,9 +342,6 @@ export default function Home() {
           </div>
         </Container>
       </Section>
-
-      {/* Inspirations Section */}
-      <InspirationsSection />
 
       {/* Brand Philosophy Section 1: Our Perspective */}
       <OurPerspectiveSection 

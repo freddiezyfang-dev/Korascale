@@ -20,11 +20,32 @@ export default function Footer() {
 			<div className="mx-auto flex max-w-screen-2xl gap-[66px] px-[30px] py-[60px]">
 				{/* Left Side */}
 				<div className="relative w-[705px]">
-					<div className="flex items-start gap-3 pl-[33px] pt-[55px]">
-						<div className="h-[69px] w-[88px] bg-center bg-cover bg-no-repeat" style={{ backgroundImage: `url('${imgLogo}')` }} />
+					<div className="flex items-start gap-4 pl-[33px] pt-[55px]">
+						{/* Logo 图片 - 添加滤镜处理 */}
+						<div className="h-[69px] w-[69px] flex items-center justify-center shrink-0">
+							<img 
+								src={imgLogo} 
+								alt="Korascale Logo"
+								className="w-full h-full object-contain"
+								style={{ 
+									filter: 'brightness(0) invert(1)',
+									objectFit: 'contain'
+								}}
+							/>
+						</div>
+						{/* 品牌名称和副标题 */}
 						<div>
-							<div className="text-[24px] font-body">Korascale</div>
-							<div className="mt-1 text-[14px] font-body">craft your own Adventure</div>
+							<div 
+								className="text-[24px] font-serif font-bold tracking-widest"
+								style={{ 
+									color: '#F5F2E9',
+									fontFamily: 'Playfair Display, serif',
+									letterSpacing: '0.1em'
+								}}
+							>
+								KORASCALE
+							</div>
+							<div className="mt-1 text-[14px] font-body" style={{ color: '#F5F2E9' }}>craft your own Adventure</div>
 						</div>
 					</div>
 					<div className="mt-8 grid grid-cols-2 gap-4 rounded-[5px] bg-transparent px-[34px] py-[25px] w-[394px]">
