@@ -78,12 +78,376 @@ const CITY_GEO_DB: Record<string, { lng: number; lat: number; name: string }> = 
   '九寨沟': { lng: 103.92, lat: 33.26, name: 'Jiuzhaigou' },
   'chengdu': { lng: 104.06, lat: 30.67, name: 'Chengdu' },
   '成都': { lng: 104.06, lat: 30.67, name: 'Chengdu' },
+  'chongqing': { lng: 106.55, lat: 29.5628, name: 'Chongqing' },
+  '重庆': { lng: 106.55, lat: 29.5628, name: 'Chongqing' },
+  'chongqing city': { lng: 106.55, lat: 29.5628, name: 'Chongqing' },
+  // 华东地区
+  'shanghai': { lng: 121.469170, lat: 31.224361, name: 'Shanghai' },
+  '上海': { lng: 121.469170, lat: 31.224361, name: 'Shanghai' },
+  'shanghai city': { lng: 121.469170, lat: 31.224361, name: 'Shanghai' },
+  'suzhou': { lng: 120.5954, lat: 31.3041, name: 'Suzhou' },
+  '苏州': { lng: 120.5954, lat: 31.3041, name: 'Suzhou' },
+  'suzhou city': { lng: 120.5954, lat: 31.3041, name: 'Suzhou' },
+  'nanjing': { lng: 118.77889, lat: 32.06083, name: 'Nanjing' },
+  '南京': { lng: 118.77889, lat: 32.06083, name: 'Nanjing' },
+  'nanjing city': { lng: 118.77889, lat: 32.06083, name: 'Nanjing' },
+  'hangzhou': { lng: 120.16142, lat: 30.29365, name: 'Hangzhou' },
+  '杭州': { lng: 120.16142, lat: 30.29365, name: 'Hangzhou' },
+  'hangzhou city': { lng: 120.16142, lat: 30.29365, name: 'Hangzhou' },
+  'qiandao lake': { lng: 118.99000, lat: 29.60917, name: 'Qiandao Lake' },
+  'qiandaohu': { lng: 118.99000, lat: 29.60917, name: 'Qiandao Lake' },
+  '千岛湖': { lng: 118.99000, lat: 29.60917, name: 'Qiandao Lake' },
+  'thousand island lake': { lng: 118.99000, lat: 29.60917, name: 'Qiandao Lake' },
+  'chunan': { lng: 119.04, lat: 29.61, name: 'Chun\'an County' },
+  '淳安': { lng: 119.04, lat: 29.61, name: 'Chun\'an County' },
+  '淳安县': { lng: 119.04, lat: 29.61, name: 'Chun\'an County' },
+  // 安徽黄山地区
+  'huangshan': { lng: 118.3376, lat: 29.7114, name: 'Huangshan' },
+  '黄山': { lng: 118.3376, lat: 29.7114, name: 'Huangshan' },
+  'huangshan city': { lng: 118.3376, lat: 29.7114, name: 'Huangshan City' },
+  '黄山市': { lng: 118.3376, lat: 29.7114, name: 'Huangshan City' },
+  'hongcun': { lng: 117.9905, lat: 30.0033, name: 'Hongcun' },
+  '宏村': { lng: 117.9905, lat: 30.0033, name: 'Hongcun' },
+  'hongcun village': { lng: 117.9905, lat: 30.0033, name: 'Hongcun Ancient Village' },
+  '宏村古村落': { lng: 117.9905, lat: 30.0033, name: 'Hongcun Ancient Village' },
+  'yixian': { lng: 117.9905, lat: 30.0033, name: 'Yixian County' },
+  '黟县': { lng: 117.9905, lat: 30.0033, name: 'Yixian County' },
+  '黟县宏村': { lng: 117.9905, lat: 30.0033, name: 'Hongcun, Yixian' },
+  'xixinan': { lng: 118.25, lat: 29.75, name: 'Xixinan Ancient Village' },
+  '西溪南': { lng: 118.25, lat: 29.75, name: 'Xixinan Ancient Village' },
+  'xixinan ancient village': { lng: 118.25, lat: 29.75, name: 'Xixinan Ancient Village' },
+  '西溪南古村落': { lng: 118.25, lat: 29.75, name: 'Xixinan Ancient Village' },
+  'huizhou': { lng: 118.3376, lat: 29.7114, name: 'Huizhou' },
+  '徽州': { lng: 118.3376, lat: 29.7114, name: 'Huizhou' },
+  // 华南地区
+  'guangzhou': { lng: 113.253250, lat: 23.128994, name: 'Guangzhou' },
+  '广州': { lng: 113.253250, lat: 23.128994, name: 'Guangzhou' },
+  'guangzhou city': { lng: 113.253250, lat: 23.128994, name: 'Guangzhou' },
+  'chaozhou': { lng: 116.6225970, lat: 23.6569720, name: 'Chaozhou' },
+  '潮州': { lng: 116.6225970, lat: 23.6569720, name: 'Chaozhou' },
+  'chaozhou city': { lng: 116.6225970, lat: 23.6569720, name: 'Chaozhou' },
+  'shantou': { lng: 116.682, lat: 23.354, name: 'Shantou' },
+  '汕头': { lng: 116.682, lat: 23.354, name: 'Shantou' },
+  'shantou city': { lng: 116.682, lat: 23.354, name: 'Shantou' },
+  'jieyang': { lng: 116.3655, lat: 23.5418, name: 'Jieyang' },
+  '揭阳': { lng: 116.3655, lat: 23.5418, name: 'Jieyang' },
+  'jieyang city': { lng: 116.3655, lat: 23.5418, name: 'Jieyang' },
+  'chaoshan': { lng: 116.6225970, lat: 23.6569720, name: 'Chaoshan' },
+  '潮汕': { lng: 116.6225970, lat: 23.6569720, name: 'Chaoshan' },
+  'xiamen': { lng: 118.082, lat: 24.4798, name: 'Xiamen' },
+  '厦门': { lng: 118.082, lat: 24.4798, name: 'Xiamen' },
+  'xiamen city': { lng: 118.082, lat: 24.4798, name: 'Xiamen' },
+  'longyan': { lng: 117.017, lat: 25.076, name: 'Longyan' },
+  '龙岩': { lng: 117.017, lat: 25.076, name: 'Longyan' },
+  'longyan city': { lng: 117.017, lat: 25.076, name: 'Longyan' },
+  '龙岩市': { lng: 117.017, lat: 25.076, name: 'Longyan' },
+  // 广西地区
+  'nanning': { lng: 108.3167, lat: 22.8167, name: 'Nanning' },
+  '南宁': { lng: 108.3167, lat: 22.8167, name: 'Nanning' },
+  'nanning city': { lng: 108.3167, lat: 22.8167, name: 'Nanning' },
+  'pingxiang': { lng: 106.766, lat: 22.094, name: 'Pingxiang' },
+  '凭祥': { lng: 106.766, lat: 22.094, name: 'Pingxiang' },
+  'pingxiang city': { lng: 106.766, lat: 22.094, name: 'Pingxiang' },
+  'chongzuo': { lng: 107.365, lat: 22.377, name: 'Chongzuo' },
+  '崇左': { lng: 107.365, lat: 22.377, name: 'Chongzuo' },
+  'chongzuo city': { lng: 107.365, lat: 22.377, name: 'Chongzuo' },
+  '崇左市': { lng: 107.365, lat: 22.377, name: 'Chongzuo' },
+  'detian waterfall': { lng: 106.7220, lat: 22.8564, name: 'Detian Waterfall' },
+  'detian': { lng: 106.7220, lat: 22.8564, name: 'Detian Waterfall' },
+  '德天瀑布': { lng: 106.7220, lat: 22.8564, name: 'Detian Waterfall' },
+  'ban gioc detian falls': { lng: 106.7220, lat: 22.8564, name: 'Detian Waterfall' },
+  'guilin': { lng: 110.2964, lat: 25.2802, name: 'Guilin' },
+  '桂林': { lng: 110.2964, lat: 25.2802, name: 'Guilin' },
+  'guilin city': { lng: 110.2964, lat: 25.2802, name: 'Guilin' },
+  'yangshuo': { lng: 110.500, lat: 24.783, name: 'Yangshuo' },
+  '阳朔': { lng: 110.500, lat: 24.783, name: 'Yangshuo' },
+  'yangshuo county': { lng: 110.500, lat: 24.783, name: 'Yangshuo County' },
+  '阳朔县': { lng: 110.500, lat: 24.783, name: 'Yangshuo County' },
+  // 新疆地区
+  'urumqi': { lng: 87.616852, lat: 43.825592, name: 'Urumqi' },
+  '乌鲁木齐': { lng: 87.616852, lat: 43.825592, name: 'Urumqi' },
+  'urumqi city': { lng: 87.616852, lat: 43.825592, name: 'Urumqi' },
+  'sayram lake': { lng: 81.2, lat: 44.6, name: 'Sayram Lake' },
+  'sairam lake': { lng: 81.2, lat: 44.6, name: 'Sayram Lake' },
+  '赛里木湖': { lng: 81.2, lat: 44.6, name: 'Sayram Lake' },
+  'yining': { lng: 81.2777, lat: 43.9080, name: 'Yining' },
+  '伊宁': { lng: 81.2777, lat: 43.9080, name: 'Yining' },
+  'yining city': { lng: 81.2777, lat: 43.9080, name: 'Yining' },
+  'ili': { lng: 81.2777, lat: 43.9080, name: 'Ili' },
+  '伊犁': { lng: 81.2777, lat: 43.9080, name: 'Ili' },
+  'kurdening': { lng: 82.3, lat: 43.3, name: 'Kurdening Nature Reserve' },
+  '库尔德宁': { lng: 82.3, lat: 43.3, name: 'Kurdening Nature Reserve' },
+  'kurdening nature reserve': { lng: 82.3, lat: 43.3, name: 'Kurdening Nature Reserve' },
+  '库尔德宁自然保护区': { lng: 82.3, lat: 43.3, name: 'Kurdening Nature Reserve' },
+  'gongliu': { lng: 82.14889, lat: 43.46667, name: 'Gongliu County' },
+  '巩留': { lng: 82.14889, lat: 43.46667, name: 'Gongliu County' },
+  '巩留县': { lng: 82.14889, lat: 43.46667, name: 'Gongliu County' },
+  'nalati': { lng: 85.22, lat: 43.08, name: 'Nalati Grassland' },
+  '那拉提': { lng: 85.22, lat: 43.08, name: 'Nalati Grassland' },
+  'nalati grassland': { lng: 85.22, lat: 43.08, name: 'Nalati Grassland' },
+  '那拉提草原': { lng: 85.22, lat: 43.08, name: 'Nalati Grassland' },
+  'altay': { lng: 88.13083, lat: 47.82694, name: 'Altay City' },
+  'altay city': { lng: 88.13083, lat: 47.82694, name: 'Altay City' },
+  '阿勒泰': { lng: 88.13083, lat: 47.82694, name: 'Altay City' },
+  '阿勒泰市': { lng: 88.13083, lat: 47.82694, name: 'Altay City' },
+  'hemu': { lng: 87.434361, lat: 48.5695, name: 'Hemu Village' },
+  'hemu village': { lng: 87.434361, lat: 48.5695, name: 'Hemu Village' },
+  '禾木': { lng: 87.434361, lat: 48.5695, name: 'Hemu Village' },
+  '禾木村': { lng: 87.434361, lat: 48.5695, name: 'Hemu Village' },
+  'kanas': { lng: 87.04000, lat: 48.81500, name: 'Kanas Lake' },
+  'kanas lake': { lng: 87.04000, lat: 48.81500, name: 'Kanas Lake' },
+  '喀纳斯': { lng: 87.04000, lat: 48.81500, name: 'Kanas Lake' },
+  '喀纳斯湖': { lng: 87.04000, lat: 48.81500, name: 'Kanas Lake' },
+  'baihaba': { lng: 86.8, lat: 48.6, name: 'Baihaba Village' },
+  'baihaba village': { lng: 86.8, lat: 48.6, name: 'Baihaba Village' },
+  '白哈巴': { lng: 86.8, lat: 48.6, name: 'Baihaba Village' },
+  '白哈巴村': { lng: 86.8, lat: 48.6, name: 'Baihaba Village' },
+  // 甘肃/新疆地区
+  'dunhuang': { lng: 94.661880, lat: 40.142132, name: 'Dunhuang' },
+  'dunhuang city': { lng: 94.661880, lat: 40.142132, name: 'Dunhuang' },
+  '敦煌': { lng: 94.661880, lat: 40.142132, name: 'Dunhuang' },
+  '敦煌市': { lng: 94.661880, lat: 40.142132, name: 'Dunhuang' },
+  'hami': { lng: 93.497772, lat: 42.821594, name: 'Hami' },
+  'hami city': { lng: 93.497772, lat: 42.821594, name: 'Hami' },
+  '哈密': { lng: 93.497772, lat: 42.821594, name: 'Hami' },
+  '哈密市': { lng: 93.497772, lat: 42.821594, name: 'Hami' },
+  'kumul': { lng: 93.497772, lat: 42.821594, name: 'Hami' },
+  'turpan': { lng: 89.1895, lat: 42.9512, name: 'Turpan' },
+  'turpan city': { lng: 89.1895, lat: 42.9512, name: 'Turpan' },
+  '吐鲁番': { lng: 89.1895, lat: 42.9512, name: 'Turpan' },
+  '吐鲁番市': { lng: 89.1895, lat: 42.9512, name: 'Turpan' },
+  'kumtag desert': { lng: 90.2667, lat: 42.7, name: 'Kumtag Desert' },
+  '库姆塔格': { lng: 90.2667, lat: 42.7, name: 'Kumtag Desert' },
+  '库姆塔格沙漠': { lng: 90.2667, lat: 42.7, name: 'Kumtag Desert' },
+  'shanshan': { lng: 90.2046, lat: 42.8675, name: 'Shanshan County' },
+  'shanshan county': { lng: 90.2046, lat: 42.8675, name: 'Shanshan County' },
+  '鄯善': { lng: 90.2046, lat: 42.8675, name: 'Shanshan County' },
+  '鄯善县': { lng: 90.2046, lat: 42.8675, name: 'Shanshan County' },
+  // 青海/甘肃地区
+  'xining': { lng: 101.778, lat: 36.6212, name: 'Xining' },
+  'xining city': { lng: 101.778, lat: 36.6212, name: 'Xining' },
+  '西宁': { lng: 101.778, lat: 36.6212, name: 'Xining' },
+  '西宁市': { lng: 101.778, lat: 36.6212, name: 'Xining' },
+  'qinghai lake': { lng: 100.189819, lat: 36.844460, name: 'Qinghai Lake' },
+  '青海湖': { lng: 100.189819, lat: 36.844460, name: 'Qinghai Lake' },
+  'gangcha': { lng: 100.150, lat: 37.317, name: 'Gangcha County' },
+  'gangcha county': { lng: 100.150, lat: 37.317, name: 'Gangcha County' },
+  '刚察': { lng: 100.150, lat: 37.317, name: 'Gangcha County' },
+  '刚察县': { lng: 100.150, lat: 37.317, name: 'Gangcha County' },
+  'qilian': { lng: 99.767, lat: 38.150, name: 'Qilian County' },
+  'qilian county': { lng: 99.767, lat: 38.150, name: 'Qilian County' },
+  '祁连': { lng: 99.767, lat: 38.150, name: 'Qilian County' },
+  '祁连县': { lng: 99.767, lat: 38.150, name: 'Qilian County' },
+  'zhangye': { lng: 100.449, lat: 38.925, name: 'Zhangye' },
+  'zhangye city': { lng: 100.449, lat: 38.925, name: 'Zhangye' },
+  '张掖': { lng: 100.449, lat: 38.925, name: 'Zhangye' },
+  '张掖市': { lng: 100.449, lat: 38.925, name: 'Zhangye' },
+  'zhangye danxia': { lng: 100.133240, lat: 38.913769, name: 'Zhangye Danxia' },
+  'zhangye danxia national geopark': { lng: 100.133240, lat: 38.913769, name: 'Zhangye Danxia National Geopark' },
+  '张掖丹霞': { lng: 100.133240, lat: 38.913769, name: 'Zhangye Danxia' },
+  '张掖丹霞山': { lng: 100.133240, lat: 38.913769, name: 'Zhangye Danxia' },
+  '丹霞': { lng: 100.133240, lat: 38.913769, name: 'Zhangye Danxia' },
+  '丹霞山': { lng: 100.133240, lat: 38.913769, name: 'Zhangye Danxia' },
+  'jiayuguan': { lng: 98.2882, lat: 39.7732, name: 'Jiayuguan' },
+  'jiayuguan city': { lng: 98.2882, lat: 39.7732, name: 'Jiayuguan' },
+  'jiayu pass': { lng: 98.2882, lat: 39.7732, name: 'Jiayu Pass' },
+  '嘉峪关': { lng: 98.2882, lat: 39.7732, name: 'Jiayuguan' },
+  '嘉峪关市': { lng: 98.2882, lat: 39.7732, name: 'Jiayuguan' },
+  'wuzhen': { lng: 120.487778, lat: 30.74275, name: 'Wuzhen' },
+  '乌镇': { lng: 120.487778, lat: 30.74275, name: 'Wuzhen' },
+  'wuzhen town': { lng: 120.487778, lat: 30.74275, name: 'Wuzhen' },
+  'wuzhen ancient town': { lng: 120.487778, lat: 30.74275, name: 'Wuzhen Ancient Town' },
+  '乌镇古镇': { lng: 120.487778, lat: 30.74275, name: 'Wuzhen Ancient Town' },
+  'jiaxing': { lng: 120.75, lat: 30.7522, name: 'Jiaxing' },
+  '嘉兴': { lng: 120.75, lat: 30.7522, name: 'Jiaxing' },
+  'jiaxing city': { lng: 120.75, lat: 30.7522, name: 'Jiaxing' },
+  // 湖南张家界地区
+  'zhangjiajie': { lng: 110.478996, lat: 29.117001, name: 'Zhangjiajie' },
+  '张家界': { lng: 110.478996, lat: 29.117001, name: 'Zhangjiajie' },
+  'zhangjiajie city': { lng: 110.478996, lat: 29.117001, name: 'Zhangjiajie' },
+  'tianmen mountain': { lng: 110.4788889, lat: 29.0498806, name: 'Tianmen Mountain' },
+  'tianmen': { lng: 110.4788889, lat: 29.0498806, name: 'Tianmen Mountain' },
+  '天门山': { lng: 110.4788889, lat: 29.0498806, name: 'Tianmen Mountain' },
+  '72奇楼': { lng: 110.478996, lat: 29.117001, name: '72 Qi Lou' },
+  '72 qi lou': { lng: 110.478996, lat: 29.117001, name: '72 Qi Lou' },
+  'seventy-two strange building': { lng: 110.478996, lat: 29.117001, name: '72 Qi Lou' },
+  'wulingyuan': { lng: 110.481133, lat: 29.335520, name: 'Wulingyuan' },
+  '武陵源': { lng: 110.481133, lat: 29.335520, name: 'Wulingyuan' },
+  'wulingyuan scenic area': { lng: 110.481133, lat: 29.335520, name: 'Wulingyuan Scenic Area' },
+  '武陵源区': { lng: 110.481133, lat: 29.335520, name: 'Wulingyuan District' },
+  'wulingyuan district': { lng: 110.481133, lat: 29.335520, name: 'Wulingyuan District' },
+  'fenghuang': { lng: 109.598479, lat: 27.947978, name: 'Fenghuang County' },
+  'fenghuang county': { lng: 109.598479, lat: 27.947978, name: 'Fenghuang County' },
+  'fenghuang ancient town': { lng: 109.598479, lat: 27.947978, name: 'Fenghuang Ancient Town' },
+  '凤凰': { lng: 109.598479, lat: 27.947978, name: 'Fenghuang County' },
+  '凤凰县': { lng: 109.598479, lat: 27.947978, name: 'Fenghuang County' },
+  '凤凰古城': { lng: 109.598479, lat: 27.947978, name: 'Fenghuang Ancient Town' },
+  'xiangxi': { lng: 109.598479, lat: 27.947978, name: 'Xiangxi Tujia and Miao Autonomous Prefecture' },
+  '湘西': { lng: 109.598479, lat: 27.947978, name: 'Xiangxi Tujia and Miao Autonomous Prefecture' },
+  '湘西土家族自治州': { lng: 109.598479, lat: 27.947978, name: 'Xiangxi Tujia and Miao Autonomous Prefecture' },
+  // 贵州地区
+  'guiyang': { lng: 106.630, lat: 26.647, name: 'Guiyang' },
+  '贵阳': { lng: 106.630, lat: 26.647, name: 'Guiyang' },
+  'guiyang city': { lng: 106.630, lat: 26.647, name: 'Guiyang' },
+  'xijiang': { lng: 108.17000, lat: 26.49667, name: 'Xijiang Miao Village' },
+  'xijiang miao village': { lng: 108.17000, lat: 26.49667, name: 'Xijiang Miao Village' },
+  'xijiang qianhu miao village': { lng: 108.17000, lat: 26.49667, name: 'Xijiang Qianhu Miao Village' },
+  '西江': { lng: 108.17000, lat: 26.49667, name: 'Xijiang Miao Village' },
+  '西江千户苗寨': { lng: 108.17000, lat: 26.49667, name: 'Xijiang Qianhu Miao Village' },
+  'leishan': { lng: 108.17000, lat: 26.49667, name: 'Leishan County' },
+  '雷山': { lng: 108.17000, lat: 26.49667, name: 'Leishan County' },
+  '雷山县': { lng: 108.17000, lat: 26.49667, name: 'Leishan County' },
+  'libo': { lng: 107.8988, lat: 25.4238, name: 'Libo County' },
+  'libo county': { lng: 107.8988, lat: 25.4238, name: 'Libo County' },
+  '荔波': { lng: 107.8988, lat: 25.4238, name: 'Libo County' },
+  '荔波县': { lng: 107.8988, lat: 25.4238, name: 'Libo County' },
+  'daqikong': { lng: 107.85, lat: 25.35, name: 'Daqikong Scenic Area' },
+  'daqikong scenic area': { lng: 107.85, lat: 25.35, name: 'Daqikong Scenic Area' },
+  '大七孔': { lng: 107.85, lat: 25.35, name: 'Daqikong Scenic Area' },
+  'big seven arches': { lng: 107.85, lat: 25.35, name: 'Daqikong Scenic Area' },
+  'zhaoxing': { lng: 109.1749306, lat: 25.9098500, name: 'Zhaoxing Dong Village' },
+  'zhaoxing dong village': { lng: 109.1749306, lat: 25.9098500, name: 'Zhaoxing Dong Village' },
+  '肇兴': { lng: 109.1749306, lat: 25.9098500, name: 'Zhaoxing Dong Village' },
+  '肇兴侗寨': { lng: 109.1749306, lat: 25.9098500, name: 'Zhaoxing Dong Village' },
+  'liping': { lng: 109.1749306, lat: 25.9098500, name: 'Liping County' },
+  '黎平': { lng: 109.1749306, lat: 25.9098500, name: 'Liping County' },
+  '黎平县': { lng: 109.1749306, lat: 25.9098500, name: 'Liping County' },
+  'luodian': { lng: 106.7520, lat: 25.4258, name: 'Luodian County' },
+  'luodian county': { lng: 106.7520, lat: 25.4258, name: 'Luodian County' },
+  '罗甸': { lng: 106.7520, lat: 25.4258, name: 'Luodian County' },
+  '罗甸县': { lng: 106.7520, lat: 25.4258, name: 'Luodian County' },
+  'xingyi': { lng: 104.894997, lat: 25.091999, name: 'Xingyi' },
+  '兴义': { lng: 104.894997, lat: 25.091999, name: 'Xingyi' },
+  'xingyi city': { lng: 104.894997, lat: 25.091999, name: 'Xingyi' },
+  '兴义市': { lng: 104.894997, lat: 25.091999, name: 'Xingyi' },
+  'zhenning': { lng: 105.7703, lat: 26.0581, name: 'Zhenning County' },
+  'zhenning county': { lng: 105.7703, lat: 26.0581, name: 'Zhenning County' },
+  '镇宁': { lng: 105.7703, lat: 26.0581, name: 'Zhenning County' },
+  '镇宁县': { lng: 105.7703, lat: 26.0581, name: 'Zhenning County' },
+  'anshun': { lng: 105.9333, lat: 26.2500, name: 'Anshun' },
+  '安顺': { lng: 105.9333, lat: 26.2500, name: 'Anshun' },
+  'anshun city': { lng: 105.9333, lat: 26.2500, name: 'Anshun' },
+  'huangguoshu': { lng: 105.666, lat: 25.992, name: 'Huangguoshu Waterfall' },
+  'huangguoshu waterfall': { lng: 105.666, lat: 25.992, name: 'Huangguoshu Waterfall' },
+  '黄果树': { lng: 105.666, lat: 25.992, name: 'Huangguoshu Waterfall' },
+  '黄果树瀑布': { lng: 105.666, lat: 25.992, name: 'Huangguoshu Waterfall' },
+  'wulong': { lng: 107.70000, lat: 29.38000, name: 'Wulong' },
+  '武隆': { lng: 107.70000, lat: 29.38000, name: 'Wulong' },
+  'wulong district': { lng: 107.70000, lat: 29.38000, name: 'Wulong' },
+  'wulong karst': { lng: 107.70000, lat: 29.38000, name: 'Wulong Karst' },
+  '武隆喀斯特': { lng: 107.70000, lat: 29.38000, name: 'Wulong Karst' },
+  'pengshui': { lng: 108.16361, lat: 29.29417, name: 'Pengshui' },
+  '彭水': { lng: 108.16361, lat: 29.29417, name: 'Pengshui' },
+  'pengshui county': { lng: 108.16361, lat: 29.29417, name: 'Pengshui County' },
+  '彭水县': { lng: 108.16361, lat: 29.29417, name: 'Pengshui County' },
+  'dujiangyan': { lng: 103.647, lat: 30.988, name: 'Dujiangyan' },
+  '都江堰': { lng: 103.647, lat: 30.988, name: 'Dujiangyan' },
+  'dujiangyan city': { lng: 103.647, lat: 30.988, name: 'Dujiangyan' },
+  'dujiangyan irrigation system': { lng: 103.647, lat: 30.988, name: 'Dujiangyan Irrigation System' },
+  '都江堰水利工程': { lng: 103.647, lat: 30.988, name: 'Dujiangyan Irrigation System' },
+  'leshan': { lng: 103.766, lat: 29.552, name: 'Leshan' },
+  '乐山': { lng: 103.766, lat: 29.552, name: 'Leshan' },
+  'leshan city': { lng: 103.766, lat: 29.552, name: 'Leshan' },
+  'leshan giant buddha': { lng: 103.768, lat: 29.541, name: 'Leshan Giant Buddha' },
+  '乐山大佛': { lng: 103.768, lat: 29.541, name: 'Leshan Giant Buddha' },
+  'emeishan': { lng: 103.33250, lat: 29.51972, name: 'Mount Emei' },
+  'mount emei': { lng: 103.33250, lat: 29.51972, name: 'Mount Emei' },
+  'emei mountain': { lng: 103.33250, lat: 29.51972, name: 'Mount Emei' },
+  '峨眉山': { lng: 103.33250, lat: 29.51972, name: 'Mount Emei' },
+  'emei shan': { lng: 103.33250, lat: 29.51972, name: 'Mount Emei' },
   'songpan': { lng: 103.59, lat: 32.65, name: 'Songpan' },
   '松潘': { lng: 103.59, lat: 32.65, name: 'Songpan' },
   'huanglong': { lng: 103.82, lat: 32.75, name: 'Huanglong' },
   '黄龙': { lng: 103.82, lat: 32.75, name: 'Huanglong' },
   'meishan': { lng: 103.85, lat: 30.05, name: 'Meishan' },
   '眉山': { lng: 103.85, lat: 30.05, name: 'Meishan' },
+  // 凉山州地区
+  'xichang': { lng: 102.264450, lat: 27.894505, name: 'Xichang' },
+  '西昌': { lng: 102.264450, lat: 27.894505, name: 'Xichang' },
+  'xichang city': { lng: 102.264450, lat: 27.894505, name: 'Xichang' },
+  'lushan xichang': { lng: 102.3, lat: 27.9, name: 'Lushan Xichang' },
+  '泸山': { lng: 102.3, lat: 27.9, name: 'Lushan Xichang' },
+  'lushan mountain xichang': { lng: 102.3, lat: 27.9, name: 'Lushan Xichang' },
+  '西昌泸山': { lng: 102.3, lat: 27.9, name: 'Lushan Xichang' },
+  'luojishan': { lng: 102.43250, lat: 27.58389, name: 'Luojishan' },
+  '螺髻山': { lng: 102.43250, lat: 27.58389, name: 'Luojishan' },
+  'luoji mountain': { lng: 102.43250, lat: 27.58389, name: 'Luojishan' },
+  'qionghai': { lng: 102.31028, lat: 27.82139, name: 'Qionghai Lake' },
+  'qionghai lake': { lng: 102.31028, lat: 27.82139, name: 'Qionghai Lake' },
+  '邛海': { lng: 102.31028, lat: 27.82139, name: 'Qionghai Lake' },
+  'qiong lake': { lng: 102.31028, lat: 27.82139, name: 'Qionghai Lake' },
+  'liangshan': { lng: 102.264450, lat: 27.894505, name: 'Liangshan Prefecture' },
+  '凉山': { lng: 102.264450, lat: 27.894505, name: 'Liangshan Prefecture' },
+  '凉山州': { lng: 102.264450, lat: 27.894505, name: 'Liangshan Prefecture' },
+  // 川西地区
+  'ganzi': { lng: 99.9887, lat: 31.6273, name: 'Ganzi' },
+  'garze': { lng: 99.9887, lat: 31.6273, name: 'Ganzi' },
+  'garzê': { lng: 99.9887, lat: 31.6273, name: 'Ganzi' },
+  'kardze': { lng: 99.9887, lat: 31.6273, name: 'Ganzi' },
+  '甘孜': { lng: 99.9887, lat: 31.6273, name: 'Ganzi' },
+  'ganzi prefecture': { lng: 99.9887, lat: 31.6273, name: 'Ganzi' },
+  '甘孜州': { lng: 99.9887, lat: 31.6273, name: 'Ganzi' },
+  'daocheng': { lng: 100.2974, lat: 29.0379, name: 'Daocheng' },
+  '稻城': { lng: 100.2974, lat: 29.0379, name: 'Daocheng' },
+  'daocheng county': { lng: 100.2974, lat: 29.0379, name: 'Daocheng' },
+  'yading': { lng: 100.0603, lat: 29.3163, name: 'Yading' },
+  '亚丁': { lng: 100.0603, lat: 29.3163, name: 'Yading' },
+  'yading nature reserve': { lng: 100.0603, lat: 29.3163, name: 'Yading Nature Reserve' },
+  '亚丁自然保护区': { lng: 100.0603, lat: 29.3163, name: 'Yading Nature Reserve' },
+  'daocheng yading': { lng: 100.0603, lat: 29.3163, name: 'Yading' },
+  '稻城亚丁': { lng: 100.0603, lat: 29.3163, name: 'Yading' },
+  'kangding': { lng: 101.9641, lat: 30.0500, name: 'Kangding' },
+  '康定': { lng: 101.9641, lat: 30.0500, name: 'Kangding' },
+  'litang': { lng: 100.2692, lat: 30.0058, name: 'Litang' },
+  '理塘': { lng: 100.2692, lat: 30.0058, name: 'Litang' },
+  'tagong': { lng: 101.5000, lat: 30.2833, name: 'Tagong' },
+  '塔公': { lng: 101.5000, lat: 30.2833, name: 'Tagong' },
+  'tagong grassland': { lng: 101.5000, lat: 30.2833, name: 'Tagong Grassland' },
+  '塔公草原': { lng: 101.5000, lat: 30.2833, name: 'Tagong Grassland' },
+  // 阿坝州四姑娘山镇 (Siguniangshan Town, Aba Prefecture)
+  'siguniangshan': { lng: 102.83028, lat: 30.99250, name: 'Siguniangshan Town' },
+  'siguniangshan town': { lng: 102.83028, lat: 30.99250, name: 'Siguniangshan Town' },
+  'siguniang': { lng: 102.83028, lat: 30.99250, name: 'Siguniangshan Town' },
+  'mount siguniang': { lng: 102.83028, lat: 30.99250, name: 'Siguniangshan Town' },
+  '四姑娘山': { lng: 102.83028, lat: 30.99250, name: 'Siguniangshan Town' },
+  '四姑娘山镇': { lng: 102.83028, lat: 30.99250, name: 'Siguniangshan Town' },
+  'rilong': { lng: 102.83028, lat: 30.99250, name: 'Siguniangshan Town' },
+  '日隆': { lng: 102.83028, lat: 30.99250, name: 'Siguniangshan Town' },
+  '日隆镇': { lng: 102.83028, lat: 30.99250, name: 'Siguniangshan Town' },
+  // 甘孜丹巴县 (Danba County, Ganzi)
+  'danba': { lng: 101.850, lat: 30.950, name: 'Danba County' },
+  'danba county': { lng: 101.850, lat: 30.950, name: 'Danba County' },
+  '丹巴': { lng: 101.850, lat: 30.950, name: 'Danba County' },
+  '丹巴县': { lng: 101.850, lat: 30.950, name: 'Danba County' },
+  'chaggo': { lng: 101.850, lat: 30.950, name: 'Danba County' },
+  '章谷': { lng: 101.850, lat: 30.950, name: 'Danba County' },
+  '章谷镇': { lng: 101.850, lat: 30.950, name: 'Danba County' },
+  // 康定色龙村 (Selong Village, Kangding)
+  'selong': { lng: 101.85, lat: 30.12, name: 'Selong Village' },
+  'selong village': { lng: 101.85, lat: 30.12, name: 'Selong Village' },
+  '色龙': { lng: 101.85, lat: 30.12, name: 'Selong Village' },
+  '色龙村': { lng: 101.85, lat: 30.12, name: 'Selong Village' },
+  'secret village': { lng: 101.85, lat: 30.12, name: 'Selong Village' },
+  // 甘孜八美镇 (Bamei Town, Ganzi)
+  'bamei': { lng: 101.3, lat: 30.5, name: 'Bamei Town' },
+  'bamei town': { lng: 101.3, lat: 30.5, name: 'Bamei Town' },
+  '八美': { lng: 101.3, lat: 30.5, name: 'Bamei Town' },
+  '八美镇': { lng: 101.3, lat: 30.5, name: 'Bamei Town' },
+  // 白玉县 (Baiyu County)
+  'baiyu': { lng: 98.817, lat: 31.217, name: 'Baiyu County' },
+  'baiyu county': { lng: 98.817, lat: 31.217, name: 'Baiyu County' },
+  '白玉': { lng: 98.817, lat: 31.217, name: 'Baiyu County' },
+  '白玉县': { lng: 98.817, lat: 31.217, name: 'Baiyu County' },
+  // 德格县 (Dege County)
+  'dege': { lng: 98.5809, lat: 31.8061, name: 'Dege County' },
+  'dege county': { lng: 98.5809, lat: 31.8061, name: 'Dege County' },
+  'derge': { lng: 98.5809, lat: 31.8061, name: 'Dege County' },
+  '德格': { lng: 98.5809, lat: 31.8061, name: 'Dege County' },
+  '德格县': { lng: 98.5809, lat: 31.8061, name: 'Dege County' },
+  // 马尼干戈 (Manigango)
+  'manigango': { lng: 99.20639, lat: 31.92972, name: 'Manigango' },
+  '马尼干戈': { lng: 99.20639, lat: 31.92972, name: 'Manigango' },
+  '马尼干戈县': { lng: 99.20639, lat: 31.92972, name: 'Manigango' },
   
   // 北京地区
   'beijing': { lng: 116.4074, lat: 39.9042, name: 'Beijing' },
@@ -171,6 +535,120 @@ const CITY_GEO_DB: Record<string, { lng: number; lat: number; name: string }> = 
   '阿尔山': { lng: 120.32, lat: 47.17, name: 'Arxan' },
   'arxan national forest park': { lng: 120.44, lat: 47.30, name: 'Arxan National Forest Park' },
   '阿尔山国家森林公园': { lng: 120.44, lat: 47.30, name: 'Arxan National Forest Park' },
+  
+  // 云南地区
+  'yunnan': { lng: 102.7123, lat: 25.0406, name: 'Yunnan' },
+  '云南': { lng: 102.7123, lat: 25.0406, name: 'Yunnan' },
+  'kunming': { lng: 102.7123, lat: 25.0406, name: 'Kunming' },
+  '昆明': { lng: 102.7123, lat: 25.0406, name: 'Kunming' },
+  'dali': { lng: 100.2676, lat: 25.6065, name: 'Dali' },
+  '大理': { lng: 100.2676, lat: 25.6065, name: 'Dali' },
+  'dali ancient city': { lng: 100.2676, lat: 25.6065, name: 'Dali Ancient City' },
+  '大理古城': { lng: 100.2676, lat: 25.6065, name: 'Dali Ancient City' },
+  'lijiang': { lng: 100.2277, lat: 26.8550, name: 'Lijiang' },
+  '丽江': { lng: 100.2277, lat: 26.8550, name: 'Lijiang' },
+  'lijiang ancient town': { lng: 100.2277, lat: 26.8550, name: 'Lijiang Ancient Town' },
+  '丽江古城': { lng: 100.2277, lat: 26.8550, name: 'Lijiang Ancient Town' },
+  'shangri-la': { lng: 99.7020, lat: 27.8297, name: 'Shangri-La' },
+  '香格里拉': { lng: 99.7020, lat: 27.8297, name: 'Shangri-La' },
+  'zhongdian': { lng: 99.7020, lat: 27.8297, name: 'Shangri-La' },
+  '中甸': { lng: 99.7020, lat: 27.8297, name: 'Shangri-La' },
+  'xishuangbanna': { lng: 100.7979, lat: 22.0094, name: 'Xishuangbanna' },
+  '西双版纳': { lng: 100.7979, lat: 22.0094, name: 'Xishuangbanna' },
+  'jinghong': { lng: 100.7979, lat: 22.0094, name: 'Jinghong' },
+  '景洪': { lng: 100.7979, lat: 22.0094, name: 'Jinghong' },
+  'tengchong': { lng: 98.4973, lat: 25.0206, name: 'Tengchong' },
+  '腾冲': { lng: 98.4973, lat: 25.0206, name: 'Tengchong' },
+  'heshun': { lng: 98.4569, lat: 25.0114, name: 'Heshun Ancient Town' },
+  '和顺': { lng: 98.4569, lat: 25.0114, name: 'Heshun Ancient Town' },
+  'heshun ancient town': { lng: 98.4569, lat: 25.0114, name: 'Heshun Ancient Town' },
+  '和顺古镇': { lng: 98.4569, lat: 25.0114, name: 'Heshun Ancient Town' },
+  'stone forest': { lng: 103.3333, lat: 24.8167, name: 'Stone Forest' },
+  '石林': { lng: 103.3333, lat: 24.8167, name: 'Stone Forest' },
+  'shilin': { lng: 103.3333, lat: 24.8167, name: 'Stone Forest' },
+  'erhai': { lng: 100.1833, lat: 25.6167, name: 'Erhai Lake' },
+  '洱海': { lng: 100.1833, lat: 25.6167, name: 'Erhai Lake' },
+  'erhai lake': { lng: 100.1833, lat: 25.6167, name: 'Erhai Lake' },
+  'yulong snow mountain': { lng: 100.2667, lat: 27.1000, name: 'Yulong Snow Mountain' },
+  '玉龙雪山': { lng: 100.2667, lat: 27.1000, name: 'Yulong Snow Mountain' },
+  'tiger leaping gorge': { lng: 100.1167, lat: 27.2000, name: 'Tiger Leaping Gorge' },
+  '虎跳峡': { lng: 100.1167, lat: 27.2000, name: 'Tiger Leaping Gorge' },
+  
+  // 西藏地区
+  'tibet': { lng: 91.1172, lat: 29.6475, name: 'Tibet' },
+  '西藏': { lng: 91.1172, lat: 29.6475, name: 'Tibet' },
+  'tibetan': { lng: 91.1172, lat: 29.6475, name: 'Tibet' },
+  'lhasa': { lng: 91.1172, lat: 29.6475, name: 'Lhasa' },
+  '拉萨': { lng: 91.1172, lat: 29.6475, name: 'Lhasa' },
+  'potala palace': { lng: 91.1172, lat: 29.6558, name: 'Potala Palace' },
+  '布达拉宫': { lng: 91.1172, lat: 29.6558, name: 'Potala Palace' },
+  'jokhang temple': { lng: 91.1324, lat: 29.6531, name: 'Jokhang Temple' },
+  '大昭寺': { lng: 91.1324, lat: 29.6531, name: 'Jokhang Temple' },
+  'samye': { lng: 91.5037, lat: 29.3255, name: 'Samye Monastery' },
+  'samye monastery': { lng: 91.5037, lat: 29.3255, name: 'Samye Monastery' },
+  '桑耶寺': { lng: 91.5037, lat: 29.3255, name: 'Samye Monastery' },
+  'namtso': { lng: 90.5000, lat: 30.8333, name: 'Namtso Lake' },
+  '纳木错': { lng: 90.5000, lat: 30.8333, name: 'Namtso Lake' },
+  'namtso lake': { lng: 90.5000, lat: 30.8333, name: 'Namtso Lake' },
+  'yamdrok lake': { lng: 90.6833, lat: 28.9500, name: 'Yamdrok Lake' },
+  '羊卓雍错': { lng: 90.6833, lat: 28.9500, name: 'Yamdrok Lake' },
+  'yamdrok': { lng: 90.6833, lat: 28.9500, name: 'Yamdrok Lake' },
+  'holy lake': { lng: 90.6833, lat: 28.9500, name: 'Yamdrok Lake' },
+  '圣湖': { lng: 90.6833, lat: 28.9500, name: 'Yamdrok Lake' },
+  'damxung': { lng: 91.1012, lat: 30.4731, name: 'Damxung' },
+  '当雄': { lng: 91.1012, lat: 30.4731, name: 'Damxung' },
+  'damxung county': { lng: 91.1012, lat: 30.4731, name: 'Damxung' },
+  'basum tso': { lng: 93.9503, lat: 30.0142, name: 'Basum Tso' },
+  'basum tsho': { lng: 93.9503, lat: 30.0142, name: 'Basum Tso' },
+  'basum lake': { lng: 93.9503, lat: 30.0142, name: 'Basum Tso' },
+  'pagsum lake': { lng: 93.9503, lat: 30.0142, name: 'Basum Tso' },
+  'pagsum co': { lng: 93.9503, lat: 30.0142, name: 'Basum Tso' },
+  '巴松措': { lng: 93.9503, lat: 30.0142, name: 'Basum Tso' },
+  '巴松错': { lng: 93.9503, lat: 30.0142, name: 'Basum Tso' },
+  'nyingchi': { lng: 94.3566, lat: 29.6518, name: 'Nyingchi' },
+  'nyingchi city': { lng: 94.3566, lat: 29.6518, name: 'Nyingchi' },
+  '林芝': { lng: 94.3566, lat: 29.6518, name: 'Nyingchi' },
+  '林芝市': { lng: 94.3566, lat: 29.6518, name: 'Nyingchi' },
+  'mount everest': { lng: 86.9250, lat: 27.9881, name: 'Mount Everest' },
+  '珠穆朗玛峰': { lng: 86.9250, lat: 27.9881, name: 'Mount Everest' },
+  'everest': { lng: 86.9250, lat: 27.9881, name: 'Mount Everest' },
+  'gyantse': { lng: 89.6045, lat: 28.9148, name: 'Gyantse' },
+  'gyangtse': { lng: 89.6045, lat: 28.9148, name: 'Gyantse' },
+  'gyangzê': { lng: 89.6045, lat: 28.9148, name: 'Gyantse' },
+  '江孜': { lng: 89.6045, lat: 28.9148, name: 'Gyantse' },
+  'gyantse county': { lng: 89.6045, lat: 28.9148, name: 'Gyantse' },
+  '江孜县': { lng: 89.6045, lat: 28.9148, name: 'Gyantse' },
+  'pelkor': { lng: 89.6045, lat: 28.9148, name: 'Pelkor Chode Monastery' },
+  'pelkor chode': { lng: 89.6045, lat: 28.9148, name: 'Pelkor Chode Monastery' },
+  'pelkor monastery': { lng: 89.6045, lat: 28.9148, name: 'Pelkor Chode Monastery' },
+  'kumbum': { lng: 89.6045, lat: 28.9148, name: 'Pelkor Chode Monastery' },
+  '白居寺': { lng: 89.6045, lat: 28.9148, name: 'Pelkor Chode Monastery' },
+  'shigatse': { lng: 88.8833, lat: 29.2667, name: 'Shigatse' },
+  '日喀则': { lng: 88.8833, lat: 29.2667, name: 'Shigatse' },
+  'xigaze': { lng: 88.8833, lat: 29.2667, name: 'Shigatse' },
+  'tashilhunpo monastery': { lng: 88.8833, lat: 29.2667, name: 'Tashilhunpo Monastery' },
+  '扎什伦布寺': { lng: 88.8833, lat: 29.2667, name: 'Tashilhunpo Monastery' },
+  
+  // 青海地区
+  'qinghai': { lng: 101.778, lat: 36.6212, name: 'Qinghai' },
+  '青海': { lng: 101.778, lat: 36.6212, name: 'Qinghai' },
+  'koko nor': { lng: 100.1333, lat: 36.9000, name: 'Qinghai Lake' },
+  'chaka': { lng: 99.0833, lat: 36.8000, name: 'Chaka' },
+  '茶卡': { lng: 99.0833, lat: 36.8000, name: 'Chaka' },
+  'chaka salt lake': { lng: 99.0833, lat: 36.8000, name: 'Chaka Salt Lake' },
+  '茶卡盐湖': { lng: 99.0833, lat: 36.8000, name: 'Chaka Salt Lake' },
+  'qarhan salt lake': { lng: 99.0833, lat: 36.8000, name: 'Chaka Salt Lake' },
+  'golmud': { lng: 94.9053, lat: 36.4019, name: 'Golmud' },
+  '格尔木': { lng: 94.9053, lat: 36.4019, name: 'Golmud' },
+  'geermu': { lng: 94.9053, lat: 36.4019, name: 'Golmud' },
+  'tuotuo river': { lng: 92.4333, lat: 34.2167, name: 'Tuotuo River' },
+  '沱沱河': { lng: 92.4333, lat: 34.2167, name: 'Tuotuo River' },
+  'tangula': { lng: 91.9333, lat: 33.2000, name: 'Tangula Pass' },
+  '唐古拉': { lng: 91.9333, lat: 33.2000, name: 'Tangula Pass' },
+  'tangula pass': { lng: 91.9333, lat: 33.2000, name: 'Tangula Pass' },
+  'nagqu': { lng: 92.0500, lat: 31.4667, name: 'Nagqu' },
+  '那曲': { lng: 92.0500, lat: 31.4667, name: 'Nagqu' },
+  'naqu': { lng: 92.0500, lat: 31.4667, name: 'Nagqu' },
   
   // 可以继续添加其他地区...
 };
@@ -276,27 +754,80 @@ export default function DynamicJourneyPage() {
     if (!journey || isDayTour || !journey.itinerary) return undefined;
     
     // 【关键修复点】：获取行程的总中心点作为保底（行程区域感知）
-    // 如果 journey 有 longitude/latitude，使用它；否则根据城市判断
-    // 对于北京-山西行程，使用北京和山西之间的中点作为默认值
-    let baseLng = 116.4074; // 北京经度
-    let baseLat = 39.9042; // 北京纬度
+    // 如果 journey 有 longitude/latitude，使用它；否则根据城市、标题或 region 判断
+    let baseLng = 116.4074; // 默认北京经度
+    let baseLat = 39.9042; // 默认北京纬度
     
     // 如果 journey 有明确的坐标，使用它
     if ((journey as any).longitude && (journey as any).latitude) {
       baseLng = Number((journey as any).longitude);
       baseLat = Number((journey as any).latitude);
     } else {
-      // 根据城市或标题判断区域
-      const journeyCity = (journey.city || journey.title || '').toLowerCase();
-      if (journeyCity.includes('beijing') || journeyCity.includes('北京')) {
+      // 根据 region、城市或标题判断区域（优先级：region > city > title）
+      const searchText = `${journey.region || ''} ${journey.city || ''} ${journey.title || ''}`.toLowerCase();
+      
+      // 云南地区
+      if (searchText.includes('yunnan') || searchText.includes('云南') || 
+          searchText.includes('kunming') || searchText.includes('昆明') ||
+          searchText.includes('dali') || searchText.includes('大理') ||
+          searchText.includes('lijiang') || searchText.includes('丽江') ||
+          searchText.includes('shangri-la') || searchText.includes('香格里拉') ||
+          searchText.includes('xishuangbanna') || searchText.includes('西双版纳') ||
+          searchText.includes('tengchong') || searchText.includes('腾冲')) {
+        baseLng = 102.7123; // 昆明经度（云南中心）
+        baseLat = 25.0406; // 昆明纬度
+      }
+      // 西藏地区
+      else if (searchText.includes('tibet') || searchText.includes('西藏') ||
+               searchText.includes('lhasa') || searchText.includes('拉萨') ||
+               searchText.includes('tibetan')) {
+        baseLng = 91.1172; // 拉萨经度
+        baseLat = 29.6475; // 拉萨纬度
+      }
+      // 北京地区
+      else if (searchText.includes('beijing') || searchText.includes('北京')) {
         baseLng = 116.4074;
         baseLat = 39.9042;
-      } else if (journeyCity.includes('shanxi') || journeyCity.includes('山西')) {
+      }
+      // 山西地区
+      else if (searchText.includes('shanxi') || searchText.includes('山西')) {
         baseLng = 112.5624;
         baseLat = 37.8739;
-      } else if (journeyCity.includes('chengdu') || journeyCity.includes('成都')) {
+      }
+      // 四川/成都地区
+      else if (searchText.includes('chengdu') || searchText.includes('成都') ||
+               searchText.includes('sichuan') || searchText.includes('四川')) {
         baseLng = 104.06;
         baseLat = 30.67;
+      }
+      // 川西/甘孜地区
+      else if (searchText.includes('ganzi') || searchText.includes('甘孜') ||
+               searchText.includes('garze') || searchText.includes('kardze') ||
+               searchText.includes('western sichuan') || searchText.includes('川西') ||
+               searchText.includes('daocheng') || searchText.includes('稻城') ||
+               searchText.includes('yading') || searchText.includes('亚丁')) {
+        baseLng = 100.0603; // 亚丁经度（川西中心）
+        baseLat = 29.3163; // 亚丁纬度
+      }
+      // 青海/西宁地区
+      else if (searchText.includes('qinghai') || searchText.includes('青海') ||
+               searchText.includes('xining') || searchText.includes('西宁')) {
+        baseLng = 101.7574; // 西宁经度
+        baseLat = 36.6255; // 西宁纬度
+      }
+      // 根据 region 字段判断（如果存在）
+      else if (journey.region) {
+        const regionLower = journey.region.toLowerCase();
+        if (regionLower.includes('southwest') || regionLower.includes('yunnan')) {
+          baseLng = 102.7123; // 云南
+          baseLat = 25.0406;
+        } else if (regionLower.includes('tibet') || regionLower.includes('tibetan')) {
+          baseLng = 91.1172; // 西藏
+          baseLat = 29.6475;
+        } else if (regionLower.includes('north') && !regionLower.includes('west')) {
+          baseLng = 116.4074; // 北京
+          baseLat = 39.9042;
+        }
       }
     }
     
@@ -308,8 +839,19 @@ export default function DynamicJourneyPage() {
     });
     
     return journey.itinerary.map((day, index) => {
-      // 整合标题和描述进行模糊搜索
-      const searchText = `${day.title || ''} ${day.description || ''}`.toLowerCase();
+      // 整合标题、描述和活动列表进行模糊搜索（activities 可能包含地点信息）
+      const activitiesText = Array.isArray((day as any).activities) 
+        ? (day as any).activities.join(' ') 
+        : '';
+      const searchText = `${day.title || ''} ${day.description || ''} ${activitiesText}`.toLowerCase();
+      
+      console.log(`[page.tsx] Day ${day.day} search text:`, {
+        title: day.title,
+        description: day.description,
+        activities: (day as any).activities,
+        searchText: searchText.substring(0, 300), // 显示前300个字符
+        hasGyantse: searchText.includes('gyantse') || searchText.includes('gyangtse') || searchText.includes('江孜') || searchText.includes('pelkor') || searchText.includes('kumbum')
+      });
       
       // 优先级 1: 使用数据库中存储的坐标（如果存在）
       let finalLng: number | undefined = undefined;
@@ -323,22 +865,1939 @@ export default function DynamicJourneyPage() {
         console.log(`[page.tsx] Day ${day.day}: Using database coordinates`, { finalCity, finalLng, finalLat });
       }
       
-      // 优先级 2: 从地理字典中匹配（模糊搜索）
+      // 优先级 2: 从地理字典中匹配（精确匹配优先，避免误匹配）
       if (!finalLng || !finalLat) {
-        // 在搜索文本中查找匹配的城市关键词
-        const matchedEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
-          const lowerKey = key.toLowerCase();
-          return searchText.includes(lowerKey) || 
-                 ((day as any).city && (day as any).city.toLowerCase().includes(lowerKey)) ||
-                 ((day as any).location && (day as any).location.toLowerCase().includes(lowerKey));
-        });
+        // 根据 journey 的区域信息，排除不相关的地点
+        const journeyRegionText = `${journey.region || ''} ${journey.city || ''} ${journey.title || ''}`.toLowerCase();
+        const isTibetRoute = journeyRegionText.includes('tibet') || journeyRegionText.includes('西藏') || 
+                            journeyRegionText.includes('xining') || journeyRegionText.includes('西宁') ||
+                            journeyRegionText.includes('lhasa') || journeyRegionText.includes('拉萨') ||
+                            journeyRegionText.includes('qinghai') || journeyRegionText.includes('青海');
+        const isBeijingRoute = journeyRegionText.includes('beijing') || journeyRegionText.includes('北京');
         
-        if (matchedEntry) {
-          const [, geoData] = matchedEntry;
-          finalLng = geoData.lng;
-          finalLat = geoData.lat;
-          finalCity = geoData.name;
-          console.log(`[page.tsx] Day ${day.day}: Matched from Geo Dictionary:`, { key: matchedEntry[0], finalCity, finalLng, finalLat });
+        // 特殊处理：针对 "Xining to Qinghai Lake, Zhangye & Dunhuang Grand 10-Day Tour" 行程的 Day 2 和 Day 3 直接定位到青海湖
+        const isXiningQinghaiZhangyeRoute = (journeyRegionText.includes('xining') && journeyRegionText.includes('qinghai')) ||
+                                            (journeyRegionText.includes('西宁') && journeyRegionText.includes('青海')) ||
+                                            (journeyRegionText.includes('xining') && journeyRegionText.includes('zhangye')) ||
+                                            (journeyRegionText.includes('西宁') && journeyRegionText.includes('张掖'));
+        if (isXiningQinghaiZhangyeRoute && (day.day === 2 || day.day === 3)) {
+          const qinghaiLakeEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+            const lowerKey = key.toLowerCase();
+            return lowerKey === 'qinghai lake' || lowerKey === '青海湖';
+          });
+          if (qinghaiLakeEntry) {
+            const [, geoData] = qinghaiLakeEntry;
+            finalLng = geoData.lng;
+            finalLat = geoData.lat;
+            finalCity = geoData.name;
+            console.log(`[page.tsx] Day ${day.day}: Direct Qinghai Lake match (Day 2/3 rule - priority):`, { 
+              key: qinghaiLakeEntry[0], 
+              finalCity, 
+              finalLng, 
+              finalLat 
+            });
+          }
+        }
+        
+        // 特殊处理：如果标题中包含 "to Gyantse" 或 "Gyantse to"，优先匹配 Gyantse
+        const titleLower = day.title?.toLowerCase() || '';
+        if ((titleLower.includes('to gyantse') || titleLower.includes('gyantse to') || 
+             titleLower.includes('to gyangtse') || titleLower.includes('gyangtse to') ||
+             searchText.includes('gyantse') || searchText.includes('gyangtse') || 
+             searchText.includes('江孜') || searchText.includes('pelkor') || searchText.includes('kumbum')) &&
+            !finalLng && !finalLat) {
+          // 直接匹配 Gyantse
+          const gyantseEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+            const lowerKey = key.toLowerCase();
+            return lowerKey === 'gyantse' || lowerKey === 'gyangtse' || lowerKey === '江孜' || 
+                   lowerKey === 'pelkor' || lowerKey === 'kumbum';
+          });
+          if (gyantseEntry) {
+            const [, geoData] = gyantseEntry;
+            finalLng = geoData.lng;
+            finalLat = geoData.lat;
+            finalCity = geoData.name;
+            console.log(`[page.tsx] Day ${day.day}: Direct Gyantse match:`, { 
+              key: gyantseEntry[0], 
+              finalCity, 
+              finalLng, 
+              finalLat 
+            });
+          }
+        }
+        
+        // 特殊处理：针对 "Shanghai, Suzhou, Nanjing & Hangzhou Loop 8-Day Tour" 行程的特定地点匹配
+        const isLoop8DayRoute = (journeyRegionText.includes('shanghai') && journeyRegionText.includes('suzhou') && 
+                                 journeyRegionText.includes('nanjing') && journeyRegionText.includes('hangzhou')) ||
+                                (journeyRegionText.includes('上海') && journeyRegionText.includes('苏州') &&
+                                 journeyRegionText.includes('南京') && journeyRegionText.includes('杭州')) ||
+                                journeyRegionText.includes('loop') || journeyRegionText.includes('环线');
+        if (isLoop8DayRoute && !finalLng && !finalLat) {
+          // 如果搜索文本中包含上海相关关键词，匹配到上海
+          if (searchText.includes('shanghai') || searchText.includes('上海')) {
+            const shanghaiEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'shanghai' || lowerKey === 'shanghai city' || lowerKey === '上海';
+            });
+            if (shanghaiEntry) {
+              const [, geoData] = shanghaiEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Shanghai match:`, { 
+                key: shanghaiEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含苏州相关关键词，匹配到苏州
+          if ((!finalLng || !finalLat) && (searchText.includes('suzhou') || searchText.includes('苏州'))) {
+            const suzhouEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'suzhou' || lowerKey === 'suzhou city' || lowerKey === '苏州';
+            });
+            if (suzhouEntry) {
+              const [, geoData] = suzhouEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Suzhou match:`, { 
+                key: suzhouEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含南京相关关键词，匹配到南京
+          if ((!finalLng || !finalLat) && (searchText.includes('nanjing') || searchText.includes('南京'))) {
+            const nanjingEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'nanjing' || lowerKey === 'nanjing city' || lowerKey === '南京';
+            });
+            if (nanjingEntry) {
+              const [, geoData] = nanjingEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Nanjing match:`, { 
+                key: nanjingEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含杭州相关关键词，匹配到杭州
+          if ((!finalLng || !finalLat) && (searchText.includes('hangzhou') || searchText.includes('杭州'))) {
+            const hangzhouEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'hangzhou' || lowerKey === 'hangzhou city' || lowerKey === '杭州';
+            });
+            if (hangzhouEntry) {
+              const [, geoData] = hangzhouEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Hangzhou match:`, { 
+                key: hangzhouEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+        }
+        
+        // 特殊处理：针对 "Xining to Qinghai Lake, Zhangye & Dunhuang Grand 10-Day Tour" 行程的特定地点匹配（Day 2/3 已在前面处理）
+        // 如果搜索文本中包含嘉峪关相关关键词，匹配到嘉峪关
+        if (isXiningQinghaiZhangyeRoute && !finalLng && !finalLat) {
+          if ((!finalLng || !finalLat) && (searchText.includes('jiayuguan') || searchText.includes('嘉峪关'))) {
+            const jiayuguanEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'jiayuguan' || lowerKey === 'jiayuguan city' ||
+                     lowerKey === 'jiayu pass' || lowerKey === '嘉峪关' || lowerKey === '嘉峪关市';
+            });
+            if (jiayuguanEntry) {
+              const [, geoData] = jiayuguanEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Jiayuguan match:`, { 
+                key: jiayuguanEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含张掖丹霞相关关键词，匹配到张掖丹霞
+          if ((!finalLng || !finalLat) && (searchText.includes('zhangye') || searchText.includes('张掖') ||
+              searchText.includes('danxia') || searchText.includes('丹霞'))) {
+            const danxiaEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'zhangye danxia' || lowerKey === 'zhangye danxia national geopark' ||
+                     lowerKey === '张掖丹霞' || lowerKey === '张掖丹霞山' ||
+                     lowerKey === '丹霞' || lowerKey === '丹霞山';
+            });
+            if (danxiaEntry) {
+              const [, geoData] = danxiaEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Zhangye Danxia match:`, { 
+                key: danxiaEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            } else {
+              // 如果没有找到丹霞，尝试匹配张掖市
+              const zhangyeEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+                const lowerKey = key.toLowerCase();
+                return lowerKey === 'zhangye' || lowerKey === 'zhangye city' ||
+                       lowerKey === '张掖' || lowerKey === '张掖市';
+              });
+              if (zhangyeEntry) {
+                const [, geoData] = zhangyeEntry;
+                finalLng = geoData.lng;
+                finalLat = geoData.lat;
+                finalCity = geoData.name;
+                console.log(`[page.tsx] Day ${day.day}: Direct Zhangye match:`, { 
+                  key: zhangyeEntry[0], 
+                  finalCity, 
+                  finalLng, 
+                  finalLat 
+                });
+              }
+            }
+          }
+          // 如果搜索文本中包含祁连相关关键词，匹配到祁连
+          if ((!finalLng || !finalLat) && (searchText.includes('qilian') || searchText.includes('祁连'))) {
+            const qilianEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'qilian' || lowerKey === 'qilian county' ||
+                     lowerKey === '祁连' || lowerKey === '祁连县';
+            });
+            if (qilianEntry) {
+              const [, geoData] = qilianEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Qilian match:`, { 
+                key: qilianEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含刚察相关关键词，匹配到刚察
+          if ((!finalLng || !finalLat) && (searchText.includes('gangcha') || searchText.includes('刚察'))) {
+            const gangchaEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'gangcha' || lowerKey === 'gangcha county' ||
+                     lowerKey === '刚察' || lowerKey === '刚察县';
+            });
+            if (gangchaEntry) {
+              const [, geoData] = gangchaEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Gangcha match:`, { 
+                key: gangchaEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含青海湖相关关键词，匹配到青海湖
+          if ((!finalLng || !finalLat) && (searchText.includes('qinghai lake') || searchText.includes('青海湖'))) {
+            const qinghaiLakeEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'qinghai lake' || lowerKey === '青海湖';
+            });
+            if (qinghaiLakeEntry) {
+              const [, geoData] = qinghaiLakeEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Qinghai Lake match:`, { 
+                key: qinghaiLakeEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含西宁相关关键词，匹配到西宁
+          if ((!finalLng || !finalLat) && (searchText.includes('xining') || searchText.includes('西宁'))) {
+            const xiningEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'xining' || lowerKey === 'xining city' ||
+                     lowerKey === '西宁' || lowerKey === '西宁市';
+            });
+            if (xiningEntry) {
+              const [, geoData] = xiningEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Xining match:`, { 
+                key: xiningEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含敦煌相关关键词，匹配到敦煌
+          if ((!finalLng || !finalLat) && (searchText.includes('dunhuang') || searchText.includes('敦煌'))) {
+            const dunhuangEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'dunhuang' || lowerKey === 'dunhuang city' ||
+                     lowerKey === '敦煌' || lowerKey === '敦煌市';
+            });
+            if (dunhuangEntry) {
+              const [, geoData] = dunhuangEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Dunhuang match:`, { 
+                key: dunhuangEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+        }
+        
+        // 特殊处理：针对 "Dunhuang to Turpan & Kumtag Desert 8-Day Off-Road Adventure Tour" 行程的特定地点匹配
+        const isDunhuangTurpanRoute = (journeyRegionText.includes('dunhuang') && journeyRegionText.includes('turpan')) ||
+                                      (journeyRegionText.includes('敦煌') && journeyRegionText.includes('吐鲁番')) ||
+                                      (journeyRegionText.includes('dunhuang') && journeyRegionText.includes('kumtag')) ||
+                                      (journeyRegionText.includes('敦煌') && journeyRegionText.includes('库姆塔格'));
+        if (isDunhuangTurpanRoute && !finalLng && !finalLat) {
+          // 如果搜索文本中包含鄯善相关关键词，匹配到鄯善
+          if (searchText.includes('shanshan') || searchText.includes('鄯善')) {
+            const shanshanEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'shanshan' || lowerKey === 'shanshan county' ||
+                     lowerKey === '鄯善' || lowerKey === '鄯善县';
+            });
+            if (shanshanEntry) {
+              const [, geoData] = shanshanEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Shanshan match:`, { 
+                key: shanshanEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含库姆塔格沙漠相关关键词，匹配到库姆塔格沙漠
+          if ((!finalLng || !finalLat) && (searchText.includes('kumtag') || searchText.includes('库姆塔格'))) {
+            const kumtagEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'kumtag desert' || lowerKey === 'kumtag' ||
+                     lowerKey === '库姆塔格' || lowerKey === '库姆塔格沙漠';
+            });
+            if (kumtagEntry) {
+              const [, geoData] = kumtagEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Kumtag Desert match:`, { 
+                key: kumtagEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含吐鲁番相关关键词，匹配到吐鲁番
+          if ((!finalLng || !finalLat) && (searchText.includes('turpan') || searchText.includes('吐鲁番'))) {
+            const turpanEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'turpan' || lowerKey === 'turpan city' ||
+                     lowerKey === '吐鲁番' || lowerKey === '吐鲁番市';
+            });
+            if (turpanEntry) {
+              const [, geoData] = turpanEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Turpan match:`, { 
+                key: turpanEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含哈密相关关键词，匹配到哈密
+          if ((!finalLng || !finalLat) && (searchText.includes('hami') || searchText.includes('哈密') ||
+              searchText.includes('kumul'))) {
+            const hamiEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'hami' || lowerKey === 'hami city' ||
+                     lowerKey === '哈密' || lowerKey === '哈密市' || lowerKey === 'kumul';
+            });
+            if (hamiEntry) {
+              const [, geoData] = hamiEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Hami match:`, { 
+                key: hamiEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含敦煌相关关键词，匹配到敦煌
+          if ((!finalLng || !finalLat) && (searchText.includes('dunhuang') || searchText.includes('敦煌'))) {
+            const dunhuangEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'dunhuang' || lowerKey === 'dunhuang city' ||
+                     lowerKey === '敦煌' || lowerKey === '敦煌市';
+            });
+            if (dunhuangEntry) {
+              const [, geoData] = dunhuangEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Dunhuang match:`, { 
+                key: dunhuangEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+        }
+        
+        // 特殊处理：针对 "Urumqi to Altay Winter Wonderland 8-Day Tour" 行程的特定地点匹配
+        const isUrumqiAltayRoute = (journeyRegionText.includes('urumqi') && journeyRegionText.includes('altay')) ||
+                                  (journeyRegionText.includes('乌鲁木齐') && journeyRegionText.includes('阿勒泰')) ||
+                                  (journeyRegionText.includes('altay') && journeyRegionText.includes('winter'));
+        if (isUrumqiAltayRoute && !finalLng && !finalLat) {
+          // 如果搜索文本中包含白哈巴相关关键词，匹配到白哈巴
+          if (searchText.includes('baihaba') || searchText.includes('白哈巴')) {
+            const baihabaEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'baihaba' || lowerKey === 'baihaba village' ||
+                     lowerKey === '白哈巴' || lowerKey === '白哈巴村';
+            });
+            if (baihabaEntry) {
+              const [, geoData] = baihabaEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Baihaba match:`, { 
+                key: baihabaEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含禾木相关关键词，匹配到禾木
+          if ((!finalLng || !finalLat) && (searchText.includes('hemu') || searchText.includes('禾木'))) {
+            const hemuEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'hemu' || lowerKey === 'hemu village' ||
+                     lowerKey === '禾木' || lowerKey === '禾木村';
+            });
+            if (hemuEntry) {
+              const [, geoData] = hemuEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Hemu match:`, { 
+                key: hemuEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含喀纳斯相关关键词，匹配到喀纳斯
+          if ((!finalLng || !finalLat) && (searchText.includes('kanas') || searchText.includes('喀纳斯'))) {
+            const kanasEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'kanas' || lowerKey === 'kanas lake' ||
+                     lowerKey === '喀纳斯' || lowerKey === '喀纳斯湖';
+            });
+            if (kanasEntry) {
+              const [, geoData] = kanasEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Kanas match:`, { 
+                key: kanasEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含阿勒泰相关关键词，匹配到阿勒泰
+          if ((!finalLng || !finalLat) && (searchText.includes('altay') || searchText.includes('阿勒泰'))) {
+            const altayEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'altay' || lowerKey === 'altay city' ||
+                     lowerKey === '阿勒泰' || lowerKey === '阿勒泰市';
+            });
+            if (altayEntry) {
+              const [, geoData] = altayEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Altay match:`, { 
+                key: altayEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含乌鲁木齐相关关键词，匹配到乌鲁木齐
+          if ((!finalLng || !finalLat) && (searchText.includes('urumqi') || searchText.includes('乌鲁木齐'))) {
+            const urumqiEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'urumqi' || lowerKey === 'urumqi city' || lowerKey === '乌鲁木齐';
+            });
+            if (urumqiEntry) {
+              const [, geoData] = urumqiEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Urumqi match:`, { 
+                key: urumqiEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+        }
+        
+        // 特殊处理：针对 "Urumqi to Ili Grassland Nature Loop Tour 7-Day" 行程的特定地点匹配
+        const isUrumqiIliRoute = (journeyRegionText.includes('urumqi') && journeyRegionText.includes('ili')) ||
+                                (journeyRegionText.includes('乌鲁木齐') && journeyRegionText.includes('伊犁')) ||
+                                (journeyRegionText.includes('urumqi') && journeyRegionText.includes('grassland'));
+        if (isUrumqiIliRoute && !finalLng && !finalLat) {
+          // 如果搜索文本中包含那拉提相关关键词，匹配到那拉提
+          if (searchText.includes('nalati') || searchText.includes('那拉提')) {
+            const nalatiEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'nalati' || lowerKey === 'nalati grassland' ||
+                     lowerKey === '那拉提' || lowerKey === '那拉提草原';
+            });
+            if (nalatiEntry) {
+              const [, geoData] = nalatiEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Nalati match:`, { 
+                key: nalatiEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含库尔德宁相关关键词，匹配到库尔德宁
+          if ((!finalLng || !finalLat) && (searchText.includes('kurdening') || searchText.includes('库尔德宁') ||
+              searchText.includes('gongliu') || searchText.includes('巩留'))) {
+            const kurdeningEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'kurdening' || lowerKey === 'kurdening nature reserve' ||
+                     lowerKey === '库尔德宁' || lowerKey === '库尔德宁自然保护区' ||
+                     lowerKey === 'gongliu' || lowerKey === '巩留';
+            });
+            if (kurdeningEntry) {
+              const [, geoData] = kurdeningEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Kurdening match:`, { 
+                key: kurdeningEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含赛里木湖相关关键词，匹配到赛里木湖
+          if ((!finalLng || !finalLat) && (searchText.includes('sairam') || searchText.includes('sayram') ||
+              searchText.includes('赛里木湖'))) {
+            const sairamEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'sairam lake' || lowerKey === 'sayram lake' ||
+                     lowerKey === '赛里木湖';
+            });
+            if (sairamEntry) {
+              const [, geoData] = sairamEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Sayram Lake match:`, { 
+                key: sairamEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含伊宁相关关键词，匹配到伊宁
+          if ((!finalLng || !finalLat) && (searchText.includes('yining') || searchText.includes('伊宁') ||
+              searchText.includes('ili') || searchText.includes('伊犁'))) {
+            const yiningEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'yining' || lowerKey === 'yining city' ||
+                     lowerKey === '伊宁' || lowerKey === 'ili' || lowerKey === '伊犁';
+            });
+            if (yiningEntry) {
+              const [, geoData] = yiningEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Yining match:`, { 
+                key: yiningEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含乌鲁木齐相关关键词，匹配到乌鲁木齐
+          if ((!finalLng || !finalLat) && (searchText.includes('urumqi') || searchText.includes('乌鲁木齐'))) {
+            const urumqiEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'urumqi' || lowerKey === 'urumqi city' || lowerKey === '乌鲁木齐';
+            });
+            if (urumqiEntry) {
+              const [, geoData] = urumqiEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Urumqi match:`, { 
+                key: urumqiEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+        }
+        
+        // 特殊处理：针对 "Guilin to Yangshuo Classic 7-Day Tour" 行程的特定地点匹配
+        const isGuilinYangshuoRoute = (journeyRegionText.includes('guilin') && journeyRegionText.includes('yangshuo')) ||
+                                      (journeyRegionText.includes('桂林') && journeyRegionText.includes('阳朔')) ||
+                                      (journeyRegionText.includes('guilin') && journeyRegionText.includes('classic'));
+        if (isGuilinYangshuoRoute && !finalLng && !finalLat) {
+          // 如果搜索文本中包含阳朔相关关键词，匹配到阳朔
+          if (searchText.includes('yangshuo') || searchText.includes('阳朔')) {
+            const yangshuoEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'yangshuo' || lowerKey === 'yangshuo county' ||
+                     lowerKey === '阳朔' || lowerKey === '阳朔县';
+            });
+            if (yangshuoEntry) {
+              const [, geoData] = yangshuoEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Yangshuo match:`, { 
+                key: yangshuoEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含桂林相关关键词，匹配到桂林
+          if ((!finalLng || !finalLat) && (searchText.includes('guilin') || searchText.includes('桂林'))) {
+            const guilinEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'guilin' || lowerKey === 'guilin city' || lowerKey === '桂林';
+            });
+            if (guilinEntry) {
+              const [, geoData] = guilinEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Guilin match:`, { 
+                key: guilinEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+        }
+        
+        // 特殊处理：针对 "Nanning to Sino-Vietnamese Border Nature 6-Day Tour" 行程的特定地点匹配
+        const isNanningBorderRoute = (journeyRegionText.includes('nanning') && journeyRegionText.includes('sino-vietnamese')) ||
+                                    (journeyRegionText.includes('南宁') && journeyRegionText.includes('中越')) ||
+                                    (journeyRegionText.includes('nanning') && journeyRegionText.includes('border nature'));
+        if (isNanningBorderRoute && !finalLng && !finalLat) {
+          // 如果搜索文本中包含南宁相关关键词，匹配到南宁
+          if (searchText.includes('nanning') || searchText.includes('南宁')) {
+            const nanningEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'nanning' || lowerKey === 'nanning city' || lowerKey === '南宁';
+            });
+            if (nanningEntry) {
+              const [, geoData] = nanningEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Nanning match:`, { 
+                key: nanningEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含凭祥相关关键词，匹配到凭祥
+          if ((!finalLng || !finalLat) && (searchText.includes('pingxiang') || searchText.includes('凭祥'))) {
+            const pingxiangEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'pingxiang' || lowerKey === 'pingxiang city' || lowerKey === '凭祥';
+            });
+            if (pingxiangEntry) {
+              const [, geoData] = pingxiangEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Pingxiang match:`, { 
+                key: pingxiangEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含德天瀑布相关关键词，匹配到德天瀑布
+          if ((!finalLng || !finalLat) && (searchText.includes('detian') || searchText.includes('德天') ||
+              searchText.includes('waterfall') || searchText.includes('瀑布'))) {
+            const detianEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'detian waterfall' || lowerKey === 'detian' ||
+                     lowerKey === '德天瀑布' || lowerKey === 'ban gioc detian falls';
+            });
+            if (detianEntry) {
+              const [, geoData] = detianEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Detian Waterfall match:`, { 
+                key: detianEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含崇左相关关键词，匹配到崇左
+          if ((!finalLng || !finalLat) && (searchText.includes('chongzuo') || searchText.includes('崇左'))) {
+            const chongzuoEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'chongzuo' || lowerKey === 'chongzuo city' ||
+                     lowerKey === '崇左' || lowerKey === '崇左市';
+            });
+            if (chongzuoEntry) {
+              const [, geoData] = chongzuoEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Chongzuo match:`, { 
+                key: chongzuoEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+        }
+        
+        // 特殊处理：针对 "Chaoshan Region Cultural Heritage 6-Day Tour" 行程的特定地点匹配
+        const isChaoshanHeritageRoute = journeyRegionText.includes('chaoshan region') || journeyRegionText.includes('潮汕地区') ||
+                                       (journeyRegionText.includes('chaoshan') && journeyRegionText.includes('cultural heritage')) ||
+                                       (journeyRegionText.includes('潮汕') && journeyRegionText.includes('文化遗产'));
+        if (isChaoshanHeritageRoute && !finalLng && !finalLat) {
+          // 如果搜索文本中包含汕头相关关键词，匹配到汕头
+          if (searchText.includes('shantou') || searchText.includes('汕头')) {
+            const shantouEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'shantou' || lowerKey === 'shantou city' || lowerKey === '汕头';
+            });
+            if (shantouEntry) {
+              const [, geoData] = shantouEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Shantou match:`, { 
+                key: shantouEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含揭阳相关关键词，匹配到揭阳
+          if ((!finalLng || !finalLat) && (searchText.includes('jieyang') || searchText.includes('揭阳'))) {
+            const jieyangEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'jieyang' || lowerKey === 'jieyang city' || lowerKey === '揭阳';
+            });
+            if (jieyangEntry) {
+              const [, geoData] = jieyangEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Jieyang match:`, { 
+                key: jieyangEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含潮州相关关键词，匹配到潮州
+          if ((!finalLng || !finalLat) && (searchText.includes('chaozhou') || searchText.includes('潮州') ||
+              searchText.includes('chaoshan') || searchText.includes('潮汕'))) {
+            const chaozhouEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'chaozhou' || lowerKey === 'chaozhou city' ||
+                     lowerKey === '潮州' || lowerKey === 'chaoshan' || lowerKey === '潮汕';
+            });
+            if (chaozhouEntry) {
+              const [, geoData] = chaozhouEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Chaozhou match:`, { 
+                key: chaozhouEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+        }
+        
+        // 特殊处理：针对 "Guangzhou, Chaoshan & Xiamen Cultural Loop 8-Day Tour" 行程的特定地点匹配
+        const isGuangzhouChaoshanXiamenRoute = (journeyRegionText.includes('guangzhou') && journeyRegionText.includes('chaoshan') && journeyRegionText.includes('xiamen')) ||
+                                               (journeyRegionText.includes('广州') && journeyRegionText.includes('潮汕') && journeyRegionText.includes('厦门')) ||
+                                               (journeyRegionText.includes('guangzhou') && journeyRegionText.includes('xiamen') && journeyRegionText.includes('cultural loop'));
+        if (isGuangzhouChaoshanXiamenRoute && !finalLng && !finalLat) {
+          // Day 1 & 2: 广州
+          if ((day.day === 1 || day.day === 2) && (searchText.includes('guangzhou') || searchText.includes('广州'))) {
+            const guangzhouEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'guangzhou' || lowerKey === 'guangzhou city' || lowerKey === '广州';
+            });
+            if (guangzhouEntry) {
+              const [, geoData] = guangzhouEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Guangzhou match:`, { 
+                key: guangzhouEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // Day 3 & 4: 潮州
+          if ((day.day === 3 || day.day === 4) && (searchText.includes('chaozhou') || searchText.includes('潮州') ||
+              searchText.includes('chaoshan') || searchText.includes('潮汕'))) {
+            const chaozhouEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'chaozhou' || lowerKey === 'chaozhou city' ||
+                     lowerKey === '潮州' || lowerKey === 'chaoshan' || lowerKey === '潮汕';
+            });
+            if (chaozhouEntry) {
+              const [, geoData] = chaozhouEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Chaozhou match:`, { 
+                key: chaozhouEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // Day 5 & 6: 厦门
+          if ((day.day === 5 || day.day === 6) && (searchText.includes('xiamen') || searchText.includes('厦门'))) {
+            const xiamenEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'xiamen' || lowerKey === 'xiamen city' || lowerKey === '厦门';
+            });
+            if (xiamenEntry) {
+              const [, geoData] = xiamenEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Xiamen match:`, { 
+                key: xiamenEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // Day 7: 福建龙岩市
+          if (day.day === 7 && (searchText.includes('longyan') || searchText.includes('龙岩') ||
+              searchText.includes('fujian') || searchText.includes('福建'))) {
+            const longyanEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'longyan' || lowerKey === 'longyan city' ||
+                     lowerKey === '龙岩' || lowerKey === '龙岩市';
+            });
+            if (longyanEntry) {
+              const [, geoData] = longyanEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Longyan match:`, { 
+                key: longyanEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+        }
+        
+        // 特殊处理：针对 "Huangshan to Huizhou Ancient Villages 6-Day Tour" 行程的特定地点匹配
+        const isHuangshanHuizhouRoute = (journeyRegionText.includes('huangshan') && journeyRegionText.includes('huizhou')) ||
+                                       (journeyRegionText.includes('黄山') && journeyRegionText.includes('徽州')) ||
+                                       (journeyRegionText.includes('huangshan') && journeyRegionText.includes('ancient villages'));
+        if (isHuangshanHuizhouRoute && !finalLng && !finalLat) {
+          // 如果搜索文本中包含宏村相关关键词，匹配到宏村
+          if (searchText.includes('hongcun') || searchText.includes('宏村') ||
+              searchText.includes('yixian') || searchText.includes('黟县')) {
+            const hongcunEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'hongcun' || lowerKey === 'hongcun village' ||
+                     lowerKey === '宏村' || lowerKey === '宏村古村落' ||
+                     lowerKey === 'yixian' || lowerKey === '黟县' || lowerKey === '黟县宏村';
+            });
+            if (hongcunEntry) {
+              const [, geoData] = hongcunEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Hongcun match:`, { 
+                key: hongcunEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含西溪南相关关键词，匹配到西溪南
+          if ((!finalLng || !finalLat) && (searchText.includes('xixinan') || searchText.includes('西溪南'))) {
+            const xixinanEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'xixinan' || lowerKey === 'xixinan ancient village' ||
+                     lowerKey === '西溪南' || lowerKey === '西溪南古村落';
+            });
+            if (xixinanEntry) {
+              const [, geoData] = xixinanEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Xixinan match:`, { 
+                key: xixinanEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含黄山相关关键词，匹配到黄山市
+          if ((!finalLng || !finalLat) && (searchText.includes('huangshan') || searchText.includes('黄山') ||
+              searchText.includes('huizhou') || searchText.includes('徽州'))) {
+            const huangshanEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'huangshan' || lowerKey === 'huangshan city' ||
+                     lowerKey === '黄山' || lowerKey === '黄山市' ||
+                     lowerKey === 'huizhou' || lowerKey === '徽州';
+            });
+            if (huangshanEntry) {
+              const [, geoData] = huangshanEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Huangshan match:`, { 
+                key: huangshanEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+        }
+        
+        // 特殊处理：针对 "Hangzhou to Qiandao Lake Leisure 5-Day Tour" 行程的特定地点匹配
+        const isQiandaoLakeRoute = journeyRegionText.includes('qiandao lake') || journeyRegionText.includes('千岛湖') ||
+                                   journeyRegionText.includes('qiandaohu') || journeyRegionText.includes('thousand island') ||
+                                   (journeyRegionText.includes('hangzhou') && journeyRegionText.includes('leisure'));
+        if (isQiandaoLakeRoute && !finalLng && !finalLat) {
+          // Day 3 & 4: 千岛湖
+          if ((day.day === 3 || day.day === 4) && (searchText.includes('qiandao') || searchText.includes('千岛湖') ||
+              searchText.includes('qiandaohu') || searchText.includes('thousand island') ||
+              searchText.includes('chunan') || searchText.includes('淳安'))) {
+            const qiandaoEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'qiandao lake' || lowerKey === 'qiandaohu' ||
+                     lowerKey === '千岛湖' || lowerKey === 'thousand island lake' ||
+                     lowerKey === 'chunan' || lowerKey === '淳安';
+            });
+            if (qiandaoEntry) {
+              const [, geoData] = qiandaoEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Qiandao Lake match:`, { 
+                key: qiandaoEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+        }
+        
+        // 特殊处理：针对 "Hangzhou Cultural & Water Town In-Depth 6-Day Tour" 行程的特定地点匹配
+        const isHangzhouWaterTownRoute = (journeyRegionText.includes('hangzhou') && journeyRegionText.includes('water town')) ||
+                                         (journeyRegionText.includes('杭州') && journeyRegionText.includes('水乡')) ||
+                                         (journeyRegionText.includes('hangzhou') && journeyRegionText.includes('cultural'));
+        if (isHangzhouWaterTownRoute && !finalLng && !finalLat) {
+          // Day 4: 浙江省嘉兴市乌镇
+          if (day.day === 4 && (searchText.includes('wuzhen') || searchText.includes('乌镇') ||
+              searchText.includes('jiaxing') || searchText.includes('嘉兴') ||
+              searchText.includes('water town') || searchText.includes('水乡'))) {
+            const wuzhenEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'wuzhen' || lowerKey === 'wuzhen town' ||
+                     lowerKey === 'wuzhen ancient town' || lowerKey === '乌镇' ||
+                     lowerKey === '乌镇古镇';
+            });
+            if (wuzhenEntry) {
+              const [, geoData] = wuzhenEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Wuzhen match:`, { 
+                key: wuzhenEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+        }
+        
+        // 特殊处理：针对 "Shanghai & Suzhou Classic Dual-City 7-Day" 行程的特定地点匹配
+        const isShanghaiSuzhouRoute = (journeyRegionText.includes('shanghai') && journeyRegionText.includes('suzhou')) ||
+                                      (journeyRegionText.includes('上海') && journeyRegionText.includes('苏州')) ||
+                                      journeyRegionText.includes('dual-city') || journeyRegionText.includes('双城');
+        if (isShanghaiSuzhouRoute && !finalLng && !finalLat) {
+          // 如果搜索文本中包含上海相关关键词，匹配到上海
+          if (searchText.includes('shanghai') || searchText.includes('上海')) {
+            const shanghaiEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'shanghai' || lowerKey === 'shanghai city' || lowerKey === '上海';
+            });
+            if (shanghaiEntry) {
+              const [, geoData] = shanghaiEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Shanghai match:`, { 
+                key: shanghaiEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // 如果搜索文本中包含苏州相关关键词，匹配到苏州
+          if ((!finalLng || !finalLat) && (searchText.includes('suzhou') || searchText.includes('苏州'))) {
+            const suzhouEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'suzhou' || lowerKey === 'suzhou city' || lowerKey === '苏州';
+            });
+            if (suzhouEntry) {
+              const [, geoData] = suzhouEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Suzhou match:`, { 
+                key: suzhouEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+        }
+        
+        // 特殊处理：针对 "Zhangjiajie & Fenghuang Classic 7-Day Dual-Destination Tour" 行程的特定地点匹配
+        const isZhangjiajieFenghuangRoute = (journeyRegionText.includes('zhangjiajie') && journeyRegionText.includes('fenghuang')) ||
+                                           (journeyRegionText.includes('张家界') && journeyRegionText.includes('凤凰')) ||
+                                           journeyRegionText.includes('dual-destination') || journeyRegionText.includes('双目的地');
+        if (isZhangjiajieFenghuangRoute && !finalLng && !finalLat) {
+          // Day 5 & 6: 湘西土家族自治州凤凰县
+          if ((day.day === 5 || day.day === 6) && (searchText.includes('fenghuang') || searchText.includes('凤凰') ||
+              searchText.includes('xiangxi') || searchText.includes('湘西'))) {
+            const fenghuangEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'fenghuang' || lowerKey === 'fenghuang county' ||
+                     lowerKey === 'fenghuang ancient town' || lowerKey === '凤凰' ||
+                     lowerKey === '凤凰县' || lowerKey === '凤凰古城' ||
+                     lowerKey === 'xiangxi' || lowerKey === '湘西';
+            });
+            if (fenghuangEntry) {
+              const [, geoData] = fenghuangEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Fenghuang match:`, { 
+                key: fenghuangEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // Day 7: 张家界（无条件匹配，即使搜索文本中没有关键词）
+          if (day.day === 7) {
+            const zhangjiajieEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'zhangjiajie' || lowerKey === 'zhangjiajie city' || lowerKey === '张家界';
+            });
+            if (zhangjiajieEntry) {
+              const [, geoData] = zhangjiajieEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Zhangjiajie match (unconditional):`, { 
+                key: zhangjiajieEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+        }
+        
+        // 特殊处理：针对 "Zhangjiajie 5-Day Highlights Tour" 行程的特定地点匹配
+        const isZhangjiajieHighlightsRoute = journeyRegionText.includes('zhangjiajie') || journeyRegionText.includes('张家界') ||
+                                            journeyRegionText.includes('highlights');
+        if (isZhangjiajieHighlightsRoute && !finalLng && !finalLat) {
+          // Day 2: 张家界天门山和72奇楼
+          // 优先匹配天门山，如果搜索文本中有72奇楼关键词则匹配72奇楼
+          if (day.day === 2) {
+            // 先检查是否有72奇楼关键词
+            if (searchText.includes('72奇楼') || searchText.includes('72 qi lou') ||
+                searchText.includes('seventy-two strange building') || searchText.includes('奇楼')) {
+              const qiLouEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+                const lowerKey = key.toLowerCase();
+                return lowerKey === '72奇楼' || lowerKey === '72 qi lou' ||
+                       lowerKey === 'seventy-two strange building';
+              });
+              if (qiLouEntry) {
+                const [, geoData] = qiLouEntry;
+                finalLng = geoData.lng;
+                finalLat = geoData.lat;
+                finalCity = geoData.name;
+                console.log(`[page.tsx] Day ${day.day}: Direct 72 Qi Lou match:`, { 
+                  key: qiLouEntry[0], 
+                  finalCity, 
+                  finalLng, 
+                  finalLat 
+                });
+              }
+            }
+            // 如果没有匹配到72奇楼，匹配天门山
+            if (!finalLng || !finalLat) {
+              const tianmenEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+                const lowerKey = key.toLowerCase();
+                return lowerKey === 'tianmen mountain' || lowerKey === 'tianmen' ||
+                       lowerKey === '天门山';
+              });
+              if (tianmenEntry) {
+                const [, geoData] = tianmenEntry;
+                finalLng = geoData.lng;
+                finalLat = geoData.lat;
+                finalCity = geoData.name;
+                console.log(`[page.tsx] Day ${day.day}: Direct Tianmen Mountain match:`, { 
+                  key: tianmenEntry[0], 
+                  finalCity, 
+                  finalLng, 
+                  finalLat 
+                });
+              }
+            }
+          }
+          // Day 3: 张家界武陵源区
+          if (day.day === 3 && (searchText.includes('wulingyuan') || searchText.includes('武陵源'))) {
+            const wulingyuanEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'wulingyuan' || lowerKey === 'wulingyuan scenic area' ||
+                     lowerKey === 'wulingyuan district' || lowerKey === '武陵源' || lowerKey === '武陵源区';
+            });
+            if (wulingyuanEntry) {
+              const [, geoData] = wulingyuanEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Wulingyuan match:`, { 
+                key: wulingyuanEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+        }
+        
+        // 特殊处理：针对 "Guizhou to Waterfalls, Karst & Minority Cultures 8-Day Panorama Tour" 行程的特定地点匹配
+        const isGuizhouPanoramaRoute = journeyRegionText.includes('waterfalls') || journeyRegionText.includes('karst') ||
+                                       journeyRegionText.includes('minority cultures') || journeyRegionText.includes('panorama') ||
+                                       (journeyRegionText.includes('guizhou') && journeyRegionText.includes('panorama'));
+        if (isGuizhouPanoramaRoute && !finalLng && !finalLat) {
+          // Day 4: 荔波县大七孔和黔东南州黎平县肇兴侗寨
+          // 优先匹配肇兴侗寨，如果搜索文本中有大七孔关键词则匹配大七孔
+          if (day.day === 4) {
+            // 先检查是否有大七孔关键词（优先匹配）
+            if (searchText.includes('daqikong') || searchText.includes('大七孔') || 
+                searchText.includes('big seven arches')) {
+              const daqikongEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+                const lowerKey = key.toLowerCase();
+                return lowerKey === 'daqikong' || lowerKey === 'daqikong scenic area' ||
+                       lowerKey === '大七孔' || lowerKey === 'big seven arches';
+              });
+              if (daqikongEntry) {
+                const [, geoData] = daqikongEntry;
+                finalLng = geoData.lng;
+                finalLat = geoData.lat;
+                finalCity = geoData.name;
+                console.log(`[page.tsx] Day ${day.day}: Direct Daqikong match:`, { 
+                  key: daqikongEntry[0], 
+                  finalCity, 
+                  finalLng, 
+                  finalLat 
+                });
+              }
+            }
+            // 如果没有匹配到大七孔，匹配肇兴侗寨
+            if (!finalLng || !finalLat) {
+              const zhaoxingEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+                const lowerKey = key.toLowerCase();
+                return lowerKey === 'zhaoxing' || lowerKey === 'zhaoxing dong village' ||
+                       lowerKey === '肇兴' || lowerKey === '肇兴侗寨' ||
+                       lowerKey === 'liping' || lowerKey === '黎平';
+              });
+              if (zhaoxingEntry) {
+                const [, geoData] = zhaoxingEntry;
+                finalLng = geoData.lng;
+                finalLat = geoData.lat;
+                finalCity = geoData.name;
+                console.log(`[page.tsx] Day ${day.day}: Direct Zhaoxing match:`, { 
+                  key: zhaoxingEntry[0], 
+                  finalCity, 
+                  finalLng, 
+                  finalLat 
+                });
+              }
+            }
+          }
+        }
+        
+        // 特殊处理：针对 "Guiyang to Qiannan Panoramic Explorer 9-Day Tour" 行程的特定地点匹配
+        const isQiannanRoute = journeyRegionText.includes('qiannan') || journeyRegionText.includes('黔南') ||
+                               journeyRegionText.includes('guiyang') || journeyRegionText.includes('贵阳') ||
+                               (journeyRegionText.includes('panoramic') && journeyRegionText.includes('explorer'));
+        if (isQiannanRoute && !finalLng && !finalLat) {
+          // Day 1: 贵阳市
+          if (day.day === 1 && (searchText.includes('guiyang') || searchText.includes('贵阳'))) {
+            const guiyangEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'guiyang' || lowerKey === 'guiyang city' || lowerKey === '贵阳';
+            });
+            if (guiyangEntry) {
+              const [, geoData] = guiyangEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Guiyang match:`, { 
+                key: guiyangEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // Day 2: 黔东南州雷山县西江镇
+          if (day.day === 2 && (searchText.includes('xijiang') || searchText.includes('西江') ||
+              searchText.includes('leishan') || searchText.includes('雷山') ||
+              searchText.includes('miao village') || searchText.includes('苗寨'))) {
+            const xijiangEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'xijiang' || lowerKey === 'xijiang miao village' || 
+                     lowerKey === 'xijiang qianhu miao village' || lowerKey === '西江' ||
+                     lowerKey === '西江千户苗寨' || lowerKey === 'leishan' || lowerKey === '雷山';
+            });
+            if (xijiangEntry) {
+              const [, geoData] = xijiangEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Xijiang match:`, { 
+                key: xijiangEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // Day 3: 黔东南州荔波县
+          if (day.day === 3 && (searchText.includes('libo') || searchText.includes('荔波'))) {
+            const liboEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'libo' || lowerKey === 'libo county' || lowerKey === '荔波' || lowerKey === '荔波县';
+            });
+            if (liboEntry) {
+              const [, geoData] = liboEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Libo match:`, { 
+                key: liboEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // Day 5: 罗甸县
+          if (day.day === 5 && (searchText.includes('luodian') || searchText.includes('罗甸'))) {
+            const luodianEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'luodian' || lowerKey === 'luodian county' || lowerKey === '罗甸' || lowerKey === '罗甸县';
+            });
+            if (luodianEntry) {
+              const [, geoData] = luodianEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Luodian match:`, { 
+                key: luodianEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // Day 6: 兴义县
+          if (day.day === 6 && (searchText.includes('xingyi') || searchText.includes('兴义'))) {
+            const xingyiEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'xingyi' || lowerKey === 'xingyi city' || lowerKey === '兴义' || lowerKey === '兴义市';
+            });
+            if (xingyiEntry) {
+              const [, geoData] = xingyiEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Xingyi match:`, { 
+                key: xingyiEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // Day 7: 安顺市镇宁县
+          if (day.day === 7 && (searchText.includes('zhenning') || searchText.includes('镇宁') ||
+              searchText.includes('anshun') || searchText.includes('安顺'))) {
+            const zhenningEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'zhenning' || lowerKey === 'zhenning county' || 
+                     lowerKey === '镇宁' || lowerKey === '镇宁县';
+            });
+            if (zhenningEntry) {
+              const [, geoData] = zhenningEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Zhenning match:`, { 
+                key: zhenningEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // Day 8: 黄果树瀑布
+          if (day.day === 8 && (searchText.includes('huangguoshu') || searchText.includes('黄果树') ||
+              searchText.includes('waterfall') || searchText.includes('瀑布'))) {
+            const huangguoshuEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'huangguoshu' || lowerKey === 'huangguoshu waterfall' ||
+                     lowerKey === '黄果树' || lowerKey === '黄果树瀑布';
+            });
+            if (huangguoshuEntry) {
+              const [, geoData] = huangguoshuEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Huangguoshu match:`, { 
+                key: huangguoshuEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+        }
+        
+        // 特殊处理：针对 "Chongqing & Wulong Classic 6-Day Tour" 行程的特定地点匹配
+        const isWulongClassicRoute = journeyRegionText.includes('wulong') || journeyRegionText.includes('武隆') ||
+                                     (journeyRegionText.includes('chongqing') && journeyRegionText.includes('wulong')) ||
+                                     (journeyRegionText.includes('重庆') && journeyRegionText.includes('武隆'));
+        if (isWulongClassicRoute && !finalLng && !finalLat) {
+          // Day 4: 重庆武隆
+          if (day.day === 4 && (searchText.includes('wulong') || searchText.includes('武隆'))) {
+            const wulongEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'wulong' || lowerKey === 'wulong district' || lowerKey === 'wulong karst' ||
+                     lowerKey === '武隆' || lowerKey === '武隆喀斯特';
+            });
+            if (wulongEntry) {
+              const [, geoData] = wulongEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Wulong match:`, { 
+                key: wulongEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // Day 5: 重庆彭水
+          if (day.day === 5 && (searchText.includes('pengshui') || searchText.includes('彭水'))) {
+            const pengshuiEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'pengshui' || lowerKey === 'pengshui county' || 
+                     lowerKey === '彭水' || lowerKey === '彭水县';
+            });
+            if (pengshuiEntry) {
+              const [, geoData] = pengshuiEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Pengshui match:`, { 
+                key: pengshuiEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // Day 6: 通常返回重庆或离开，如果没有特定地点则匹配到重庆
+          if (day.day === 6) {
+            // 如果搜索文本中包含重庆相关关键词，匹配到重庆
+            if (searchText.includes('chongqing') || searchText.includes('重庆') || 
+                searchText.includes('return') || searchText.includes('departure') ||
+                searchText.includes('返回') || searchText.includes('离开')) {
+              const chongqingEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+                const lowerKey = key.toLowerCase();
+                return lowerKey === 'chongqing' || lowerKey === 'chongqing city' || lowerKey === '重庆';
+              });
+              if (chongqingEntry) {
+                const [, geoData] = chongqingEntry;
+                finalLng = geoData.lng;
+                finalLat = geoData.lat;
+                finalCity = geoData.name;
+                console.log(`[page.tsx] Day ${day.day}: Direct Chongqing match (Day 6):`, { 
+                  key: chongqingEntry[0], 
+                  finalCity, 
+                  finalLng, 
+                  finalLat 
+                });
+              }
+            }
+          }
+        }
+        
+        // 特殊处理：针对 "Chengdu & Chongqing Double Cities 6-Day Tour" 行程的特定地点匹配
+        const isDoubleCitiesRoute = journeyRegionText.includes('chongqing') || journeyRegionText.includes('重庆') ||
+                                    journeyRegionText.includes('double cities') || journeyRegionText.includes('双城') ||
+                                    (journeyRegionText.includes('chengdu') && journeyRegionText.includes('chongqing'));
+        if (isDoubleCitiesRoute && !finalLng && !finalLat) {
+          // 如果搜索文本中包含重庆相关关键词，匹配到重庆
+          if (searchText.includes('chongqing') || searchText.includes('重庆')) {
+            const chongqingEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'chongqing' || lowerKey === 'chongqing city' || lowerKey === '重庆';
+            });
+            if (chongqingEntry) {
+              const [, geoData] = chongqingEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Chongqing match:`, { 
+                key: chongqingEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+        }
+        
+        // 特殊处理：针对 "Sichuan, Chengdu Classic Heritage 7-Day Tour" 行程的特定地点匹配
+        const isChengduHeritageRoute = journeyRegionText.includes('chengdu classic') || journeyRegionText.includes('成都经典') ||
+                                       journeyRegionText.includes('classic heritage') || journeyRegionText.includes('经典遗产') ||
+                                       (journeyRegionText.includes('chengdu') && journeyRegionText.includes('heritage'));
+        if (isChengduHeritageRoute && !finalLng && !finalLat) {
+          // Day 4: 都江堰
+          if (day.day === 4 && (searchText.includes('dujiangyan') || searchText.includes('都江堰'))) {
+            const dujiangyanEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'dujiangyan' || lowerKey === 'dujiangyan city' || 
+                     lowerKey === '都江堰' || lowerKey === 'dujiangyan irrigation system' ||
+                     lowerKey === '都江堰水利工程';
+            });
+            if (dujiangyanEntry) {
+              const [, geoData] = dujiangyanEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Dujiangyan match:`, { 
+                key: dujiangyanEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // Day 5: 乐山
+          if (day.day === 5 && (searchText.includes('leshan') || searchText.includes('乐山') ||
+              searchText.includes('giant buddha') || searchText.includes('大佛'))) {
+            const leshanEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'leshan' || lowerKey === 'leshan city' || lowerKey === '乐山' ||
+                     lowerKey === 'leshan giant buddha' || lowerKey === '乐山大佛';
+            });
+            if (leshanEntry) {
+              const [, geoData] = leshanEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Leshan match:`, { 
+                key: leshanEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // Day 6: 峨眉山
+          if (day.day === 6 && (searchText.includes('emeishan') || searchText.includes('emei') ||
+              searchText.includes('峨眉山') || searchText.includes('mount emei'))) {
+            const emeiEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'emeishan' || lowerKey === 'mount emei' || lowerKey === 'emei mountain' ||
+                     lowerKey === '峨眉山' || lowerKey === 'emei shan';
+            });
+            if (emeiEntry) {
+              const [, geoData] = emeiEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Mount Emei match:`, { 
+                key: emeiEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+        }
+        
+        // 特殊处理：针对 "Chengdu to Xichang & Luojishan 6-Day Tour" 行程的特定地点匹配
+        const isXichangLuojishanRoute = journeyRegionText.includes('xichang') || journeyRegionText.includes('西昌') ||
+                                        journeyRegionText.includes('luojishan') || journeyRegionText.includes('螺髻山') ||
+                                        journeyRegionText.includes('luoji');
+        if (isXichangLuojishanRoute && !finalLng && !finalLat) {
+          // Day 2: 西昌和西昌泸山
+          if (day.day === 2 && (searchText.includes('xichang') || searchText.includes('西昌') ||
+              searchText.includes('lushan') || searchText.includes('泸山'))) {
+            // 优先匹配泸山，如果没有则匹配西昌
+            const lushanEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'lushan xichang' || lowerKey === 'lushan mountain xichang' || 
+                     lowerKey === '泸山' || lowerKey === '西昌泸山';
+            });
+            if (lushanEntry) {
+              const [, geoData] = lushanEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Lushan Xichang match:`, { 
+                key: lushanEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            } else {
+              // 如果没有找到泸山，使用西昌
+              const xichangEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+                const lowerKey = key.toLowerCase();
+                return lowerKey === 'xichang' || lowerKey === 'xichang city' || lowerKey === '西昌';
+              });
+              if (xichangEntry) {
+                const [, geoData] = xichangEntry;
+                finalLng = geoData.lng;
+                finalLat = geoData.lat;
+                finalCity = geoData.name;
+                console.log(`[page.tsx] Day ${day.day}: Direct Xichang match:`, { 
+                  key: xichangEntry[0], 
+                  finalCity, 
+                  finalLng, 
+                  finalLat 
+                });
+              }
+            }
+          }
+          // Day 3: 螺髻山和邛海
+          if (day.day === 3 && (searchText.includes('luojishan') || searchText.includes('luoji') ||
+              searchText.includes('螺髻山') || searchText.includes('qionghai') || searchText.includes('邛海') ||
+              searchText.includes('liangshan') || searchText.includes('凉山'))) {
+            // 优先匹配螺髻山，如果没有则匹配邛海
+            const luojiEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'luojishan' || lowerKey === 'luoji mountain' || lowerKey === '螺髻山';
+            });
+            if (luojiEntry) {
+              const [, geoData] = luojiEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Luojishan match:`, { 
+                key: luojiEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            } else {
+              // 如果没有找到螺髻山，使用邛海
+              const qionghaiEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+                const lowerKey = key.toLowerCase();
+                return lowerKey === 'qionghai' || lowerKey === 'qionghai lake' || lowerKey === 'qiong lake' || 
+                       lowerKey === '邛海';
+              });
+              if (qionghaiEntry) {
+                const [, geoData] = qionghaiEntry;
+                finalLng = geoData.lng;
+                finalLat = geoData.lat;
+                finalCity = geoData.name;
+                console.log(`[page.tsx] Day ${day.day}: Direct Qionghai match:`, { 
+                  key: qionghaiEntry[0], 
+                  finalCity, 
+                  finalLng, 
+                  finalLat 
+                });
+              }
+            }
+          }
+        }
+        
+        // 特殊处理：针对 "Western Sichuan & Daocheng Yading Nature 9-Day Tour" 行程的特定地点匹配
+        const isWesternSichuanRoute = journeyRegionText.includes('western sichuan') || journeyRegionText.includes('川西') ||
+                                     journeyRegionText.includes('daocheng yading') || journeyRegionText.includes('稻城亚丁') ||
+                                     journeyRegionText.includes('yading nature');
+        if (isWesternSichuanRoute && !finalLng && !finalLat) {
+          // Day 2: 四姑娘山镇
+          if (day.day === 2 && (searchText.includes('siguniangshan') || searchText.includes('siguniang') || 
+              searchText.includes('四姑娘山') || searchText.includes('日隆') || searchText.includes('rilong') ||
+              searchText.includes('aba') || searchText.includes('阿坝'))) {
+            const siguniangEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'siguniangshan' || lowerKey === 'siguniangshan town' || lowerKey === 'siguniang' ||
+                     lowerKey === '四姑娘山' || lowerKey === '四姑娘山镇' || lowerKey === '日隆' || lowerKey === '日隆镇' ||
+                     lowerKey === 'rilong';
+            });
+            if (siguniangEntry) {
+              const [, geoData] = siguniangEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Siguniangshan match:`, { 
+                key: siguniangEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // Day 3 & 4: 丹巴县
+          if ((day.day === 3 || day.day === 4) && (searchText.includes('danba') || searchText.includes('丹巴') ||
+              searchText.includes('chaggo') || searchText.includes('章谷'))) {
+            const danbaEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'danba' || lowerKey === 'danba county' || lowerKey === '丹巴' || lowerKey === '丹巴县' ||
+                     lowerKey === 'chaggo' || lowerKey === '章谷' || lowerKey === '章谷镇';
+            });
+            if (danbaEntry) {
+              const [, geoData] = danbaEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Danba match:`, { 
+                key: danbaEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+        }
+        
+        // 特殊处理：针对 "Chengdu to Ganzi Tibetan Buddhism Pilgrimage" 行程的特定地点匹配
+        const isGanziPilgrimageRoute = journeyRegionText.includes('ganzi') || journeyRegionText.includes('甘孜') ||
+                                      journeyRegionText.includes('tibetan buddhism') || journeyRegionText.includes('pilgrimage');
+        if (isGanziPilgrimageRoute && !finalLng && !finalLat) {
+          // Day 2: secret village / 色龙村
+          if (day.day === 2 && (searchText.includes('secret village') || searchText.includes('色龙') || searchText.includes('selong'))) {
+            const selongEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'selong' || lowerKey === 'selong village' || lowerKey === '色龙' || lowerKey === '色龙村' || lowerKey === 'secret village';
+            });
+            if (selongEntry) {
+              const [, geoData] = selongEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Selong Village match:`, { 
+                key: selongEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // Day 3: 八美镇
+          if (day.day === 3 && (searchText.includes('bamei') || searchText.includes('八美'))) {
+            const bameiEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'bamei' || lowerKey === 'bamei town' || lowerKey === '八美' || lowerKey === '八美镇';
+            });
+            if (bameiEntry) {
+              const [, geoData] = bameiEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Bamei match:`, { 
+                key: bameiEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // Day 5: 白玉县
+          if (day.day === 5 && (searchText.includes('baiyu') || searchText.includes('白玉') || 
+              (searchText.includes('ganzi') && searchText.includes('to') && searchText.includes('baiyu')))) {
+            const baiyuEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'baiyu' || lowerKey === 'baiyu county' || lowerKey === '白玉' || lowerKey === '白玉县';
+            });
+            if (baiyuEntry) {
+              const [, geoData] = baiyuEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Baiyu match:`, { 
+                key: baiyuEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // Day 6 & 7: 德格县
+          if ((day.day === 6 || day.day === 7) && (searchText.includes('dege') || searchText.includes('derge') || searchText.includes('德格'))) {
+            const degeEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'dege' || lowerKey === 'dege county' || lowerKey === 'derge' || lowerKey === '德格' || lowerKey === '德格县';
+            });
+            if (degeEntry) {
+              const [, geoData] = degeEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Dege match:`, { 
+                key: degeEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+          // Day 9: 马尼干戈
+          if (day.day === 9 && (searchText.includes('manigango') || searchText.includes('马尼干戈'))) {
+            const manigangoEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'manigango' || lowerKey === '马尼干戈' || lowerKey === '马尼干戈县';
+            });
+            if (manigangoEntry) {
+              const [, geoData] = manigangoEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Direct Manigango match:`, { 
+                key: manigangoEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat 
+              });
+            }
+          }
+        }
+        
+        // 如果还没有匹配到，继续常规匹配流程
+        if (!finalLng || !finalLat) {
+          // 首先尝试精确匹配（完整词匹配）
+          const exactMatch = Object.entries(CITY_GEO_DB).find(([key]) => {
+            const lowerKey = key.toLowerCase();
+            
+            // 排除逻辑：如果行程是西藏/青海路线，排除所有北京相关地点
+            if (isTibetRoute) {
+              const beijingKeys = ['beijing', '北京', 'summer palace', '颐和园', 'forbidden city', '故宫', 
+                                 'tiananmen', '天安门', 'temple of heaven', '天坛', 'great wall', '长城',
+                                 'badaling', '八达岭', 'mutianyu', '慕田峪', 'beihai park', '北海公园', 'hutong', '胡同'];
+              if (beijingKeys.some(bk => lowerKey.includes(bk))) {
+                return false;
+              }
+            }
+            
+            // 排除逻辑：如果行程是北京路线，排除所有西藏/青海相关地点
+            if (isBeijingRoute) {
+              const tibetKeys = ['tibet', '西藏', 'lhasa', '拉萨', 'qinghai', '青海', 'xining', '西宁'];
+              if (tibetKeys.some(tk => lowerKey.includes(tk))) {
+                return false;
+              }
+            }
+            
+            // 精确匹配：作为完整词出现（前后有空格、标点或字符串边界）
+            const exactPattern = new RegExp(`\\b${lowerKey.replace(/[.*+?^${'$'}{}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+            return exactPattern.test(searchText) ||
+                   ((day as any).city && exactPattern.test((day as any).city.toLowerCase())) ||
+                   ((day as any).location && exactPattern.test((day as any).location.toLowerCase()));
+          });
+          
+          if (exactMatch) {
+            const [, geoData] = exactMatch;
+            finalLng = geoData.lng;
+            finalLat = geoData.lat;
+            finalCity = geoData.name;
+            console.log(`[page.tsx] Day ${day.day}: Exact match from Geo Dictionary:`, { 
+              key: exactMatch[0], 
+              finalCity, 
+              finalLng, 
+              finalLat,
+              isTibetRoute,
+              isBeijingRoute
+            });
+          } else {
+            // 如果没有精确匹配，尝试模糊匹配（但排除容易误匹配的词）
+            const fuzzyMatch = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              
+              // 排除逻辑：如果行程是西藏/青海路线，排除所有北京相关地点
+              if (isTibetRoute) {
+                const beijingKeys = ['beijing', '北京', 'summer palace', '颐和园', 'forbidden city', '故宫', 
+                                   'tiananmen', '天安门', 'temple of heaven', '天坛', 'great wall', '长城',
+                                   'badaling', '八达岭', 'mutianyu', '慕田峪', 'beihai park', '北海公园', 'hutong', '胡同'];
+                if (beijingKeys.some(bk => lowerKey.includes(bk))) {
+                  return false;
+                }
+              }
+              
+              // 排除逻辑：如果行程是北京路线，排除所有西藏/青海相关地点
+              if (isBeijingRoute) {
+                const tibetKeys = ['tibet', '西藏', 'lhasa', '拉萨', 'qinghai', '青海', 'xining', '西宁'];
+                if (tibetKeys.some(tk => lowerKey.includes(tk))) {
+                  return false;
+                }
+              }
+              
+              // 如果 key 包含 "palace" 但搜索文本中没有完整的 "summer palace"，则跳过
+              if (lowerKey.includes('palace') && !searchText.includes('summer palace') && !searchText.includes('颐和园')) {
+                return false;
+              }
+              
+              return searchText.includes(lowerKey) || 
+                     ((day as any).city && (day as any).city.toLowerCase().includes(lowerKey)) ||
+                     ((day as any).location && (day as any).location.toLowerCase().includes(lowerKey));
+            });
+            
+            if (fuzzyMatch) {
+              const [, geoData] = fuzzyMatch;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: Fuzzy match from Geo Dictionary:`, { 
+                key: fuzzyMatch[0], 
+                finalCity, 
+                finalLng, 
+                finalLat,
+                isTibetRoute,
+                isBeijingRoute
+              });
+            } else {
+              // 如果没有匹配到，记录调试信息
+              if (day.day === 4 || day.day === 5) {
+                // 特别关注 day4 和 day5
+                console.warn(`[page.tsx] Day ${day.day}: No match found in Geo Dictionary`, {
+                  searchText: searchText.substring(0, 300),
+                  hasGyantseKeywords: searchText.includes('gyantse') || searchText.includes('gyangtse') || 
+                                     searchText.includes('江孜') || searchText.includes('pelkor') || 
+                                     searchText.includes('kumbum'),
+                  availableGyantseKeys: Object.keys(CITY_GEO_DB).filter(k => {
+                    const lowerK = k.toLowerCase();
+                    return lowerK.includes('gyantse') || lowerK.includes('pelkor') || lowerK.includes('kumbum');
+                  }),
+                  allAvailableKeys: Object.keys(CITY_GEO_DB).slice(0, 20) // 显示前20个key作为参考
+                });
+              }
+            }
+          }
         }
       }
       
@@ -350,9 +2809,48 @@ export default function DynamicJourneyPage() {
         const descLower = day.description?.toLowerCase() || '';
         const combinedText = `${titleLower} ${descLower}`;
         
-        // 再次尝试匹配（可能标题格式不同）
+        // 根据 journey 的区域信息，排除不相关的地点
+        const journeyRegionText = `${journey.region || ''} ${journey.city || ''} ${journey.title || ''}`.toLowerCase();
+        const isTibetRoute = journeyRegionText.includes('tibet') || journeyRegionText.includes('西藏') || 
+                            journeyRegionText.includes('xining') || journeyRegionText.includes('西宁') ||
+                            journeyRegionText.includes('lhasa') || journeyRegionText.includes('拉萨') ||
+                            journeyRegionText.includes('qinghai') || journeyRegionText.includes('青海');
+        const isBeijingRoute = journeyRegionText.includes('beijing') || journeyRegionText.includes('北京');
+        
+        // 再次尝试匹配（可能标题格式不同），但排除容易误匹配的地点
         const retryMatch = Object.entries(CITY_GEO_DB).find(([key]) => {
           const lowerKey = key.toLowerCase();
+          
+          // 排除逻辑：如果行程是西藏/青海路线，排除所有北京相关地点
+          if (isTibetRoute) {
+            const beijingKeys = ['beijing', '北京', 'summer palace', '颐和园', 'forbidden city', '故宫', 
+                               'tiananmen', '天安门', 'temple of heaven', '天坛', 'great wall', '长城',
+                               'badaling', '八达岭', 'mutianyu', '慕田峪', 'beihai park', '北海公园', 'hutong', '胡同'];
+            if (beijingKeys.some(bk => lowerKey.includes(bk))) {
+              return false;
+            }
+          }
+          
+          // 排除逻辑：如果行程是北京路线，排除所有西藏/青海相关地点
+          if (isBeijingRoute) {
+            const tibetKeys = ['tibet', '西藏', 'lhasa', '拉萨', 'qinghai', '青海', 'xining', '西宁'];
+            if (tibetKeys.some(tk => lowerKey.includes(tk))) {
+              return false;
+            }
+          }
+          
+          // 排除容易误匹配的词：如果 key 包含 "palace" 但搜索文本中没有完整的 "summer palace"
+          if (lowerKey.includes('palace') && !combinedText.includes('summer palace') && !combinedText.includes('颐和园')) {
+            return false;
+          }
+          
+          // 精确匹配优先
+          const exactPattern = new RegExp(`\\b${lowerKey.replace(/[.*+?^${'$'}{}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+          if (exactPattern.test(combinedText)) {
+            return true;
+          }
+          
+          // 模糊匹配作为备选
           return combinedText.includes(lowerKey);
         });
         
@@ -361,7 +2859,14 @@ export default function DynamicJourneyPage() {
           finalLng = geoData.lng;
           finalLat = geoData.lat;
           finalCity = geoData.name;
-          console.log(`[page.tsx] Day ${day.day}: Retry match from Geo Dictionary:`, { key: retryMatch[0], finalCity, finalLng, finalLat });
+          console.log(`[page.tsx] Day ${day.day}: Retry match from Geo Dictionary:`, { 
+            key: retryMatch[0], 
+            finalCity, 
+            finalLng, 
+            finalLat,
+            isTibetRoute,
+            isBeijingRoute
+          });
         } else {
           // 如果仍然无法匹配，使用行程中心点，但确保 finalCity 有值
           finalLng = baseLng;
@@ -402,18 +2907,22 @@ export default function DynamicJourneyPage() {
         finalCity = titleParts[titleParts.length - 1]?.trim() || day.title || `Day ${day.day}`;
       }
 
+      const locationData = {
+        id: `${journey.id}-day-${day.day}-step-0`,
+        lng: finalLng,
+        lat: finalLat,
+        name: finalCity,
+        city: finalCity,
+        label: finalCity, // 确保 label 字段也有值，用于 Marker 显示
+        day: day.day
+      };
+      
+      console.log(`[page.tsx] Day ${day.day} location data:`, locationData);
+      
       return {
         day: day.day,
         title: day.title,
-        locations: [{
-          id: `${journey.id}-day-${day.day}-step-0`,
-          lng: finalLng,
-          lat: finalLat,
-          name: finalCity,
-          city: finalCity,
-          label: finalCity, // 确保 label 字段也有值，用于 Marker 显示
-          day: day.day
-        }]
+        locations: [locationData]
       };
     });
   }, [journey, isDayTour]);
@@ -422,6 +2931,11 @@ export default function DynamicJourneyPage() {
   const [activeDay, setActiveDay] = useState<number | undefined>(undefined);
   const [currentDay, setCurrentDay] = useState<number | undefined>(undefined);
   const dayRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  
+  // Sticky Map Section: 检测 section 是否固定在顶部
+  const [isPinned, setIsPinned] = useState(false);
+  const itinerarySectionRef = useRef<HTMLElement | null>(null);
+  const itineraryListRef = useRef<HTMLDivElement | null>(null);
   
   // Navigation Scroll-Spy: 监听当前激活的导航项
   const [activeNav, setActiveNav] = useState<string>('overview');
@@ -657,6 +3171,161 @@ export default function DynamicJourneyPage() {
       observer.disconnect();
     };
   }, [pageConfig]);
+
+  // Intersection Observer: 检测 Itinerary Section 是否固定在顶部
+  useEffect(() => {
+    const section = itinerarySectionRef.current;
+    if (!section) return;
+
+    // 使用滚动监听器来检测 section 是否固定在顶部
+    const handleScroll = () => {
+      const rect = section.getBoundingClientRect();
+      // 当 section 的 top 小于等于 0 时（考虑导航栏高度），说明它已经固定在顶部
+      // 使用一个小的阈值来避免抖动
+      const threshold = 1;
+      const pinned = rect.top <= threshold;
+      setIsPinned(pinned);
+    };
+
+    // 初始检查
+    handleScroll();
+
+    // 使用 requestAnimationFrame 来优化滚动性能
+    let ticking = false;
+    const optimizedHandleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          handleScroll();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    // 监听滚动事件
+    window.addEventListener('scroll', optimizedHandleScroll, { passive: true });
+    window.addEventListener('resize', optimizedHandleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', optimizedHandleScroll);
+      window.removeEventListener('resize', optimizedHandleScroll);
+    };
+  }, []);
+
+  // 智能滚动传播：当右侧列表在顶部时，允许向上滚动传播到主页面
+  useEffect(() => {
+    const listElement = itineraryListRef.current;
+    if (!listElement) return;
+
+    // 处理鼠标滚轮事件
+    const handleWheel = (e: WheelEvent) => {
+      if (!isPinned) return; // 只在固定状态下处理
+
+      const scrollTop = listElement.scrollTop;
+      const scrollHeight = listElement.scrollHeight;
+      const clientHeight = listElement.clientHeight;
+      
+      const isAtTop = scrollTop <= 1; // 使用小阈值避免边界问题
+      const isAtBottom = scrollHeight - scrollTop <= clientHeight + 1;
+      const isScrollingUp = e.deltaY < 0;
+      const isScrollingDown = e.deltaY > 0;
+
+      // 如果列表在顶部且用户向上滚动，让主页面处理滚动
+      if (isAtTop && isScrollingUp) {
+        // 手动滚动主页面
+        window.scrollBy({
+          top: -Math.abs(e.deltaY),
+          behavior: 'auto'
+        });
+        return;
+      }
+
+      // 如果列表在底部且用户向下滚动，也让主页面处理滚动
+      if (isAtBottom && isScrollingDown) {
+        // 手动滚动主页面
+        window.scrollBy({
+          top: Math.abs(e.deltaY),
+          behavior: 'auto'
+        });
+        return;
+      }
+
+      // 否则，正常处理列表内的滚动（不阻止默认行为）
+    };
+
+    // 处理触摸手势
+    let touchStartY = 0;
+    let touchStartScrollTop = 0;
+    let lastTouchY = 0;
+    let touchMoved = false;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+      lastTouchY = touchStartY;
+      touchStartScrollTop = listElement.scrollTop;
+      touchMoved = false;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isPinned) return;
+
+      const touchY = e.touches[0].clientY;
+      const deltaY = lastTouchY - touchY; // 向上滑动时 deltaY 为正
+      lastTouchY = touchY;
+      
+      const scrollTop = listElement.scrollTop;
+      const scrollHeight = listElement.scrollHeight;
+      const clientHeight = listElement.clientHeight;
+      
+      const isAtTop = scrollTop <= 1;
+      const isAtBottom = scrollHeight - scrollTop <= clientHeight + 1;
+      const isScrollingUp = deltaY > 0; // 向上滑动时 deltaY 为正
+      const isScrollingDown = deltaY < 0;
+
+      // 如果列表在顶部且用户向上滑动，让主页面处理滚动
+      if (isAtTop && isScrollingUp) {
+        if (!touchMoved) {
+          touchMoved = true;
+        }
+        // 手动滚动主页面
+        window.scrollBy({
+          top: -Math.abs(deltaY),
+          behavior: 'auto'
+        });
+        return;
+      }
+
+      // 如果列表在底部且用户向下滑动，也让主页面处理滚动
+      if (isAtBottom && isScrollingDown) {
+        if (!touchMoved) {
+          touchMoved = true;
+        }
+        // 手动滚动主页面
+        window.scrollBy({
+          top: Math.abs(deltaY),
+          behavior: 'auto'
+        });
+        return;
+      }
+    };
+
+    const handleTouchEnd = () => {
+      touchMoved = false;
+    };
+
+    // 添加事件监听器
+    listElement.addEventListener('wheel', handleWheel, { passive: true });
+    listElement.addEventListener('touchstart', handleTouchStart, { passive: true });
+    listElement.addEventListener('touchmove', handleTouchMove, { passive: false });
+    listElement.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      listElement.removeEventListener('wheel', handleWheel);
+      listElement.removeEventListener('touchstart', handleTouchStart);
+      listElement.removeEventListener('touchmove', handleTouchMove);
+      listElement.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isPinned]);
   
   console.log('DynamicJourneyPage Debug:', {
     journeysLoading,
@@ -1086,11 +3755,19 @@ export default function DynamicJourneyPage() {
 
       {/* Itinerary - 固定高度双栏布局：左侧 Mapbox 地图 + 右侧浅色卡片行程 */}
       <section 
+        ref={(el) => {
+          itinerarySectionRef.current = el;
+        }}
         id="itinerary" 
-        className="w-full bg-[#f5f1e6] h-[calc(100vh-80px)] flex flex-col lg:flex-row items-stretch overflow-hidden"
+        className="w-full bg-[#f5f1e6] h-[calc(100vh-80px)] flex flex-col lg:flex-row items-stretch overflow-hidden sticky top-0 z-10"
+        style={{ 
+          position: 'sticky',
+          top: 0,
+          zIndex: 10
+        }}
       >
         {/* 左侧：地图容器 (40%) - 高度与父容器一致 */}
-        <div className="w-full lg:w-[40%] h-[300px] lg:h-full">
+        <div className="w-full lg:w-[40%] h-[300px] lg:h-full relative" style={{ minHeight: '300px' }}>
           {journey && journeyLocations.length > 0 ? (
             <JourneyMap
               mode={isDayTour ? 'single-location' : 'multi-stop-route'}
@@ -1120,7 +3797,17 @@ export default function DynamicJourneyPage() {
         </div>
 
         {/* 右侧：行程详情 (60%) - 固定高度内独立滚动 */}
-        <div className="w-full lg:w-[60%] h-full overflow-y-auto bg-[#f5f1e6] py-12 px-6 lg:px-16 scrollbar-hide">
+        <div 
+          ref={(el) => {
+            itineraryListRef.current = el;
+          }}
+          className={`w-full lg:w-[60%] h-full bg-[#f5f1e6] py-12 px-6 lg:px-16 scrollbar-hide transition-all duration-200 ${
+            isPinned ? 'overflow-y-auto' : 'overflow-y-hidden'
+          }`}
+          style={{
+            overscrollBehavior: isPinned ? 'contain' : 'auto'
+          }}
+        >
           <div className="max-w-7xl mx-auto">
             <h2 className="text-gray-900 text-3xl mb-12" style={{ fontFamily: 'Montaga, serif', fontWeight: 400 }}>Daily Itinerary</h2>
           
