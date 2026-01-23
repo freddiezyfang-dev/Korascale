@@ -55,7 +55,11 @@ export default function JourneyMap({
 }: JourneyMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<any>(null);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
+  const scriptRetryCountRef = useRef<number>(0);
+  const scriptRetryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+  const [isContainerReady, setIsContainerReady] = useState(false);
   const layersInitializedRef = useRef(false);
   const lastCurrentDayRef = useRef<number | undefined>(undefined);
   const markersRef = useRef<Map<string, any>>(new Map());
@@ -129,81 +133,325 @@ export default function JourneyMap({
     return journeySteps.map(step => `${step.day}-${step.stepIndex}-${step.id}`).join('|');
   }, [journeySteps]);
 
-  // 初始化地图
+  // 使用 ResizeObserver 检测容器尺寸，确保容器有非零宽高后再初始化
   useEffect(() => {
-    if (!isScriptLoaded || !mapContainer.current || map.current) return;
+    if (!mapContainer.current) return;
 
-    const mapboxgl = (window as any).mapboxgl;
-    if (!mapboxgl) {
-      console.error("[JourneyMap] MapboxGL script missing on window");
+    const timestamp = Date.now();
+    console.log(`[JourneyMap] Container Detection Start @ ${timestamp}`);
+
+    const checkContainerSize = (): boolean => {
+      if (!mapContainer.current) return false;
+      const width = mapContainer.current.offsetWidth;
+      const height = mapContainer.current.offsetHeight;
+      const isValid = width > 0 && height > 0;
+      console.log(`[JourneyMap] Container size check:`, { width, height, isValid });
+      return isValid;
+    };
+
+    // 立即检查一次
+    if (checkContainerSize()) {
+      setIsContainerReady(true);
+      console.log(`[JourneyMap] Container ready immediately @ ${Date.now()}`);
       return;
     }
 
-    if (!process.env.NEXT_PUBLIC_MAPBOX_TOKEN) {
-      console.error("[JourneyMap] Mapbox token not configured");
+    // 使用 ResizeObserver 监听容器尺寸变化
+    resizeObserverRef.current = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        if (width > 0 && height > 0) {
+          console.log(`[JourneyMap] Container ready via ResizeObserver @ ${Date.now()}`, { width, height });
+          setIsContainerReady(true);
+          // 一旦检测到有效尺寸，断开观察
+          if (resizeObserverRef.current) {
+            resizeObserverRef.current.disconnect();
+            resizeObserverRef.current = null;
+          }
+          break;
+        }
+      }
+    });
+
+    resizeObserverRef.current.observe(mapContainer.current);
+
+    // 超时保护：如果 2 秒后容器仍然没有尺寸，强制设置为 ready（可能是 CSS 问题）
+    const timeoutId = setTimeout(() => {
+      if (resizeObserverRef.current) {
+        resizeObserverRef.current.disconnect();
+        resizeObserverRef.current = null;
+      }
+      setIsContainerReady(true);
+      console.warn(`[JourneyMap] Container size check timeout @ ${Date.now()}, proceeding with initialization`);
+    }, 2000);
+
+    return () => {
+      if (resizeObserverRef.current) {
+        resizeObserverRef.current.disconnect();
+        resizeObserverRef.current = null;
+      }
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
+  // 增强的脚本检查：直接检查 window.mapboxgl，带重试机制
+  useEffect(() => {
+    const checkMapboxScript = (): boolean => {
+      return typeof window !== 'undefined' && !!(window as any).mapboxgl;
+    };
+
+    if (checkMapboxScript()) {
+      setIsScriptLoaded(true);
+      scriptRetryCountRef.current = 0;
       return;
     }
 
-    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
-
-    try {
-      console.log("[JourneyMap] Initializing Mapbox Instance...");
-      // 移除固定的成都经纬度兜底逻辑，使用默认中心点
-      const m = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/light-v11',
-        center: [0, 0], // 默认中心点，后续会根据实际数据计算边界
-        zoom: 2,
-        attributionControl: false
-      });
-
-      map.current = m;
-      (window as any).__MAP__ = m;
-      console.log("[JourneyMap] Map instance created and assigned to window.__MAP__");
-
-      m.on('load', () => {
-        console.log("[JourneyMap] Map Load Success");
-        m.resize();
-        
-        if (mode === 'multi-stop-route' && journeySteps.length > 0) {
-          initializeMarkers(m);
-          initializeMultiDayLayers(m);
-        } else if (mode === 'single-location' && locations && locations.length > 0) {
-          updateSingleLocation(m);
+    // 如果脚本还没加载，设置重试机制（最多3次）
+    if (scriptRetryCountRef.current < 3) {
+      scriptRetryTimeoutRef.current = setTimeout(() => {
+        scriptRetryCountRef.current += 1;
+        console.log(`[JourneyMap] Retrying script check (attempt ${scriptRetryCountRef.current}/3)`);
+        if (checkMapboxScript()) {
+          setIsScriptLoaded(true);
+          scriptRetryCountRef.current = 0;
+        } else {
+          // 递归重试
+          const checkInterval = setInterval(() => {
+            if (checkMapboxScript()) {
+              setIsScriptLoaded(true);
+              scriptRetryCountRef.current = 0;
+              clearInterval(checkInterval);
+            } else if (scriptRetryCountRef.current >= 3) {
+              clearInterval(checkInterval);
+              console.error("[JourneyMap] Mapbox script failed to load after 3 retries");
+            }
+          }, 200);
+          
+          setTimeout(() => clearInterval(checkInterval), 2000);
         }
-      });
-
-      m.on('style.load', () => {
-        // 样式加载后重新初始化图层
-        layersInitializedRef.current = false;
-        if (mode === 'multi-stop-route' && journeySteps.length > 0) {
-          initializeMarkers(m);
-          initializeMultiDayLayers(m);
-        } else if (mode === 'single-location' && locations && locations.length > 0) {
-          updateSingleLocation(m);
-        }
-      });
-
-      m.on('error', (e: any) => {
-        console.error('[JourneyMap error]', e?.error || e);
-      });
-
-    } catch (err) {
-      console.error("[JourneyMap] Initialization Error:", err);
+      }, 100);
     }
 
     return () => {
-      if (map.current) {
-        markersRef.current.forEach(({ marker }) => {
-          marker.remove();
-        });
-        markersRef.current.clear();
-        
-        map.current.remove();
-        map.current = null;
+      if (scriptRetryTimeoutRef.current) {
+        clearTimeout(scriptRetryTimeoutRef.current);
+        scriptRetryTimeoutRef.current = null;
       }
     };
-  }, [isScriptLoaded, mode, journeyStepsKey, journeyStepsLength]);
+  }, [isScriptLoaded]);
+
+  // 初始化地图 - 确保所有条件都满足，使用 requestAnimationFrame 包装
+  useEffect(() => {
+    const timestamp = Date.now();
+    
+    // 验证所有必要条件
+    if (!isScriptLoaded) {
+      console.log(`[JourneyMap] Waiting for script to load... @ ${timestamp}`);
+      return;
+    }
+
+    if (!isContainerReady) {
+      console.log(`[JourneyMap] Waiting for container to be ready... @ ${timestamp}`);
+      return;
+    }
+
+    if (!mapContainer.current) {
+      console.error(`[JourneyMap] Map container ref is null @ ${timestamp}`);
+      return;
+    }
+
+    // DOM 附件检查：确保 ref 已附加到文档
+    if (!mapContainer.current.isConnected) {
+      console.warn(`[JourneyMap] Container not connected to DOM @ ${timestamp}`);
+      // 等待下一帧再检查
+      requestAnimationFrame(() => {
+        if (mapContainer.current?.isConnected && !map.current) {
+          // 重新触发检查
+          setIsContainerReady(true);
+        }
+      });
+      return;
+    }
+
+    if (map.current) {
+      console.log(`[JourneyMap] Map already initialized @ ${timestamp}`);
+      return;
+    }
+
+    // 验证 Mapbox script 是否已加载到 window（双重检查）
+    const mapboxgl = (window as any).mapboxgl;
+    if (!mapboxgl) {
+      console.error(`[JourneyMap] MapboxGL script missing on window @ ${timestamp}`);
+      // 尝试重新设置 isScriptLoaded
+      setIsScriptLoaded(false);
+      return;
+    }
+
+    // 验证 Mapbox token
+    const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+    if (!token) {
+      console.error(`[JourneyMap] Mapbox token not configured @ ${timestamp}`);
+      return;
+    }
+
+    // 最终验证容器尺寸
+    const width = mapContainer.current.offsetWidth;
+    const height = mapContainer.current.offsetHeight;
+    if (width === 0 || height === 0) {
+      console.warn(`[JourneyMap] Container has zero dimensions @ ${timestamp}`, { width, height });
+      // 即使尺寸为0也继续，但会在 load 事件中强制 resize
+    }
+
+    // 在 requestAnimationFrame 中包装整个初始化逻辑，确保主线程完成初始布局绘制
+    const rafId = requestAnimationFrame(() => {
+      const constructorStartTime = Date.now();
+      console.log(`[JourneyMap] Constructor Start @ ${constructorStartTime}`, {
+        containerSize: { width, height },
+        isConnected: mapContainer.current?.isConnected,
+        mode,
+        journeyStepsLength,
+        locationsLength
+      });
+
+      // 再次验证（在 RAF 回调中）
+      if (!mapContainer.current || map.current || !mapContainer.current.isConnected) {
+        console.warn(`[JourneyMap] Validation failed in RAF callback @ ${Date.now()}`);
+        return;
+      }
+
+      try {
+        mapboxgl.accessToken = token;
+
+        const m = new mapboxgl.Map({
+          container: mapContainer.current,
+          style: 'mapbox://styles/mapbox/light-v11',
+          center: [0, 0], // 默认中心点，后续会根据实际数据计算边界
+          zoom: 2,
+          attributionControl: false
+        });
+
+        map.current = m;
+        (window as any).__MAP__ = m;
+        console.log(`[JourneyMap] Map instance created @ ${Date.now()}`);
+
+        // 地图加载完成后的处理
+        m.on('load', () => {
+          const loadTime = Date.now();
+          console.log(`[JourneyMap] Load Event @ ${loadTime}`, {
+            containerSize: {
+              width: mapContainer.current?.offsetWidth,
+              height: mapContainer.current?.offsetHeight
+            }
+          });
+
+          // 双重缓冲 Resize：立即调用一次
+          if (m && !m.removed) {
+            m.resize();
+            console.log(`[JourneyMap] First resize (immediate) @ ${Date.now()}`);
+          }
+
+          // 第二次 resize：300ms 后调用，处理 CSS 过渡/动画延迟
+          setTimeout(() => {
+            if (m && !m.removed) {
+              m.resize();
+              console.log(`[JourneyMap] Post-Load Resize (300ms delay) @ ${Date.now()}`);
+            }
+          }, 300);
+
+          // 根据模式初始化地图内容
+          if (mode === 'multi-stop-route' && journeySteps.length > 0) {
+            initializeMarkers(m);
+            initializeMultiDayLayers(m);
+          } else if (mode === 'single-location' && locations && locations.length > 0) {
+            updateSingleLocation(m);
+          }
+        });
+
+        // 样式加载后的处理（可能触发多次）
+        m.on('style.load', () => {
+          layersInitializedRef.current = false;
+          
+          // 双重缓冲 Resize
+          if (m && !m.removed) {
+            m.resize();
+          }
+          
+          setTimeout(() => {
+            if (m && !m.removed) {
+              m.resize();
+            }
+          }, 300);
+
+          // 重新初始化图层
+          if (mode === 'multi-stop-route' && journeySteps.length > 0) {
+            initializeMarkers(m);
+            initializeMultiDayLayers(m);
+          } else if (mode === 'single-location' && locations && locations.length > 0) {
+            updateSingleLocation(m);
+          }
+        });
+
+        // 错误处理
+        m.on('error', (e: any) => {
+          console.error(`[JourneyMap error] @ ${Date.now()}`, e?.error || e);
+        });
+
+      } catch (err) {
+        console.error(`[JourneyMap] Initialization Error @ ${Date.now()}:`, err);
+        // 清理失败的实例
+        if (map.current) {
+          try {
+            map.current.remove();
+          } catch (e) {
+            console.warn("[JourneyMap] Error removing failed map instance:", e);
+          }
+          map.current = null;
+        }
+      }
+    });
+
+    // 强制清理函数：非常彻底地清理所有资源
+    return () => {
+      cancelAnimationFrame(rafId);
+      
+      if (map.current) {
+        const cleanupTime = Date.now();
+        console.log(`[JourneyMap] Force Cleanup Start @ ${cleanupTime}`);
+        
+        // 清理所有 markers
+        markersRef.current.forEach(({ marker }) => {
+          try {
+            marker.remove();
+          } catch (e) {
+            console.warn("[JourneyMap] Error removing marker:", e);
+          }
+        });
+        markersRef.current.clear();
+
+        // 强制移除地图实例（多次尝试确保成功）
+        const mapInstance = map.current;
+        map.current = null;
+        (window as any).__MAP__ = null;
+
+        try {
+          if (mapInstance && typeof mapInstance.remove === 'function') {
+            mapInstance.remove();
+            console.log(`[JourneyMap] Map instance removed @ ${Date.now()}`);
+          }
+        } catch (e) {
+          console.warn("[JourneyMap] Error removing map (first attempt):", e);
+          // 第二次尝试
+          try {
+            if (mapInstance && typeof mapInstance.remove === 'function') {
+              mapInstance.remove();
+            }
+          } catch (e2) {
+            console.error("[JourneyMap] Error removing map (second attempt):", e2);
+          }
+        }
+      }
+    };
+  }, [isScriptLoaded, isContainerReady, mode, journeyStepsKey, journeyStepsLength, locationsKey, locationsLength]);
 
   // 初始化 Marker 函数 - 使用 journeySteps 作为单一数据源
   const initializeMarkers = (m: any) => {
@@ -914,6 +1162,25 @@ export default function JourneyMap({
     }
   }, [mapModeForUpdate, currentDayValue, activeDayValue]); // 使用稳定的值，确保数组长度固定为 3
 
+  // 监听窗口大小变化，确保地图正确调整大小
+  useEffect(() => {
+    if (!map.current) return;
+
+    const handleResize = () => {
+      if (map.current && map.current.isStyleLoaded()) {
+        setTimeout(() => {
+          map.current.resize();
+          console.log("[JourneyMap] Map resized on window resize");
+        }, 100);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [isScriptLoaded]);
+
   return (
     <>
       <link href="https://api.mapbox.com/mapbox-gl-js/v3.17.0/mapbox-gl.css" rel="stylesheet" />
@@ -921,22 +1188,34 @@ export default function JourneyMap({
         src="https://api.mapbox.com/mapbox-gl-js/v3.17.0/mapbox-gl.js"
         strategy="afterInteractive"
         onLoad={() => {
+          const loadTime = Date.now();
+          // 直接检查 window.mapboxgl，确保脚本真正可用
           if ((window as any).mapboxgl) {
+            console.log(`[JourneyMap] Mapbox script loaded @ ${loadTime}`);
             setIsScriptLoaded(true);
+            scriptRetryCountRef.current = 0; // 重置重试计数
+          } else {
+            console.warn(`[JourneyMap] Script onLoad fired but mapboxgl not found @ ${loadTime}`);
+            // 触发重试检查
+            setIsScriptLoaded(false);
           }
+        }}
+        onError={(e) => {
+          console.error(`[JourneyMap] Failed to load Mapbox script @ ${Date.now()}`, e);
+          setIsScriptLoaded(false);
         }}
       />
       <div 
         className={`relative w-full h-full min-h-[500px] bg-gray-100 ${className}`}
         style={{
-          overflow: 'visible',
+          overflow: 'hidden',
           position: 'relative',
           zIndex: 1,
           pointerEvents: 'auto'
         }}
       >
         {!process.env.NEXT_PUBLIC_MAPBOX_TOKEN ? (
-          <div className="absolute inset-0 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center justify-center z-10">
             <div className="text-center p-4">
               <p className="text-red-600 font-semibold mb-2">Mapbox token not configured</p>
               <p className="text-gray-600 text-sm">
@@ -951,11 +1230,15 @@ export default function JourneyMap({
             className="absolute inset-0 w-full h-full"
             style={{
               height: '100%',
+              width: '100%',
+              minHeight: '500px', // 确保有最小高度
               position: 'absolute',
               top: 0,
               left: 0,
               right: 0,
-              bottom: 0
+              bottom: 0,
+              zIndex: 0,
+              backgroundColor: '#f0f0f0' // 初始背景色，防止白屏
             }}
           />
         )}
