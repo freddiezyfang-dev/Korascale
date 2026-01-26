@@ -69,7 +69,7 @@ export default function EditExtensionPage() {
 
     setIsUploading(true);
     try {
-      const imageUrl = await uploadAPI(file, 'journeys');
+      const imageUrl = await uploadAPI.uploadImage(file, 'journeys');
       handleInputChange('image', imageUrl);
     } catch (error) {
       console.error('Error uploading image:', error);
