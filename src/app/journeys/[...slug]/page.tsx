@@ -458,7 +458,10 @@ const CITY_GEO_DB: Record<string, { lng: number; lat: number; name: string }> = 
   'forbidden city': { lng: 116.3972, lat: 39.9163, name: 'Forbidden City' },
   '故宫': { lng: 116.3972, lat: 39.9163, name: 'Forbidden City' },
   'tiananmen': { lng: 116.3974, lat: 39.9037, name: 'Tiananmen Square' },
+  'tiananmen square': { lng: 116.3974, lat: 39.9037, name: 'Tiananmen Square' },
+  'tian anmen': { lng: 116.3974, lat: 39.9037, name: 'Tiananmen Square' },
   '天安门': { lng: 116.3974, lat: 39.9037, name: 'Tiananmen Square' },
+  '天安门广场': { lng: 116.3974, lat: 39.9037, name: 'Tiananmen Square' },
   'temple of heaven': { lng: 116.4075, lat: 39.8823, name: 'Temple of Heaven' },
   '天坛': { lng: 116.4075, lat: 39.8823, name: 'Temple of Heaven' },
   'summer palace': { lng: 116.2734, lat: 39.9990, name: 'Summer Palace' },
@@ -847,6 +850,36 @@ export default function DynamicJourneyPage() {
       const activitiesText = Array.isArray((day as any).activities) 
         ? (day as any).activities.join(' ') 
         : '';
+      
+      // 【优先级最高】特殊处理：对于北京路线，如果包含 tiananmen 相关关键词，直接匹配到天安门
+      const journeyRegionText = `${journey.region || ''} ${journey.city || ''} ${journey.title || ''}`.toLowerCase();
+      const isBeijingRoute = journeyRegionText.includes('beijing') || journeyRegionText.includes('北京');
+      const dayText = `${day.title || ''} ${day.description || ''} ${activitiesText}`.toLowerCase();
+      
+      if (isBeijingRoute && (dayText.includes('tiananmen') || dayText.includes('天安门') || dayText.includes('tiananmen square'))) {
+        const tiananmenCoords = CITY_GEO_DB['tiananmen'];
+        if (tiananmenCoords) {
+          console.log(`[page.tsx] Day ${day.day}: PRIORITY Tiananmen Square match (before all other matching):`, {
+            dayTitle: day.title,
+            dayText: dayText.substring(0, 100),
+            coords: tiananmenCoords
+          });
+          // 直接返回天安门坐标，跳过所有其他匹配逻辑
+          return {
+            day: day.day,
+            title: day.title,
+            locations: [{
+              id: `${journey.id}-day-${day.day}-step-0`,
+              lng: tiananmenCoords.lng,
+              lat: tiananmenCoords.lat,
+              name: tiananmenCoords.name,
+              city: tiananmenCoords.name,
+              label: tiananmenCoords.name,
+              day: day.day
+            }]
+          };
+        }
+      }
       const searchText = `${day.title || ''} ${day.description || ''} ${activitiesText}`.toLowerCase();
       
       console.log(`[page.tsx] Day ${day.day} search text:`, {
@@ -2696,51 +2729,42 @@ export default function DynamicJourneyPage() {
         
         // 如果还没有匹配到，继续常规匹配流程
         if (!finalLng || !finalLat) {
-          // 首先尝试精确匹配（完整词匹配）
-          const exactMatch = Object.entries(CITY_GEO_DB).find(([key]) => {
-            const lowerKey = key.toLowerCase();
-            
-            // 排除逻辑：如果行程是西藏/青海路线，排除所有北京相关地点
-            if (isTibetRoute) {
-              const beijingKeys = ['beijing', '北京', 'summer palace', '颐和园', 'forbidden city', '故宫', 
-                                 'tiananmen', '天安门', 'temple of heaven', '天坛', 'great wall', '长城',
-                                 'badaling', '八达岭', 'mutianyu', '慕田峪', 'beihai park', '北海公园', 'hutong', '胡同'];
-              if (beijingKeys.some(bk => lowerKey.includes(bk))) {
-                return false;
-              }
-            }
-            
-            // 排除逻辑：如果行程是北京路线，排除所有西藏/青海相关地点
-            if (isBeijingRoute) {
-              const tibetKeys = ['tibet', '西藏', 'lhasa', '拉萨', 'qinghai', '青海', 'xining', '西宁'];
-              if (tibetKeys.some(tk => lowerKey.includes(tk))) {
-                return false;
-              }
-            }
-            
-            // 精确匹配：作为完整词出现（前后有空格、标点或字符串边界）
-            const exactPattern = new RegExp(`\\b${lowerKey.replace(/[.*+?^${'$'}{}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-            return exactPattern.test(searchText) ||
-                   ((day as any).city && exactPattern.test((day as any).city.toLowerCase())) ||
-                   ((day as any).location && exactPattern.test((day as any).location.toLowerCase()));
-          });
+          // 【最高优先级】特殊处理：对于北京路线，优先匹配 Tiananmen Square（避免误匹配到 Tianmen Mountain）
+          // 检查多种可能的 tiananmen 关键词变体
+          const hasTiananmenKeyword = searchText.includes('tiananmen') || 
+                                      searchText.includes('天安门') || 
+                                      searchText.includes('tiananmen square') ||
+                                      searchText.includes('tian anmen') ||
+                                      day.title?.toLowerCase().includes('tiananmen') ||
+                                      day.title?.toLowerCase().includes('天安门') ||
+                                      day.description?.toLowerCase().includes('tiananmen') ||
+                                      day.description?.toLowerCase().includes('天安门');
           
-          if (exactMatch) {
-            const [, geoData] = exactMatch;
-            finalLng = geoData.lng;
-            finalLat = geoData.lat;
-            finalCity = geoData.name;
-            console.log(`[page.tsx] Day ${day.day}: Exact match from Geo Dictionary:`, { 
-              key: exactMatch[0], 
-              finalCity, 
-              finalLng, 
-              finalLat,
-              isTibetRoute,
-              isBeijingRoute
+          if (isBeijingRoute && hasTiananmenKeyword) {
+            const tiananmenEntry = Object.entries(CITY_GEO_DB).find(([key]) => {
+              const lowerKey = key.toLowerCase();
+              return lowerKey === 'tiananmen' || lowerKey === '天安门';
             });
-          } else {
-            // 如果没有精确匹配，尝试模糊匹配（但排除容易误匹配的词）
-            const fuzzyMatch = Object.entries(CITY_GEO_DB).find(([key]) => {
+            if (tiananmenEntry) {
+              const [, geoData] = tiananmenEntry;
+              finalLng = geoData.lng;
+              finalLat = geoData.lat;
+              finalCity = geoData.name;
+              console.log(`[page.tsx] Day ${day.day}: PRIORITY Tiananmen Square match (Beijing route):`, { 
+                key: tiananmenEntry[0], 
+                finalCity, 
+                finalLng, 
+                finalLat,
+                searchText: searchText.substring(0, 200),
+                dayTitle: day.title
+              });
+            }
+          }
+          
+          // 如果还没有匹配到，继续常规匹配流程
+          if (!finalLng || !finalLat) {
+            // 首先尝试精确匹配（完整词匹配）
+            const exactMatch = Object.entries(CITY_GEO_DB).find(([key]) => {
               const lowerKey = key.toLowerCase();
               
               // 排除逻辑：如果行程是西藏/青海路线，排除所有北京相关地点
@@ -2761,23 +2785,31 @@ export default function DynamicJourneyPage() {
                 }
               }
               
-              // 如果 key 包含 "palace" 但搜索文本中没有完整的 "summer palace"，则跳过
-              if (lowerKey.includes('palace') && !searchText.includes('summer palace') && !searchText.includes('颐和园')) {
+              // 【强制排除】如果搜索文本包含任何 "tiananmen" 相关关键词，强制排除 "tianmen" 和 "天门山" 的匹配
+              const hasTiananmenKeyword = searchText.includes('tiananmen') || 
+                                          searchText.includes('天安门') || 
+                                          searchText.includes('tiananmen square') ||
+                                          searchText.includes('tian anmen');
+              if (hasTiananmenKeyword && 
+                  (lowerKey === 'tianmen' || lowerKey === 'tianmen mountain' || lowerKey === '天门山')) {
+                console.log(`[page.tsx] Day ${day.day}: EXCLUDING Tianmen Mountain match because Tiananmen keyword found`);
                 return false;
               }
               
-              return searchText.includes(lowerKey) || 
-                     ((day as any).city && (day as any).city.toLowerCase().includes(lowerKey)) ||
-                     ((day as any).location && (day as any).location.toLowerCase().includes(lowerKey));
+              // 精确匹配：作为完整词出现（前后有空格、标点或字符串边界）
+              const exactPattern = new RegExp(`\\b${lowerKey.replace(/[.*+?^${'$'}{}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+              return exactPattern.test(searchText) ||
+                     ((day as any).city && exactPattern.test((day as any).city.toLowerCase())) ||
+                     ((day as any).location && exactPattern.test((day as any).location.toLowerCase()));
             });
             
-            if (fuzzyMatch) {
-              const [, geoData] = fuzzyMatch;
+            if (exactMatch) {
+              const [, geoData] = exactMatch;
               finalLng = geoData.lng;
               finalLat = geoData.lat;
               finalCity = geoData.name;
-              console.log(`[page.tsx] Day ${day.day}: Fuzzy match from Geo Dictionary:`, { 
-                key: fuzzyMatch[0], 
+              console.log(`[page.tsx] Day ${day.day}: Exact match from Geo Dictionary:`, { 
+                key: exactMatch[0], 
                 finalCity, 
                 finalLng, 
                 finalLat,
@@ -2785,20 +2817,78 @@ export default function DynamicJourneyPage() {
                 isBeijingRoute
               });
             } else {
-              // 如果没有匹配到，记录调试信息
-              if (day.day === 4 || day.day === 5) {
-                // 特别关注 day4 和 day5
-                console.warn(`[page.tsx] Day ${day.day}: No match found in Geo Dictionary`, {
-                  searchText: searchText.substring(0, 300),
-                  hasGyantseKeywords: searchText.includes('gyantse') || searchText.includes('gyangtse') || 
-                                     searchText.includes('江孜') || searchText.includes('pelkor') || 
-                                     searchText.includes('kumbum'),
-                  availableGyantseKeys: Object.keys(CITY_GEO_DB).filter(k => {
-                    const lowerK = k.toLowerCase();
-                    return lowerK.includes('gyantse') || lowerK.includes('pelkor') || lowerK.includes('kumbum');
-                  }),
-                  allAvailableKeys: Object.keys(CITY_GEO_DB).slice(0, 20) // 显示前20个key作为参考
+              // 如果没有精确匹配，尝试模糊匹配（但排除容易误匹配的词）
+              const fuzzyMatch = Object.entries(CITY_GEO_DB).find(([key]) => {
+                const lowerKey = key.toLowerCase();
+                
+                // 排除逻辑：如果行程是西藏/青海路线，排除所有北京相关地点
+                if (isTibetRoute) {
+                  const beijingKeys = ['beijing', '北京', 'summer palace', '颐和园', 'forbidden city', '故宫', 
+                                     'tiananmen', '天安门', 'temple of heaven', '天坛', 'great wall', '长城',
+                                     'badaling', '八达岭', 'mutianyu', '慕田峪', 'beihai park', '北海公园', 'hutong', '胡同'];
+                  if (beijingKeys.some(bk => lowerKey.includes(bk))) {
+                    return false;
+                  }
+                }
+                
+                // 排除逻辑：如果行程是北京路线，排除所有西藏/青海相关地点
+                if (isBeijingRoute) {
+                  const tibetKeys = ['tibet', '西藏', 'lhasa', '拉萨', 'qinghai', '青海', 'xining', '西宁'];
+                  if (tibetKeys.some(tk => lowerKey.includes(tk))) {
+                    return false;
+                  }
+                }
+                
+                // 【强制排除】如果搜索文本包含任何 "tiananmen" 相关关键词，强制排除 "tianmen" 和 "天门山" 的匹配
+                const hasTiananmenKeyword = searchText.includes('tiananmen') || 
+                                            searchText.includes('天安门') || 
+                                            searchText.includes('tiananmen square') ||
+                                            searchText.includes('tian anmen');
+                if (hasTiananmenKeyword && 
+                    (lowerKey === 'tianmen' || lowerKey === 'tianmen mountain' || lowerKey === '天门山')) {
+                  console.log(`[page.tsx] Day ${day.day}: EXCLUDING Tianmen Mountain match in fuzzy search because Tiananmen keyword found`);
+                  return false;
+                }
+                
+                // 如果 key 包含 "palace" 但搜索文本中没有完整的 "summer palace"，则跳过
+                if (lowerKey.includes('palace') && !searchText.includes('summer palace') && !searchText.includes('颐和园')) {
+                  return false;
+                }
+                
+                return searchText.includes(lowerKey) || 
+                       ((day as any).city && (day as any).city.toLowerCase().includes(lowerKey)) ||
+                       ((day as any).location && (day as any).location.toLowerCase().includes(lowerKey));
+              });
+              
+              if (fuzzyMatch) {
+                const [, geoData] = fuzzyMatch;
+                finalLng = geoData.lng;
+                finalLat = geoData.lat;
+                finalCity = geoData.name;
+                console.log(`[page.tsx] Day ${day.day}: Fuzzy match from Geo Dictionary:`, { 
+                  key: fuzzyMatch[0], 
+                  finalCity, 
+                  finalLng, 
+                  finalLat,
+                  isTibetRoute,
+                  isBeijingRoute
                 });
+              } else {
+                // 如果没有匹配到，记录调试信息
+                if (day.day === 4 || day.day === 5) {
+                  // 特别关注 day4 和 day5
+                  console.warn(`[page.tsx] Day ${day.day}: No match found in Geo Dictionary`, {
+                    searchText: searchText.substring(0, 300),
+                    hasGyantseKeywords: searchText.includes('gyantse') || searchText.includes('gyangtse') || 
+                                       searchText.includes('江孜') || searchText.includes('pelkor') || 
+                                       searchText.includes('kumbum'),
+                    availableGyantseKeys: Object.keys(CITY_GEO_DB).filter(k => {
+                      const lowerK = k.toLowerCase();
+                      return lowerK.includes('gyantse') || lowerK.includes('pelkor') || lowerK.includes('kumbum');
+                    }),
+                    allAvailableKeys: Object.keys(CITY_GEO_DB).slice(0, 20) // 显示前20个key作为参考
+                  });
+                }
               }
             }
           }
@@ -2841,6 +2931,22 @@ export default function DynamicJourneyPage() {
             if (tibetKeys.some(tk => lowerKey.includes(tk))) {
               return false;
             }
+          }
+          
+          // 【强制排除】如果搜索文本包含任何 "tiananmen" 相关关键词，强制排除 "tianmen" 和 "天门山" 的匹配
+          const hasTiananmenKeyword = combinedText.includes('tiananmen') || 
+                                      combinedText.includes('天安门') || 
+                                      combinedText.includes('tiananmen square') ||
+                                      combinedText.includes('tian anmen');
+          if (hasTiananmenKeyword && 
+              (lowerKey === 'tianmen' || lowerKey === 'tianmen mountain' || lowerKey === '天门山')) {
+            console.log(`[page.tsx] Day ${day.day}: EXCLUDING Tianmen Mountain match in retry search because Tiananmen keyword found`);
+            return false;
+          }
+          
+          // 【优先匹配】如果搜索文本包含 tiananmen 相关关键词，优先匹配天安门
+          if (hasTiananmenKeyword && (lowerKey === 'tiananmen' || lowerKey === '天安门')) {
+            return true; // 优先返回天安门
           }
           
           // 排除容易误匹配的词：如果 key 包含 "palace" 但搜索文本中没有完整的 "summer palace"
