@@ -126,7 +126,7 @@ export default function EditExtensionPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Section background="white" padding="lg">
+      <Section background="primary" padding="lg">
         <Container size="xl">
           <div className="flex items-center gap-4 mb-6">
             <Button variant="secondary" onClick={() => router.push('/admin/extensions')}>

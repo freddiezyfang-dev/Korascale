@@ -87,7 +87,7 @@ export default function AdminJourneyHotelsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Section background="white" padding="lg">
+      <Section background="primary" padding="lg">
         <Container size="xl">
           <div className="flex items-center justify-between mb-6">
             <Heading level={1} className="text-3xl font-bold">Journey Hotels 管理</Heading>
