@@ -137,6 +137,9 @@ export async function GET(request?: NextRequest) {
         reviewCount: row.review_count,
         // JSONB数据
         ...baseData,
+        // 确保这些字段存在（即使为空也要返回）
+        destinationCount: baseData.destinationCount,
+        maxGuests: baseData.maxGuests,
         // 时间戳
         createdAt: new Date(row.created_at),
         updatedAt: new Date(row.updated_at),
@@ -226,6 +229,8 @@ export async function POST(request: NextRequest) {
       bestTimeToVisit: journey.bestTimeToVisit || [],
       tags: journey.tags || [],
       navigation: journey.navigation || [],
+      extensions: journey.extensions || [],
+      hotels: journey.hotels || [],
     };
     
     // 插入数据库

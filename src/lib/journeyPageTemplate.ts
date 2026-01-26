@@ -127,7 +127,7 @@ export function generateStandardPageConfig(journey: Journey) {
       stats: journey.heroStats || {
         days: parseInt(journey.duration.split(' ')[0]) || 1,
         destinations: journey.destinationCount || journey.itinerary.length || 1,
-        maxGuests: journey.maxGuests || journey.maxParticipants || 12
+        maxGuests: journey.maxGuests || 0
       }
     },
 

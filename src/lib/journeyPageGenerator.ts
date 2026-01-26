@@ -55,8 +55,8 @@ export function generateMetaDescription(description: string, maxLength: number =
 export function generateHeroStats(journey: Journey) {
   const days = journey.duration ? parseInt(journey.duration.split(' ')[0]) || 1 : 1;
   const destinations = (journey.itinerary && Array.isArray(journey.itinerary)) ? journey.itinerary.length : 1;
-  // 优先使用 maxGuests，如果没有则使用 maxParticipants
-  const maxGuests = journey.maxGuests || journey.maxParticipants || 12;
+  // 使用 maxGuests
+  const maxGuests = journey.maxGuests || 0;
   
   return {
     days,

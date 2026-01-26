@@ -57,6 +57,11 @@ export async function GET(
       reviewCount: row.review_count,
       // JSONB数据（复杂嵌套）
       ...baseData,
+      // 确保这些字段存在（即使为空也要返回）
+      standardInclusions: baseData.standardInclusions || {},
+      offers: baseData.offers || [],
+      destinationCount: baseData.destinationCount,
+      maxGuests: baseData.maxGuests,
       // 时间戳
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
@@ -220,6 +225,7 @@ export async function PUT(
     if ((updates as any).accommodations !== undefined) jsonbUpdates.accommodations = (updates as any).accommodations;
     if ((updates as any).availableExperiences !== undefined) jsonbUpdates.availableExperiences = (updates as any).availableExperiences;
     if ((updates as any).availableAccommodations !== undefined) jsonbUpdates.availableAccommodations = (updates as any).availableAccommodations;
+    if ((updates as any).availableDates !== undefined) jsonbUpdates.availableDates = (updates as any).availableDates;
     if ((updates as any).included !== undefined) jsonbUpdates.included = (updates as any).included;
     if ((updates as any).excluded !== undefined) jsonbUpdates.excluded = (updates as any).excluded;
     if ((updates as any).heroStats !== undefined) jsonbUpdates.heroStats = (updates as any).heroStats;
@@ -230,6 +236,10 @@ export async function PUT(
     if ((updates as any).maxGuests !== undefined) jsonbUpdates.maxGuests = (updates as any).maxGuests;
     if ((updates as any).modules !== undefined) jsonbUpdates.modules = (updates as any).modules;
     if ((updates as any).relatedTrips !== undefined) jsonbUpdates.relatedTrips = (updates as any).relatedTrips;
+    if ((updates as any).offers !== undefined) jsonbUpdates.offers = (updates as any).offers;
+    if ((updates as any).standardInclusions !== undefined) jsonbUpdates.standardInclusions = (updates as any).standardInclusions;
+    if ((updates as any).extensions !== undefined) jsonbUpdates.extensions = (updates as any).extensions;
+    if ((updates as any).hotels !== undefined) jsonbUpdates.hotels = (updates as any).hotels;
     
     // 先获取journey ID并验证journey是否存在
     const { id } = await context.params;
@@ -248,7 +258,21 @@ export async function PUT(
       try {
         const { rows } = await query('SELECT data FROM journeys WHERE id = $1', [id]);
         const existingData = rows[0]?.data || {};
-        const mergedData = { ...existingData, ...jsonbUpdates };
+        // 深度合并，确保所有字段都被正确保存
+        const mergedData = {
+          ...existingData,
+          ...jsonbUpdates,
+          // 确保这些字段被正确保存（即使为空也要保存）
+          standardInclusions: jsonbUpdates.standardInclusions !== undefined 
+            ? jsonbUpdates.standardInclusions 
+            : existingData.standardInclusions,
+          offers: jsonbUpdates.offers !== undefined 
+            ? jsonbUpdates.offers 
+            : existingData.offers,
+          maxGuests: jsonbUpdates.maxGuests !== undefined 
+            ? jsonbUpdates.maxGuests 
+            : existingData.maxGuests,
+        };
         
         updateFields.push(`data = $${paramIndex++}`);
         updateValues.push(JSON.stringify(mergedData));

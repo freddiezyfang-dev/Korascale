@@ -65,6 +65,11 @@ export async function GET(
       reviewCount: row.review_count,
       // JSONB数据（复杂嵌套）
       ...baseData,
+      // 确保这些字段存在（即使为空也要返回）
+      standardInclusions: baseData.standardInclusions || {},
+      offers: baseData.offers || [],
+      destinationCount: baseData.destinationCount,
+      maxGuests: baseData.maxGuests,
       // 时间戳
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),

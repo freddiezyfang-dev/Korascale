@@ -531,7 +531,7 @@ export default function AddJourneyPage() {
                 {/* Pricing and Duration */}
                 <Card className="p-6">
                   <Heading level={2} className="text-xl font-semibold mb-4">Pricing & Duration</Heading>
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Duration (Days)</label>
                       <div className="flex items-center gap-2">
@@ -554,7 +554,7 @@ export default function AddJourneyPage() {
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         />
                         <span className="text-sm text-gray-500 whitespace-nowrap">
-                          {formData.duration || 'Day(s)'}
+                          {formData.duration ? formatDuration(parseDurationDays(formData.duration)) : 'Day(s)'}
                         </span>
                       </div>
                     </div>
@@ -563,18 +563,9 @@ export default function AddJourneyPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
                       <input
                         type="number"
+                        step="0.01"
                         value={formData.price || 0}
-                        onChange={(e) => handleInputChange('price', parseInt(e.target.value))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Original Price ($)</label>
-                      <input
-                        type="number"
-                        value={formData.originalPrice || 0}
-                        onChange={(e) => handleInputChange('originalPrice', parseInt(e.target.value))}
+                        onChange={(e) => handleInputChange('price', parseFloat(e.target.value) || 0)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       />
                     </div>
@@ -583,8 +574,9 @@ export default function AddJourneyPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-1">Destination Count</label>
                       <input
                         type="number"
+                        min="0"
                         value={formData.destinationCount || 0}
-                        onChange={(e) => handleInputChange('destinationCount', parseInt(e.target.value))}
+                        onChange={(e) => handleInputChange('destinationCount', parseInt(e.target.value) || 0)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       />
                       <Text size="sm" className="text-gray-500 mt-1">
@@ -593,31 +585,12 @@ export default function AddJourneyPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Min Participants</label>
-                      <input
-                        type="number"
-                        value={formData.minParticipants || 2}
-                        onChange={(e) => handleInputChange('minParticipants', parseInt(e.target.value))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Max Participants</label>
-                      <input
-                        type="number"
-                        value={formData.maxParticipants || 12}
-                        onChange={(e) => handleInputChange('maxParticipants', parseInt(e.target.value))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      />
-                    </div>
-
-                    <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Max Guests</label>
                       <input
                         type="number"
+                        min="0"
                         value={formData.maxGuests || 0}
-                        onChange={(e) => handleInputChange('maxGuests', parseInt(e.target.value))}
+                        onChange={(e) => handleInputChange('maxGuests', parseInt(e.target.value) || 0)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       />
                       <Text size="sm" className="text-gray-500 mt-1">

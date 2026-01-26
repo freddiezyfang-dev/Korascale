@@ -19,6 +19,8 @@ import StandardInclusions from '@/components/journey/StandardInclusions';
 import OfferCard from '@/components/journey/OfferCard';
 import OfferIcon from '@/components/journey/OfferIcon';
 import InclusionsAndOffers from '@/components/journey/InclusionsAndOffers';
+import Extensions from '@/components/journey/Extensions';
+import Hotels from '@/components/journey/Hotels';
 
 // Details Accordion 组件 - 用于可折叠的技术细节
 function DetailsAccordion({ meals, accommodation, transportation }: { meals?: string[]; accommodation?: string; transportation?: string }) {
@@ -657,6 +659,8 @@ export default function DynamicJourneyPage() {
   const { journeys, isLoading: journeysLoading } = useJourneyManagement();
   const { experiences } = useExperienceManagement();
   const { hotels } = useHotelManagement();
+  const [extensionsData, setExtensionsData] = useState<any[]>([]);
+  const [hotelsData, setHotelsData] = useState<any[]>([]);
   const router = useRouter();
   const params = useParams();
   // catch-all 路由返回数组，需要合并
@@ -3014,6 +3018,14 @@ export default function DynamicJourneyPage() {
           clearTimeout(timeoutId);
           if (response.ok) {
             const data = await response.json();
+            console.log('[API Response] Journey data from API:', {
+              id: data.journey?.id,
+              destinationCount: data.journey?.destinationCount,
+              maxGuests: data.journey?.maxGuests,
+              duration: data.journey?.duration,
+              dataField: data.journey?.data,
+              fullJourney: data.journey
+            });
             setJourneyFromApi(data.journey);
           } else {
             setJourneyFromApi(null);
@@ -3037,6 +3049,42 @@ export default function DynamicJourneyPage() {
   const pageConfig = useMemo(() => {
     if (!journey) return null;
     
+    // 解析 duration 获取天数
+    const days = parseInt((journey.duration || '').split(' ')[0]) || 1;
+    
+    // 获取 destinationCount（优先使用显式设置的值，否则回退到 itinerary 长度）
+    const destinations = journey.destinationCount !== undefined && journey.destinationCount !== null
+      ? journey.destinationCount
+      : (journey.itinerary ? journey.itinerary.length : 1) || 1;
+    
+    // 获取 maxGuests（如果没有设置则为 0）
+    const maxGuests = journey.maxGuests !== undefined && journey.maxGuests !== null
+      ? journey.maxGuests
+      : 0;
+    
+    // 调试日志 - 详细检查 journey 对象
+    console.log('[pageConfig] Hero stats calculation:', {
+      journeyId: journey.id,
+      duration: journey.duration,
+      days,
+      destinationCount: journey.destinationCount,
+      destinationCountType: typeof journey.destinationCount,
+      destinations,
+      maxGuests: journey.maxGuests,
+      maxGuestsType: typeof journey.maxGuests,
+      maxGuestsFinal: maxGuests,
+      itineraryLength: journey.itinerary?.length,
+      // 检查 journey 对象的所有属性
+      journeyKeys: Object.keys(journey),
+      // 检查 data 字段（如果存在）
+      dataField: (journey as any).data,
+      // 检查是否有 heroStats
+      heroStats: journey.heroStats
+    });
+    
+    // 额外检查：查看 journey 对象的完整结构
+    console.log('[pageConfig] Full journey object:', journey);
+    
     // 直接使用 journey 的页面内容，而不是模板生成
     return {
       // Hero区域 - 使用后台设置的内容
@@ -3044,11 +3092,23 @@ export default function DynamicJourneyPage() {
         // 优先使用后台 main image（image 字段），没有时再回退到 heroImage
         image: journey.image || journey.heroImage,
         title: journey.pageTitle || journey.title,
-        stats: journey.heroStats || {
-          days: parseInt((journey.duration || '').split(' ')[0]) || 1,
-          destinations: journey.destinationCount || (journey.itinerary ? journey.itinerary.length : 1) || 1,
-          maxGuests: journey.maxGuests || journey.maxParticipants || 12
-        }
+        stats: (() => {
+          // 始终使用计算的值（基于最新的 destinationCount 和 maxGuests）
+          // 这样可以确保后台修改的值能正确显示
+          const calculatedStats = {
+            days,
+            destinations,
+            maxGuests
+          };
+          console.log('[pageConfig] Using calculated stats (always):', calculatedStats);
+          
+          // 如果存在 heroStats，记录它但不使用（用于调试）
+          if (journey.heroStats) {
+            console.log('[pageConfig] Found existing heroStats (ignored):', journey.heroStats);
+          }
+          
+          return calculatedStats;
+        })()
       },
 
       // 导航 - 使用后台设置的导航
@@ -3358,6 +3418,61 @@ export default function DynamicJourneyPage() {
       accommodationIds.includes(hotel.id) && hotel.status === 'active'
     );
   }, [journey, hotels]);
+
+  // 获取 Extensions 和 Hotels 完整数据
+  useEffect(() => {
+    const fetchExtensionsAndHotels = async () => {
+      if (!journey) {
+        setExtensionsData([]);
+        setHotelsData([]);
+        return;
+      }
+
+      // 获取 Extensions
+      if (journey.extensions && journey.extensions.length > 0) {
+        try {
+          const extensionsPromises = journey.extensions.map(async (id) => {
+            const res = await fetch(`/api/extensions/${id}`);
+            if (res.ok) {
+              const data = await res.json();
+              return data.extension;
+            }
+            return null;
+          });
+          const extensions = await Promise.all(extensionsPromises);
+          setExtensionsData(extensions.filter(Boolean));
+        } catch (error) {
+          console.error('Error fetching extensions:', error);
+          setExtensionsData([]);
+        }
+      } else {
+        setExtensionsData([]);
+      }
+
+      // 获取 Hotels
+      if (journey.hotels && journey.hotels.length > 0) {
+        try {
+          const hotelsPromises = journey.hotels.map(async (id) => {
+            const res = await fetch(`/api/journey-hotels/${id}`);
+            if (res.ok) {
+              const data = await res.json();
+              return data.hotel;
+            }
+            return null;
+          });
+          const hotels = await Promise.all(hotelsPromises);
+          setHotelsData(hotels.filter(Boolean));
+        } catch (error) {
+          console.error('Error fetching journey hotels:', error);
+          setHotelsData([]);
+        }
+      } else {
+        setHotelsData([]);
+      }
+    };
+
+    fetchExtensionsAndHotels();
+  }, [journey]);
 
   // =============== Select Your Date: 动态月历（未来一年） =================
   const today = useMemo(() => new Date(), []);
@@ -3903,6 +4018,16 @@ export default function DynamicJourneyPage() {
           </div>
         </div>
       </section>
+
+      {/* Extensions Section - 条件渲染 */}
+      {extensionsData.length > 0 && (
+        <Extensions extensions={extensionsData} />
+      )}
+
+      {/* Hotels Section - 条件渲染 */}
+      {hotelsData.length > 0 && (
+        <Hotels hotels={hotelsData} />
+      )}
 
       {/* Add Experiences */}
       {relatedExperiences.length > 0 && (

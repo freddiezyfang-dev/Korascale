@@ -24,8 +24,11 @@ import {
   Clock,
   Users,
   DollarSign,
-  Star
+  Star,
+  Edit
 } from 'lucide-react';
+import { ExtensionFormModal } from '@/components/admin/ExtensionFormModal';
+import { JourneyHotelFormModal } from '@/components/admin/JourneyHotelFormModal';
 import { uploadAPI } from '@/lib/databaseClient';
 
 const categoryOptions = [
@@ -122,6 +125,107 @@ export default function EditJourneyPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState<Partial<Journey>>({});
+  const [extensions, setExtensions] = useState<any[]>([]);
+  const [journeyHotels, setJourneyHotels] = useState<any[]>([]);
+  const [loadingExtensions, setLoadingExtensions] = useState(false);
+  const [loadingHotels, setLoadingHotels] = useState(false);
+  
+  // Modal 状态
+  const [extensionModalOpen, setExtensionModalOpen] = useState(false);
+  const [editingExtension, setEditingExtension] = useState<any>(null);
+  const [hotelModalOpen, setHotelModalOpen] = useState(false);
+  const [editingHotel, setEditingHotel] = useState<any>(null);
+
+  // 获取 Extensions 和 Journey Hotels 列表
+  const fetchExtensionsAndHotels = async () => {
+    setLoadingExtensions(true);
+    setLoadingHotels(true);
+    try {
+      const [extensionsRes, hotelsRes] = await Promise.all([
+        fetch('/api/extensions'),
+        fetch('/api/journey-hotels')
+      ]);
+      if (extensionsRes.ok) {
+        const data = await extensionsRes.json();
+        setExtensions(data.extensions || []);
+      }
+      if (hotelsRes.ok) {
+        const data = await hotelsRes.json();
+        setJourneyHotels(data.hotels || []);
+      }
+    } catch (error) {
+      console.error('Error fetching extensions and hotels:', error);
+    } finally {
+      setLoadingExtensions(false);
+      setLoadingHotels(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchExtensionsAndHotels();
+  }, []);
+
+  // Extension Modal 处理函数
+  const handleExtensionSuccess = (extension: any) => {
+    if (!journey) return;
+    
+    // 如果是新创建的，添加到列表
+    if (!extensions.find(ext => ext.id === extension.id)) {
+      setExtensions(prev => [extension, ...prev]);
+      // 自动勾选新创建的 extension
+      const currentExtensions = isEditing
+        ? (formData.extensions || journey.extensions || [])
+        : (journey.extensions || []);
+      if (!currentExtensions.includes(extension.id)) {
+        handleInputChange('extensions', [...currentExtensions, extension.id]);
+      }
+    } else {
+      // 如果是编辑，更新列表中的项
+      setExtensions(prev => prev.map(ext => ext.id === extension.id ? extension : ext));
+    }
+    setEditingExtension(null);
+  };
+
+  const handleOpenExtensionModal = (extension?: any) => {
+    setEditingExtension(extension || null);
+    setExtensionModalOpen(true);
+  };
+
+  const handleCloseExtensionModal = () => {
+    setExtensionModalOpen(false);
+    setEditingExtension(null);
+  };
+
+  // Hotel Modal 处理函数
+  const handleHotelSuccess = (hotel: any) => {
+    if (!journey) return;
+    
+    // 如果是新创建的，添加到列表
+    if (!journeyHotels.find(h => h.id === hotel.id)) {
+      setJourneyHotels(prev => [hotel, ...prev]);
+      // 自动勾选新创建的 hotel
+      const currentHotels = isEditing
+        ? (formData.hotels || journey.hotels || [])
+        : (journey.hotels || []);
+      if (!currentHotels.includes(hotel.id)) {
+        handleInputChange('hotels', [...currentHotels, hotel.id]);
+      }
+    } else {
+      // 如果是编辑，更新列表中的项
+      setJourneyHotels(prev => prev.map(h => h.id === hotel.id ? hotel : h));
+    }
+    setEditingHotel(null);
+  };
+
+  const handleOpenHotelModal = (hotel?: any) => {
+    setEditingHotel(hotel || null);
+    setHotelModalOpen(true);
+  };
+
+  const handleCloseHotelModal = () => {
+    setHotelModalOpen(false);
+    setEditingHotel(null);
+  };
 
   useEffect(() => {
     if (!user || user.email !== 'admin@korascale.com') {
@@ -147,6 +251,21 @@ export default function EditJourneyPage() {
       // 确保 offers 字段存在
       if (!processedJourney.offers) {
         processedJourney.offers = [];
+      }
+      
+      // 确保 availableDates 字段存在
+      if (!processedJourney.availableDates) {
+        processedJourney.availableDates = [];
+      }
+      
+      // 确保 standardInclusions 字段存在
+      if (!processedJourney.standardInclusions) {
+        processedJourney.standardInclusions = {};
+      }
+      
+      // 确保 maxGuests 字段存在（从 JSONB data 中读取）
+      if (processedJourney.maxGuests === undefined) {
+        processedJourney.maxGuests = (processedJourney as any).data?.maxGuests || 0;
       }
       
       setJourney(processedJourney);
@@ -280,15 +399,34 @@ export default function EditJourneyPage() {
         saveData.offers = [];
       }
       
+      // 确保 availableDates 字段存在（如果为空数组也要保存）
+      if (saveData.availableDates === undefined) {
+        saveData.availableDates = [];
+      }
+      
+      // 确保 standardInclusions 字段存在
+      if (saveData.standardInclusions === undefined) {
+        saveData.standardInclusions = journey.standardInclusions || {};
+      }
+      
+      // 确保 maxParticipants 和 maxGuests 正确传递
+      if (saveData.maxParticipants !== undefined) {
+        saveData.maxParticipants = parseInt(String(saveData.maxParticipants)) || 0;
+      }
+      if (saveData.maxGuests !== undefined) {
+        saveData.maxGuests = parseInt(String(saveData.maxGuests)) || 0;
+      }
+      
       // 调试：打印要保存的数据
       console.log('Saving journey data:', {
         journeyId: journey.id,
-        formData: saveData,
+        maxParticipants: saveData.maxParticipants,
+        maxGuests: saveData.maxGuests,
+        standardInclusions: saveData.standardInclusions,
         offers: saveData.offers,
         offersLength: saveData.offers?.length || 0,
-        highlights: saveData.highlights,
-        highlightsType: Array.isArray(saveData.highlights) ? 'array' : typeof saveData.highlights,
-        highlightsLength: Array.isArray(saveData.highlights) ? saveData.highlights.length : 'N/A'
+        availableDates: saveData.availableDates,
+        availableDatesLength: saveData.availableDates?.length || 0,
       });
       
       const updated = await updateJourney(journey.id, saveData);
@@ -296,13 +434,22 @@ export default function EditJourneyPage() {
       // 调试：打印保存后的数据
       console.log('Journey saved, updated data:', {
         updated: updated,
-        highlights: updated?.highlights,
-        highlightsType: updated?.highlights ? (Array.isArray(updated.highlights) ? 'array' : typeof updated.highlights) : 'undefined'
+        maxParticipants: updated?.maxParticipants,
+        maxGuests: updated?.maxGuests,
+        standardInclusions: updated?.standardInclusions,
+        offers: updated?.offers,
       });
       
-      setJourney(updated || { ...journey, ...formData });
+      if (updated) {
+        setJourney(updated);
+        setFormData(updated);
+      } else {
+        // 如果更新失败，至少更新本地状态
+        setJourney({ ...journey, ...saveData });
+        setFormData({ ...journey, ...saveData });
+      }
       setIsEditing(false);
-      alert('保存成功！请刷新页面查看 highlights 是否显示。');
+      alert('保存成功！');
     } catch (e) {
       console.error('Save journey failed:', e);
       alert('保存失败，请稍后重试');
@@ -565,7 +712,7 @@ export default function EditJourneyPage() {
               {/* Pricing and Duration */}
               <Card className="p-6">
                 <Heading level={2} className="text-xl font-semibold mb-4">Pricing & Duration</Heading>
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Duration (Days)</label>
                     <div className="flex items-center gap-2">
@@ -592,8 +739,8 @@ export default function EditJourneyPage() {
                       />
                       <span className="text-sm text-gray-500 whitespace-nowrap">
                         {isEditing 
-                          ? formData.duration || 'Day(s)'
-                          : journey.duration || 'Day(s)'}
+                          ? formatDuration(parseDurationDays(formData.duration)) 
+                          : formatDuration(parseDurationDays(journey.duration))}
                       </span>
                     </div>
                   </div>
@@ -602,19 +749,9 @@ export default function EditJourneyPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
                     <input
                       type="number"
-                      value={isEditing ? formData.price || 0 : journey.price}
-                      onChange={(e) => handleInputChange('price', parseInt(e.target.value))}
-                      disabled={!isEditing}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Original Price ($)</label>
-                    <input
-                      type="number"
-                      value={isEditing ? formData.originalPrice || 0 : journey.originalPrice || 0}
-                      onChange={(e) => handleInputChange('originalPrice', parseInt(e.target.value))}
+                      step="0.01"
+                      value={isEditing ? formData.price || 0 : journey.price || 0}
+                      onChange={(e) => handleInputChange('price', parseFloat(e.target.value) || 0)}
                       disabled={!isEditing}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
                     />
@@ -624,30 +761,9 @@ export default function EditJourneyPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Destination Count</label>
                     <input
                       type="number"
+                      min="0"
                       value={isEditing ? formData.destinationCount || 0 : journey.destinationCount || 0}
-                      onChange={(e) => handleInputChange('destinationCount', parseInt(e.target.value))}
-                      disabled={!isEditing}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Min Participants</label>
-                    <input
-                      type="number"
-                      value={isEditing ? formData.minParticipants || 0 : journey.minParticipants || 0}
-                      onChange={(e) => handleInputChange('minParticipants', parseInt(e.target.value))}
-                      disabled={!isEditing}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Max Participants</label>
-                    <input
-                      type="number"
-                      value={isEditing ? formData.maxParticipants || 0 : journey.maxParticipants || 0}
-                      onChange={(e) => handleInputChange('maxParticipants', parseInt(e.target.value))}
+                      onChange={(e) => handleInputChange('destinationCount', parseInt(e.target.value) || 0)}
                       disabled={!isEditing}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
                     />
@@ -657,13 +773,215 @@ export default function EditJourneyPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Max Guests</label>
                     <input
                       type="number"
+                      min="0"
                       value={isEditing ? formData.maxGuests || 0 : journey.maxGuests || 0}
-                      onChange={(e) => handleInputChange('maxGuests', parseInt(e.target.value))}
+                      onChange={(e) => handleInputChange('maxGuests', parseInt(e.target.value) || 0)}
                       disabled={!isEditing}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
                     />
                   </div>
                 </div>
+              </Card>
+
+              {/* Available Dates Management */}
+              <Card className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <Heading level={2} className="text-xl font-semibold">Available Dates</Heading>
+                  {isEditing && (
+                    <Button
+                      onClick={() => {
+                        const currentDates = isEditing 
+                          ? (formData.availableDates || [])
+                          : (journey.availableDates || []);
+                        const newDate = {
+                          id: `date-${Date.now()}`,
+                          startDate: new Date().toISOString().split('T')[0],
+                          endDate: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                          price: journey.price || 0,
+                          originalPrice: journey.price || 0, // 使用 price 作为默认 originalPrice
+                          discountPercentage: 0,
+                          status: 'Available' as const
+                        };
+                        handleInputChange('availableDates', [...currentDates, newDate]);
+                      }}
+                      variant="secondary"
+                      className="flex items-center gap-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add Date
+                    </Button>
+                  )}
+                </div>
+                
+                {isEditing ? (
+                  <div className="space-y-4">
+                    {((formData.availableDates || journey.availableDates) || []).map((dateItem, index) => (
+                      <div key={dateItem.id || index} className="border border-gray-200 rounded-lg p-4 space-y-4 bg-gray-50">
+                        <div className="flex items-center justify-between">
+                          <Heading level={4} className="text-sm font-semibold">Date {index + 1}</Heading>
+                          <Button
+                            onClick={() => {
+                              const currentDates = formData.availableDates || journey.availableDates || [];
+                              handleInputChange('availableDates', currentDates.filter((_, i) => i !== index));
+                            }}
+                            variant="secondary"
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                            <input
+                              type="date"
+                              value={dateItem.startDate}
+                              onChange={(e) => {
+                                const currentDates = formData.availableDates || journey.availableDates || [];
+                                const updatedDates = [...currentDates];
+                                updatedDates[index] = { ...updatedDates[index], startDate: e.target.value };
+                                handleInputChange('availableDates', updatedDates);
+                              }}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            />
+                          </div>
+                          
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                            <input
+                              type="date"
+                              value={dateItem.endDate}
+                              onChange={(e) => {
+                                const currentDates = formData.availableDates || journey.availableDates || [];
+                                const updatedDates = [...currentDates];
+                                updatedDates[index] = { ...updatedDates[index], endDate: e.target.value };
+                                handleInputChange('availableDates', updatedDates);
+                              }}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            />
+                          </div>
+                          
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
+                            <input
+                              type="number"
+                              value={dateItem.price || 0}
+                              onChange={(e) => {
+                                const currentDates = formData.availableDates || journey.availableDates || [];
+                                const updatedDates = [...currentDates];
+                                updatedDates[index] = { ...updatedDates[index], price: parseFloat(e.target.value) || 0 };
+                                handleInputChange('availableDates', updatedDates);
+                              }}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            />
+                          </div>
+                          
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Original Price ($)</label>
+                            <input
+                              type="number"
+                              value={dateItem.originalPrice || 0}
+                              onChange={(e) => {
+                                const currentDates = formData.availableDates || journey.availableDates || [];
+                                const updatedDates = [...currentDates];
+                                updatedDates[index] = { ...updatedDates[index], originalPrice: parseFloat(e.target.value) || undefined };
+                                handleInputChange('availableDates', updatedDates);
+                              }}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            />
+                          </div>
+                          
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Discount Percentage (%)</label>
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={dateItem.discountPercentage || 0}
+                              onChange={(e) => {
+                                const currentDates = formData.availableDates || journey.availableDates || [];
+                                const updatedDates = [...currentDates];
+                                updatedDates[index] = { ...updatedDates[index], discountPercentage: parseFloat(e.target.value) || 0 };
+                                handleInputChange('availableDates', updatedDates);
+                              }}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            />
+                          </div>
+                          
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <select
+                              value={dateItem.status}
+                              onChange={(e) => {
+                                const currentDates = formData.availableDates || journey.availableDates || [];
+                                const updatedDates = [...currentDates];
+                                updatedDates[index] = { ...updatedDates[index], status: e.target.value as 'Available' | 'Limited' | 'Call' };
+                                handleInputChange('availableDates', updatedDates);
+                              }}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            >
+                              <option value="Available">Available</option>
+                              <option value="Limited">Limited</option>
+                              <option value="Call">Call for Availability</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {((formData.availableDates || journey.availableDates) || []).length === 0 && (
+                      <p className="text-gray-500 text-sm text-center py-4">
+                        No dates added. Click "Add Date" to add available dates.
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {(journey.availableDates || []).length > 0 ? (
+                      journey.availableDates!.map((dateItem, index) => {
+                        const startDate = new Date(dateItem.startDate);
+                        const endDate = new Date(dateItem.endDate);
+                        const startStr = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                        const endStr = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                        const finalPrice = dateItem.discountPercentage && dateItem.originalPrice
+                          ? dateItem.originalPrice * (1 - dateItem.discountPercentage / 100)
+                          : dateItem.price;
+                        
+                        return (
+                          <div key={dateItem.id || index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div className="flex items-center gap-4">
+                              <span className="text-sm font-medium text-gray-900">
+                                {startStr} - {endStr}
+                              </span>
+                              <span className={`text-xs px-2 py-1 rounded ${
+                                dateItem.status === 'Available' 
+                                  ? 'bg-green-100 text-green-700'
+                                  : dateItem.status === 'Limited'
+                                  ? 'bg-yellow-100 text-yellow-700'
+                                  : 'bg-gray-100 text-gray-700'
+                              }`}>
+                                {dateItem.status === 'Call' ? 'Call for Availability' : `${dateItem.status} Availability`}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-semibold text-gray-900">
+                                ${finalPrice.toLocaleString()}
+                              </span>
+                              {dateItem.originalPrice && dateItem.originalPrice > finalPrice && (
+                                <span className="text-xs text-gray-500 line-through">
+                                  ${dateItem.originalPrice.toLocaleString()}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <p className="text-gray-500 text-sm">No dates configured. Dates will be auto-generated on the frontend.</p>
+                    )}
+                  </div>
+                )}
               </Card>
 
               {/* Overview Content & Highlights */}
@@ -1112,24 +1430,41 @@ export default function EditJourneyPage() {
                                   只填写数值部分，如 $1500 或 10%，系统会自动生成完整文案
                                 </Text>
                               </div>
-                              <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-1">Deadline</label>
-                                <input
-                                  type="date"
-                                  value={currentOffer?.deadline || ''}
-                                  onChange={(e) => {
-                                    const currentOffers = formData.offers || journey.offers || [];
-                                    const newOffers = [...currentOffers];
-                                    newOffers[index] = { ...currentOffer, deadline: e.target.value };
-                                    handleInputChange('offers', newOffers);
-                                  }}
-                                  disabled={!isEditing}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                                />
-                                <Text size="sm" className="text-gray-500 mt-1">
-                                  选择截至日期，系统会自动生成完整文案
-                                </Text>
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-600 mb-1">开始时间</label>
+                                  <input
+                                    type="date"
+                                    value={currentOffer?.startDate || ''}
+                                    onChange={(e) => {
+                                      const currentOffers = formData.offers || journey.offers || [];
+                                      const newOffers = [...currentOffers];
+                                      newOffers[index] = { ...currentOffer, startDate: e.target.value };
+                                      handleInputChange('offers', newOffers);
+                                    }}
+                                    disabled={!isEditing}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-600 mb-1">截止时间</label>
+                                  <input
+                                    type="date"
+                                    value={currentOffer?.deadline || ''}
+                                    onChange={(e) => {
+                                      const currentOffers = formData.offers || journey.offers || [];
+                                      const newOffers = [...currentOffers];
+                                      newOffers[index] = { ...currentOffer, deadline: e.target.value };
+                                      handleInputChange('offers', newOffers);
+                                    }}
+                                    disabled={!isEditing}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                                  />
+                                </div>
                               </div>
+                              <Text size="sm" className="text-gray-500">
+                                设置优惠的有效时间段（几月几号到几月几号）
+                              </Text>
                               <div>
                                 <label className="block text-xs font-medium text-gray-600 mb-1">Custom Description (可选)</label>
                                 <textarea
@@ -1171,6 +1506,7 @@ export default function EditJourneyPage() {
                               {
                                 type: 'Promotional Offer',
                                 discount: '',
+                                startDate: '',
                                 deadline: '',
                                 description: '' // Custom Description (可选)
                               }
@@ -1184,6 +1520,190 @@ export default function EditJourneyPage() {
                         </Button>
                       )}
                     </div>
+                  </div>
+
+                  {/* Extensions */}
+                  <div className="mt-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <Heading level={3} className="text-lg font-semibold">Extensions</Heading>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => window.open('/admin/extensions', '_blank')}
+                        >
+                          管理 Extensions
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => handleOpenExtensionModal()}
+                        >
+                          <Plus className="w-4 h-4 mr-1" />
+                          添加
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="space-y-3 border border-gray-200 rounded-lg p-4 max-h-96 overflow-y-auto">
+                      {loadingExtensions ? (
+                        <Text size="sm" className="text-gray-500">加载中...</Text>
+                      ) : extensions.length === 0 ? (
+                        <Text size="sm" className="text-gray-500">暂无 Extensions，请先创建 Extension</Text>
+                      ) : (
+                        extensions.filter(ext => ext.status === 'active').map((extension) => {
+                          const currentExtensions = isEditing
+                            ? (formData.extensions || journey.extensions || [])
+                            : (journey.extensions || []);
+                          const isSelected = currentExtensions.includes(extension.id);
+                          return (
+                            <div
+                              key={extension.id}
+                              className={`flex items-start gap-3 p-2 rounded ${
+                                !isEditing ? 'opacity-60' : 'hover:bg-gray-50'
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={(e) => {
+                                  const current = isEditing
+                                    ? (formData.extensions || journey.extensions || [])
+                                    : (journey.extensions || []);
+                                  const newExtensions = e.target.checked
+                                    ? [...current, extension.id]
+                                    : current.filter(id => id !== extension.id);
+                                  handleInputChange('extensions', newExtensions);
+                                }}
+                                disabled={!isEditing}
+                                className="mt-1 w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 disabled:opacity-50"
+                              />
+                              <div className="flex-1 flex items-center gap-3 min-w-0">
+                                {extension.image && (
+                                  <img
+                                    src={extension.image}
+                                    alt={extension.title}
+                                    className="w-12 h-12 object-cover rounded flex-shrink-0"
+                                  />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <span className="text-sm text-gray-700 font-medium prose-force-wrap block">{extension.title}</span>
+                                  {extension.days && (
+                                    <span className="text-xs text-gray-500">({extension.days})</span>
+                                  )}
+                                </div>
+                                {isEditing && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleOpenExtensionModal(extension);
+                                    }}
+                                    className="p-1 hover:bg-gray-200 rounded text-gray-600 hover:text-gray-900 transition-colors flex-shrink-0"
+                                    title="编辑"
+                                  >
+                                    <Edit className="w-3 h-3" />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                    <Text size="sm" className="text-gray-500 mt-2">
+                      已选择 {(isEditing ? (formData.extensions || []) : (journey.extensions || [])).length} 个 Extension
+                    </Text>
+                  </div>
+
+                  {/* Journey Hotels */}
+                  <div className="mt-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <Heading level={3} className="text-lg font-semibold">Where You Will Stay (Hotels)</Heading>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => window.open('/admin/journey-hotels', '_blank')}
+                        >
+                          管理 Hotels
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => handleOpenHotelModal()}
+                        >
+                          <Plus className="w-4 h-4 mr-1" />
+                          添加
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="space-y-3 border border-gray-200 rounded-lg p-4 max-h-96 overflow-y-auto">
+                      {loadingHotels ? (
+                        <Text size="sm" className="text-gray-500">加载中...</Text>
+                      ) : journeyHotels.length === 0 ? (
+                        <Text size="sm" className="text-gray-500">暂无 Hotels，请先创建 Journey Hotel</Text>
+                      ) : (
+                        journeyHotels.filter(hotel => hotel.status === 'active').map((hotel) => {
+                          const currentHotels = isEditing
+                            ? (formData.hotels || journey.hotels || [])
+                            : (journey.hotels || []);
+                          const isSelected = currentHotels.includes(hotel.id);
+                          return (
+                            <div
+                              key={hotel.id}
+                              className={`flex items-start gap-3 p-2 rounded ${
+                                !isEditing ? 'opacity-60' : 'hover:bg-gray-50'
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={(e) => {
+                                  const current = isEditing
+                                    ? (formData.hotels || journey.hotels || [])
+                                    : (journey.hotels || []);
+                                  const newHotels = e.target.checked
+                                    ? [...current, hotel.id]
+                                    : current.filter(id => id !== hotel.id);
+                                  handleInputChange('hotels', newHotels);
+                                }}
+                                disabled={!isEditing}
+                                className="mt-1 w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 disabled:opacity-50"
+                              />
+                              <div className="flex-1 flex items-center gap-3 min-w-0">
+                                {hotel.image && (
+                                  <img
+                                    src={hotel.image}
+                                    alt={hotel.name}
+                                    className="w-12 h-16 object-cover rounded flex-shrink-0"
+                                  />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <span className="text-sm text-gray-700 font-medium prose-force-wrap block">{hotel.name}</span>
+                                  {hotel.location && (
+                                    <span className="text-xs text-gray-500 prose-force-wrap">({hotel.location})</span>
+                                  )}
+                                </div>
+                                {isEditing && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleOpenHotelModal(hotel);
+                                    }}
+                                    className="p-1 hover:bg-gray-200 rounded text-gray-600 hover:text-gray-900 transition-colors flex-shrink-0"
+                                    title="编辑"
+                                  >
+                                    <Edit className="w-3 h-3" />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                    <Text size="sm" className="text-gray-500 mt-2">
+                      已选择 {(isEditing ? (formData.hotels || []) : (journey.hotels || [])).length} 个 Hotel
+                    </Text>
                   </div>
                 </div>
               </Card>
@@ -1604,8 +2124,24 @@ export default function EditJourneyPage() {
               </Card>
             </div>
           </div>
-        </Container>
-      </Section>
-    </div>
-  );
-}
+          </Container>
+        </Section>
+
+        {/* Extension Modal */}
+        <ExtensionFormModal
+          isOpen={extensionModalOpen}
+          onClose={handleCloseExtensionModal}
+          onSuccess={handleExtensionSuccess}
+          extension={editingExtension}
+        />
+
+        {/* Hotel Modal */}
+        <JourneyHotelFormModal
+          isOpen={hotelModalOpen}
+          onClose={handleCloseHotelModal}
+          onSuccess={handleHotelSuccess}
+          hotel={editingHotel}
+        />
+      </div>
+    );
+  }

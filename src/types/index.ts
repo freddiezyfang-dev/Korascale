@@ -270,9 +270,20 @@ export interface Journey {
   // Offers 优惠信息（新格式）
   offers?: {
     type: string; // 如 "Promotional Offer", "Companion Discount", "Government Subsidy"
-    discount: string; // 完整的折扣描述，如 "Save $1500 per person"
-    deadline?: string; // ISO 日期字符串，如 "2026-02-28"
+    discount: string; // 折扣值，如 "13%" 或 "$1500"
+    startDate?: string; // ISO 日期字符串，开始时间，如 "2026-01-01"
+    deadline?: string; // ISO 日期字符串，截止时间，如 "2026-02-28"
     description?: string; // 描述文本，如 "Booked by February 28, 2026"
+  }[];
+  // 可用日期列表（后台管理）
+  availableDates?: {
+    id: string;
+    startDate: string; // ISO 日期字符串，如 "2026-02-01"
+    endDate: string; // ISO 日期字符串，如 "2026-02-09"
+    price: number;
+    originalPrice?: number;
+    discountPercentage?: number; // 折扣百分比，如 15 表示 15% off
+    status: 'Available' | 'Limited' | 'Call'; // 可用状态
   }[];
   relatedTrips?: {
     title: string;
@@ -281,6 +292,10 @@ export interface Journey {
     image: string;
     slug: string;
   }[];
+  // Extensions 扩展项目（存储 ID 数组）
+  extensions?: string[]; // Extension ID 数组
+  // Hotels 酒店列表（存储 ID 数组）
+  hotels?: string[]; // Journey Hotel ID 数组
   createdAt: Date;
   updatedAt: Date;
 }
@@ -313,6 +328,34 @@ export interface Hotel {
   }[];
   availability: RoomAvailability[];
   status: HotelStatus;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Extension 扩展项目类型
+export interface Extension {
+  id: string;
+  title: string;
+  description: string;
+  days: string; // 如 "+4 DAYS"
+  image: string;
+  longitude?: number;
+  latitude?: number;
+  link?: string;
+  status: 'active' | 'inactive';
+  data?: Record<string, any>;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Journey Hotel 类型（用于 Journey 详情页显示）
+export interface JourneyHotel {
+  id: string;
+  name: string;
+  location: string;
+  image: string;
+  status: 'active' | 'inactive';
+  data?: Record<string, any>;
   createdAt: Date;
   updatedAt: Date;
 }
