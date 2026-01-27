@@ -143,35 +143,9 @@ export default function InclusionsAndOffers({ journey, onBookingClick }: Inclusi
               ? dateItem.originalPrice
               : journey.price) || 0;
           
-          // 使用日期项中已计算的价格（后台已根据 discountPercentage 计算）
-          // 如果价格未设置或为0，则使用基础价格
-          let finalPrice = dateItem.price && dateItem.price > 0 ? dateItem.price : basePrice;
-          
-          // 如果日期关联了 offer，从 offer 中计算折扣（覆盖后台计算的折扣）
-          let discountPercentage = dateItem.discountPercentage;
-          if (associatedOffer && associatedOffer.discount) {
-            const discountStr = associatedOffer.discount.trim();
-            if (discountStr.endsWith('%')) {
-              discountPercentage = parseFloat(discountStr.replace('%', ''));
-              finalPrice = basePrice * (1 - (discountPercentage || 0) / 100);
-            } else if (discountStr.startsWith('$')) {
-              // 如果是固定金额折扣
-              const discountAmount = parseFloat(discountStr.replace('$', '').replace(/,/g, ''));
-              if (!isNaN(discountAmount) && basePrice > 0) {
-                finalPrice = Math.max(0, basePrice - discountAmount);
-                discountPercentage = (discountAmount / basePrice) * 100;
-              }
-            }
-          } else if (discountPercentage && discountPercentage > 0) {
-            // 使用后台配置的折扣
-            const discountType = dateItem.discountType || 'Percentage';
-            if (discountType === 'Percentage') {
-              finalPrice = basePrice * (1 - discountPercentage / 100);
-            } else {
-              // Fixed Amount
-              finalPrice = Math.max(0, basePrice - discountPercentage);
-            }
-          }
+          // 前端完全信任后台的最终价格：直接使用 dateItem.price
+          // 如果 price 未设置或为 0，则回退到 basePrice
+          const finalPrice = dateItem.price && dateItem.price > 0 ? dateItem.price : basePrice;
           
           const hasDiscount = basePrice > 0 && finalPrice < basePrice;
           
@@ -239,23 +213,20 @@ export default function InclusionsAndOffers({ journey, onBookingClick }: Inclusi
     return list;
   }, [journey.availableDates, journey.duration, journey.price, getDiscountPercentage]);
 
-  // 获取所有可用年份（从所有日期中提取，移除 2025）
+  // 获取所有可用年份（从所有日期中提取）
   const availableYears = useMemo(() => {
     const years = new Set<number>();
     allDatesList.forEach(item => {
       const year = item.startDate.getFullYear();
-      if (year >= 2026) { // 移除 2025，只保留 2026 及以后的年份
-        years.add(year);
-      }
+      years.add(year);
     });
     return Array.from(years).sort();
   }, [allDatesList]);
 
-  // 生成当前选中年份和月份的日期列表
+  // 生成当前选中年份的日期列表（不再按月份拆分，统一在一年内滚动展示）
   const dateList = useMemo(() => {
     return allDatesList.filter(item => 
-      item.startDate.getFullYear() === baseDate.getFullYear() &&
-      item.startDate.getMonth() === baseDate.getMonth()
+      item.startDate.getFullYear() === baseDate.getFullYear()
     );
   }, [allDatesList, baseDate]);
 
@@ -264,14 +235,11 @@ export default function InclusionsAndOffers({ journey, onBookingClick }: Inclusi
     if (allDatesList.length > 0 && monthOffset === 0) {
       const firstDate = allDatesList[0];
       const firstDateYear = firstDate.startDate.getFullYear();
-      // 只处理 2026 及以后的年份
-      if (firstDateYear >= 2026) {
-        const todayDate = new Date();
-        const monthsDiff = (firstDate.startDate.getFullYear() - todayDate.getFullYear()) * 12 + 
-                          (firstDate.startDate.getMonth() - todayDate.getMonth());
-        if (monthsDiff >= 0) {
-          setMonthOffset(monthsDiff);
-        }
+      const todayDate = new Date();
+      const monthsDiff = (firstDate.startDate.getFullYear() - todayDate.getFullYear()) * 12 + 
+                        (firstDate.startDate.getMonth() - todayDate.getMonth());
+      if (monthsDiff >= 0) {
+        setMonthOffset(monthsDiff);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -312,17 +280,14 @@ export default function InclusionsAndOffers({ journey, onBookingClick }: Inclusi
   return (
     <section className="w-full py-16 bg-[#FAF9F6]">
       <div className="w-full max-w-[1440px] mx-auto px-8 lg:px-20">
-        {/* Inclusions 与 Dates 的 左右布局 */}
+        {/* Inclusions 与 Dates 的 左右布局（等高容器） */}
         <div className="flex flex-col lg:flex-row gap-12 items-stretch">
           
           {/* 左侧：Inclusions 垂直列表 */}
-          <div className="w-full lg:w-1/2 flex flex-col lg:max-h-[600px]">
+          <div className="w-full lg:w-1/2 flex flex-col">
             <h3 className="text-2xl font-heading mb-8 text-gray-900">Includes</h3>
             {inclusionsList.length > 0 ? (
-              <div className="flex flex-col gap-6 lg:overflow-y-auto lg:pr-4 scrollbar-thin" style={{
-                scrollbarWidth: 'thin',
-                scrollbarColor: '#d1d5db transparent'
-              }}>
+              <div className="flex flex-col gap-6">
                 {inclusionsList.map((item, idx) => (
                   <div key={idx} className="flex items-start gap-5 group">
                     <div className="w-5 h-5 flex-shrink-0 text-gray-800 mt-0.5 opacity-80">
@@ -340,7 +305,7 @@ export default function InclusionsAndOffers({ journey, onBookingClick }: Inclusi
           </div>
 
           {/* 右侧：Select Your Date 模块 */}
-          <div className="w-full lg:w-1/2 lg:border-l lg:pl-12 border-gray-200 flex flex-col lg:max-h-[600px]">
+          <div className="w-full lg:w-1/2 lg:border-l lg:pl-12 border-gray-200 flex flex-col lg:h-[70vh] relative">
             <h3 className="text-2xl font-heading mb-8 text-gray-900">Select Your Date</h3>
             
             {/* 年份切换 - 动态显示所有可用年份（移除 2025） */}
@@ -371,11 +336,14 @@ export default function InclusionsAndOffers({ journey, onBookingClick }: Inclusi
               </div>
             )}
             
-            {/* 日期列表 - 可滚动区域 */}
-            <div className="space-y-4 lg:overflow-y-auto lg:pr-4 lg:flex-1 scrollbar-thin" style={{
-              scrollbarWidth: 'thin',
-              scrollbarColor: '#d1d5db transparent'
-            }}>
+            {/* 日期列表 - 可滚动区域（桌面端固定高度 + 内部滚动） */}
+            <div
+              className="space-y-4 lg:overflow-y-auto lg:pr-4 lg:flex-1 scrollbar-thin"
+              style={{
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#d1d5db transparent'
+              }}
+            >
               {dateList.map((item, index) => {
                 const startStr = item.startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                 const endStr = item.endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -483,6 +451,9 @@ export default function InclusionsAndOffers({ journey, onBookingClick }: Inclusi
                 );
               })}
             </div>
+
+            {/* 底部渐变遮罩，提示可向下滚动（仅桌面端显示） */}
+            <div className="pointer-events-none hidden lg:block absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-[#FAF9F6] to-transparent" />
           </div>
         </div>
       </div>
