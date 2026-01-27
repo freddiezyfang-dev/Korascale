@@ -280,10 +280,13 @@ export interface Journey {
     id: string;
     startDate: string; // ISO 日期字符串，如 "2026-02-01"
     endDate: string; // ISO 日期字符串，如 "2026-02-09"
-    price: number;
-    originalPrice?: number;
+    price: number; // 自动计算的价格（基于 journey.price 和 discountPercentage）
     discountPercentage?: number; // 折扣百分比，如 15 表示 15% off
+    discountType?: 'Percentage' | 'Fixed Amount'; // 折扣类型
     status: 'Available' | 'Limited' | 'Call'; // 可用状态
+    offerType?: string; // Offer 类型：'Promotional Offer' | 'Companion Discount' | 'Government Subsidy' | 'Early Bird Discount' | 'No Offer'
+    offerDiscount?: string; // Offer 折扣值，如 "$1500" 或 "10%"
+    offerDescription?: string; // Offer 自定义描述（可选）
   }[];
   relatedTrips?: {
     title: string;

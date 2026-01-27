@@ -117,8 +117,17 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const journeys: Record<string, number> = {};
     let subtotal = 0;
     items.forEach((j) => {
-      const base = j.basePrice || 0;
+      // 计算 travelers 总数
+      const travelersCount = j.travelers 
+        ? (j.travelers.adults || 0) + (j.travelers.children || 0)
+        : 1; // 默认为 1 人
+      
+      // basePrice 是每人价格，需要乘以 travelers 数量
+      const base = (j.basePrice || 0) * travelersCount;
+      
+      // experiences 价格已经考虑了 pax（人数），所以直接相加
       const exps = j.experiences.reduce((s, e) => s + (e.unitPrice || 0) * (e.pax || 1), 0);
+      
       const sum = base + exps;
       journeys[j.slug] = sum;
       subtotal += sum;

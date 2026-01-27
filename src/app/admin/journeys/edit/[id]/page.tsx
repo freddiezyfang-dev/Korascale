@@ -248,11 +248,6 @@ export default function EditJourneyPage() {
         }
       }
       
-      // 确保 offers 字段存在
-      if (!processedJourney.offers) {
-        processedJourney.offers = [];
-      }
-      
       // 确保 availableDates 字段存在
       if (!processedJourney.availableDates) {
         processedJourney.availableDates = [];
@@ -394,11 +389,6 @@ export default function EditJourneyPage() {
         }
       }
       
-      // 确保 offers 字段存在
-      if (!saveData.offers) {
-        saveData.offers = [];
-      }
-      
       // 确保 availableDates 字段存在（如果为空数组也要保存）
       if (saveData.availableDates === undefined) {
         saveData.availableDates = [];
@@ -423,8 +413,6 @@ export default function EditJourneyPage() {
         maxParticipants: saveData.maxParticipants,
         maxGuests: saveData.maxGuests,
         standardInclusions: saveData.standardInclusions,
-        offers: saveData.offers,
-        offersLength: saveData.offers?.length || 0,
         availableDates: saveData.availableDates,
         availableDatesLength: saveData.availableDates?.length || 0,
       });
@@ -437,7 +425,6 @@ export default function EditJourneyPage() {
         maxParticipants: updated?.maxParticipants,
         maxGuests: updated?.maxGuests,
         standardInclusions: updated?.standardInclusions,
-        offers: updated?.offers,
       });
       
       if (updated) {
@@ -793,14 +780,16 @@ export default function EditJourneyPage() {
                         const currentDates = isEditing 
                           ? (formData.availableDates || [])
                           : (journey.availableDates || []);
+                        const basePrice = journey.price || 0;
                         const newDate = {
                           id: `date-${Date.now()}`,
                           startDate: new Date().toISOString().split('T')[0],
                           endDate: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                          price: journey.price || 0,
-                          originalPrice: journey.price || 0, // 使用 price 作为默认 originalPrice
+                          price: basePrice, // 初始价格等于基础价格
                           discountPercentage: 0,
-                          status: 'Available' as const
+                          discountType: 'Percentage' as const,
+                          status: 'Available' as const,
+                          offerType: undefined
                         };
                         handleInputChange('availableDates', [...currentDates, newDate]);
                       }}
@@ -831,102 +820,226 @@ export default function EditJourneyPage() {
                           </Button>
                         </div>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                            <input
-                              type="date"
-                              value={dateItem.startDate}
-                              onChange={(e) => {
-                                const currentDates = formData.availableDates || journey.availableDates || [];
-                                const updatedDates = [...currentDates];
-                                updatedDates[index] = { ...updatedDates[index], startDate: e.target.value };
-                                handleInputChange('availableDates', updatedDates);
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                            />
-                          </div>
+                        {(() => {
+                          // 计算基础价格（来自 journey.price）
+                          const basePrice = journey.price || 0;
+                          // 计算最终价格（基于基础价格和折扣）
+                          const discountPercentage = dateItem.discountPercentage || 0;
+                          const discountType = dateItem.discountType || 'Percentage';
+                          let calculatedPrice = basePrice;
                           
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-                            <input
-                              type="date"
-                              value={dateItem.endDate}
-                              onChange={(e) => {
-                                const currentDates = formData.availableDates || journey.availableDates || [];
-                                const updatedDates = [...currentDates];
-                                updatedDates[index] = { ...updatedDates[index], endDate: e.target.value };
-                                handleInputChange('availableDates', updatedDates);
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                            />
-                          </div>
+                          if (discountType === 'Percentage') {
+                            calculatedPrice = basePrice * (1 - discountPercentage / 100);
+                          } else {
+                            // Fixed Amount
+                            calculatedPrice = Math.max(0, basePrice - discountPercentage);
+                          }
                           
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
-                            <input
-                              type="number"
-                              value={dateItem.price || 0}
-                              onChange={(e) => {
-                                const currentDates = formData.availableDates || journey.availableDates || [];
-                                const updatedDates = [...currentDates];
-                                updatedDates[index] = { ...updatedDates[index], price: parseFloat(e.target.value) || 0 };
-                                handleInputChange('availableDates', updatedDates);
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                            />
-                          </div>
-                          
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Original Price ($)</label>
-                            <input
-                              type="number"
-                              value={dateItem.originalPrice || 0}
-                              onChange={(e) => {
-                                const currentDates = formData.availableDates || journey.availableDates || [];
-                                const updatedDates = [...currentDates];
-                                updatedDates[index] = { ...updatedDates[index], originalPrice: parseFloat(e.target.value) || undefined };
-                                handleInputChange('availableDates', updatedDates);
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                            />
-                          </div>
-                          
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Discount Percentage (%)</label>
-                            <input
-                              type="number"
-                              min="0"
-                              max="100"
-                              value={dateItem.discountPercentage || 0}
-                              onChange={(e) => {
-                                const currentDates = formData.availableDates || journey.availableDates || [];
-                                const updatedDates = [...currentDates];
-                                updatedDates[index] = { ...updatedDates[index], discountPercentage: parseFloat(e.target.value) || 0 };
-                                handleInputChange('availableDates', updatedDates);
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                            />
-                          </div>
-                          
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                            <select
-                              value={dateItem.status}
-                              onChange={(e) => {
-                                const currentDates = formData.availableDates || journey.availableDates || [];
-                                const updatedDates = [...currentDates];
-                                updatedDates[index] = { ...updatedDates[index], status: e.target.value as 'Available' | 'Limited' | 'Call' };
-                                handleInputChange('availableDates', updatedDates);
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                            >
-                              <option value="Available">Available</option>
-                              <option value="Limited">Limited</option>
-                              <option value="Call">Call for Availability</option>
-                            </select>
-                          </div>
-                        </div>
+                          return (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                                <input
+                                  type="date"
+                                  value={dateItem.startDate}
+                                  onChange={(e) => {
+                                    const currentDates = formData.availableDates || journey.availableDates || [];
+                                    const updatedDates = [...currentDates];
+                                    updatedDates[index] = { ...updatedDates[index], startDate: e.target.value };
+                                    handleInputChange('availableDates', updatedDates);
+                                  }}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                />
+                              </div>
+                              
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                                <input
+                                  type="date"
+                                  value={dateItem.endDate}
+                                  onChange={(e) => {
+                                    const currentDates = formData.availableDates || journey.availableDates || [];
+                                    const updatedDates = [...currentDates];
+                                    updatedDates[index] = { ...updatedDates[index], endDate: e.target.value };
+                                    handleInputChange('availableDates', updatedDates);
+                                  }}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                />
+                              </div>
+                              
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Base Price ($)</label>
+                                <input
+                                  type="text"
+                                  value={basePrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                  disabled
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
+                                />
+                                <Text size="sm" className="text-gray-500 mt-1">
+                                  From Pricing & Duration section
+                                </Text>
+                              </div>
+                              
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Discount Type</label>
+                                <select
+                                  value={dateItem.discountType || 'Percentage'}
+                                  onChange={(e) => {
+                                    const currentDates = formData.availableDates || journey.availableDates || [];
+                                    const updatedDates = [...currentDates];
+                                    updatedDates[index] = { 
+                                      ...updatedDates[index], 
+                                      discountType: e.target.value as 'Percentage' | 'Fixed Amount'
+                                    };
+                                    handleInputChange('availableDates', updatedDates);
+                                  }}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                >
+                                  <option value="Percentage">Percentage (%)</option>
+                                  <option value="Fixed Amount">Fixed Amount ($)</option>
+                                </select>
+                              </div>
+                              
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  {dateItem.discountType === 'Fixed Amount' ? 'Discount Amount ($)' : 'Discount Percentage (%)'}
+                                </label>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max={dateItem.discountType === 'Fixed Amount' ? basePrice : 100}
+                                  value={dateItem.discountPercentage || 0}
+                                  onChange={(e) => {
+                                    const currentDates = formData.availableDates || journey.availableDates || [];
+                                    const updatedDates = [...currentDates];
+                                    const discountValue = parseFloat(e.target.value) || 0;
+                                    let newPrice = basePrice;
+                                    
+                                    if (dateItem.discountType === 'Percentage') {
+                                      // 百分比折扣
+                                      newPrice = basePrice * (1 - discountValue / 100);
+                                    } else {
+                                      // 固定金额折扣
+                                      newPrice = Math.max(0, basePrice - discountValue);
+                                    }
+                                    
+                                    updatedDates[index] = { 
+                                      ...updatedDates[index], 
+                                      discountPercentage: discountValue,
+                                      price: newPrice
+                                    };
+                                    handleInputChange('availableDates', updatedDates);
+                                  }}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                />
+                              </div>
+                              
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Final Price ($)</label>
+                                <input
+                                  type="text"
+                                  value={calculatedPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                  disabled
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-green-50 text-gray-900 font-semibold cursor-not-allowed"
+                                />
+                                <Text size="sm" className="text-gray-500 mt-1">
+                                  Automatically calculated
+                                </Text>
+                              </div>
+                              
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                <select
+                                  value={dateItem.status}
+                                  onChange={(e) => {
+                                    const currentDates = formData.availableDates || journey.availableDates || [];
+                                    const updatedDates = [...currentDates];
+                                    updatedDates[index] = { ...updatedDates[index], status: e.target.value as 'Available' | 'Limited' | 'Call' };
+                                    handleInputChange('availableDates', updatedDates);
+                                  }}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                >
+                                  <option value="Available">Available</option>
+                                  <option value="Limited">Limited</option>
+                                  <option value="Call">Call for Availability</option>
+                                </select>
+                              </div>
+                              
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Offer Type</label>
+                                <select
+                                  value={dateItem.offerType || 'No Offer'}
+                                  onChange={(e) => {
+                                    const currentDates = formData.availableDates || journey.availableDates || [];
+                                    const updatedDates = [...currentDates];
+                                    updatedDates[index] = { 
+                                      ...updatedDates[index], 
+                                      offerType: e.target.value === 'No Offer' ? undefined : e.target.value,
+                                      offerDiscount: e.target.value === 'No Offer' ? undefined : updatedDates[index].offerDiscount,
+                                      offerDescription: e.target.value === 'No Offer' ? undefined : updatedDates[index].offerDescription
+                                    };
+                                    handleInputChange('availableDates', updatedDates);
+                                  }}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                >
+                                  <option value="No Offer">No Offer</option>
+                                  <option value="Promotional Offer">Promotional Offer</option>
+                                  <option value="Companion Discount">Companion Discount</option>
+                                  <option value="Government Subsidy">Government Subsidy</option>
+                                  <option value="Early Bird Discount">Early Bird Discount</option>
+                                </select>
+                              </div>
+                              
+                              {dateItem.offerType && dateItem.offerType !== 'No Offer' && (
+                                <>
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Offer Discount Value</label>
+                                    <input
+                                      type="text"
+                                      value={dateItem.offerDiscount || ''}
+                                      onChange={(e) => {
+                                        const currentDates = formData.availableDates || journey.availableDates || [];
+                                        const updatedDates = [...currentDates];
+                                        updatedDates[index] = { 
+                                          ...updatedDates[index], 
+                                          offerDiscount: e.target.value || undefined
+                                        };
+                                        handleInputChange('availableDates', updatedDates);
+                                      }}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                      placeholder="例如：$1500 或 10%"
+                                    />
+                                    <Text size="sm" className="text-gray-500 mt-1">
+                                      只填写数值部分，如 $1500 或 10%，系统会自动生成完整文案
+                                    </Text>
+                                  </div>
+                                  
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Custom Description (Optional)</label>
+                                    <textarea
+                                      value={dateItem.offerDescription || ''}
+                                      onChange={(e) => {
+                                        const currentDates = formData.availableDates || journey.availableDates || [];
+                                        const updatedDates = [...currentDates];
+                                        updatedDates[index] = { 
+                                          ...updatedDates[index], 
+                                          offerDescription: e.target.value || undefined
+                                        };
+                                        handleInputChange('availableDates', updatedDates);
+                                      }}
+                                      rows={2}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                      placeholder="仅限特殊情况覆盖自动文案时使用，平时留空"
+                                    />
+                                    <Text size="sm" className="text-gray-500 mt-1">
+                                      如果填写了自定义描述，将覆盖自动生成的文案
+                                    </Text>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
                     ))}
                     
@@ -944,9 +1057,9 @@ export default function EditJourneyPage() {
                         const endDate = new Date(dateItem.endDate);
                         const startStr = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                         const endStr = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                        const finalPrice = dateItem.discountPercentage && dateItem.originalPrice
-                          ? dateItem.originalPrice * (1 - dateItem.discountPercentage / 100)
-                          : dateItem.price;
+                        const basePrice = journey.price || 0;
+                        const finalPrice = dateItem.price; // 使用已计算的价格
+                        const hasDiscount = dateItem.discountPercentage && dateItem.discountPercentage > 0;
                         
                         return (
                           <div key={dateItem.id || index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
@@ -966,11 +1079,11 @@ export default function EditJourneyPage() {
                             </div>
                             <div className="flex items-center gap-2">
                               <span className="text-sm font-semibold text-gray-900">
-                                ${finalPrice.toLocaleString()}
+                                ${finalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                               </span>
-                              {dateItem.originalPrice && dateItem.originalPrice > finalPrice && (
+                              {hasDiscount && basePrice > finalPrice && (
                                 <span className="text-xs text-gray-500 line-through">
-                                  ${dateItem.originalPrice.toLocaleString()}
+                                  ${basePrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </span>
                               )}
                             </div>
@@ -1367,160 +1480,6 @@ export default function EditJourneyPage() {
                     </div>
                   </div>
 
-                  {/* Offers - 优惠信息 */}
-                  <div className="mt-6">
-                    <Heading level={3} className="text-lg font-semibold mb-4">Offers</Heading>
-                    <div className="space-y-4">
-                      {((isEditing ? formData.offers : journey.offers) || []).length > 0 ? (
-                        ((isEditing ? formData.offers : journey.offers) || []).map((offer, index) => {
-                          const currentOffer = isEditing 
-                            ? (formData.offers || [])[index]
-                            : (journey.offers || [])[index];
-                          return (
-                            <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
-                              <div className="flex items-center justify-between">
-                                <Heading level={4} className="text-sm font-semibold">Offer {index + 1}</Heading>
-                                {isEditing && (
-                                  <Button
-                                    onClick={() => {
-                                      const currentOffers = formData.offers || journey.offers || [];
-                                      handleInputChange('offers', currentOffers.filter((_, i) => i !== index));
-                                    }}
-                                    variant="secondary"
-                                    size="sm"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </Button>
-                                )}
-                              </div>
-                              <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-1">Offer Type</label>
-                                <select
-                                  value={currentOffer?.type || 'Promotional Offer'}
-                                  onChange={(e) => {
-                                    const currentOffers = formData.offers || journey.offers || [];
-                                    const newOffers = [...currentOffers];
-                                    newOffers[index] = { ...currentOffer, type: e.target.value };
-                                    handleInputChange('offers', newOffers);
-                                  }}
-                                  disabled={!isEditing}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                                >
-                                  <option value="Promotional Offer">Promotional Offer</option>
-                                  <option value="Companion Discount">Companion Discount</option>
-                                  <option value="Government Subsidy">Government Subsidy</option>
-                                </select>
-                              </div>
-                              <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-1">Discount Value</label>
-                                <input
-                                  type="text"
-                                  value={currentOffer?.discount || ''}
-                                  onChange={(e) => {
-                                    const currentOffers = formData.offers || journey.offers || [];
-                                    const newOffers = [...currentOffers];
-                                    newOffers[index] = { ...currentOffer, discount: e.target.value };
-                                    handleInputChange('offers', newOffers);
-                                  }}
-                                  disabled={!isEditing}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                                  placeholder="例如：$1500 或 10%"
-                                />
-                                <Text size="sm" className="text-gray-500 mt-1">
-                                  只填写数值部分，如 $1500 或 10%，系统会自动生成完整文案
-                                </Text>
-                              </div>
-                              <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                  <label className="block text-xs font-medium text-gray-600 mb-1">开始时间</label>
-                                  <input
-                                    type="date"
-                                    value={currentOffer?.startDate || ''}
-                                    onChange={(e) => {
-                                      const currentOffers = formData.offers || journey.offers || [];
-                                      const newOffers = [...currentOffers];
-                                      newOffers[index] = { ...currentOffer, startDate: e.target.value };
-                                      handleInputChange('offers', newOffers);
-                                    }}
-                                    disabled={!isEditing}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="block text-xs font-medium text-gray-600 mb-1">截止时间</label>
-                                  <input
-                                    type="date"
-                                    value={currentOffer?.deadline || ''}
-                                    onChange={(e) => {
-                                      const currentOffers = formData.offers || journey.offers || [];
-                                      const newOffers = [...currentOffers];
-                                      newOffers[index] = { ...currentOffer, deadline: e.target.value };
-                                      handleInputChange('offers', newOffers);
-                                    }}
-                                    disabled={!isEditing}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                                  />
-                                </div>
-                              </div>
-                              <Text size="sm" className="text-gray-500">
-                                设置优惠的有效时间段（几月几号到几月几号）
-                              </Text>
-                              <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-1">Custom Description (可选)</label>
-                                <textarea
-                                  value={currentOffer?.description || ''}
-                                  onChange={(e) => {
-                                    const currentOffers = formData.offers || journey.offers || [];
-                                    const newOffers = [...currentOffers];
-                                    newOffers[index] = { ...currentOffer, description: e.target.value };
-                                    handleInputChange('offers', newOffers);
-                                  }}
-                                  disabled={!isEditing}
-                                  rows={3}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
-                                  placeholder="仅限特殊情况覆盖自动文案时使用，平时留空"
-                                />
-                                <Text size="sm" className="text-gray-500 mt-1">
-                                  如果填写了自定义描述，将覆盖自动生成的文案
-                                </Text>
-                              </div>
-                            </div>
-                          );
-                        })
-                      ) : (
-                        <div className="border border-gray-200 rounded-lg p-6 text-center text-gray-500 bg-gray-50">
-                          <Text size="sm">暂无 Offers</Text>
-                          {!isEditing && (
-                            <Text size="sm" className="mt-2 text-gray-400">
-                              点击右上角 "Edit Journey" 按钮可以添加 Offers
-                            </Text>
-                          )}
-                        </div>
-                      )}
-                      {isEditing && (
-                        <Button
-                          onClick={() => {
-                            const currentOffers = formData.offers || journey.offers || [];
-                            handleInputChange('offers', [
-                              ...currentOffers,
-                              {
-                                type: 'Promotional Offer',
-                                discount: '',
-                                startDate: '',
-                                deadline: '',
-                                description: '' // Custom Description (可选)
-                              }
-                            ]);
-                          }}
-                          variant="secondary"
-                          size="sm"
-                        >
-                          <Plus className="w-4 h-4 mr-1" />
-                          Add Offer
-                        </Button>
-                      )}
-                    </div>
-                  </div>
 
                   {/* Extensions */}
                   <div className="mt-6">

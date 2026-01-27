@@ -90,7 +90,21 @@ function UserSection() {
 						</Link>
 					)}
 				</div>
-			) : null}
+			) : (
+				<Link
+					href="/auth/login?redirect=/booking/cart"
+					className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+				>
+					<img 
+						src={imgUser} 
+						alt="Login" 
+						className="w-5 h-5"
+					/>
+					<span className="text-white text-sm hidden lg:block">
+						Sign In
+					</span>
+				</Link>
+			)}
 		</div>
 	);
 }

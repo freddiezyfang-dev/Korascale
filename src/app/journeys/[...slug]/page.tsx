@@ -21,6 +21,7 @@ import OfferIcon from '@/components/journey/OfferIcon';
 import InclusionsAndOffers from '@/components/journey/InclusionsAndOffers';
 import Extensions from '@/components/journey/Extensions';
 import Hotels from '@/components/journey/Hotels';
+import { PlanTripModal } from '@/components/modals/PlanTripModal';
 
 // Details Accordion 组件 - 用于可折叠的技术细节
 function DetailsAccordion({ meals, accommodation, transportation }: { meals?: string[]; accommodation?: string; transportation?: string }) {
@@ -3619,6 +3620,7 @@ export default function DynamicJourneyPage() {
   const [guestAdults, setGuestAdults] = useState<number>(2);
   const [guestChildren, setGuestChildren] = useState<number>(0);
   const [confirmedDate, setConfirmedDate] = useState<Date | null>(null);
+  const [isPlanTripModalOpen, setIsPlanTripModalOpen] = useState(false);
   const popoverTimer = useRef<number | null>(null);
 
   // 加入预订
@@ -4121,9 +4123,62 @@ export default function DynamicJourneyPage() {
               </div>
             );
           })}
+          
+          {/* 定制行程卡片 - 引导联系客服 */}
+          <div 
+            className="itinerary-card bg-[#1e3b32] text-white rounded-lg p-8 mb-10 shadow-sm transition-all hover:shadow-md flex flex-col md:flex-row gap-8 items-start cursor-pointer"
+            onClick={() => setIsPlanTripModalOpen(true)}
+          >
+            {/* 左侧文字内容 */}
+            <div className="flex-1 min-w-0">
+              {/* Day 标签 - 显示 TAILOR-MADE */}
+              <span className="text-white/80 font-medium text-xs tracking-widest uppercase block mb-3">
+                TAILOR-MADE
+              </span>
+              
+              {/* 标题 - 使用 Montaga */}
+              <h3 
+                className="text-3xl text-white mt-2 mb-6 leading-tight"
+                style={{ fontFamily: 'Montaga, serif', fontWeight: 400 }}
+              >
+                Ready to Design Your Perfect Journey?
+              </h3>
+              
+              {/* 描述 - 使用 prose-force-wrap 防止单词断开 */}
+              <p className="text-white leading-relaxed text-base mb-6 prose-force-wrap">
+                Whether you want to adjust the duration, swap destinations, or select specific departure dates that suit your schedule, our private travel experts are here to craft a trip that is uniquely yours.
+              </p>
+              
+              {/* 行动呼吁按钮 */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsPlanTripModalOpen(true);
+                }}
+                className="text-white font-semibold text-sm tracking-widest uppercase underline hover:no-underline transition-all"
+              >
+                TALK TO AN EXPERT →
+              </button>
+            </div>
+            
+            {/* 右侧图片 - 私人订制场景 */}
+            <div className="w-full md:w-[45%] flex-shrink-0">
+              <img 
+                src="/images/hero/slide1.jpg" 
+                alt="Tailor-made journey consultation" 
+                className="w-full aspect-[16/9] rounded-sm object-cover" 
+              />
+            </div>
           </div>
         </div>
+        </div>
       </section>
+
+      {/* Plan Trip Modal */}
+      <PlanTripModal 
+        isOpen={isPlanTripModalOpen} 
+        onClose={() => setIsPlanTripModalOpen(false)} 
+      />
 
       {/* Extensions Section - 条件渲染 */}
       {extensionsData.length > 0 && (

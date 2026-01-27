@@ -119,10 +119,22 @@ export default function InteractiveJourneyBookingPage() {
 
   // 合并：来自购物车的体验 + 心愿单中标记属于此 journey 的体验
   const journeyExperiences = useMemo(() => {
-    const fromCart = (currentCartItem?.experiences || []).map(e => ({ id: e.id, title: e.title, unitPrice: e.unitPrice, source: 'cart' as const }));
+    const fromCart = (currentCartItem?.experiences || []).map(e => ({ 
+      id: e.id, 
+      title: e.title, 
+      unitPrice: e.unitPrice, 
+      pax: e.pax || 1,
+      source: 'cart' as const 
+    }));
     const fromWishlist = wishlistItems
       .filter(w => w.type === 'experience' && w.journeySlug === slug)
-      .map(w => ({ id: w.id, title: w.title, unitPrice: typeof w.price === 'string' ? parseInt(w.price.replace(/[^0-9]/g, ''), 10) || 0 : 0, source: 'wishlist' as const }));
+      .map(w => ({ 
+        id: w.id, 
+        title: w.title, 
+        unitPrice: typeof w.price === 'string' ? parseInt(w.price.replace(/[^0-9]/g, ''), 10) || 0 : 0, 
+        pax: 1, // 心愿单中的体验默认为 1 人
+        source: 'wishlist' as const 
+      }));
     // 去重（以 id 为准，优先保留购物车内项）
     const ids = new Set(fromCart.map(e => e.id));
     const merged = [...fromCart, ...fromWishlist.filter(e => !ids.has(e.id))];
@@ -133,20 +145,27 @@ export default function InteractiveJourneyBookingPage() {
   const calculateTotalPrice = () => {
     if (!journey) return 0;
     
-    let total = journey.price;
+    // 计算 travelers 总数
+    const travelersCount = travelDates.travelers || 1;
     
-    // 添加选中的模块价格
+    // Journey 基础价格（每人价格）乘以 travelers 数量
+    let total = journey.price * travelersCount;
+    
+    // 添加选中的模块价格（每人价格）乘以 travelers 数量
     selectedModules.forEach(moduleId => {
       const module = journey.modules?.find(m => m.id === moduleId);
       if (module) {
-        total += module.price;
+        total += module.price * travelersCount;
       }
     });
     
-    // 添加体验价格：来自购物车/心愿单的合并列表
-    total += journeyExperiences.reduce((sum, e) => sum + (e.unitPrice || 0), 0);
+    // 添加体验价格：来自购物车/心愿单的合并列表（已经考虑了 pax）
+    total += journeyExperiences.reduce((sum, e) => {
+      const pax = 'pax' in e ? e.pax : 1;
+      return sum + (e.unitPrice || 0) * pax;
+    }, 0);
     
-    // 添加住宿价格（如果有）
+    // 添加住宿价格（如果有）- accommodation 价格通常是总价，不需要再乘以 travelers
     if (selectedAccommodation) {
       total += selectedAccommodation.price || 0;
     }

@@ -146,8 +146,7 @@ export default function AddJourneyPage() {
       meals: false,
       transportation: false,
       accommodations: false
-    },
-    offers: []
+    }
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -290,7 +289,6 @@ export default function AddJourneyPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Form submitted with data:', formData);
-    console.log('Offers data:', formData.offers);
     setIsSubmitting(true);
 
     try {
@@ -298,11 +296,6 @@ export default function AddJourneyPage() {
       
       // 确保duration格式正确（如果只是数字，格式化为"X Day"或"X Days"）
       const submitData = { ...formData };
-      
-      // 确保 offers 字段存在
-      if (!submitData.offers) {
-        submitData.offers = [];
-      }
       if (submitData.duration && /^\d+$/.test(submitData.duration.trim())) {
         const days = parseInt(submitData.duration.trim(), 10);
         if (!isNaN(days) && days > 0) {
@@ -937,118 +930,6 @@ export default function AddJourneyPage() {
                       </div>
                     </div>
 
-                    {/* Offers - 优惠信息 */}
-                    <div className="mt-6">
-                      <Heading level={3} className="text-lg font-semibold mb-4">Offers</Heading>
-                      <div className="space-y-4">
-                        {(formData.offers || []).map((offer, index) => (
-                          <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
-                            <div className="flex items-center justify-between">
-                              <Heading level={4} className="text-sm font-semibold">Offer {index + 1}</Heading>
-                              <Button
-                                onClick={() => {
-                                  const currentOffers = formData.offers || [];
-                                  handleInputChange('offers', currentOffers.filter((_, i) => i !== index));
-                                }}
-                                variant="secondary"
-                                size="sm"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                            <div>
-                              <label className="block text-xs font-medium text-gray-600 mb-1">Offer Type</label>
-                              <select
-                                value={offer.type || 'Promotional Offer'}
-                                onChange={(e) => {
-                                  const currentOffers = formData.offers || [];
-                                  const newOffers = [...currentOffers];
-                                  newOffers[index] = { ...offer, type: e.target.value };
-                                  handleInputChange('offers', newOffers);
-                                }}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                              >
-                                <option value="Promotional Offer">Promotional Offer</option>
-                                <option value="Companion Discount">Companion Discount</option>
-                                <option value="Government Subsidy">Government Subsidy</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label className="block text-xs font-medium text-gray-600 mb-1">Discount Value</label>
-                              <input
-                                type="text"
-                                value={offer.discount || ''}
-                                onChange={(e) => {
-                                  const currentOffers = formData.offers || [];
-                                  const newOffers = [...currentOffers];
-                                  newOffers[index] = { ...offer, discount: e.target.value };
-                                  handleInputChange('offers', newOffers);
-                                }}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                                placeholder="例如：$1500 或 10%"
-                              />
-                              <Text size="sm" className="text-gray-500 mt-1">
-                                只填写数值部分，如 $1500 或 10%，系统会自动生成完整文案
-                              </Text>
-                            </div>
-                            <div>
-                              <label className="block text-xs font-medium text-gray-600 mb-1">Deadline</label>
-                              <input
-                                type="date"
-                                value={offer.deadline || ''}
-                                onChange={(e) => {
-                                  const currentOffers = formData.offers || [];
-                                  const newOffers = [...currentOffers];
-                                  newOffers[index] = { ...offer, deadline: e.target.value };
-                                  handleInputChange('offers', newOffers);
-                                }}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                              />
-                              <Text size="sm" className="text-gray-500 mt-1">
-                                选择截至日期，系统会自动生成完整文案
-                              </Text>
-                            </div>
-                            <div>
-                              <label className="block text-xs font-medium text-gray-600 mb-1">Custom Description (可选)</label>
-                              <textarea
-                                value={offer.description || ''}
-                                onChange={(e) => {
-                                  const currentOffers = formData.offers || [];
-                                  const newOffers = [...currentOffers];
-                                  newOffers[index] = { ...offer, description: e.target.value };
-                                  handleInputChange('offers', newOffers);
-                                }}
-                                rows={3}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                                placeholder="仅限特殊情况覆盖自动文案时使用，平时留空"
-                              />
-                              <Text size="sm" className="text-gray-500 mt-1">
-                                如果填写了自定义描述，将覆盖自动生成的文案
-                              </Text>
-                            </div>
-                          </div>
-                        ))}
-                        <Button
-                          onClick={() => {
-                            const currentOffers = formData.offers || [];
-                            handleInputChange('offers', [
-                              ...currentOffers,
-                              {
-                                type: 'Promotional Offer',
-                                discount: '',
-                                deadline: '',
-                                description: '' // Custom Description (可选)
-                              }
-                            ]);
-                          }}
-                          variant="secondary"
-                          size="sm"
-                        >
-                          <Plus className="w-4 h-4 mr-1" />
-                          Add Offer
-                        </Button>
-                      </div>
-                    </div>
                   </div>
                 </Card>
               </div>
