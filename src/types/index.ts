@@ -280,7 +280,8 @@ export interface Journey {
     id: string;
     startDate: string; // ISO 日期字符串，如 "2026-02-01"
     endDate: string; // ISO 日期字符串，如 "2026-02-09"
-    price: number; // 自动计算的价格（基于 journey.price 和 discountPercentage）
+    price: number; // 折后价（自动计算得到）
+    originalPrice?: number; // 原价（后台 Original Price 字段，可选）
     discountPercentage?: number; // 折扣百分比，如 15 表示 15% off
     discountType?: 'Percentage' | 'Fixed Amount'; // 折扣类型
     status: 'Available' | 'Limited' | 'Call'; // 可用状态

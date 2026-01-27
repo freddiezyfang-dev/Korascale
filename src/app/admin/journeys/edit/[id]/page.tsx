@@ -781,10 +781,17 @@ export default function EditJourneyPage() {
                           ? (formData.availableDates || [])
                           : (journey.availableDates || []);
                         const basePrice = journey.price || 0;
+                        const days = parseDurationDays(isEditing ? formData.duration : journey.duration);
+                        const startDate = new Date().toISOString().split('T')[0];
+                        const startDateObj = new Date(startDate);
+                        const endDateObj = new Date(startDateObj);
+                        endDateObj.setDate(startDateObj.getDate() + days - 1);
+                        const endDate = endDateObj.toISOString().split('T')[0];
+                        
                         const newDate = {
-                          id: `date-${Date.now()}`,
-                          startDate: new Date().toISOString().split('T')[0],
-                          endDate: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                          id: crypto.randomUUID(),
+                          startDate: startDate,
+                          endDate: endDate,
                           price: basePrice, // 初始价格等于基础价格
                           discountPercentage: 0,
                           discountType: 'Percentage' as const,
@@ -829,11 +836,23 @@ export default function EditJourneyPage() {
                           let calculatedPrice = basePrice;
                           
                           if (discountType === 'Percentage') {
-                            calculatedPrice = basePrice * (1 - discountPercentage / 100);
+                            // 修正：输入70代表原价的70%，即 Final Price = Base Price × (Discount Percentage / 100)
+                            calculatedPrice = basePrice * (discountPercentage / 100);
                           } else {
                             // Fixed Amount
                             calculatedPrice = Math.max(0, basePrice - discountPercentage);
                           }
+                          
+                          // 获取旅程天数
+                          const days = parseDurationDays(isEditing ? formData.duration : journey.duration);
+                          
+                          // 计算结束日期（基于开始日期和旅程天数）
+                          const calculateEndDate = (startDateStr: string): string => {
+                            const startDate = new Date(startDateStr);
+                            const endDate = new Date(startDate);
+                            endDate.setDate(startDate.getDate() + days - 1);
+                            return endDate.toISOString().split('T')[0];
+                          };
                           
                           return (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -845,7 +864,13 @@ export default function EditJourneyPage() {
                                   onChange={(e) => {
                                     const currentDates = formData.availableDates || journey.availableDates || [];
                                     const updatedDates = [...currentDates];
-                                    updatedDates[index] = { ...updatedDates[index], startDate: e.target.value };
+                                    const newStartDate = e.target.value;
+                                    const newEndDate = calculateEndDate(newStartDate);
+                                    updatedDates[index] = { 
+                                      ...updatedDates[index], 
+                                      startDate: newStartDate,
+                                      endDate: newEndDate
+                                    };
                                     handleInputChange('availableDates', updatedDates);
                                   }}
                                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
@@ -857,14 +882,12 @@ export default function EditJourneyPage() {
                                 <input
                                   type="date"
                                   value={dateItem.endDate}
-                                  onChange={(e) => {
-                                    const currentDates = formData.availableDates || journey.availableDates || [];
-                                    const updatedDates = [...currentDates];
-                                    updatedDates[index] = { ...updatedDates[index], endDate: e.target.value };
-                                    handleInputChange('availableDates', updatedDates);
-                                  }}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                  readOnly
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
                                 />
+                                <Text size="sm" className="text-gray-500 mt-1">
+                                  Automatically calculated
+                                </Text>
                               </div>
                               
                               <div>
@@ -887,9 +910,23 @@ export default function EditJourneyPage() {
                                   onChange={(e) => {
                                     const currentDates = formData.availableDates || journey.availableDates || [];
                                     const updatedDates = [...currentDates];
+                                    const newDiscountType = e.target.value as 'Percentage' | 'Fixed Amount';
+                                    const discountValue = dateItem.discountPercentage || 0;
+                                    let newPrice = basePrice;
+                                    
+                                    // 重新计算价格
+                                    if (newDiscountType === 'Percentage') {
+                                      // 修正：输入70代表原价的70%，即 Final Price = Base Price × (Discount Percentage / 100)
+                                      newPrice = basePrice * (discountValue / 100);
+                                    } else {
+                                      // Fixed Amount
+                                      newPrice = Math.max(0, basePrice - discountValue);
+                                    }
+                                    
                                     updatedDates[index] = { 
                                       ...updatedDates[index], 
-                                      discountType: e.target.value as 'Percentage' | 'Fixed Amount'
+                                      discountType: newDiscountType,
+                                      price: newPrice
                                     };
                                     handleInputChange('availableDates', updatedDates);
                                   }}
@@ -916,8 +953,8 @@ export default function EditJourneyPage() {
                                     let newPrice = basePrice;
                                     
                                     if (dateItem.discountType === 'Percentage') {
-                                      // 百分比折扣
-                                      newPrice = basePrice * (1 - discountValue / 100);
+                                      // 修正：输入70代表原价的70%，即 Final Price = Base Price × (Discount Percentage / 100)
+                                      newPrice = basePrice * (discountValue / 100);
                                     } else {
                                       // 固定金额折扣
                                       newPrice = Math.max(0, basePrice - discountValue);
@@ -1066,15 +1103,6 @@ export default function EditJourneyPage() {
                             <div className="flex items-center gap-4">
                               <span className="text-sm font-medium text-gray-900">
                                 {startStr} - {endStr}
-                              </span>
-                              <span className={`text-xs px-2 py-1 rounded ${
-                                dateItem.status === 'Available' 
-                                  ? 'bg-green-100 text-green-700'
-                                  : dateItem.status === 'Limited'
-                                  ? 'bg-yellow-100 text-yellow-700'
-                                  : 'bg-gray-100 text-gray-700'
-                              }`}>
-                                {dateItem.status === 'Call' ? 'Call for Availability' : `${dateItem.status} Availability`}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">

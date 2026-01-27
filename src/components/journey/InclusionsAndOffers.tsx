@@ -137,8 +137,11 @@ export default function InclusionsAndOffers({ journey, onBookingClick }: Inclusi
           // 获取关联的 offer（从日期项中直接获取）
           const associatedOffer = createOfferFromDateItem(dateItem);
           
-          // 基础价格来自 journey.price
-          const basePrice = journey.price || 0;
+          // 原价优先使用后台 originalPrice，其次回退到 journey.price
+          const basePrice =
+            (typeof dateItem.originalPrice === 'number' && dateItem.originalPrice > 0
+              ? dateItem.originalPrice
+              : journey.price) || 0;
           
           // 使用日期项中已计算的价格（后台已根据 discountPercentage 计算）
           // 如果价格未设置或为0，则使用基础价格
@@ -170,15 +173,18 @@ export default function InclusionsAndOffers({ journey, onBookingClick }: Inclusi
             }
           }
           
+          const hasDiscount = basePrice > 0 && finalPrice < basePrice;
+          
           return {
             id: dateItem.id,
             startDate,
             endDate,
             price: finalPrice,
-            originalPrice: basePrice, // 使用 journey.price 作为原价
+            originalPrice: basePrice,
             status: dateItem.status,
             offer: associatedOffer,
-            offerType: dateItem.offerType || undefined
+            offerType: dateItem.offerType || undefined,
+            hasDiscount,
           };
         })
         .sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
@@ -194,6 +200,7 @@ export default function InclusionsAndOffers({ journey, onBookingClick }: Inclusi
       status: 'Available' | 'Limited' | 'Call';
       offerType?: string;
       offer: any;
+      hasDiscount?: boolean;
     }> = [];
     
     const todayDate = new Date();
@@ -214,15 +221,18 @@ export default function InclusionsAndOffers({ journey, onBookingClick }: Inclusi
         finalPrice = basePrice * (1 - discountPercentage / 100);
       }
       
+      const hasDiscount = finalPrice < basePrice;
+
       list.push({
         id: `auto-${i}`,
         startDate,
         endDate,
         price: finalPrice,
-        originalPrice: basePrice, // 使用 journey.price 作为原价
+        originalPrice: basePrice,
         status: i < 3 ? 'Available' : i < 6 ? 'Limited' : 'Call' as 'Available' | 'Limited' | 'Call',
         offerType: undefined,
-        offer: null
+        offer: null,
+        hasDiscount,
       });
     }
     
@@ -372,7 +382,9 @@ export default function InclusionsAndOffers({ journey, onBookingClick }: Inclusi
                 const dateRange = `${startStr} - ${endStr}`;
                 const dateId = item.id || `date-${index}`;
                 const isExpanded = expandedDates.has(dateId);
-                const hasOffer = item.offerType && item.offerType !== 'No Offer' && item.offer;
+                const hasOfferDetails = item.offerType && item.offerType !== 'No Offer' && item.offer;
+                const hasDiscount = (item as any).hasDiscount || (item.originalPrice && item.originalPrice > item.price);
+                const showOfferTag = hasOfferDetails || hasDiscount;
                 
                 return (
                   <div
@@ -385,19 +397,10 @@ export default function InclusionsAndOffers({ journey, onBookingClick }: Inclusi
                       onClick={() => toggleDateExpand(dateId)}
                     >
                       <div className="flex-1">
-                        <div className="flex items-center gap-4 mb-2">
+                        <div className="flex items-center gap-3 mb-2">
                           <span className="text-gray-900 font-medium">{dateRange}</span>
-                          <span className={`text-xs px-2 py-1 rounded ${
-                            item.status === 'Available' 
-                              ? 'bg-green-100 text-green-700'
-                              : item.status === 'Limited'
-                              ? 'bg-yellow-100 text-yellow-700'
-                              : 'bg-gray-100 text-gray-700'
-                          }`}>
-                            {item.status === 'Call' ? 'Call for Availability' : `${item.status} Availability`}
-                          </span>
-                          {hasOffer && (
-                            <span className="text-xs px-2 py-1 rounded bg-[#8B4513] text-white font-semibold uppercase tracking-wider">
+                          {showOfferTag && (
+                            <span className="text-xs px-2 py-1 rounded bg-[#8B4513] text-[#F5F2E9] font-semibold uppercase tracking-wider">
                               OFFER
                             </span>
                           )}
@@ -409,11 +412,6 @@ export default function InclusionsAndOffers({ journey, onBookingClick }: Inclusi
                           >
                             ${item.price.toLocaleString()}
                           </span>
-                          {item.originalPrice && item.originalPrice > item.price && (
-                            <span className="text-sm text-gray-500 line-through">
-                              ${item.originalPrice.toLocaleString()}
-                            </span>
-                          )}
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
@@ -445,37 +443,39 @@ export default function InclusionsAndOffers({ journey, onBookingClick }: Inclusi
                     {/* 展开详情区域 */}
                     {isExpanded && (
                       <div className="px-6 pb-6 border-t border-gray-100 pt-4">
-                        {hasOffer && item.offer && (
-                          <div className="mb-4 p-4 bg-gray-50 rounded-sm">
-                            <div className="flex items-start gap-3 mb-2">
-                              <div className="mt-1 flex-shrink-0 text-[#8B4513]">
-                                <OfferIcon />
-                              </div>
-                              <div className="flex-1">
-                                <p className="text-[10px] font-bold tracking-[0.2em] text-gray-500 uppercase mb-2">
-                                  Offer Details
-                                </p>
-                                <div className="space-y-1 mb-3">
-                                  {item.offer.type && (
-                                    <p className="text-sm font-semibold text-gray-900">
-                                      Type: {item.offer.type}
-                                    </p>
-                                  )}
-                                  {item.offer.discount && (
-                                    <p className="text-sm font-semibold text-gray-900">
-                                      Discount: {item.offer.discount}
-                                    </p>
-                                  )}
-                                </div>
-                                <p className="text-sm text-gray-700 leading-relaxed prose-force-wrap">
-                                  {generateStandardText(item.offer)}
-                                </p>
-                              </div>
-                            </div>
+                        {/* 价格详情：PRICE $现价 was $原价 */}
+                        <div className="mb-2">
+                          <p className="text-xs text-gray-900">
+                            <span className="text-[10px] font-semibold tracking-[0.2em] text-gray-500 mr-2 uppercase">
+                              PRICE
+                            </span>
+                            <span className="text-sm font-semibold text-[#8B4513]">
+                              ${item.price.toLocaleString()}
+                            </span>
+                            {item.originalPrice && item.originalPrice > item.price && (
+                              <span className="ml-2 text-xs text-gray-400 line-through">
+                                ${item.originalPrice.toLocaleString()}
+                              </span>
+                            )}
+                          </p>
+                        </div>
+
+                        {/* Offer 说明：ⓘ Type + 描述，仅在有 offer 时显示 */}
+                        {hasOfferDetails && item.offer && (
+                          <div className="mt-1">
+                            <p className="text-xs text-gray-600 leading-relaxed flex items-start prose-force-wrap">
+                              <span className="inline-flex items-center justify-center w-4 h-4 rounded-full border border-gray-400 text-[9px] mr-2 mt-[1px] text-gray-500">
+                                i
+                              </span>
+                              <span>
+                                <span className="font-semibold">
+                                  Type: {item.offer.type}
+                                </span>
+                                {': '}
+                                {generateStandardText(item.offer)}
+                              </span>
+                            </p>
                           </div>
-                        )}
-                        {!hasOffer && (
-                          <p className="text-sm text-gray-500">No special offers available for this date.</p>
                         )}
                       </div>
                     )}
