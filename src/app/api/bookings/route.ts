@@ -4,6 +4,8 @@ import { query } from '@/lib/db';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    console.log('[API bookings POST] Received body:', JSON.stringify(body, null, 2));
+    
     const {
       userId,
       customerName,
@@ -21,15 +23,44 @@ export async function POST(request: NextRequest) {
       traveledDevelopingRegions,
       whatMattersMost,
       departureCity,
-      arrivalCity,
     } = body;
 
     if (!customerName || !customerEmail || !journeyId || !journeySlug || selectedDate == null || finalPrice == null) {
+      const missing = [];
+      if (!customerName) missing.push('customerName');
+      if (!customerEmail) missing.push('customerEmail');
+      if (!journeyId) missing.push('journeyId');
+      if (!journeySlug) missing.push('journeySlug');
+      if (selectedDate == null) missing.push('selectedDate');
+      if (finalPrice == null) missing.push('finalPrice');
+      
+      console.error('[API bookings POST] Missing required fields:', missing);
       return NextResponse.json(
-        { error: 'Missing required fields: customerName, customerEmail, journeyId, journeySlug, selectedDate, finalPrice' },
+        { error: `Missing required fields: ${missing.join(', ')}` },
         { status: 400 }
       );
     }
+
+    const values = [
+      userId || null,
+      String(customerName),
+      String(customerEmail),
+      customerPhone ? String(customerPhone) : null,
+      String(journeyId),
+      String(journeySlug),
+      journeyTitle ? String(journeyTitle) : null,
+      selectedDate,
+      Number(adults) || 2,
+      Number(children) || 0,
+      Number(finalPrice),
+      specialRequests ? String(specialRequests) : null,
+      firstTimeChina ? String(firstTimeChina) : null,
+      traveledDevelopingRegions ? String(traveledDevelopingRegions) : null,
+      whatMattersMost ? String(whatMattersMost) : null,
+      departureCity ? String(departureCity) : null,
+    ];
+    
+    console.log('[API bookings POST] Executing INSERT with values:', values);
 
     const { rows } = await query(
       `INSERT INTO bookings (
@@ -37,43 +68,28 @@ export async function POST(request: NextRequest) {
         journey_id, journey_slug, journey_title, selected_date,
         adults, children, final_price, special_requests,
         first_time_china, traveled_developing_regions, what_matters_most,
-        departure_city, arrival_city, status
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8::date, $9, $10, $11, $12, $13, $14, $15, $16, $17, 'REQUESTED')
+        departure_city, status
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8::date, $9, $10, $11, $12, $13, $14, $15, $16, 'REQUESTED')
       RETURNING id, status, submitted_at`,
-      [
-        userId || null,
-        String(customerName),
-        String(customerEmail),
-        customerPhone ? String(customerPhone) : null,
-        String(journeyId),
-        String(journeySlug),
-        journeyTitle ? String(journeyTitle) : null,
-        selectedDate,
-        Number(adults) || 2,
-        Number(children) || 0,
-        Number(finalPrice),
-        specialRequests ? String(specialRequests) : null,
-        firstTimeChina ? String(firstTimeChina) : null,
-        traveledDevelopingRegions ? String(traveledDevelopingRegions) : null,
-        whatMattersMost ? String(whatMattersMost) : null,
-        departureCity ? String(departureCity) : null,
-        arrivalCity ? String(arrivalCity) : null,
-      ]
+      values
     );
 
     if (rows.length === 0) {
-      return NextResponse.json({ error: 'Failed to create booking' }, { status: 500 });
+      console.error('[API bookings POST] No rows returned from INSERT');
+      return NextResponse.json({ error: 'Failed to create booking: no rows returned' }, { status: 500 });
     }
 
+    console.log('[API bookings POST] Success:', rows[0]);
     return NextResponse.json({
       id: rows[0].id,
       status: rows[0].status,
       submittedAt: rows[0].submitted_at,
     });
   } catch (error) {
-    console.error('[API bookings POST]', error);
+    console.error('[API bookings POST] Error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Failed to create booking' },
+      { error: `Failed to create booking: ${errorMessage}` },
       { status: 500 }
     );
   }

@@ -37,7 +37,7 @@ export default function BookingReviewPage() {
   const [traveledDevelopingRegions, setTraveledDevelopingRegions] = useState<string>('');
   const [whatMattersMost, setWhatMattersMost] = useState<string>('');
   const [departureCityInput, setDepartureCityInput] = useState('');
-  const [arrivalCityInput, setArrivalCityInput] = useState('');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const pricePerPerson = useMemo(() => {
     const p = parseFloat(priceParam);
@@ -93,7 +93,6 @@ export default function BookingReviewPage() {
         if (data.journey) {
           setJourney(data.journey);
           setDepartureCityInput(data.journey.city ?? '');
-          setArrivalCityInput(data.journey.location ?? '');
         }
         setLoading(false);
       })
@@ -102,34 +101,47 @@ export default function BookingReviewPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!journey || !user) return;
+    if (!journey || !user || submitting) return;
     setSubmitting(true);
     try {
+      const payload = {
+        userId: user.id,
+        customerName: user.name,
+        customerEmail: user.email,
+        journeyId: journey.id,
+        journeySlug: journey.slug,
+        journeyTitle: journey.title,
+        selectedDate: dateParam,
+        adults,
+        children,
+        finalPrice: Math.round(finalPrice * 100) / 100,
+        specialRequests: specialRequests.trim() || undefined,
+        firstTimeChina: firstTimeChina || undefined,
+        traveledDevelopingRegions: traveledDevelopingRegions || undefined,
+        whatMattersMost: whatMattersMost || undefined,
+        departureCity: departureCityInput.trim() || undefined,
+      };
+      
+      console.log('[Booking Review] Submitting payload:', payload);
+      
       const res = await fetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.id,
-          customerName: user.name,
-          customerEmail: user.email,
-          journeyId: journey.id,
-          journeySlug: journey.slug,
-          journeyTitle: journey.title,
-          selectedDate: dateParam,
-          adults,
-          children,
-          finalPrice: Math.round(finalPrice * 100) / 100,
-          specialRequests: specialRequests.trim() || undefined,
-          firstTimeChina: firstTimeChina || undefined,
-          traveledDevelopingRegions: traveledDevelopingRegions || undefined,
-          whatMattersMost: whatMattersMost || undefined,
-          departureCity: departureCityInput.trim() || undefined,
-          arrivalCity: arrivalCityInput.trim() || undefined,
-        }),
+        body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error('Submit failed');
-      router.push('/booking/success');
-    } catch {
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        console.error('[Booking Review] API error:', res.status, data);
+        throw new Error(data.error || `Submit failed (HTTP ${res.status})`);
+      }
+      
+      console.log('[Booking Review] Success:', data);
+      setShowSuccessModal(true);
+    } catch (error) {
+      console.error('Submit booking failed:', error);
+      alert(error instanceof Error ? error.message : 'Failed to submit booking. Please try again.');
       setSubmitting(false);
     }
   };
@@ -200,35 +212,20 @@ export default function BookingReviewPage() {
               {/* 航点：交互式输入框 */}
               <div className="border-t border-gray-100 pt-6">
                 <span className="text-gray-500 font-medium text-xs tracking-widest uppercase block mb-3 leading-normal">
-                  DEPARTURE CITY / ARRIVAL CITY
+                  DEPARTURE CITY
                 </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="departure-city" className="block text-sm font-medium text-gray-700 mb-1.5">
-                      Departure City
-                    </label>
-                    <input
-                      id="departure-city"
-                      type="text"
-                      value={departureCityInput}
-                      onChange={(e) => setDepartureCityInput(e.target.value)}
-                      placeholder={journey.city || 'e.g. Beijing'}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#1e3b32] focus:border-transparent text-gray-900"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="arrival-city" className="block text-sm font-medium text-gray-700 mb-1.5">
-                      Arrival City
-                    </label>
-                    <input
-                      id="arrival-city"
-                      type="text"
-                      value={arrivalCityInput}
-                      onChange={(e) => setArrivalCityInput(e.target.value)}
-                      placeholder={journey.location || 'e.g. Shanghai'}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#1e3b32] focus:border-transparent text-gray-900"
-                    />
-                  </div>
+                <div>
+                  <label htmlFor="departure-city" className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Departure City
+                  </label>
+                  <input
+                    id="departure-city"
+                    type="text"
+                    value={departureCityInput}
+                    onChange={(e) => setDepartureCityInput(e.target.value)}
+                    placeholder={journey.city || 'e.g. Beijing'}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#1e3b32] focus:border-transparent text-gray-900"
+                  />
                 </div>
               </div>
 
@@ -371,7 +368,7 @@ export default function BookingReviewPage() {
                 <Button
                   type="submit"
                   disabled={submitting}
-                  className="w-full py-4 bg-[#1e3b32] text-white text-sm tracking-widest uppercase hover:bg-[#1a342c] disabled:opacity-60"
+                  className="w-full py-4 bg-[#1e3b32] text-white text-sm tracking-widest uppercase hover:bg-[#1a342c] disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {submitting ? 'Sending...' : 'SEND BOOKING REQUEST'}
                 </Button>
@@ -380,6 +377,26 @@ export default function BookingReviewPage() {
           </div>
         </Container>
       </Section>
+
+      {/* 成功弹窗：全屏品牌色背景 */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-[#24332d]" role="dialog" aria-modal="true" aria-labelledby="success-modal-title">
+          <div className="max-w-2xl mx-auto px-6 py-12 text-center">
+            <h2 id="success-modal-title" className="text-4xl md:text-5xl font-serif font-bold mb-6 text-[#F5F2E9]" style={{ fontFamily: 'Playfair Display, serif' }}>
+              Request Sent Successfully
+            </h2>
+            <p className="text-lg md:text-xl text-[#F5F2E9] leading-relaxed mb-10 max-w-xl mx-auto">
+              Thank you for your interest. A Korascale private travel expert will review your request and contact you within 24 hours to discuss the details and payment.
+            </p>
+            <Button
+              onClick={() => router.push('/journeys')}
+              className="px-8 py-3 bg-[#F5F2E9] text-[#24332d] text-sm tracking-widest uppercase hover:bg-[#e8e4d8] transition-colors"
+            >
+              Back to Journeys
+            </Button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
