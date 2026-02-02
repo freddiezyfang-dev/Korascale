@@ -22,6 +22,8 @@ import InclusionsAndOffers from '@/components/journey/InclusionsAndOffers';
 import Extensions from '@/components/journey/Extensions';
 import Hotels from '@/components/journey/Hotels';
 import { PlanTripModal } from '@/components/modals/PlanTripModal';
+import { LoginModal } from '@/components/modals/LoginModal';
+import { useUser } from '@/context/UserContext';
 
 // Details Accordion 组件 - 用于可折叠的技术细节
 function DetailsAccordion({ meals, accommodation, transportation }: { meals?: string[]; accommodation?: string; transportation?: string }) {
@@ -3621,7 +3623,10 @@ export default function DynamicJourneyPage() {
   const [guestChildren, setGuestChildren] = useState<number>(0);
   const [confirmedDate, setConfirmedDate] = useState<Date | null>(null);
   const [isPlanTripModalOpen, setIsPlanTripModalOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [pendingBooking, setPendingBooking] = useState<{ slug: string; journeyId: string; date: Date; price: number } | null>(null);
   const popoverTimer = useRef<number | null>(null);
+  const { user } = useUser();
 
   // 加入预订
   const { addJourney, addExperienceToJourney } = useCart();
@@ -3728,6 +3733,28 @@ export default function DynamicJourneyPage() {
     const travelers = guestAdults + guestChildren;
     router.push(`/booking/${journey.slug}?checkIn=${encodeURIComponent(checkIn)}&adults=${guestAdults}&children=${guestChildren}&travelers=${travelers}`);
   };
+
+  // Book Now：未登录先设 pendingBooking 再开登录弹窗，已登录则跳转预订预览页
+  const handleBookNow = (date: Date, price: number) => {
+    if (!journey) return;
+    const payload = { slug: journey.slug, journeyId: journey.id, date, price };
+    setPendingBooking(payload);
+    if (!user || user.isLoggedIn !== true) {
+      setIsLoginModalOpen(true);
+    } else {
+      const dateStr = formatLocalYmd(date);
+      router.prefetch(`/booking/review/${journey.slug}?date=${encodeURIComponent(dateStr)}&price=${price}`);
+      router.push(`/booking/review/${journey.slug}?date=${encodeURIComponent(dateStr)}&price=${price}`);
+    }
+  };
+
+  // 登录弹窗打开时预加载预订预览页，减少登录后跳转白屏
+  useEffect(() => {
+    if (!isLoginModalOpen || !pendingBooking?.slug) return;
+    const d = pendingBooking.date;
+    const ymd = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    router.prefetch(`/booking/review/${pendingBooking.slug}?date=${encodeURIComponent(ymd)}&price=${pendingBooking.price}`);
+  }, [isLoginModalOpen, pendingBooking]);
 
   // 已移除酒店点击弹窗逻辑
 
@@ -4180,6 +4207,23 @@ export default function DynamicJourneyPage() {
         onClose={() => setIsPlanTripModalOpen(false)} 
       />
 
+      {/* Login Modal - 未登录点击 Book Now 时弹出；登录成功后用 pendingBooking 正确格式化日期并跳转 */}
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => { setIsLoginModalOpen(false); setPendingBooking(null); }}
+        onLoginSuccess={() => {
+          setIsLoginModalOpen(false);
+          if (pendingBooking && journey) {
+            const d = pendingBooking.date;
+            const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            const url = `/booking/review/${journey.slug}?date=${encodeURIComponent(dateStr)}&price=${pendingBooking.price}`;
+            router.prefetch(url);
+            router.push(url);
+            setPendingBooking(null);
+          }
+        }}
+      />
+
       {/* Extensions Section - 条件渲染 */}
       {extensionsData.length > 0 && (
         <Extensions extensions={extensionsData} />
@@ -4260,12 +4304,7 @@ export default function DynamicJourneyPage() {
       {/* Inclusions & Offers Section - 新设计（包含 Select Your Date） */}
       <InclusionsAndOffers 
         journey={journey} 
-        onBookingClick={(date) => {
-          setConfirmedDate(date);
-          setTimeout(() => {
-            handleDirectBooking();
-          }, 100);
-        }}
+        onBookingClick={handleBookNow}
       />
 
       {/* Related Trips */}

@@ -20,7 +20,7 @@ const ThinLineIcon = () => (
 
 interface InclusionsAndOffersProps {
   journey: Journey;
-  onBookingClick?: (date: Date) => void;
+  onBookingClick?: (date: Date, pricePerPerson: number) => void;
 }
 
 // 格式化日期
@@ -245,9 +245,9 @@ export default function InclusionsAndOffers({ journey, onBookingClick }: Inclusi
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allDatesList.length]); // 只在日期列表变化时执行一次
 
-  const handleDateClick = (date: Date) => {
+  const handleDateClick = (date: Date, pricePerPerson: number) => {
     if (onBookingClick) {
-      onBookingClick(date);
+      onBookingClick(date, pricePerPerson);
     }
   };
 
@@ -386,11 +386,11 @@ export default function InclusionsAndOffers({ journey, onBookingClick }: Inclusi
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDateClick(item.startDate);
+                            handleDateClick(item.startDate, item.price);
                           }}
                           className="px-6 py-2 bg-black text-white text-xs tracking-widest uppercase hover:bg-gray-800 transition-colors whitespace-nowrap"
                         >
-                          Book Now
+                          REQUEST TO BOOK
                         </button>
                         <button
                           onClick={(e) => {

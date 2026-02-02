@@ -284,7 +284,7 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
                 }
               }}
             >
-              Book Now
+              REQUEST TO BOOK
             </Button>
           </div>
         </div>

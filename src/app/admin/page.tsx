@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Container, Section, Heading, Text, Card } from '@/components/common';
-import { Users, ShoppingCart, Hotel, TrendingUp, Eye, Settings, LogOut, Clock, CheckCircle, MapPin, Star, Compass, BookText } from 'lucide-react';
+import { Users, ShoppingCart, Hotel, TrendingUp, Eye, Settings, LogOut, Clock, CheckCircle, MapPin, Star, Compass, BookText, CalendarCheck } from 'lucide-react';
 import { useUser } from '@/context/UserContext';
 import { useOrderManagement } from '@/context/OrderManagementContext';
 import { OrderStatus } from '@/types';
@@ -92,6 +92,13 @@ export default function AdminDashboard() {
       href: '/admin/orders',
       icon: ShoppingCart,
       color: 'bg-blue-100 text-blue-600'
+    },
+    {
+      title: 'Bookings',
+      description: 'View and mark booking requests as processed',
+      href: '/admin/bookings',
+      icon: CalendarCheck,
+      color: 'bg-teal-100 text-teal-600'
     },
     {
       title: 'Article Management',

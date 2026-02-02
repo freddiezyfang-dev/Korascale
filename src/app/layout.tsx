@@ -13,6 +13,7 @@ import { JourneyManagementProvider } from "@/context/JourneyManagementContext";
 import { ExperienceManagementProvider } from "@/context/ExperienceManagementContext";
 import { ArticleManagementProvider } from "@/context/ArticleManagementContext";
 import { CartProvider } from "@/context/CartContext";
+import { LoginModalProvider } from "@/context/LoginModalContext";
 
 // 暂时移除 next/font/google 以避免 Turbopack 兼容性问题
 // 字体通过 globals.css 中的 @import 加载
@@ -58,12 +59,14 @@ export default function RootLayout({
 									<ArticleManagementProvider>
 										<WishlistProvider>
 											<CartProvider>
-												<OrderProvider>
-													<Header />
-													<NavMenu />
-													{children}
-													<Footer />
-												</OrderProvider>
+												<LoginModalProvider>
+													<OrderProvider>
+														<Header />
+														<NavMenu />
+														{children}
+														<Footer />
+													</OrderProvider>
+												</LoginModalProvider>
 											</CartProvider>
 										</WishlistProvider>
 									</ArticleManagementProvider>

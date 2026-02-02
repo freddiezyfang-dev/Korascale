@@ -121,7 +121,7 @@ export function UserDropdown() {
                       className="flex-1 bg-primary-500 text-white text-xs py-2 px-3 rounded-lg hover:bg-primary-600 transition-colors text-center flex items-center justify-center gap-1"
                     >
                       <Calendar className="w-3 h-3" />
-                      Book Now
+                      REQUEST TO BOOK
                     </Link>
                     <Link
                       href={`/${item.type}s`}

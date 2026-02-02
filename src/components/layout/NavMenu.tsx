@@ -3,6 +3,7 @@
 import Dropdown, { DestinationsDropdown, InspirationsDropdown, JourneysDropdown } from "@/components/ui/Dropdown";
 import Link from "next/link";
 import { useUser } from "@/context/UserContext";
+import { useLoginModal } from "@/context/LoginModalContext";
 import { useState } from "react";
 import NavSidebar from "./NavSidebar";
 import { X } from "lucide-react";
@@ -11,6 +12,7 @@ const imgVector = "/icons/user.svg";
 
 export default function NavMenu() {
 	const { user, logout } = useUser();
+	const { openLoginModal } = useLoginModal();
 	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
 	return (
@@ -90,9 +92,13 @@ export default function NavMenu() {
 								</button>
 							</div>
 						) : (
-							<Link href="/auth/login" className="text-xs sm:text-sm lg:text-[16px] text-black font-subheading hover:opacity-80 flex-shrink-0 touch-manipulation px-2 py-1 whitespace-nowrap">
+							<button
+								type="button"
+								onClick={openLoginModal}
+								className="text-xs sm:text-sm lg:text-[16px] text-black font-subheading hover:opacity-80 flex-shrink-0 touch-manipulation px-2 py-1 whitespace-nowrap bg-transparent border-0 cursor-pointer"
+							>
 								<span className="hidden sm:inline">Sign in / </span>Log in
-							</Link>
+							</button>
 						)}
 					</div>
 				</div>

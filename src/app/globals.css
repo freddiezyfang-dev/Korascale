@@ -101,6 +101,11 @@ body {
   color: var(--foreground);
 }
 
+/* LoginModal 打开时锁定 body 滚动，仅此一类，避免多处 overflow 导致布局跳动 */
+body.login-modal-open {
+  overflow: hidden;
+}
+
 /* 全局标题样式 - 统一使用衬线字体 */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-serif);  /* 标题使用衬线体 */

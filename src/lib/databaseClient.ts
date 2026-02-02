@@ -42,6 +42,17 @@ const createTimeoutSignal = (timeoutMs: number): AbortSignal => {
   return controller.signal;
 };
 
+// 统一清理错误信息：若为 404 HTML 页则替换为短句，并限制长度，避免控制台刷整页 HTML
+function sanitizeErrorMessage(message: string, status?: number): string {
+  const m = message.trim();
+  if (/<\s*!?\s*DOCTYPE|<\s*html\s/i.test(m) || m.startsWith('<!')) {
+    return status === 404
+      ? 'API returned 404 (not found). The dev server may still be starting—try refreshing.'
+      : `API returned HTML instead of JSON (HTTP ${status ?? 'unknown'}).`;
+  }
+  return m.length > 300 ? m.slice(0, 300) + '…' : m;
+}
+
 // Journey API调用
 export const journeyAPI = {
   // 获取所有journeys（带重试机制）
@@ -69,33 +80,42 @@ export const journeyAPI = {
         });
         
         if (!response.ok) {
-          // 尝试获取详细的错误信息
+          // 尝试获取详细的错误信息（避免把 404 HTML 整页当错误信息）
           let errorMessage = `Failed to fetch journeys (HTTP ${response.status})`;
           try {
-            // 检查响应是否是 JSON 格式
             const contentType = response.headers.get('content-type');
             if (contentType && contentType.includes('application/json')) {
               const errorData = await response.json();
               errorMessage = errorData.error || errorMessage;
             } else {
-              // 如果不是 JSON，尝试获取文本
               const text = await response.text();
-              errorMessage = text || errorMessage;
+              const isHtml = /<\s*!?\s*DOCTYPE|<\s*html\s/i.test(text) || text.trimStart().startsWith('<!');
+              if (isHtml) {
+                errorMessage = response.status === 404
+                  ? `API /api/journeys not found (404). The dev server may still be starting—try refreshing.`
+                  : `API returned HTML instead of JSON (HTTP ${response.status}).`;
+              } else {
+                errorMessage = text.length > 200 ? text.slice(0, 200) + '…' : text;
+              }
             }
           } catch (e) {
-            // 如果解析失败，使用状态码和状态文本
             errorMessage = `HTTP ${response.status}: ${response.statusText || errorMessage}`;
           }
-          
-          // 如果是服务器错误且还有重试次数，继续重试
+          if (response.status === 404) {
+            console.warn('[JourneyAPI]', errorMessage, '— returning empty array');
+            return [];
+          }
           if (response.status >= 500 && attempt < retries) {
             console.warn(`[JourneyAPI] Attempt ${attempt + 1} failed, retrying...`, errorMessage);
-            await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1))); // 递增延迟
+            await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
             continue;
           }
-          
-          console.error('API Error:', errorMessage);
-          throw new Error(errorMessage);
+          const safeMsg = sanitizeErrorMessage(
+            errorMessage.length > 300 ? errorMessage.slice(0, 300) + '…' : errorMessage,
+            response.status
+          );
+          console.error('API Error:', safeMsg);
+          throw new Error(safeMsg);
         }
         
         const data = await response.json();
@@ -181,7 +201,7 @@ export const journeyAPI = {
         } catch (e) {
           // 忽略解析错误
         }
-        throw new Error(errorMessage);
+        throw new Error(sanitizeErrorMessage(errorMessage, response.status));
       }
       const data = await response.json();
       return data.journey || null;
@@ -221,7 +241,7 @@ export const journeyAPI = {
         } catch (e) {
           errorMessage = `HTTP ${response.status}: ${response.statusText || errorMessage}`;
         }
-        throw new Error(errorMessage);
+        throw new Error(sanitizeErrorMessage(errorMessage, response.status));
       }
       
       const data = await response.json();
@@ -262,7 +282,7 @@ export const journeyAPI = {
           const text = await response.text();
           errorMessage = text || errorMessage;
         }
-        throw new Error(errorMessage);
+        throw new Error(sanitizeErrorMessage(errorMessage, response.status));
       }
       
       const data = await response.json();
@@ -307,7 +327,7 @@ export const journeyAPI = {
         } catch (e) {
           errorMessage = `HTTP ${response.status}: ${response.statusText || errorMessage}`;
         }
-        throw new Error(errorMessage);
+        throw new Error(sanitizeErrorMessage(errorMessage, response.status));
       }
     } catch (error) {
       console.error('Error deleting journey:', error);
@@ -366,7 +386,7 @@ export const uploadAPI = {
         } catch (e) {
           errorMessage = `HTTP ${response.status}: ${response.statusText}`;
         }
-        throw new Error(errorMessage);
+        throw new Error(sanitizeErrorMessage(errorMessage, response.status));
       }
 
       const data = await response.json();
@@ -430,28 +450,34 @@ export const articleAPI = {
         if (!response.ok) {
           let errorMessage = `Failed to fetch articles (HTTP ${response.status})`;
           try {
-            // 检查响应是否是 JSON 格式
             const contentType = response.headers.get('content-type');
             if (contentType && contentType.includes('application/json')) {
               const errorData = await response.json();
               errorMessage = errorData.error || errorMessage;
             } else {
-              // 如果不是 JSON，尝试获取文本
               const text = await response.text();
-              errorMessage = text || errorMessage;
+              const isHtml = /<\s*!?\s*DOCTYPE|<\s*html\s/i.test(text) || text.trimStart().startsWith('<!');
+              if (isHtml) {
+                errorMessage = response.status === 404
+                  ? `API /api/articles not found (404). The dev server may still be starting—try refreshing.`
+                  : `API returned HTML instead of JSON (HTTP ${response.status}).`;
+              } else {
+                errorMessage = text.length > 200 ? text.slice(0, 200) + '…' : text;
+              }
             }
           } catch (e) {
-            // 如果解析失败，使用状态码和状态文本
             errorMessage = `HTTP ${response.status}: ${response.statusText || errorMessage}`;
           }
-          
+          if (response.status === 404) {
+            console.warn('[ArticleAPI]', errorMessage, '— returning empty array');
+            return [];
+          }
           if (response.status >= 500 && attempt < retries) {
             console.warn(`[ArticleAPI] Attempt ${attempt + 1} failed, retrying...`, errorMessage);
             await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
             continue;
           }
-          
-          throw new Error(errorMessage);
+          throw new Error(sanitizeErrorMessage(errorMessage, response.status));
         }
         
         const data = await response.json();
@@ -554,7 +580,7 @@ export const articleAPI = {
         } catch (e) {
           errorMessage = `HTTP ${response.status}: ${response.statusText || errorMessage}`;
         }
-        throw new Error(errorMessage);
+        throw new Error(sanitizeErrorMessage(errorMessage, response.status));
       }
 
       const data = await response.json();
@@ -599,7 +625,7 @@ export const articleAPI = {
         } catch (e) {
           errorMessage = `HTTP ${response.status}: ${response.statusText || errorMessage}`;
         }
-        throw new Error(errorMessage);
+        throw new Error(sanitizeErrorMessage(errorMessage, response.status));
       }
 
       const data = await response.json();
@@ -642,7 +668,7 @@ export const articleAPI = {
         } catch (e) {
           errorMessage = `HTTP ${response.status}: ${response.statusText || errorMessage}`;
         }
-        throw new Error(errorMessage);
+        throw new Error(sanitizeErrorMessage(errorMessage, response.status));
       }
     } catch (error) {
       console.error('[ArticleAPI] Error deleting article:', error);
@@ -683,7 +709,7 @@ export const userAPI = {
         } catch (e) {
           errorMessage = `HTTP ${response.status}: ${response.statusText || errorMessage}`;
         }
-        throw new Error(errorMessage);
+        throw new Error(sanitizeErrorMessage(errorMessage, response.status));
       }
     } catch (error) {
       console.error('Error saving user info:', error);

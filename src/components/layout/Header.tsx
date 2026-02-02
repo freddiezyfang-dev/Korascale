@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useUser } from '@/context/UserContext';
 import { useOrderManagement } from '@/context/OrderManagementContext';
+import { useLoginModal } from '@/context/LoginModalContext';
 import Dropdown from '@/components/ui/Dropdown';
 import { UserDropdown } from '@/components/ui/UserDropdown';
 
@@ -52,6 +53,7 @@ function HeaderLeft() {
 function UserSection() {
   const { user, logout } = useUser();
   const { addLoginRecord, updateLogoutRecord } = useOrderManagement();
+  const { openLoginModal } = useLoginModal();
 
   const handleLogout = () => {
     if (user) {
@@ -91,9 +93,11 @@ function UserSection() {
 					)}
 				</div>
 			) : (
-				<Link
-					href="/auth/login?redirect=/booking/cart"
-					className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+				<button
+					type="button"
+					onClick={openLoginModal}
+					className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity bg-transparent border-0 p-0 text-inherit"
+					aria-label="Sign in"
 				>
 					<img 
 						src={imgUser} 
@@ -103,7 +107,7 @@ function UserSection() {
 					<span className="text-white text-sm hidden lg:block">
 						Sign In
 					</span>
-				</Link>
+				</button>
 			)}
 		</div>
 	);

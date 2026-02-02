@@ -140,7 +140,7 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
             style={{ color: '#000000' }}
           >
             <Calendar className="w-5 h-5" />
-            Book Now
+            REQUEST TO BOOK
           </Button>
         </div>
       </div>
