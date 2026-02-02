@@ -87,15 +87,8 @@ export default function AdminDashboard() {
 
   const quickActions = [
     {
-      title: 'View All Orders',
-      description: 'Manage customer orders and bookings',
-      href: '/admin/orders',
-      icon: ShoppingCart,
-      color: 'bg-blue-100 text-blue-600'
-    },
-    {
       title: 'Bookings',
-      description: 'View and mark booking requests as processed',
+      description: 'View and manage booking requests (REQUEST TO BOOK)',
       href: '/admin/bookings',
       icon: CalendarCheck,
       color: 'bg-teal-100 text-teal-600'
@@ -273,55 +266,6 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               ))}
-            </div>
-          </Card>
-
-          {/* Recent Orders Preview */}
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <Heading level={2} className="text-xl font-semibold">
-                Recent Orders
-              </Heading>
-              <Link 
-                href="/admin/orders"
-                className="text-primary-600 hover:text-primary-500 flex items-center gap-1"
-              >
-                View All
-                <Eye className="w-4 h-4" />
-              </Link>
-            </div>
-            
-            <div className="space-y-3">
-              {orders.length === 0 ? (
-                <Text className="text-gray-500 text-center py-4">
-                  No orders yet. Orders will appear here when customers make bookings.
-                </Text>
-              ) : (
-                orders
-                  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                  .slice(0, 5)
-                  .map((order, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <Text className="font-medium text-gray-900">#{order.id.slice(-8)}</Text>
-                        <Text className="text-sm text-gray-600">{order.userName} - {order.accommodation.title}</Text>
-                        <Text className="text-xs text-gray-500">
-                          {order.createdAt.toLocaleDateString()}
-                        </Text>
-                      </div>
-                      <div className="text-right">
-                        <Text className="font-semibold text-gray-900">${order.totalPrice}</Text>
-                        <Text className={`text-sm ${
-                          order.status === 'completed' ? 'text-green-600' :
-                          order.status === 'paid' ? 'text-blue-600' : 
-                          order.status === 'confirmed' ? 'text-purple-600' : 'text-yellow-600'
-                        }`}>
-                          {order.status.charAt(0).toUpperCase() + order.status.slice(1).replace('_', ' ')}
-                        </Text>
-                      </div>
-                    </div>
-                  ))
-              )}
             </div>
           </Card>
         </Container>

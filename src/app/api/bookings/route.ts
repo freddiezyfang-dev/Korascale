@@ -97,19 +97,24 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('[API bookings GET] Fetching all bookings...');
     const { rows } = await query(
       `SELECT id, user_id, customer_name, customer_email, customer_phone,
               journey_id, journey_slug, journey_title, selected_date,
               adults, children, final_price, special_requests, status,
-              submitted_at, processed_at, created_at
+              submitted_at, processed_at, created_at,
+              first_time_china, traveled_developing_regions, what_matters_most,
+              departure_city
        FROM bookings
        ORDER BY submitted_at DESC`
     );
+    console.log(`[API bookings GET] Found ${rows.length} bookings`);
     return NextResponse.json({ bookings: rows });
   } catch (error) {
-    console.error('[API bookings GET]', error);
+    console.error('[API bookings GET] Error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Failed to fetch bookings' },
+      { error: `Failed to fetch bookings: ${errorMessage}` },
       { status: 500 }
     );
   }
