@@ -16,6 +16,25 @@ interface TOCItem {
   level: number;
 }
 
+// 辅助函数：生成推荐项的 href
+function getRecommendedItemHref(
+  item: { 
+    type: 'journey'; 
+    id: string; 
+    data: { slug: string; title: string; image?: string; [key: string]: any }
+  } | { 
+    type: 'article'; 
+    id: string; 
+    data: { slug: string; title: string; category: ArticleCategory; coverImage?: string; heroImage?: string; [key: string]: any }
+  }
+): string {
+  if (item.type === 'journey') {
+    return `/journeys/${item.data.slug}`;
+  } else {
+    return `/inspirations/${ArticleCategoryToSlug[item.data.category]}/${item.data.slug}`;
+  }
+}
+
 export default function ArticleDetailPage() {
   const params = useParams();
   const slug = Array.isArray(params?.slug) ? params?.slug[0] : (params?.slug as string);
@@ -501,7 +520,7 @@ export default function ArticleDetailPage() {
                     {recommendedItems.map((item) => (
                       <Link
                         key={`${item.type}-${item.id}`}
-                        href={item.type === 'journey' ? `/journeys/${item.data.slug}` : `/inspirations/${ArticleCategoryToSlug[item.data.category as ArticleCategory]}/${item.data.slug}`}
+                        href={getRecommendedItemHref(item)}
                         className="group block"
                       >
                         <div className="bg-white border border-[#d1d5db] rounded-lg overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
@@ -552,7 +571,7 @@ export default function ArticleDetailPage() {
                 {recommendedItems.map((item) => (
                   <Link
                     key={`${item.type}-${item.id}`}
-                    href={item.type === 'journey' ? `/journeys/${item.data.slug}` : `/inspirations/${ArticleCategoryToSlug[item.data.category as ArticleCategory]}/${item.data.slug}`}
+                    href={getRecommendedItemHref(item)}
                     className="group block snap-start"
                   >
                     <div className="bg-white border border-[#d1d5db] rounded-lg overflow-hidden hover:shadow-md transition-shadow w-[280px] h-full flex flex-col">
