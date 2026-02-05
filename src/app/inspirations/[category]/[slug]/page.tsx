@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { Instagram, MessageCircle, Link as LinkIcon } from 'lucide-react';
 import { Section, Container, Heading, Text, Breadcrumb } from '@/components/common';
 import { useArticleManagement } from '@/context/ArticleManagementContext';
-import { ArticleCategoryToHeroImage, ArticleSlugToCategory, ArticleCategoryToSlug, ContentBlock, RecommendedItem } from '@/types/article';
+import { ArticleCategoryToHeroImage, ArticleSlugToCategory, ArticleCategoryToSlug, ContentBlock, RecommendedItem, ArticleCategory } from '@/types/article';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 
 interface TOCItem {
@@ -31,7 +31,15 @@ export default function ArticleDetailPage() {
     if (!article) return [];
     
     // 优先使用 recommendedItems，如果没有则使用 relatedJourneyIds（向后兼容）
-    const items: Array<{ type: 'journey' | 'article'; id: string; data: any }> = [];
+    const items: Array<{ 
+      type: 'journey'; 
+      id: string; 
+      data: { slug: string; title: string; image?: string; [key: string]: any }
+    } | { 
+      type: 'article'; 
+      id: string; 
+      data: { slug: string; title: string; category: ArticleCategory; coverImage?: string; heroImage?: string; [key: string]: any }
+    }> = [];
     
     if (article.recommendedItems && article.recommendedItems.length > 0) {
       article.recommendedItems.forEach((item: RecommendedItem) => {
@@ -493,7 +501,7 @@ export default function ArticleDetailPage() {
                     {recommendedItems.map((item) => (
                       <Link
                         key={`${item.type}-${item.id}`}
-                        href={item.type === 'journey' ? `/journeys/${item.data.slug}` : `/inspirations/${ArticleCategoryToSlug[item.data.category]}/${item.data.slug}`}
+                        href={item.type === 'journey' ? `/journeys/${item.data.slug}` : `/inspirations/${ArticleCategoryToSlug[item.data.category as ArticleCategory]}/${item.data.slug}`}
                         className="group block"
                       >
                         <div className="bg-white border border-[#d1d5db] rounded-lg overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
@@ -534,7 +542,7 @@ export default function ArticleDetailPage() {
 
       {/* Recommendation Section (Mobile - Bottom with Horizontal Scroll) */}
       {recommendedItems.length > 0 && (
-        <Section background="white" padding="xl" className="lg:hidden">
+        <Section background="primary" padding="xl" className="lg:hidden">
           <Container size="xl">
             <Heading level={2} className="text-2xl font-heading mb-6" style={{ fontFamily: 'Playfair Display, serif' }}>
               Recommend For You
@@ -544,7 +552,7 @@ export default function ArticleDetailPage() {
                 {recommendedItems.map((item) => (
                   <Link
                     key={`${item.type}-${item.id}`}
-                    href={item.type === 'journey' ? `/journeys/${item.data.slug}` : `/inspirations/${ArticleCategoryToSlug[item.data.category]}/${item.data.slug}`}
+                    href={item.type === 'journey' ? `/journeys/${item.data.slug}` : `/inspirations/${ArticleCategoryToSlug[item.data.category as ArticleCategory]}/${item.data.slug}`}
                     className="group block snap-start"
                   >
                     <div className="bg-white border border-[#d1d5db] rounded-lg overflow-hidden hover:shadow-md transition-shadow w-[280px] h-full flex flex-col">
