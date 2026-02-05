@@ -690,6 +690,84 @@ export default function DynamicJourneyPage() {
     });
   }
   
+  // ========== 所有 Hooks 必须在提前返回之前定义 ==========
+  
+  // 直接从API获取journey（如果context中没有）
+  const [journeyFromApi, setJourneyFromApi] = useState<Journey | null>(null);
+  const [isLoadingFromApi, setIsLoadingFromApi] = useState(false);
+  
+  // Intersection Observer: 监听当前在视口中央的 Day
+  const [activeDay, setActiveDay] = useState<number | undefined>(undefined);
+  const [currentDay, setCurrentDay] = useState<number | undefined>(undefined);
+  const dayRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  
+  // Sticky Map Section: 检测 section 是否固定在顶部
+  const [isPinned, setIsPinned] = useState(false);
+  const itinerarySectionRef = useRef<HTMLElement | null>(null);
+  const itineraryListRef = useRef<HTMLDivElement | null>(null);
+  
+  // Navigation Scroll-Spy: 监听当前激活的导航项
+  const [activeNav, setActiveNav] = useState<string>('overview');
+  const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
+  
+  // Select Your Date: 动态月历状态
+  const today = useMemo(() => new Date(), []);
+  const [monthOffset, setMonthOffset] = useState(0);
+  const baseDate = useMemo(() => {
+    const d = new Date(today);
+    d.setMonth(d.getMonth() + monthOffset, 1);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, [today, monthOffset]);
+  
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const weekDays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  
+  const getMonthMatrix = (year: number, month: number) => {
+    const first = new Date(year, month, 1);
+    const last = new Date(year, month + 1, 0);
+    const daysInMonth = last.getDate();
+    const startWeekday = first.getDay();
+    const blanks = Array.from({ length: startWeekday }, () => null);
+    const days = Array.from({ length: daysInMonth }, (_, i) => new Date(year, month, i + 1));
+    return [...blanks, ...days];
+  };
+  
+  const monthMatrix = useMemo(() => getMonthMatrix(baseDate.getFullYear(), baseDate.getMonth()), [baseDate]);
+  
+  // 悬浮可交互弹层状态（保持打开以便点击）
+  const [activePopoverDate, setActivePopoverDate] = useState<Date | null>(null);
+  const [guestAdults, setGuestAdults] = useState<number>(2);
+  const [guestChildren, setGuestChildren] = useState<number>(0);
+  const [confirmedDate, setConfirmedDate] = useState<Date | null>(null);
+  const [isPlanTripModalOpen, setIsPlanTripModalOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [pendingBooking, setPendingBooking] = useState<{ slug: string; journeyId: string; date: Date; price: number } | null>(null);
+  const popoverTimer = useRef<number | null>(null);
+  const { user } = useUser();
+  
+  // 工具函数（必须在提前返回之前定义，因为它们可能在 useEffect 中使用）
+  const formatLocalYmd = (date: Date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${dd}`;
+  };
+  const addDays = (date: Date, days: number) => {
+    const d = new Date(date);
+    d.setDate(d.getDate() + days);
+    return d;
+  };
+  const getDurationDays = (): number => {
+    if (!journey?.duration) return 1;
+    const match = journey.duration.match(/\d+/);
+    const n = match ? parseInt(match[0], 10) : 1;
+    return Math.max(1, n);
+  };
+  
+  // 加入预订
+  const { addJourney, addExperienceToJourney } = useCart();
+  
   // 使用 useLayoutEffect 同步执行重定向（在 DOM 更新之前）
   // 这样可以确保在 useEffect 执行之前就完成重定向
   useLayoutEffect(() => {
@@ -704,15 +782,6 @@ export default function DynamicJourneyPage() {
       router.replace(`/journeys/type/${slug}`);
     }
   }, [slug, router, isTypeRoute, isJourneyTypeSlug]);
-  
-  // 如果路径是 type/* 或者是 journey type slug，不渲染任何内容，等待重定向
-  if (isTypeRoute || isJourneyTypeSlug) {
-    return null;
-  }
-  
-  // 直接从API获取journey（如果context中没有）
-  const [journeyFromApi, setJourneyFromApi] = useState<Journey | null>(null);
-  const [isLoadingFromApi, setIsLoadingFromApi] = useState(false);
 
   // 已移除酒店详情弹窗状态
 
@@ -3040,20 +3109,6 @@ export default function DynamicJourneyPage() {
     });
   }, [journey, isDayTour]);
 
-  // Intersection Observer: 监听当前在视口中央的 Day
-  const [activeDay, setActiveDay] = useState<number | undefined>(undefined);
-  const [currentDay, setCurrentDay] = useState<number | undefined>(undefined);
-  const dayRefs = useRef<Map<number, HTMLDivElement>>(new Map());
-  
-  // Sticky Map Section: 检测 section 是否固定在顶部
-  const [isPinned, setIsPinned] = useState(false);
-  const itinerarySectionRef = useRef<HTMLElement | null>(null);
-  const itineraryListRef = useRef<HTMLDivElement | null>(null);
-  
-  // Navigation Scroll-Spy: 监听当前激活的导航项
-  const [activeNav, setActiveNav] = useState<string>('overview');
-  const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
-  
   // 如果context中找不到，尝试从API获取
   useEffect(() => {
     // 如果是 journey type slug，立即返回，不执行任何 API 调用
@@ -3583,90 +3638,6 @@ export default function DynamicJourneyPage() {
     fetchExtensionsAndHotels();
   }, [journey]);
 
-  // =============== Select Your Date: 动态月历（未来一年） =================
-  const today = useMemo(() => new Date(), []);
-  const [monthOffset, setMonthOffset] = useState(0); // 相对当前月份的偏移，0..11
-  const baseDate = useMemo(() => {
-    const d = new Date(today);
-    d.setMonth(d.getMonth() + monthOffset, 1);
-    d.setHours(0, 0, 0, 0);
-    return d;
-  }, [today, monthOffset]);
-
-  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const weekDays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-
-  const getMonthMatrix = (year: number, month: number) => {
-    const first = new Date(year, month, 1);
-    const last = new Date(year, month + 1, 0);
-    const daysInMonth = last.getDate();
-    const startWeekday = first.getDay();
-    const blanks = Array.from({ length: startWeekday }, () => null);
-    const days = Array.from({ length: daysInMonth }, (_, i) => new Date(year, month, i + 1));
-    return [...blanks, ...days];
-  };
-
-  const monthMatrix = useMemo(() => getMonthMatrix(baseDate.getFullYear(), baseDate.getMonth()), [baseDate]);
-
-  const isPastDate = (d: Date | null) => !d || d < new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  const isBeyondOneYear = (d: Date | null) => {
-    if (!d) return false;
-    const limit = new Date(today);
-    limit.setFullYear(limit.getFullYear() + 1);
-    return d > limit;
-  };
-  const isAvailable = (d: Date | null) => d && !isPastDate(d) && !isBeyondOneYear(d);
-
-  // 悬浮可交互弹层状态（保持打开以便点击）
-  const [activePopoverDate, setActivePopoverDate] = useState<Date | null>(null);
-  const [guestAdults, setGuestAdults] = useState<number>(2);
-  const [guestChildren, setGuestChildren] = useState<number>(0);
-  const [confirmedDate, setConfirmedDate] = useState<Date | null>(null);
-  const [isPlanTripModalOpen, setIsPlanTripModalOpen] = useState(false);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [pendingBooking, setPendingBooking] = useState<{ slug: string; journeyId: string; date: Date; price: number } | null>(null);
-  const popoverTimer = useRef<number | null>(null);
-  const { user } = useUser();
-
-  // 加入预订
-  const { addJourney, addExperienceToJourney } = useCart();
-  const handleAddToCart = () => {
-    if (!journey) return;
-    try {
-      localStorage.setItem('last_selected_journey_slug', journey.slug);
-    } catch {}
-    addJourney({
-      journeyId: journey.id,
-      slug: journey.slug,
-      title: journey.title,
-      image: journey.image,
-      basePrice: journey.price,
-      travelers: { adults: 2, children: 0 },
-    });
-    router.push('/booking/cart');
-  };
-
-  // 直接预订：加入购物车后跳转到 Your Booking 页面
-  const handleDirectBooking = () => {
-    if (!journey) return;
-    try {
-      localStorage.setItem('last_selected_journey_slug', journey.slug);
-    } catch {}
-    const days = getDurationDays();
-    const start = confirmedDate ? confirmedDate : new Date();
-    const end = addDays(start, Math.max(0, days - 1));
-
-    addJourney({
-      journeyId: journey.id,
-      slug: journey.slug,
-      title: journey.title,
-      image: journey.image,
-      basePrice: journey.price,
-      travelers: { adults: guestAdults, children: guestChildren },
-      dates: confirmedDate ? { start: formatLocalYmd(start), end: formatLocalYmd(end) } : undefined,
-    });
-    router.push('/booking/cart');
-  };
 
   // 如果找不到对应的旅行卡片，显示404（延迟判断，给API查询时间）
   useEffect(() => {
@@ -3680,6 +3651,16 @@ export default function DynamicJourneyPage() {
     }
   }, [journeys, journey, journeyFromApi, journeysLoading, isLoadingFromApi, router]);
 
+  // 登录弹窗打开时预加载预订预览页，减少登录后跳转白屏
+  useEffect(() => {
+    if (!isLoginModalOpen || !pendingBooking?.slug) return;
+    const d = pendingBooking.date;
+    const ymd = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    router.prefetch(`/booking/review/${pendingBooking.slug}?date=${encodeURIComponent(ymd)}&price=${pendingBooking.price}`);
+  }, [isLoginModalOpen, pendingBooking, router]);
+
+  // ========== 提前返回语句（必须在所有 Hooks 之后） ==========
+  
   if (journeysLoading || isLoadingFromApi) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -3710,24 +3691,6 @@ export default function DynamicJourneyPage() {
     popoverTimer.current = window.setTimeout(() => setActivePopoverDate(null), 120);
   };
 
-  const formatLocalYmd = (date: Date) => {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
-    return `${y}-${m}-${dd}`;
-  };
-  const addDays = (date: Date, days: number) => {
-    const d = new Date(date);
-    d.setDate(d.getDate() + days);
-    return d;
-  };
-  const getDurationDays = (): number => {
-    if (!journey?.duration) return 1;
-    const match = journey.duration.match(/\d+/);
-    const n = match ? parseInt(match[0], 10) : 1;
-    return Math.max(1, n);
-  };
-
   const submitBookingForDate = (d: Date) => {
     const checkIn = formatLocalYmd(d);
     const travelers = guestAdults + guestChildren;
@@ -3747,14 +3710,6 @@ export default function DynamicJourneyPage() {
       router.push(`/booking/review/${journey.slug}?date=${encodeURIComponent(dateStr)}&price=${price}`);
     }
   };
-
-  // 登录弹窗打开时预加载预订预览页，减少登录后跳转白屏
-  useEffect(() => {
-    if (!isLoginModalOpen || !pendingBooking?.slug) return;
-    const d = pendingBooking.date;
-    const ymd = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    router.prefetch(`/booking/review/${pendingBooking.slug}?date=${encodeURIComponent(ymd)}&price=${pendingBooking.price}`);
-  }, [isLoginModalOpen, pendingBooking]);
 
   // 已移除酒店点击弹窗逻辑
 

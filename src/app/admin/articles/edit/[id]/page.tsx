@@ -4,7 +4,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Heading, Text, Card, Button, Container, Section } from '@/components/common';
 import { useArticleManagement } from '@/context/ArticleManagementContext';
-import { Article, ArticleCategory, ContentBlock, ContentBlockType } from '@/types/article';
+import { Article, ArticleCategory, ContentBlock, ContentBlockType, RecommendedItem } from '@/types/article';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { uploadAPI } from '@/lib/databaseClient';
 import { Upload } from 'lucide-react';
@@ -30,6 +30,7 @@ export default function EditArticlePage() {
     contentBlocks: [] as ContentBlock[],
     excerpt: '',
     relatedJourneyIds: [] as string[],
+    recommendedItems: [] as RecommendedItem[],
     status: 'draft' as Article['status'],
     slug: ''
   });
@@ -50,6 +51,7 @@ export default function EditArticlePage() {
         contentBlocks: target.contentBlocks || [],
         excerpt: target.excerpt || '',
         relatedJourneyIds: target.relatedJourneyIds,
+        recommendedItems: target.recommendedItems || [],
         status: target.status,
         slug: target.slug
       });
@@ -129,6 +131,31 @@ export default function EditArticlePage() {
         ? prev.relatedJourneyIds.filter(x => x !== jid)
         : [...prev.relatedJourneyIds, jid]
     }));
+  };
+
+  const toggleRecommendedItem = (type: 'journey' | 'article', id: string) => {
+    setForm(prev => {
+      const currentItems = prev.recommendedItems || [];
+      const existingIndex = currentItems.findIndex(item => item.type === type && item.id === id);
+      
+      if (existingIndex >= 0) {
+        // 移除
+        return {
+          ...prev,
+          recommendedItems: currentItems.filter((_, index) => index !== existingIndex)
+        };
+      } else {
+        // 添加
+        return {
+          ...prev,
+          recommendedItems: [...currentItems, { type, id }]
+        };
+      }
+    });
+  };
+
+  const isRecommendedItemSelected = (type: 'journey' | 'article', id: string): boolean => {
+    return (form.recommendedItems || []).some(item => item.type === type && item.id === id);
   };
 
   const handleCoverImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -517,7 +544,7 @@ export default function EditArticlePage() {
             </div>
 
             <div>
-              <label className="block text-sm text-gray-600 mb-2">关联 Journeys</label>
+              <label className="block text-sm text-gray-600 mb-2">关联 Journeys（向后兼容）</label>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-48 overflow-y-auto">
                 {journeys.map(j => (
                   <label key={j.id} className="flex items-center gap-2 p-2 border rounded">
@@ -525,6 +552,67 @@ export default function EditArticlePage() {
                     <span className="text-sm">{j.title}</span>
                   </label>
                 ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">推荐项（Recommend For You）</label>
+              <Text size="sm" className="text-gray-500 mb-4">
+                支持混合选择 Journey 和 Article，将显示在文章页面的推荐模块中
+              </Text>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm text-gray-600 mb-2">Journeys</label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-48 overflow-y-auto border rounded p-2">
+                    {journeys.map(j => (
+                      <label key={j.id} className="flex items-center gap-2 p-2 border rounded hover:bg-gray-50 cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          checked={isRecommendedItemSelected('journey', j.id)} 
+                          onChange={() => toggleRecommendedItem('journey', j.id)} 
+                        />
+                        <span className="text-sm">{j.title}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm text-gray-600 mb-2">Articles</label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-48 overflow-y-auto border rounded p-2">
+                    {articles.filter(a => a.status === 'active' && a.id !== target?.id).map(a => (
+                      <label key={a.id} className="flex items-center gap-2 p-2 border rounded hover:bg-gray-50 cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          checked={isRecommendedItemSelected('article', a.id)} 
+                          onChange={() => toggleRecommendedItem('article', a.id)} 
+                        />
+                        <span className="text-sm">{a.title}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {(form.recommendedItems || []).length > 0 && (
+                  <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
+                    <Text size="sm" className="font-semibold text-blue-900 mb-2">
+                      已选择 {form.recommendedItems.length} 个推荐项：
+                    </Text>
+                    <div className="flex flex-wrap gap-2">
+                      {form.recommendedItems.map((item, index) => {
+                        const data = item.type === 'journey' 
+                          ? journeys.find(j => j.id === item.id)
+                          : articles.find(a => a.id === item.id);
+                        return data ? (
+                          <span key={index} className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                            {item.type === 'journey' ? '🚗' : '📄'} {data.title}
+                          </span>
+                        ) : null;
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

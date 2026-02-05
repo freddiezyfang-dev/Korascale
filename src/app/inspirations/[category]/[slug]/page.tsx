@@ -4,10 +4,10 @@ import React, { useMemo } from 'react';
 import Head from 'next/head';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { Instagram, Youtube, Link as LinkIcon } from 'lucide-react';
+import { Instagram, MessageCircle, Link as LinkIcon } from 'lucide-react';
 import { Section, Container, Heading, Text, Breadcrumb } from '@/components/common';
 import { useArticleManagement } from '@/context/ArticleManagementContext';
-import { ArticleCategoryToHeroImage, ArticleSlugToCategory, ArticleCategoryToSlug, ContentBlock } from '@/types/article';
+import { ArticleCategoryToHeroImage, ArticleSlugToCategory, ArticleCategoryToSlug, ContentBlock, RecommendedItem } from '@/types/article';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 
 interface TOCItem {
@@ -25,6 +25,35 @@ export default function ArticleDetailPage() {
   const { journeys } = useJourneyManagement();
 
   const article = getArticleBySlug(slug || '');
+  
+  // 获取推荐项（支持混合 Journey 和 Article）
+  const recommendedItems = useMemo(() => {
+    if (!article) return [];
+    
+    // 优先使用 recommendedItems，如果没有则使用 relatedJourneyIds（向后兼容）
+    const items: Array<{ type: 'journey' | 'article'; id: string; data: any }> = [];
+    
+    if (article.recommendedItems && article.recommendedItems.length > 0) {
+      article.recommendedItems.forEach((item: RecommendedItem) => {
+        if (item.type === 'journey') {
+          const journey = journeys.find(j => j.id === item.id);
+          if (journey) items.push({ type: 'journey', id: item.id, data: journey });
+        } else if (item.type === 'article') {
+          const articleItem = articles.find(a => a.id === item.id && a.status === 'active');
+          if (articleItem) items.push({ type: 'article', id: item.id, data: articleItem });
+        }
+      });
+    } else {
+      // 向后兼容：使用 relatedJourneyIds
+      journeys
+        .filter(j => article.relatedJourneyIds.includes(j.id))
+        .forEach(j => items.push({ type: 'journey', id: j.id, data: j }));
+    }
+    
+    return items;
+  }, [journeys, articles, article]);
+  
+  // 向后兼容：保留 related 变量
   const related = useMemo(() => {
     if (!article) return [];
     return journeys.filter(j => article.relatedJourneyIds.includes(j.id));
@@ -216,10 +245,19 @@ export default function ArticleDetailPage() {
 
       case 'paragraph':
         if (!block.text) return null;
+        // 处理内链样式
+        const processedText = cleanContent(block.text)
+          .replace(/<a\s+([^>]*href=["']([^"']+)["'][^>]*)>/gi, (match, attrs, href) => {
+            // 检查是否是内部链接（以 /journeys/ 或 /inspirations/ 开头）
+            if (href.startsWith('/journeys/') || href.startsWith('/inspirations/')) {
+              return `<a ${attrs} class="article-internal-link" style="color: #24332d; font-weight: 600; text-decoration: none;">`;
+            }
+            return match;
+          });
         return (
           <div
             className="prose prose-lg prose-slate max-w-none w-full prose-force-wrap prose-headings:font-serif prose-headings:text-[#111] prose-p:font-sans prose-p:text-[#333] prose-p:leading-[1.8] prose-img:rounded-sm prose-img:w-full mb-6"
-            dangerouslySetInnerHTML={{ __html: cleanContent(block.text) }}
+            dangerouslySetInnerHTML={{ __html: processedText }}
           />
         );
 
@@ -290,7 +328,7 @@ export default function ArticleDetailPage() {
                     {journey.title}
                   </Heading>
                   <Text className="text-gray-600 mb-2">{journey.duration} • ¥{journey.price}</Text>
-                  <Text className="text-sm text-[#1e3b32] underline">查看行程 →</Text>
+                  <Text className="text-sm text-[#1e3b32] underline">View Journey →</Text>
                 </div>
               </div>
             </Link>
@@ -307,6 +345,17 @@ export default function ArticleDetailPage() {
       <Head>
         <title>{safeArticle.pageTitle || safeArticle.title}</title>
         {safeArticle.metaDescription && <meta name="description" content={safeArticle.metaDescription} />}
+        <style>{`
+          .article-internal-link {
+            color: #24332d !important;
+            font-weight: 600 !important;
+            text-decoration: none !important;
+          }
+          .article-internal-link:hover {
+            text-decoration: underline !important;
+            color: #2d4a3f !important;
+          }
+        `}</style>
       </Head>
 
       {/* Hero Section */}
@@ -365,8 +414,8 @@ export default function ArticleDetailPage() {
                 <button onClick={() => window.open('https://www.instagram.com/', '_blank')} className="p-2 border border-gray-300 rounded-full hover:bg-gray-50 transition-colors">
                   <Instagram className="w-4 h-4" />
                 </button>
-                <button onClick={() => window.open('https://www.youtube.com/', '_blank')} className="p-2 border border-gray-300 rounded-full hover:bg-gray-50 transition-colors">
-                  <Youtube className="w-4 h-4" />
+                <button onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(window.location.href)}`, '_blank')} className="p-2 border border-gray-300 rounded-full hover:bg-gray-50 transition-colors">
+                  <MessageCircle className="w-4 h-4" />
                 </button>
                 <button onClick={() => { navigator.clipboard.writeText(window.location.href); alert('链接已复制'); }} className="p-2 border border-gray-300 rounded-full hover:bg-gray-50 transition-colors">
                   <LinkIcon className="w-4 h-4" />
@@ -408,12 +457,12 @@ export default function ArticleDetailPage() {
         </div>
       </Section>
 
-      {/* Content Stream */}
+      {/* Content Stream with Sidebar Layout */}
       <Section background="secondary" padding="xl" className="w-full overflow-hidden">
         <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6">
-          {/* 重点：不要让 Grid 容器限制死 article 的宽度计算 */}
-          <div className="flex flex-col gap-8">
-            <article className="flex-1 min-w-0 prose-force-wrap w-full">
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+            {/* Main Article Content */}
+            <article className="flex-1 min-w-0 prose-force-wrap w-full lg:max-w-4xl">
               <div
                 className="prose prose-lg prose-slate w-full max-w-none prose-force-wrap
                            prose-headings:font-serif prose-headings:text-[#111] 
@@ -432,32 +481,101 @@ export default function ArticleDetailPage() {
                 )}
               </div>
             </article>
+
+            {/* Recommendation Sidebar (Desktop) */}
+            {recommendedItems.length > 0 && (
+              <aside className="hidden lg:block lg:w-80 lg:flex-shrink-0">
+                <div className="sticky top-24">
+                  <Heading level={2} className="text-2xl font-heading mb-6" style={{ fontFamily: 'Playfair Display, serif' }}>
+                    Recommend For You
+                  </Heading>
+                  <div className="space-y-4">
+                    {recommendedItems.map((item) => (
+                      <Link
+                        key={`${item.type}-${item.id}`}
+                        href={item.type === 'journey' ? `/journeys/${item.data.slug}` : `/inspirations/${ArticleCategoryToSlug[item.data.category]}/${item.data.slug}`}
+                        className="group block"
+                      >
+                        <div className="bg-white border border-[#d1d5db] rounded-lg overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
+                          <div className="aspect-video w-full overflow-hidden">
+                            <img
+                              src={item.type === 'journey' ? item.data.image : (item.data.coverImage || item.data.heroImage || '/images/default-article.jpg')}
+                              alt={item.data.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          </div>
+                          <div className="p-4 flex-1 flex flex-col">
+                            <Heading level={3} className="text-lg mb-2 line-clamp-2 group-hover:text-[#1e3b32] transition-colors font-heading" style={{ fontFamily: 'Playfair Display, serif' }}>
+                              {item.data.title}
+                            </Heading>
+                            {item.type === 'journey' && (
+                              <>
+                                <Text className="text-sm text-gray-600 mb-2">{item.data.duration} • ¥{item.data.price}</Text>
+                                <Text className="text-sm text-[#24332d] font-semibold mt-auto">View Journey →</Text>
+                              </>
+                            )}
+                            {item.type === 'article' && (
+                              <>
+                                <Text className="text-sm text-gray-600 mb-2">{item.data.readingTime || '12 min read'}</Text>
+                                <Text className="text-sm text-[#24332d] font-semibold mt-auto">Read Article →</Text>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </aside>
+            )}
           </div>
         </div>
       </Section>
 
-      {/* Related Journeys */}
-      {related.length > 0 && (
-        <Section background="secondary" padding="xl">
+      {/* Recommendation Section (Mobile - Bottom with Horizontal Scroll) */}
+      {recommendedItems.length > 0 && (
+        <Section background="white" padding="xl" className="lg:hidden">
           <Container size="xl">
-            <Heading level={2} className="text-3xl font-heading mb-8 text-center" style={{ fontFamily: 'Playfair Display, serif' }}>
-              Related Journeys
+            <Heading level={2} className="text-2xl font-heading mb-6" style={{ fontFamily: 'Playfair Display, serif' }}>
+              Recommend For You
             </Heading>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-              {related.map(j => (
-                <Link key={j.id} href={`/journeys/${j.slug}`} className="group">
-                  <div className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-                    <img src={j.image} alt={j.title} className="w-full h-48 object-cover" />
-                    <div className="p-4">
-                      <Heading level={3} className="text-lg mb-1 group-hover:text-[#1e3b32] transition-colors">
-                        {j.title}
-                      </Heading>
-                      <Text className="text-sm text-gray-600 mb-2">{j.duration} • ¥{j.price}</Text>
-                      <Text className="text-sm text-[#1e3b32] underline">查看行程 →</Text>
+            <div className="overflow-x-auto scroll-smooth snap-x snap-mandatory -mx-4 px-4 pb-4">
+              <div className="flex gap-4 w-max">
+                {recommendedItems.map((item) => (
+                  <Link
+                    key={`${item.type}-${item.id}`}
+                    href={item.type === 'journey' ? `/journeys/${item.data.slug}` : `/inspirations/${ArticleCategoryToSlug[item.data.category]}/${item.data.slug}`}
+                    className="group block snap-start"
+                  >
+                    <div className="bg-white border border-[#d1d5db] rounded-lg overflow-hidden hover:shadow-md transition-shadow w-[280px] h-full flex flex-col">
+                      <div className="aspect-video w-full overflow-hidden">
+                        <img
+                          src={item.type === 'journey' ? item.data.image : (item.data.coverImage || item.data.heroImage || '/images/default-article.jpg')}
+                          alt={item.data.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                      <div className="p-4 flex-1 flex flex-col">
+                        <Heading level={3} className="text-lg mb-2 line-clamp-2 group-hover:text-[#1e3b32] transition-colors font-heading" style={{ fontFamily: 'Playfair Display, serif' }}>
+                          {item.data.title}
+                        </Heading>
+                        {item.type === 'journey' && (
+                          <>
+                            <Text className="text-sm text-gray-600 mb-2">{item.data.duration} • ¥{item.data.price}</Text>
+                            <Text className="text-sm text-[#24332d] font-semibold mt-auto">View Journey →</Text>
+                          </>
+                        )}
+                        {item.type === 'article' && (
+                          <>
+                            <Text className="text-sm text-gray-600 mb-2">{item.data.readingTime || '12 min read'}</Text>
+                            <Text className="text-sm text-[#24332d] font-semibold mt-auto">Read Article →</Text>
+                          </>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                ))}
+              </div>
             </div>
           </Container>
         </Section>

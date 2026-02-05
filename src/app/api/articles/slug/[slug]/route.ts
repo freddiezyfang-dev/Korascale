@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import { Article, ContentBlock } from '@/types/article';
+import { Article, ContentBlock, RecommendedItem } from '@/types/article';
 
 // Route Segment Config
 export const dynamic = 'force-dynamic';
@@ -40,6 +40,7 @@ export async function GET(
       contentBlocks: row.content_blocks ? (row.content_blocks as ContentBlock[]) : undefined,
       excerpt: row.excerpt || undefined,
       relatedJourneyIds: row.related_journey_ids ? (row.related_journey_ids as string[]) : [],
+      recommendedItems: row.recommended_items ? (row.recommended_items as RecommendedItem[]) : undefined,
       tags: row.tags ? (row.tags as string[]) : undefined,
       status: row.status as Article['status'],
       pageTitle: row.page_title || undefined,

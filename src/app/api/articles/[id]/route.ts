@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import { Article, ContentBlock } from '@/types/article';
+import { Article, ContentBlock, RecommendedItem } from '@/types/article';
 
 // Route Segment Config
 export const dynamic = 'force-dynamic';
@@ -37,6 +37,7 @@ export async function GET(
       contentBlocks: row.content_blocks ? (row.content_blocks as ContentBlock[]) : undefined,
       excerpt: row.excerpt || undefined,
       relatedJourneyIds: row.related_journey_ids ? (row.related_journey_ids as string[]) : [],
+      recommendedItems: row.recommended_items ? (row.recommended_items as RecommendedItem[]) : undefined,
       tags: row.tags ? (row.tags as string[]) : undefined,
       status: row.status as Article['status'],
       pageTitle: row.page_title || undefined,
@@ -123,6 +124,15 @@ export async function PUT(
       updateFields.push(`related_journey_ids = $${paramIndex++}`);
       values.push(JSON.stringify(updates.relatedJourneyIds));
     }
+    // recommendedItems 字段（如果数据库列不存在，会在错误处理中跳过）
+    let hasRecommendedItems = false;
+    let recommendedItemsValue: any = null;
+    if (updates.recommendedItems !== undefined) {
+      hasRecommendedItems = true;
+      recommendedItemsValue = JSON.stringify(updates.recommendedItems);
+      updateFields.push(`recommended_items = $${paramIndex++}`);
+      values.push(recommendedItemsValue);
+    }
     if (updates.tags !== undefined) {
       updateFields.push(`tags = $${paramIndex++}`);
       values.push(JSON.stringify(updates.tags));
@@ -144,10 +154,102 @@ export async function PUT(
     
     values.push(id);
     
-    const { rows } = await query(
-      `UPDATE articles SET ${updateFields.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
-      values
-    );
+    let rows;
+    try {
+      const result = await query(
+        `UPDATE articles SET ${updateFields.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
+        values
+      );
+      rows = result.rows;
+    } catch (dbError: any) {
+      const errorMessage = dbError instanceof Error ? dbError.message : String(dbError);
+      console.error('[API /articles/[id]] Database update error:', errorMessage);
+      
+      // 检查是否是字段不存在的错误（recommended_items 字段可能不存在）
+      if (errorMessage.includes('does not exist') && errorMessage.includes('recommended_items') && hasRecommendedItems) {
+        console.warn('[API /articles/[id]] recommended_items column does not exist, skipping it and retrying without it');
+        
+        // 重新构建更新字段和值（排除 recommended_items）
+        const retryUpdateFields: string[] = [];
+        const retryValues: any[] = [];
+        let retryParamIndex = 1;
+        
+        // 重新添加所有字段（除了 recommended_items）
+        if (updates.title !== undefined) {
+          retryUpdateFields.push(`title = $${retryParamIndex++}`);
+          retryValues.push(updates.title);
+        }
+        if (updates.slug !== undefined) {
+          retryUpdateFields.push(`slug = $${retryParamIndex++}`);
+          retryValues.push(updates.slug);
+        }
+        if (updates.author !== undefined) {
+          retryUpdateFields.push(`author = $${retryParamIndex++}`);
+          retryValues.push(updates.author);
+        }
+        if (updates.coverImage !== undefined) {
+          retryUpdateFields.push(`cover_image = $${retryParamIndex++}`);
+          retryValues.push(updates.coverImage);
+        }
+        if (updates.heroImage !== undefined) {
+          retryUpdateFields.push(`hero_image = $${retryParamIndex++}`);
+          retryValues.push(updates.heroImage);
+        }
+        if (updates.readingTime !== undefined) {
+          retryUpdateFields.push(`reading_time = $${retryParamIndex++}`);
+          retryValues.push(updates.readingTime);
+        }
+        if (updates.category !== undefined) {
+          retryUpdateFields.push(`category = $${retryParamIndex++}`);
+          retryValues.push(updates.category);
+        }
+        if (updates.content !== undefined) {
+          retryUpdateFields.push(`content = $${retryParamIndex++}`);
+          retryValues.push(updates.content);
+        }
+        if (updates.contentBlocks !== undefined) {
+          retryUpdateFields.push(`content_blocks = $${retryParamIndex++}`);
+          retryValues.push(JSON.stringify(updates.contentBlocks));
+        }
+        if (updates.excerpt !== undefined) {
+          retryUpdateFields.push(`excerpt = $${retryParamIndex++}`);
+          retryValues.push(updates.excerpt);
+        }
+        if (updates.pageTitle !== undefined) {
+          retryUpdateFields.push(`page_title = $${retryParamIndex++}`);
+          retryValues.push(updates.pageTitle);
+        }
+        if (updates.metaDescription !== undefined) {
+          retryUpdateFields.push(`meta_description = $${retryParamIndex++}`);
+          retryValues.push(updates.metaDescription);
+        }
+        if (updates.relatedJourneyIds !== undefined) {
+          retryUpdateFields.push(`related_journey_ids = $${retryParamIndex++}`);
+          retryValues.push(JSON.stringify(updates.relatedJourneyIds));
+        }
+        // 跳过 recommendedItems
+        if (updates.tags !== undefined) {
+          retryUpdateFields.push(`tags = $${retryParamIndex++}`);
+          retryValues.push(JSON.stringify(updates.tags));
+        }
+        if (updates.status !== undefined) {
+          retryUpdateFields.push(`status = $${retryParamIndex++}`);
+          retryValues.push(updates.status);
+        }
+        
+        retryUpdateFields.push(`updated_at = NOW()`);
+        retryValues.push(id);
+        
+        // 重试更新（不包含 recommended_items）
+        const retryResult = await query(
+          `UPDATE articles SET ${retryUpdateFields.join(', ')} WHERE id = $${retryParamIndex} RETURNING *`,
+          retryValues
+        );
+        rows = retryResult.rows;
+      } else {
+        throw dbError;
+      }
+    }
     
     if (rows.length === 0) {
       return NextResponse.json(
@@ -170,6 +272,7 @@ export async function PUT(
       contentBlocks: row.content_blocks ? (row.content_blocks as ContentBlock[]) : undefined,
       excerpt: row.excerpt || undefined,
       relatedJourneyIds: row.related_journey_ids ? (row.related_journey_ids as string[]) : [],
+      recommendedItems: row.recommended_items ? (row.recommended_items as RecommendedItem[]) : (row.recommended_items === null ? undefined : []),
       tags: row.tags ? (row.tags as string[]) : undefined,
       status: row.status as Article['status'],
       pageTitle: row.page_title || undefined,

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import { Article, ContentBlock } from '@/types/article';
+import { Article, ContentBlock, RecommendedItem } from '@/types/article';
 
 // Route Segment Config - 确保路由被正确识别（Next.js 15 必需）
 export const dynamic = 'force-dynamic';
@@ -34,6 +34,49 @@ export async function GET(request: NextRequest) {
     // 查询所有文章
     let rows;
     try {
+      // 首先检查表是否存在，如果不存在则返回空数组
+      const tableCheck = await query(`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_schema = 'public' 
+          AND table_name = 'articles'
+        );
+      `, []);
+      
+      if (!tableCheck.rows[0]?.exists) {
+        console.warn('[API /articles] Articles table does not exist');
+        return NextResponse.json(
+          { 
+            error: 'Articles table does not exist. Please run database migration.',
+            details: process.env.NODE_ENV === 'development' 
+              ? 'Execute the SQL in database/migrations/005_create_articles_table.sql' 
+              : undefined,
+            migrationFile: 'database/migrations/005_create_articles_table.sql'
+          },
+          { 
+            status: 500,
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          }
+        );
+      }
+      
+      // 检查 recommended_items 列是否存在
+      const columnCheck = await query(`
+        SELECT EXISTS (
+          SELECT FROM information_schema.columns 
+          WHERE table_schema = 'public' 
+          AND table_name = 'articles'
+          AND column_name = 'recommended_items'
+        );
+      `, []);
+      
+      const hasRecommendedItemsColumn = columnCheck.rows[0]?.exists;
+      
+      // 根据列是否存在构建查询
+      const recommendedItemsSelect = hasRecommendedItemsColumn ? 'recommended_items,' : '';
+      
       const result = await query(`
         SELECT 
           id,
@@ -50,6 +93,7 @@ export async function GET(request: NextRequest) {
           page_title,
           meta_description,
           related_journey_ids,
+          ${recommendedItemsSelect}
           tags,
           status,
           created_at,
@@ -102,6 +146,7 @@ export async function GET(request: NextRequest) {
       contentBlocks: row.content_blocks ? (row.content_blocks as ContentBlock[]) : undefined,
       excerpt: row.excerpt || undefined,
       relatedJourneyIds: row.related_journey_ids ? (row.related_journey_ids as string[]) : [],
+      recommendedItems: row.recommended_items ? (row.recommended_items as RecommendedItem[]) : undefined,
       tags: row.tags ? (row.tags as string[]) : undefined,
       status: row.status as Article['status'],
       pageTitle: row.page_title || undefined,
@@ -191,9 +236,10 @@ export async function POST(request: NextRequest) {
         page_title,
         meta_description,
         related_journey_ids,
+        recommended_items,
         tags,
         status
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
       RETURNING *
     `, [
       article.title,
@@ -209,9 +255,21 @@ export async function POST(request: NextRequest) {
       article.pageTitle || null,
       article.metaDescription || null,
       JSON.stringify(article.relatedJourneyIds || []),
+      JSON.stringify(article.recommendedItems || []),
       JSON.stringify(article.tags || []),
       article.status || 'draft'
     ]);
+    
+    // 如果 recommended_items 列不存在，尝试添加它（可选）
+    try {
+      await query(`
+        ALTER TABLE articles 
+        ADD COLUMN IF NOT EXISTS recommended_items JSONB DEFAULT '[]'::jsonb;
+      `, []);
+    } catch (alterError) {
+      // 忽略错误，列可能已经存在或没有权限
+      console.warn('[API /articles] Could not add recommended_items column:', alterError);
+    }
     
     const row = rows[0];
     const newArticle: Article = {
@@ -227,6 +285,7 @@ export async function POST(request: NextRequest) {
       contentBlocks: row.content_blocks ? (row.content_blocks as ContentBlock[]) : undefined,
       excerpt: row.excerpt || undefined,
       relatedJourneyIds: row.related_journey_ids ? (row.related_journey_ids as string[]) : [],
+      recommendedItems: row.recommended_items ? (row.recommended_items as RecommendedItem[]) : undefined,
       tags: row.tags ? (row.tags as string[]) : undefined,
       status: row.status as Article['status'],
       pageTitle: row.page_title || undefined,

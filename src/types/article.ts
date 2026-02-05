@@ -43,7 +43,8 @@ export interface Article {
   // New content blocks structure
   contentBlocks?: ContentBlock[]; // Array of content blocks
   excerpt?: string; // 可选，若未提供则由 content 自动截取
-  relatedJourneyIds: string[]; // 关联 Journey IDs
+  relatedJourneyIds: string[]; // 关联 Journey IDs（向后兼容）
+  recommendedItems?: RecommendedItem[]; // 推荐项（支持混合 Journey 和 Article）
   tags?: string[];
   status: ArticleStatus;
   // SEO
@@ -77,5 +78,13 @@ export const ArticleSlugToCategory = (slug: string): ArticleCategory | null => {
     .find(([, s]) => s === slug);
   return entry ? entry[0] : null;
 };
+
+// Recommended Item Types
+export type RecommendedItemType = 'journey' | 'article';
+
+export interface RecommendedItem {
+  type: RecommendedItemType;
+  id: string; // Journey ID or Article ID
+}
 
 
