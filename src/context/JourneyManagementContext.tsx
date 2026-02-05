@@ -16,7 +16,7 @@ interface JourneyManagementContextType {
   getJourneysByRegion: (region: string) => Journey[];
   getFeaturedJourneys: () => Journey[];
   isLoading: boolean;
-  reloadJourneys: () => Promise<void>;
+  reloadJourneys: (includeAll?: boolean) => Promise<void>;
   resetToDefaults: () => void;
   clearStorageAndReload: () => void;
   migrateFromLocalStorage: () => Promise<{ success: number; failed: number }>;
@@ -808,13 +808,15 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
   const [isLoading, setIsLoading] = useState(true);
 
   // 从数据库加载旅行卡片数据的函数
-  const loadJourneys = async () => {
+  // includeAll: 如果为 true，加载所有状态的 journeys（包括 inactive），用于后台管理
+  const loadJourneys = async (includeAll: boolean = false) => {
     try {
-      console.log('JourneyManagementContext: Loading journeys from database...');
+      console.log('JourneyManagementContext: Loading journeys from database...', { includeAll });
       setIsLoading(true);
       
       // 首先尝试从数据库加载
-      const dbJourneys = await journeyAPI.getAll();
+      // 如果 includeAll=true，获取所有状态的 journeys（用于后台管理）
+      const dbJourneys = await journeyAPI.getAll(2, includeAll);
       
       if (dbJourneys.length > 0) {
         console.log('JourneyManagementContext: Loaded from database:', dbJourneys.length, 'journeys');
@@ -892,12 +894,15 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
 
   // 从数据库加载旅行卡片数据（首次加载）
   useEffect(() => {
-    loadJourneys();
+    // 检查当前路径，如果是后台管理页面，加载所有状态的 journeys
+    const isAdminPage = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
+    loadJourneys(isAdminPage);
   }, []);
 
   // 手动刷新函数
-  const reloadJourneys = async () => {
-    await loadJourneys();
+  // includeAll: 如果为 true，加载所有状态的 journeys（包括 inactive），用于后台管理
+  const reloadJourneys = async (includeAll: boolean = false) => {
+    await loadJourneys(includeAll);
   };
 
   // 保存旅行卡片数据到持久化存储

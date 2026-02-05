@@ -1,11 +1,7 @@
 import type { NextConfig } from "next";
 
-// 使用 process.cwd() 确保 Turbopack 以项目根目录为根，避免 / 和 /api/* 返回 404
 const nextConfig: NextConfig = {
   /* config options here */
-  turbopack: {
-    root: process.cwd(),
-  },
   eslint: {
     // 先临时放宽构建限制，避免因 ESLint 错误阻塞 Vercel 部署
     ignoreDuringBuilds: true,

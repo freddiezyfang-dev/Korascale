@@ -20,7 +20,11 @@ export async function GET(request?: NextRequest) {
       );
     }
     
-    console.log('[API /journeys] Fetching journeys from database...');
+    // 解析查询参数：支持 includeAll 参数来获取所有状态的 journeys（用于后台管理）
+    const searchParams = request?.nextUrl?.searchParams;
+    const includeAll = searchParams?.get('includeAll') === 'true';
+    
+    console.log('[API /journeys] Fetching journeys from database...', { includeAll });
     
     // 解析连接字符串以诊断问题
     let connectionInfo: any = {
@@ -54,6 +58,13 @@ export async function GET(request?: NextRequest) {
     let rows;
     const queryStartTime = Date.now();
     try {
+      // 根据 includeAll 参数决定是否过滤状态
+      // 如果 includeAll=true，返回所有状态的 journeys（用于后台管理）
+      // 否则只返回 active 状态的 journeys（用于前端展示）
+      const statusCondition = includeAll 
+        ? '' // 不添加 WHERE 条件，返回所有状态
+        : "WHERE status = 'active' OR status IS NULL";
+      
       // 使用更简单的查询，只选择必要的字段，减少数据传输量
       // 添加查询超时控制（使用 Promise.race）- 增加到60秒
       const queryPromise = query(`
@@ -64,7 +75,7 @@ export async function GET(request?: NextRequest) {
           image, status, featured, rating, review_count,
           data, created_at, updated_at
         FROM journeys 
-        WHERE status = 'active' OR status IS NULL
+        ${statusCondition}
         ORDER BY created_at DESC
         LIMIT 1000
       `);
