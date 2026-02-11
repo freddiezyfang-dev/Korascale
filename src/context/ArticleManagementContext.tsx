@@ -7,8 +7,8 @@ import { articleAPI } from '@/lib/databaseClient';
 interface ArticleManagementContextType {
   articles: Article[];
   isLoading: boolean;
-  addArticle: (article: Omit<Article, 'id' | 'createdAt' | 'updatedAt'>) => Promise<{ savedToDatabase: boolean }>;
-  updateArticle: (id: string, updates: Partial<Omit<Article, 'id' | 'createdAt' | 'updatedAt'>>) => Promise<{ savedToDatabase: boolean }>;
+  addArticle: (article: Omit<Article, 'id' | 'createdAt' | 'updatedAt'>) => Promise<{ savedToDatabase: boolean; errorMessage?: string }>;
+  updateArticle: (id: string, updates: Partial<Omit<Article, 'id' | 'createdAt' | 'updatedAt'>>) => Promise<{ savedToDatabase: boolean; errorMessage?: string }>;
   updateArticleStatus: (id: string, status: ArticleStatus) => Promise<void>;
   deleteArticle: (id: string) => Promise<void>;
   getArticlesByCategory: (category: ArticleCategory) => Article[];
@@ -128,7 +128,7 @@ export const ArticleManagementProvider: React.FC<ProviderProps> = ({ children })
     }
   };
 
-  const addArticle = async (article: Omit<Article, 'id' | 'createdAt' | 'updatedAt'>): Promise<{ savedToDatabase: boolean }> => {
+  const addArticle = async (article: Omit<Article, 'id' | 'createdAt' | 'updatedAt'>): Promise<{ savedToDatabase: boolean; errorMessage?: string }> => {
     try {
       console.log('[ArticleManagement] Creating article via API:', {
         slug: article.slug,
@@ -153,6 +153,7 @@ export const ArticleManagementProvider: React.FC<ProviderProps> = ({ children })
       });
       return { savedToDatabase: true };
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : undefined;
       console.error('[ArticleManagement] Failed to create article via API, using localStorage fallback:', error);
       // Fallback: 使用 localStorage
       const newArticle: Article = {
@@ -170,11 +171,11 @@ export const ArticleManagementProvider: React.FC<ProviderProps> = ({ children })
         }
         return updated;
       });
-      return { savedToDatabase: false };
+      return { savedToDatabase: false, errorMessage };
     }
   };
 
-  const updateArticle = async (id: string, updates: Partial<Omit<Article, 'id' | 'createdAt' | 'updatedAt'>>): Promise<{ savedToDatabase: boolean }> => {
+  const updateArticle = async (id: string, updates: Partial<Omit<Article, 'id' | 'createdAt' | 'updatedAt'>>): Promise<{ savedToDatabase: boolean; errorMessage?: string }> => {
     try {
       console.log('[ArticleManagement] Updating article via API:', id);
       const updatedArticle = await articleAPI.update(id, updates);
@@ -191,11 +192,12 @@ export const ArticleManagementProvider: React.FC<ProviderProps> = ({ children })
       });
       return { savedToDatabase: true };
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : undefined;
       console.error('[ArticleManagement] Failed to update article via API, using localStorage fallback:', error);
       // Fallback: 使用 localStorage
       const next = articles.map(a => (a.id === id ? { ...a, ...updates, updatedAt: new Date() } : a));
       await syncToStorage(next);
-      return { savedToDatabase: false };
+      return { savedToDatabase: false, errorMessage };
     }
   };
 

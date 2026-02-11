@@ -92,7 +92,7 @@ export default function NewArticlePage() {
         hasContent: !!form.content
       });
       
-      const { savedToDatabase } = await addArticle({
+      const { savedToDatabase, errorMessage } = await addArticle({
         ...form,
         slug,
         pageTitle,
@@ -104,7 +104,10 @@ export default function NewArticlePage() {
       if (savedToDatabase) {
         alert('已保存到数据库。刷新页面后仍会保留。');
       } else {
-        alert('保存失败：未能写入数据库，仅保存到本地。请检查网络或联系管理员。');
+        const msg = errorMessage
+          ? `保存失败：${errorMessage}\n\n仅保存到本地，请检查 Vercel 环境变量与 Neon 表结构。`
+          : '保存失败：未能写入数据库，仅保存到本地。请检查网络或联系管理员。';
+        alert(msg);
       }
       router.push('/admin/articles');
     } catch (error) {

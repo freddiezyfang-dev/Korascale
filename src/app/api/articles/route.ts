@@ -219,6 +219,16 @@ export async function POST(request: NextRequest) {
       category: article.category,
       status: article.status
     });
+
+    // 确保 recommended_items 列存在（Neon 若只跑过 005 未跑 016 会缺此列）
+    try {
+      await query(`
+        ALTER TABLE articles
+        ADD COLUMN IF NOT EXISTS recommended_items JSONB DEFAULT '[]'::jsonb;
+      `, []);
+    } catch (alterError) {
+      console.warn('[API /articles] Could not add recommended_items column:', alterError);
+    }
     
     // 插入文章
     const { rows } = await query(`
@@ -259,17 +269,6 @@ export async function POST(request: NextRequest) {
       JSON.stringify(article.tags || []),
       article.status || 'draft'
     ]);
-    
-    // 如果 recommended_items 列不存在，尝试添加它（可选）
-    try {
-      await query(`
-        ALTER TABLE articles 
-        ADD COLUMN IF NOT EXISTS recommended_items JSONB DEFAULT '[]'::jsonb;
-      `, []);
-    } catch (alterError) {
-      // 忽略错误，列可能已经存在或没有权限
-      console.warn('[API /articles] Could not add recommended_items column:', alterError);
-    }
     
     const row = rows[0];
     const newArticle: Article = {
