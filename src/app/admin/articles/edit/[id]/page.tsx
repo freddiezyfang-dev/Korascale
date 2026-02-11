@@ -108,11 +108,16 @@ export default function EditArticlePage() {
   const onSubmit = async () => {
     try {
       const metaDescription = form.excerpt || (form.content ? form.content.replace(/<[^>]+>/g,'').slice(0, 150) : '');
-      await updateArticle(target.id, {
+      const { savedToDatabase } = await updateArticle(target.id, {
         ...form,
         metaDescription,
         contentBlocks: form.contentBlocks.length > 0 ? form.contentBlocks : undefined
       });
+      if (savedToDatabase) {
+        alert('已保存到数据库。刷新页面后仍会保留。');
+      } else {
+        alert('保存失败：未能写入数据库，仅保存到本地。请检查网络或联系管理员。');
+      }
       router.push('/admin/articles');
     } catch (error) {
       console.error('[EditArticle] Error updating article:', error);

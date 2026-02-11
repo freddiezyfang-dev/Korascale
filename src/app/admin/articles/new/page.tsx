@@ -92,7 +92,7 @@ export default function NewArticlePage() {
         hasContent: !!form.content
       });
       
-      await addArticle({
+      const { savedToDatabase } = await addArticle({
         ...form,
         slug,
         pageTitle,
@@ -100,7 +100,12 @@ export default function NewArticlePage() {
         // Only include contentBlocks if it has items, otherwise use legacy content
         contentBlocks: form.contentBlocks.length > 0 ? form.contentBlocks : undefined
       } as Omit<Article, 'id'|'createdAt'|'updatedAt'>);
-      
+
+      if (savedToDatabase) {
+        alert('已保存到数据库。刷新页面后仍会保留。');
+      } else {
+        alert('保存失败：未能写入数据库，仅保存到本地。请检查网络或联系管理员。');
+      }
       router.push('/admin/articles');
     } catch (error) {
       console.error('[NewArticle] Error submitting article:', error);
