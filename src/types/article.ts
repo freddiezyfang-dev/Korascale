@@ -73,6 +73,16 @@ export const ArticleCategoryToSlug: Record<ArticleCategory, string> = {
   'Seasonal Highlights': 'seasonal-highlights'
 };
 
+/** 二级类目展示名称（面包屑、类目列表页标题等）；含分号时类目页会拆成两行显示 */
+export const ArticleCategoryToDisplayName: Record<ArticleCategory, string> = {
+  'Food Journey': 'How to Plan a China Trip; A Logic-First Guide (2026)',
+  'Great Outdoors': 'Great Outdoors',
+  'Immersive Encounters': 'Immersive Encounters',
+  'Spiritual Retreat': 'Spiritual Retreat',
+  'Vibrant Nightscapes': 'Vibrant Nightscapes',
+  'Seasonal Highlights': 'Seasonal Highlights'
+};
+
 export const ArticleSlugToCategory = (slug: string): ArticleCategory | null => {
   const entry = (Object.entries(ArticleCategoryToSlug) as [ArticleCategory, string][])
     .find(([, s]) => s === slug);

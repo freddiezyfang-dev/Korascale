@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { Instagram, MessageCircle, Link as LinkIcon } from 'lucide-react';
 import { Section, Container, Heading, Text, Breadcrumb } from '@/components/common';
 import { useArticleManagement } from '@/context/ArticleManagementContext';
-import { ArticleCategoryToHeroImage, ArticleSlugToCategory, ArticleCategoryToSlug, ContentBlock, RecommendedItem, ArticleCategory } from '@/types/article';
+import { ArticleCategoryToHeroImage, ArticleSlugToCategory, ArticleCategoryToSlug, ArticleCategoryToDisplayName, ContentBlock, RecommendedItem, ArticleCategory } from '@/types/article';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 
 interface TOCItem {
@@ -228,7 +228,8 @@ export default function ArticleDetailPage() {
 
   // TypeScript guard: article is guaranteed to be defined after the check above
   const safeArticle = article;
-  const hero = safeArticle.heroImage || ArticleCategoryToHeroImage[category];
+  // 优先使用文章自己的 hero/主图，未设置时再回退到类目默认图
+  const hero = safeArticle.heroImage || safeArticle.coverImage || ArticleCategoryToHeroImage[category];
   const readingTime = safeArticle.readingTime || '12 min read';
   const contentBlocks = safeArticle.contentBlocks || [];
 
@@ -373,21 +374,25 @@ export default function ArticleDetailPage() {
         <title>{safeArticle.pageTitle || safeArticle.title}</title>
         {safeArticle.metaDescription && <meta name="description" content={safeArticle.metaDescription} />}
         <style>{`
+          .article-body a,
           .article-internal-link {
             color: #24332d !important;
-            font-weight: 600 !important;
+            font-weight: 700 !important;
             text-decoration: none !important;
+            transition: color 0.2s ease, text-decoration-color 0.2s ease;
           }
+          .article-body a:hover,
           .article-internal-link:hover {
             text-decoration: underline !important;
+            text-underline-offset: 2px;
             color: #2d4a3f !important;
           }
         `}</style>
       </Head>
 
-      {/* Hero Section */}
+      {/* Hero Section：文章优先用 post.heroImage/coverImage，否则用类目默认图；object-cover 填充容器 */}
       <Section background="primary" padding="none" className="relative h-[500px] overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${hero}')` }} />
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url('${hero}')` }} aria-hidden="true" />
         <div className="absolute inset-0 bg-black/40" />
         <div className="relative z-10 h-full flex items-end">
           <div className="p-8 w-full max-w-7xl mx-auto">
@@ -395,7 +400,7 @@ export default function ArticleDetailPage() {
               items={[
                 {label:'Home',href:'/'},
                 {label:'Inspirations',href:'/inspirations'},
-                {label:category}
+                {label: ArticleCategoryToDisplayName[category]}
               ]} 
               color="#FFFFFF" 
               sizeClassName="text-lg md:text-xl" 
@@ -489,7 +494,7 @@ export default function ArticleDetailPage() {
         <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6">
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
             {/* Main Article Content */}
-            <article className="flex-1 min-w-0 prose-force-wrap w-full lg:max-w-4xl">
+            <article className="flex-1 min-w-0 prose-force-wrap w-full lg:max-w-4xl article-body">
               <div
                 className="prose prose-lg prose-slate w-full max-w-none prose-force-wrap
                            prose-headings:font-serif prose-headings:text-[#111] 
@@ -503,7 +508,7 @@ export default function ArticleDetailPage() {
                   ))
                 ) : (
                   safeArticle.content && (
-                    <div dangerouslySetInnerHTML={{ __html: cleanContent(safeArticle.content) }} />
+                    <div className="article-body" dangerouslySetInnerHTML={{ __html: cleanContent(safeArticle.content) }} />
                   )
                 )}
               </div>

@@ -5,9 +5,10 @@ import { JourneyHotel } from '@/types';
 
 interface HotelsProps {
   hotels: JourneyHotel[];
+  onHotelClick?: (hotel: JourneyHotel) => void;
 }
 
-export default function Hotels({ hotels }: HotelsProps) {
+export default function Hotels({ hotels, onHotelClick }: HotelsProps) {
   return (
     <section className="w-full bg-white py-16 px-6 lg:px-16">
       <div className="max-w-7xl mx-auto">
@@ -30,6 +31,7 @@ export default function Hotels({ hotels }: HotelsProps) {
             <div
               key={hotel.id || index}
               className="flex flex-col group cursor-pointer hover:shadow-lg transition-shadow duration-300"
+              onClick={() => onHotelClick?.(hotel)}
             >
               {/* 图片 - 3:4 比例 */}
               <div className="relative w-full aspect-[3/4] overflow-hidden rounded-sm mb-4 bg-gray-100">

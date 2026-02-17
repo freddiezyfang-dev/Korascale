@@ -16,8 +16,16 @@ export async function GET(
         { status: 404 }
       );
     }
+
+    const row: any = rows[0];
+    const data = row.data || {};
+    const hotel = {
+      ...row,
+      galleryImages: Array.isArray(data.galleryImages) ? data.galleryImages : [],
+      longDescription: typeof data.longDescription === 'string' ? data.longDescription : ''
+    };
     
-    return NextResponse.json({ hotel: rows[0] });
+    return NextResponse.json({ hotel });
   } catch (error) {
     console.error('Error fetching journey hotel:', error);
     return NextResponse.json(
@@ -56,9 +64,18 @@ export async function PUT(
       updateFields.push(`status = $${paramIndex++}`);
       updateValues.push(data.status);
     }
-    if (data.data !== undefined) {
+    // 合并 data JSONB（保留已有字段，再覆盖/添加 galleryImages 与 longDescription）
+    if (data.data !== undefined || data.galleryImages !== undefined || data.longDescription !== undefined) {
+      const existing = await query('SELECT data FROM journey_hotels WHERE id = $1', [id]);
+      const currentData = existing.rows[0]?.data || {};
+      const mergedData = {
+        ...(currentData || {}),
+        ...(data.data || {}),
+        ...(Array.isArray(data.galleryImages) ? { galleryImages: data.galleryImages } : {}),
+        ...(data.longDescription !== undefined ? { longDescription: data.longDescription } : {})
+      };
       updateFields.push(`data = $${paramIndex++}::jsonb`);
-      updateValues.push(JSON.stringify(data.data));
+      updateValues.push(JSON.stringify(mergedData));
     }
     
     if (updateFields.length === 0) {

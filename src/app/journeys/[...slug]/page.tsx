@@ -21,6 +21,7 @@ import OfferIcon from '@/components/journey/OfferIcon';
 import InclusionsAndOffers from '@/components/journey/InclusionsAndOffers';
 import Extensions from '@/components/journey/Extensions';
 import Hotels from '@/components/journey/Hotels';
+import { JourneyHotelDetailModal } from '@/components/journey/JourneyHotelDetailModal';
 import { PlanTripModal } from '@/components/modals/PlanTripModal';
 import { LoginModal } from '@/components/modals/LoginModal';
 import { useUser } from '@/context/UserContext';
@@ -667,6 +668,7 @@ export default function DynamicJourneyPage() {
   const { hotels } = useHotelManagement();
   const [extensionsData, setExtensionsData] = useState<any[]>([]);
   const [hotelsData, setHotelsData] = useState<any[]>([]);
+  const [activeHotel, setActiveHotel] = useState<any | null>(null);
   const router = useRouter();
   const params = useParams();
   // catch-all 路由返回数组，需要合并
@@ -4186,7 +4188,14 @@ export default function DynamicJourneyPage() {
 
       {/* Hotels Section - 条件渲染 */}
       {hotelsData.length > 0 && (
-        <Hotels hotels={hotelsData} />
+        <Hotels hotels={hotelsData} onHotelClick={setActiveHotel} />
+      )}
+
+      {activeHotel && (
+        <JourneyHotelDetailModal
+          hotel={activeHotel}
+          onClose={() => setActiveHotel(null)}
+        />
       )}
 
       {/* Add Experiences */}

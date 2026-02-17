@@ -8,7 +8,7 @@ import { Container, Section, Heading, Text } from '@/components/common';
 const inspirations = [
   {
     id: 1,
-    title: "Food Journey",
+    title: "How to Plan a China Trip: A Logic-First Guide (2026)",
     image: "/images/inspirations/food-journey.jpg",
     href: "/inspirations/food-journey"
   },

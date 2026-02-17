@@ -19,7 +19,7 @@ const imgSeasonalHighlights = "/images/inspirations/seasonal-highlights.jpg";
 const inspirations = [
   {
     id: 1,
-    title: "Food Journey",
+    title: "How to Plan a China Trip: A Logic-First Guide (2026)",
     image: imgFoodJourney,
     description: "Embark on a flavorful journey through Western China's soul. From the smoky night markets of Chengdu to the bustling bazaars of Kashgar, our guides unlock a world of taste. Explore handpicked culinary adventures that connect you with Uyghur, Tibetan, Hui, and Han traditions—one unforgettable bite at a time.",
     isFullWidth: true

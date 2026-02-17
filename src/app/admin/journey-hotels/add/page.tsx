@@ -6,6 +6,7 @@ import { Container, Section, Heading, Text, Card, Button } from '@/components/co
 import { useUser } from '@/context/UserContext';
 import { ArrowLeft, Save, Upload } from 'lucide-react';
 import { uploadAPI } from '@/lib/databaseClient';
+import { RichTextEditor } from '@/components/admin/RichTextEditor';
 
 export default function AddJourneyHotelPage() {
   const { user } = useUser();
@@ -17,7 +18,9 @@ export default function AddJourneyHotelPage() {
     name: '',
     location: '',
     image: '',
-    status: 'active'
+    status: 'active',
+    galleryImages: [] as string[],
+    longDescription: ''
   });
 
   useEffect(() => {
@@ -56,10 +59,19 @@ export default function AddJourneyHotelPage() {
 
     setIsSubmitting(true);
     try {
+      const payload = {
+        name: formData.name,
+        location: formData.location,
+        image: formData.image,
+        status: formData.status,
+        galleryImages: formData.galleryImages,
+        longDescription: formData.longDescription,
+      };
+
       const res = await fetch('/api/journey-hotels', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       });
 
       if (res.ok) {
@@ -153,6 +165,78 @@ export default function AddJourneyHotelPage() {
                     </div>
                   )}
                 </div>
+              </div>
+
+              {/* 多图图库 */}
+              <div>
+                <Heading level={2} className="text-xl font-semibold mb-4">酒店图库（可选，多图轮播）</Heading>
+                <div className="space-y-3">
+                  <div className="flex flex-wrap gap-3">
+                    {formData.galleryImages.map((url, idx) => (
+                      <div key={idx} className="relative w-24 h-32 rounded overflow-hidden bg-gray-100">
+                        <img src={url} alt={`Gallery ${idx + 1}`} className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          className="absolute top-1 right-1 bg-black/60 text-white text-xs px-1 rounded"
+                          onClick={() =>
+                            handleInputChange(
+                              'galleryImages',
+                              formData.galleryImages.filter((_, i) => i !== idx)
+                            )
+                          }
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                    {formData.galleryImages.length === 0 && (
+                      <Text size="sm" className="text-gray-500">
+                        暂无图库图片，可通过下方按钮上传。
+                      </Text>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <label className="inline-flex items-center px-3 py-2 border border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                      <Upload className="w-4 h-4 mr-2" />
+                      <span className="text-sm text-gray-700">上传图库图片</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          setIsUploading(true);
+                          try {
+                            const url = await uploadAPI.uploadImage(file, 'journeys');
+                            handleInputChange('galleryImages', [...formData.galleryImages, url]);
+                          } catch (error) {
+                            console.error('Error uploading gallery image:', error);
+                            alert('图库图片上传失败');
+                          } finally {
+                            setIsUploading(false);
+                            e.target.value = '';
+                          }
+                        }}
+                      />
+                    </label>
+                    {isUploading && (
+                      <Text size="sm" className="text-gray-500">
+                        上传中…
+                      </Text>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* 详细描述（富文本） */}
+              <div>
+                <Heading level={2} className="text-xl font-semibold mb-4">详细描述（用于 Journey 详情页弹窗）</Heading>
+                <RichTextEditor
+                  value={formData.longDescription}
+                  onChange={(val) => handleInputChange('longDescription', val)}
+                  placeholder="请输入酒店的详细介绍，例如设计理念、服务亮点、推荐房型等…"
+                />
               </div>
 
               {/* 状态 */}

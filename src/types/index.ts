@@ -359,7 +359,12 @@ export interface JourneyHotel {
   location: string;
   image: string;
   status: 'active' | 'inactive';
+  /** 额外 JSON 数据（原始） */
   data?: Record<string, any>;
+  /** 弹窗左侧图片轮播的多图列表 */
+  galleryImages?: string[];
+  /** 弹窗右侧的详细描述（富文本 HTML 或纯文本） */
+  longDescription?: string;
   createdAt: Date;
   updatedAt: Date;
 }

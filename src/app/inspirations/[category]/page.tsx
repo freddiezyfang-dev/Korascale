@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { Section, Container, Heading, Text } from '@/components/common';
 import { useArticleManagement } from '@/context/ArticleManagementContext';
-import { ArticleCategoryToHeroImage, ArticleSlugToCategory, ArticleCategoryToSlug } from '@/types/article';
+import { ArticleCategoryToHeroImage, ArticleSlugToCategory, ArticleCategoryToSlug, ArticleCategoryToDisplayName } from '@/types/article';
 import { ArticleCard } from '@/components/cards/ArticleCard';
 
 export default function InspirationCategoryPage() {
@@ -30,23 +30,34 @@ export default function InspirationCategoryPage() {
     return filtered;
   }, [articles, category, slug]);
   const hero = category ? ArticleCategoryToHeroImage[category] : '';
+  const displayTitle = category ? ArticleCategoryToDisplayName[category] : 'Unknown Category';
+  const semicolonIndex = displayTitle.indexOf(';');
+  const titleLine1 = semicolonIndex >= 0 ? displayTitle.slice(0, semicolonIndex).trim() : displayTitle;
+  const titleLine2 = semicolonIndex >= 0 ? displayTitle.slice(semicolonIndex + 1).trim() : '';
 
   return (
     <main>
       <Section background="primary" padding="none" className="relative h-[520px] overflow-hidden">
         <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${hero}')` }} />
         <div className="absolute inset-0 bg-black/35" />
-        <div className="relative z-10 h-full flex items-center justify-center">
-          <Heading 
-            level={1} 
-            className="text-6xl md:text-7xl lg:text-8xl font-normal tracking-tight" 
-            style={{ 
-              fontFamily: 'Montserrat, sans-serif',
-              color: '#FFFFFF'
-            }}
-          >
-            {category || 'Unknown Category'}
-          </Heading>
+        <div className="relative z-10 h-full flex flex-col items-center justify-center text-center">
+          <div className="flex flex-col items-center justify-center">
+            <Heading
+              level={1}
+              className="text-4xl md:text-6xl font-semibold tracking-tight text-white drop-shadow-lg"
+              style={{ fontFamily: 'Montserrat, sans-serif' }}
+            >
+              {titleLine1}
+            </Heading>
+            {titleLine2 && (
+              <span
+                className="mt-4 text-xl md:text-2xl font-normal tracking-tight text-white drop-shadow-lg block"
+                style={{ fontFamily: 'Montserrat, sans-serif' }}
+              >
+                {titleLine2}
+              </span>
+            )}
+          </div>
         </div>
       </Section>
 

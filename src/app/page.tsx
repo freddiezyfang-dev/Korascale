@@ -150,7 +150,7 @@ export default function Home() {
         inspirations={[
           {
             id: '1',
-            title: 'Food Journey',
+            title: 'How to Plan a China Trip: A Logic-First Guide (2026)',
             shortDescription: 'Embark on a flavorful journey through Western China\'s soul',
             image: '/images/inspirations/food-journey.jpg',
             slug: 'food-journey',
