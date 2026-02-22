@@ -24,6 +24,7 @@ import Hotels from '@/components/journey/Hotels';
 import Experiences from '@/components/journey/Experiences';
 import { JourneyHotelDetailModal } from '@/components/journey/JourneyHotelDetailModal';
 import { ExperienceDetailModal } from '@/components/journey/ExperienceDetailModal';
+import ExploreTogetherLayout from '@/components/journey/ExploreTogetherLayout';
 import { PlanTripModal } from '@/components/modals/PlanTripModal';
 import { LoginModal } from '@/components/modals/LoginModal';
 import { useUser } from '@/context/UserContext';
@@ -3707,6 +3708,11 @@ export default function DynamicJourneyPage() {
         </div>
       </div>
     );
+  }
+
+  // 分流：仅当 journeyType === 'Explore Together' 时使用 ExploreTogetherLayout，其余保持 Deep Discovery
+  if (journey.journeyType === 'Explore Together') {
+    return <ExploreTogetherLayout journey={journey} />;
   }
 
   const openPopover = (d: Date | null) => {

@@ -232,6 +232,7 @@ export async function PUT(
     if ((updates as any).navigation !== undefined) jsonbUpdates.navigation = (updates as any).navigation;
     if ((updates as any).pageTitle !== undefined) jsonbUpdates.pageTitle = (updates as any).pageTitle;
     if ((updates as any).heroImage !== undefined) jsonbUpdates.heroImage = (updates as any).heroImage;
+    if ((updates as any).mainContentImage !== undefined) jsonbUpdates.mainContentImage = (updates as any).mainContentImage;
     if ((updates as any).destinationCount !== undefined) jsonbUpdates.destinationCount = (updates as any).destinationCount;
     if ((updates as any).maxGuests !== undefined) jsonbUpdates.maxGuests = (updates as any).maxGuests;
     if ((updates as any).modules !== undefined) jsonbUpdates.modules = (updates as any).modules;

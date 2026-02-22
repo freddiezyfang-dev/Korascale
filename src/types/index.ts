@@ -219,7 +219,9 @@ export interface Journey {
   slug: string; // URL路径，如 "chengdu-city-one-day-deep-dive"
   pageTitle: string; // 页面标题
   metaDescription: string; // SEO描述
-  heroImage: string; // 主横幅图片
+  heroImage: string; // 主横幅图片（Hero Banner）
+  /** Explore Together 专用：页面中间带边框的大图，与 heroImage 独立 */
+  mainContentImage?: string;
   heroStats?: {
     days: number;
     destinations: number;

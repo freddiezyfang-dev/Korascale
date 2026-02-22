@@ -509,6 +509,25 @@ export default function EditJourneyPage() {
     }
   };
 
+  /** Explore Together 专用：Hero 图 / Main Content 大图上传 */
+  const handleExploreTogetherImageUpload = async (field: 'heroImage' | 'mainContentImage', event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    if (!isEditing) return;
+    setIsUploading(true);
+    try {
+      const imageUrl = await uploadAPI.uploadImage(file, 'journeys');
+      handleInputChange(field, imageUrl);
+      alert('图片上传成功！');
+    } catch (error) {
+      console.error('Image upload failed:', error);
+      alert('图片上传失败，请重试');
+    } finally {
+      setIsUploading(false);
+      event.target.value = '';
+    }
+  };
+
   const handleItineraryImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, dayIndex: number) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -1939,6 +1958,65 @@ export default function EditJourneyPage() {
                       ) : null;
                     })()}
                   </div>
+
+                  {/* Explore Together 专用：Hero 图 + 中间大图 */}
+                  {(isEditing ? (formData.journeyType ?? journey.journeyType) : journey.journeyType) === 'Explore Together' && (
+                    <div className="mt-8 pt-8 border-t border-gray-200 space-y-6">
+                      <Heading level={3} className="text-lg font-semibold mb-2">Explore Together 专用图片</Heading>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Hero 图片（Banner）</label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={isEditing ? (formData.heroImage ?? journey.heroImage ?? '') : (journey.heroImage ?? '')}
+                            onChange={(e) => handleInputChange('heroImage', e.target.value)}
+                            disabled={!isEditing}
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                            placeholder="Hero 图片 URL，可与主图不同"
+                          />
+                          {isEditing && (
+                            <>
+                              <input type="file" accept="image/*" className="hidden" id="hero-image-upload" onChange={(e) => handleExploreTogetherImageUpload('heroImage', e)} />
+                              <Button type="button" variant="secondary" disabled={isUploading} className="flex items-center gap-2" onClick={() => document.getElementById('hero-image-upload')?.click()}>
+                                <Upload className="w-4 h-4" />{isUploading ? '上传中...' : '上传'}
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                        {(formData.heroImage ?? journey.heroImage) && (
+                          <div className="mt-2">
+                            <img src={formData.heroImage ?? journey.heroImage} alt="Hero" className="w-full max-w-md h-24 object-cover rounded-lg" />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Main Content 大图（页面中间带边框）</label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={isEditing ? (formData.mainContentImage ?? journey.mainContentImage ?? '') : (journey.mainContentImage ?? '')}
+                            onChange={(e) => handleInputChange('mainContentImage', e.target.value)}
+                            disabled={!isEditing}
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                            placeholder="中间大图 URL"
+                          />
+                          {isEditing && (
+                            <>
+                              <input type="file" accept="image/*" className="hidden" id="main-content-image-upload" onChange={(e) => handleExploreTogetherImageUpload('mainContentImage', e)} />
+                              <Button type="button" variant="secondary" disabled={isUploading} className="flex items-center gap-2" onClick={() => document.getElementById('main-content-image-upload')?.click()}>
+                                <Upload className="w-4 h-4" />{isUploading ? '上传中...' : '上传'}
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                        {(formData.mainContentImage ?? journey.mainContentImage) ? (
+                          <div className="mt-2">
+                            <img src={formData.mainContentImage ?? journey.mainContentImage} alt="Main content" className="w-full max-w-md h-24 object-cover rounded-lg" />
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </Card>
 
