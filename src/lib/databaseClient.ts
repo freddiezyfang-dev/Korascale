@@ -4,30 +4,28 @@
 import { Journey, JourneyStatus } from '@/types';
 import { Article } from '@/types/article';
 
-// 使用相对路径，在客户端和服务端都使用相对路径，避免连接问题
+// 获取服务端请求的 base URL（仅在服务端且需要绝对地址时使用）
+function getServerBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, '');
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  // 本地开发：与 package.json dev 脚本端口一致（--port 3001）
+  const port = process.env.PORT || '3001';
+  return `http://127.0.0.1:${port}`;
+}
+
+// 客户端用相对路径，服务端用绝对 URL，避免 404
 const getApiUrl = (path: string) => {
-  // 确保路径以 / 开头
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-  
-  // 在客户端始终使用相对路径，避免 CORS 问题和连接被拒绝
+
   if (typeof window !== 'undefined') {
     return normalizedPath;
   }
-  
-  // 服务端：优先使用相对路径（Next.js 内部路由）
-  // 只有在明确需要外部 URL 时才使用绝对路径
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    return `${process.env.NEXT_PUBLIC_API_URL}${normalizedPath}`;
-  }
-  
-  // 在 Vercel 等部署环境中使用完整 URL
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}${normalizedPath}`;
-  }
-  
-  // 开发环境：使用相对路径，让 Next.js 内部处理
-  // 这样可以避免 "连接被拒绝" 的问题
-  return normalizedPath;
+
+  return `${getServerBaseUrl()}${normalizedPath}`;
 };
 
 // 创建带超时的 AbortSignal（兼容性处理）

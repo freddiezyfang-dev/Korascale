@@ -242,6 +242,7 @@ export async function POST(request: NextRequest) {
       navigation: journey.navigation || [],
       extensions: journey.extensions || [],
       hotels: journey.hotels || [],
+      experiences: journey.experiences || [],
     };
     
     // 插入数据库

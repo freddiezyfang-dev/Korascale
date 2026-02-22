@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Container, Section, Heading, Text, Card } from '@/components/common';
-import { Users, ShoppingCart, Hotel, TrendingUp, Eye, Settings, LogOut, Clock, CheckCircle, MapPin, Star, Compass, BookText, CalendarCheck } from 'lucide-react';
+import { Users, ShoppingCart, Hotel, TrendingUp, Eye, Settings, LogOut, Clock, CheckCircle, MapPin, Star, BookText, CalendarCheck } from 'lucide-react';
 import { useUser } from '@/context/UserContext';
 import { useOrderManagement } from '@/context/OrderManagementContext';
 import { OrderStatus } from '@/types';
@@ -109,17 +109,10 @@ export default function AdminDashboard() {
     },
     {
       title: 'Journey Management',
-      description: 'Manage travel experiences and journeys',
+      description: 'Manage travel experiences and journeys（含 Amazing Experiences 关联）',
       href: '/admin/journeys',
       icon: MapPin,
       color: 'bg-emerald-100 text-emerald-600'
-    },
-    {
-      title: 'Experience Management',
-      description: 'Manage individual experiences and activities',
-      href: '/admin/experiences',
-      icon: Compass,
-      color: 'bg-indigo-100 text-indigo-600'
     },
     {
       title: 'Customer Management',

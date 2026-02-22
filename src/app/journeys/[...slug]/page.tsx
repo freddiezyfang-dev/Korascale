@@ -21,7 +21,9 @@ import OfferIcon from '@/components/journey/OfferIcon';
 import InclusionsAndOffers from '@/components/journey/InclusionsAndOffers';
 import Extensions from '@/components/journey/Extensions';
 import Hotels from '@/components/journey/Hotels';
+import Experiences from '@/components/journey/Experiences';
 import { JourneyHotelDetailModal } from '@/components/journey/JourneyHotelDetailModal';
+import { ExperienceDetailModal } from '@/components/journey/ExperienceDetailModal';
 import { PlanTripModal } from '@/components/modals/PlanTripModal';
 import { LoginModal } from '@/components/modals/LoginModal';
 import { useUser } from '@/context/UserContext';
@@ -668,7 +670,9 @@ export default function DynamicJourneyPage() {
   const { hotels } = useHotelManagement();
   const [extensionsData, setExtensionsData] = useState<any[]>([]);
   const [hotelsData, setHotelsData] = useState<any[]>([]);
+  const [experiencesData, setExperiencesData] = useState<any[]>([]);
   const [activeHotel, setActiveHotel] = useState<any | null>(null);
+  const [activeExperience, setActiveExperience] = useState<any | null>(null);
   const router = useRouter();
   const params = useParams();
   // catch-all 路由返回数组，需要合并
@@ -3591,6 +3595,7 @@ export default function DynamicJourneyPage() {
       if (!journey) {
         setExtensionsData([]);
         setHotelsData([]);
+        setExperiencesData([]);
         return;
       }
 
@@ -3634,6 +3639,27 @@ export default function DynamicJourneyPage() {
         }
       } else {
         setHotelsData([]);
+      }
+
+      // 获取 Experiences（Amazing Experiences）
+      if (journey.experiences && journey.experiences.length > 0) {
+        try {
+          const experiencePromises = journey.experiences.map(async (id: string) => {
+            const res = await fetch(`/api/experiences/${id}`);
+            if (res.ok) {
+              const data = await res.json();
+              return data.experience;
+            }
+            return null;
+          });
+          const exps = await Promise.all(experiencePromises);
+          setExperiencesData(exps.filter(Boolean));
+        } catch (error) {
+          console.error('Error fetching experiences:', error);
+          setExperiencesData([]);
+        }
+      } else {
+        setExperiencesData([]);
       }
     };
 
@@ -4195,6 +4221,21 @@ export default function DynamicJourneyPage() {
         <JourneyHotelDetailModal
           hotel={activeHotel}
           onClose={() => setActiveHotel(null)}
+        />
+      )}
+
+      {/* Amazing Experiences Section - 条件渲染 */}
+      {experiencesData.length > 0 && (
+        <Experiences
+          experiences={experiencesData}
+          onExperienceClick={setActiveExperience}
+        />
+      )}
+
+      {activeExperience && (
+        <ExperienceDetailModal
+          experience={activeExperience}
+          onClose={() => setActiveExperience(null)}
         />
       )}
 

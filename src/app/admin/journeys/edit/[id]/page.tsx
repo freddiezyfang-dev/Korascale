@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { ExtensionFormModal } from '@/components/admin/ExtensionFormModal';
 import { JourneyHotelFormModal } from '@/components/admin/JourneyHotelFormModal';
+import { ExperienceFormModal } from '@/components/admin/ExperienceFormModal';
 import { uploadAPI } from '@/lib/databaseClient';
 
 const categoryOptions = [
@@ -127,23 +128,30 @@ export default function EditJourneyPage() {
   const [formData, setFormData] = useState<Partial<Journey>>({});
   const [extensions, setExtensions] = useState<any[]>([]);
   const [journeyHotels, setJourneyHotels] = useState<any[]>([]);
+  const [journeyExperiences, setJourneyExperiences] = useState<any[]>([]);
   const [loadingExtensions, setLoadingExtensions] = useState(false);
   const [loadingHotels, setLoadingHotels] = useState(false);
-  
+  const [loadingExperiences, setLoadingExperiences] = useState(false);
+
   // Modal 状态
   const [extensionModalOpen, setExtensionModalOpen] = useState(false);
   const [editingExtension, setEditingExtension] = useState<any>(null);
   const [hotelModalOpen, setHotelModalOpen] = useState(false);
   const [editingHotel, setEditingHotel] = useState<any>(null);
+  const [experienceModalOpen, setExperienceModalOpen] = useState(false);
+  const [editingExperience, setEditingExperience] = useState<any>(null);
+  const [experienceSearchTerm, setExperienceSearchTerm] = useState('');
 
-  // 获取 Extensions 和 Journey Hotels 列表
+  // 获取 Extensions、Journey Hotels、Experiences 列表
   const fetchExtensionsAndHotels = async () => {
     setLoadingExtensions(true);
     setLoadingHotels(true);
+    setLoadingExperiences(true);
     try {
-      const [extensionsRes, hotelsRes] = await Promise.all([
+      const [extensionsRes, hotelsRes, experiencesRes] = await Promise.all([
         fetch('/api/extensions'),
-        fetch('/api/journey-hotels')
+        fetch('/api/journey-hotels'),
+        fetch('/api/experiences'),
       ]);
       if (extensionsRes.ok) {
         const data = await extensionsRes.json();
@@ -153,11 +161,16 @@ export default function EditJourneyPage() {
         const data = await hotelsRes.json();
         setJourneyHotels(data.hotels || []);
       }
+      if (experiencesRes.ok) {
+        const data = await experiencesRes.json();
+        setJourneyExperiences(data.experiences || []);
+      }
     } catch (error) {
-      console.error('Error fetching extensions and hotels:', error);
+      console.error('Error fetching extensions, hotels and experiences:', error);
     } finally {
       setLoadingExtensions(false);
       setLoadingHotels(false);
+      setLoadingExperiences(false);
     }
   };
 
@@ -225,6 +238,32 @@ export default function EditJourneyPage() {
   const handleCloseHotelModal = () => {
     setHotelModalOpen(false);
     setEditingHotel(null);
+  };
+
+  const handleExperienceSuccess = (experience: any) => {
+    if (!journey) return;
+    if (!journeyExperiences.find((e) => e.id === experience.id)) {
+      setJourneyExperiences((prev) => [experience, ...prev]);
+      const current = isEditing
+        ? (formData.experiences || journey.experiences || [])
+        : (journey.experiences || []);
+      if (!current.includes(experience.id)) {
+        handleInputChange('experiences', [...current, experience.id]);
+      }
+    } else {
+      setJourneyExperiences((prev) => prev.map((e) => (e.id === experience.id ? experience : e)));
+    }
+    setEditingExperience(null);
+  };
+
+  const handleOpenExperienceModal = (experience?: any) => {
+    setEditingExperience(experience ?? null);
+    setExperienceModalOpen(true);
+  };
+
+  const handleCloseExperienceModal = () => {
+    setExperienceModalOpen(false);
+    setEditingExperience(null);
   };
 
   useEffect(() => {
@@ -1692,6 +1731,107 @@ export default function EditJourneyPage() {
                       已选择 {(isEditing ? (formData.hotels || []) : (journey.hotels || [])).length} 个 Hotel
                     </Text>
                   </div>
+
+                  {/* Journey Experiences (Amazing Experiences) */}
+                  <div className="mt-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <Heading level={3} className="text-lg font-semibold">Amazing Experiences</Heading>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => handleOpenExperienceModal()}
+                      >
+                        <Plus className="w-4 h-4 mr-1" />
+                        搜索并添加
+                      </Button>
+                    </div>
+                    <div className="mb-3">
+                      <input
+                        type="text"
+                        placeholder="搜索体验（标题/地点）..."
+                        value={experienceSearchTerm}
+                        onChange={(e) => setExperienceSearchTerm(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-3 border border-gray-200 rounded-lg p-4 max-h-96 overflow-y-auto">
+                      {loadingExperiences ? (
+                        <Text size="sm" className="text-gray-500">加载中...</Text>
+                      ) : journeyExperiences.length === 0 ? (
+                        <Text size="sm" className="text-gray-500">暂无 Experiences，点击「搜索并添加」创建或关联</Text>
+                      ) : (
+                        journeyExperiences
+                          .filter((e) => e.status === 'active')
+                          .filter((e) => {
+                            if (!experienceSearchTerm.trim()) return true;
+                            const q = experienceSearchTerm.toLowerCase();
+                            return (e.title || '').toLowerCase().includes(q) || (e.location || '').toLowerCase().includes(q);
+                          })
+                          .map((exp) => {
+                            const currentExperiences = isEditing
+                              ? (formData.experiences || journey.experiences || [])
+                              : (journey.experiences || []);
+                            const isSelected = currentExperiences.includes(exp.id);
+                            return (
+                              <div
+                                key={exp.id}
+                                className={`flex items-start gap-3 p-2 rounded ${
+                                  !isEditing ? 'opacity-60' : 'hover:bg-gray-50'
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={(e) => {
+                                    const current =
+                                      isEditing
+                                        ? (formData.experiences || journey.experiences || [])
+                                        : (journey.experiences || []);
+                                    const newExperiences = e.target.checked
+                                      ? [...current, exp.id]
+                                      : current.filter((id) => id !== exp.id);
+                                    handleInputChange('experiences', newExperiences);
+                                  }}
+                                  disabled={!isEditing}
+                                  className="mt-1 w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 disabled:opacity-50"
+                                />
+                                <div className="flex-1 flex items-center gap-3 min-w-0">
+                                  {exp.mainImage && (
+                                    <img
+                                      src={exp.mainImage}
+                                      alt={exp.title}
+                                      className="w-12 h-12 object-cover rounded flex-shrink-0"
+                                    />
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <span className="text-sm text-gray-700 font-medium block">{exp.title}</span>
+                                    {exp.location && (
+                                      <span className="text-xs text-gray-500">({exp.location})</span>
+                                    )}
+                                  </div>
+                                  {isEditing && (
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleOpenExperienceModal(exp);
+                                      }}
+                                      className="p-1 hover:bg-gray-200 rounded text-gray-600 hover:text-gray-900 transition-colors flex-shrink-0"
+                                      title="编辑"
+                                    >
+                                      <Edit className="w-3 h-3" />
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })
+                      )}
+                    </div>
+                    <Text size="sm" className="text-gray-500 mt-2">
+                      已选择 {(isEditing ? (formData.experiences || []) : (journey.experiences || [])).length} 个 Experience
+                    </Text>
+                  </div>
                 </div>
               </Card>
             </div>
@@ -2128,6 +2268,12 @@ export default function EditJourneyPage() {
           onClose={handleCloseHotelModal}
           onSuccess={handleHotelSuccess}
           hotel={editingHotel}
+        />
+        <ExperienceFormModal
+          isOpen={experienceModalOpen}
+          onClose={handleCloseExperienceModal}
+          onSuccess={handleExperienceSuccess}
+          experience={editingExperience}
         />
       </div>
     );

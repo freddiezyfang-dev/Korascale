@@ -1,0 +1,54 @@
+// Prisma Schema - Experience 与 Journey 关联（数据持久化）
+// 与现有 experiences 表（见 database/migrations/007）及 journey_experiences 表（008）一致。
+//
+// 数据库：Neon (PostgreSQL)
+// 环境变量：在 .env.local 中设置 DATABASE_URL 为 Neon 连接串即可。
+// 若项目已配置 POSTGRES_URL 或 NEON_POSTGRES_URL，可令 DATABASE_URL 与其中任一同值，例如：
+//   DATABASE_URL="postgresql://user:pass@ep-xxx-pooler.region.aws.neon.tech/neondb?sslmode=require"
+// 使用 Neon 的 pooled 连接串（带 -pooler 的 host）更适合 Serverless/Next.js。
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Experience {
+  id          String   @id @default(uuid())
+  title       String
+  location    String?
+  mainImage   String?  @map("main_image")
+  description String? @db.Text
+  status      String  @default("active")
+  data        Json?   @default("{}") // 含 galleryImages 等，应用层读写
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  journeyExperiences JourneyExperience[]
+
+  @@map("experiences")
+}
+
+// Journey 与 Experience 多对多：通过中间表维护关联（可选，当前也可用 journeys.data.experiences JSON 数组）
+model JourneyExperience {
+  journeyId    String @map("journey_id")
+  experienceId String @map("experience_id")
+  sortOrder    Int    @default(0) @map("sort_order")
+
+  journey    Journey    @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  experience Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+
+  @@id([journeyId, experienceId])
+  @@map("journey_experiences")
+}
+
+model Journey {
+  id        String   @id @default(uuid())
+  // 仅保留与 Experience 关联所需字段；其余字段仍在现有 journeys 表中由应用层读写
+  experiences JourneyExperience[]
+
+  @@map("journeys")
+}

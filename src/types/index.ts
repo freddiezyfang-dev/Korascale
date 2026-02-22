@@ -300,6 +300,22 @@ export interface Journey {
   extensions?: string[]; // Extension ID 数组
   // Hotels 酒店列表（存储 ID 数组）
   hotels?: string[]; // Journey Hotel ID 数组
+  // Experiences 体验列表（存储 ID 数组，用于详情页「Amazing Experiences」）
+  experiences?: string[]; // Experience ID 数组
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Journey Experience 类型（用于 Journey 详情页「Amazing Experiences」）
+export interface JourneyExperience {
+  id: string;
+  title: string;
+  location: string; // 如 "TOKYO, JAPAN"
+  mainImage: string;
+  description: string;
+  galleryImages?: string[];
+  status: 'active' | 'inactive';
+  data?: Record<string, any>;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -57,6 +57,30 @@ main, section, article {
   min-width: 0 !important; /* 关键：防止 flex/grid 容器被撑大 */
 }
 
+/* Journey 横向滚动卡片：硬强制宽度，覆盖全局 article 的 100% 约束 */
+.journey-card {
+  width: 300px !important;
+  min-width: 300px !important;
+  max-width: 300px !important;
+}
+@media (min-width: 768px) {
+  .journey-card {
+    width: 360px !important;
+    min-width: 360px !important;
+    max-width: 360px !important;
+  }
+}
+
+/* Journey 卡片内图片：绝对定位填充，覆盖全局 img 的 height:auto */
+.journey-card__img {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  object-fit: cover !important;
+}
+
 /* 全局防止所有元素溢出 */
 * {
   box-sizing: border-box;
