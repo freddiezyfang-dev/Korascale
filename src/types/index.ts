@@ -205,7 +205,6 @@ export interface Journey {
     image?: string;
   }[];
   modules: JourneyModule[];
-  experiences: string[]; // 存储体验ID数组
   accommodations: string[]; // 存储住宿ID数组
   availableExperiences: string[]; // 可选择的体验ID数组
   availableAccommodations: string[]; // 可选择的住宿ID数组
