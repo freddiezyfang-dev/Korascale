@@ -45,9 +45,10 @@ model JourneyExperience {
   @@map("journey_experiences")
 }
 
+// Journey 表由 raw SQL 读写，以下字段存于 data JSONB，不在此处建列。
+// Explore Together 专属：heroImage, mainContentImage (独立), priceDetails (String?), standardInclusions (Json: String[] 或对象)
 model Journey {
   id        String   @id @default(uuid())
-  // 仅保留与 Experience 关联所需字段；其余字段仍在现有 journeys 表中由应用层读写
   experiences JourneyExperience[]
 
   @@map("journeys")

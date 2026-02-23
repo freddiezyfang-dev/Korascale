@@ -25,7 +25,9 @@ import {
   Users,
   DollarSign,
   Star,
-  Edit
+  Edit,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { ExtensionFormModal } from '@/components/admin/ExtensionFormModal';
 import { JourneyHotelFormModal } from '@/components/admin/JourneyHotelFormModal';
@@ -80,6 +82,122 @@ const statusOptions = [
   { value: 'active', label: 'Active' },
   { value: 'inactive', label: 'Inactive' }
 ];
+
+/** Explore Together 专用：全月日历管理面板，点击日期切换 enabled */
+function ExploreTogetherCalendarPanel({
+  currentDates,
+  basePrice,
+  isEditing,
+  onDatesChange,
+}: {
+  currentDates: { id?: string; startDate: string; endDate: string; price?: number; enabled?: boolean }[];
+  basePrice: number;
+  isEditing: boolean;
+  onDatesChange: (dates: any[]) => void;
+}) {
+  const [calMonth, setCalMonth] = useState(() => {
+    const d = new Date();
+    d.setDate(1);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  });
+  const toYmd = (d: Date) => d.toISOString().split('T')[0];
+  const findEntryForDay = (dayStr: string) => {
+    const idx = currentDates.findIndex(
+      (item) => item.startDate <= dayStr && dayStr <= item.endDate
+    );
+    return idx >= 0 ? { index: idx, item: currentDates[idx] } : null;
+  };
+  const toggleDay = (dayStr: string) => {
+    if (!isEditing) return;
+    const list = [...currentDates];
+    const found = findEntryForDay(dayStr);
+    if (found) {
+      const next = { ...list[found.index], enabled: !(list[found.index] as { enabled?: boolean }).enabled };
+      list[found.index] = next;
+    } else {
+      list.push({
+        id: crypto.randomUUID(),
+        startDate: dayStr,
+        endDate: dayStr,
+        price: basePrice,
+        status: 'Available',
+        enabled: true,
+        discountPercentage: 0,
+        discountType: 'Percentage',
+        offerType: undefined,
+      } as any);
+    }
+    onDatesChange(list);
+  };
+  const year = calMonth.getFullYear();
+  const month = calMonth.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const firstWeekday = firstDay.getDay();
+  const daysInMonth = lastDay.getDate();
+  const gridCells: { date: Date | null; dayStr: string }[] = [];
+  for (let i = 0; i < firstWeekday; i++) gridCells.push({ date: null, dayStr: '' });
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(year, month, d);
+    gridCells.push({ date, dayStr: toYmd(date) });
+  }
+  const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  return (
+    <div>
+      <Heading level={2} className="text-xl font-semibold mb-2">Available Dates</Heading>
+      <Text size="sm" className="text-gray-500 mb-4 block">
+        日历管理：点击日期可切换该日期的开启/关闭状态。开启的日期将在前端日历中可被用户选择。
+      </Text>
+      <div className="inline-block border border-gray-200 rounded-lg p-4 bg-white">
+        <div className="flex items-center justify-between mb-3">
+          <button
+            type="button"
+            onClick={() => setCalMonth((m) => { const n = new Date(m); n.setMonth(n.getMonth() - 1, 1); return n; })}
+            className="p-1.5 rounded hover:bg-gray-100 text-gray-600"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <span className="text-sm font-medium text-gray-900">
+            {calMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+          </span>
+          <button
+            type="button"
+            onClick={() => setCalMonth((m) => { const n = new Date(m); n.setMonth(n.getMonth() + 1, 1); return n; })}
+            className="p-1.5 rounded hover:bg-gray-100 text-gray-600"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="grid grid-cols-7 gap-0.5">
+          {weekdays.map((w) => (
+            <div key={w} className="text-center text-xs font-medium text-gray-500 py-1">{w}</div>
+          ))}
+          {gridCells.map((cell, i) => {
+            if (!cell.dayStr || !cell.date) return <div key={`e-${i}`} className="aspect-square w-8" />;
+            const found = findEntryForDay(cell.dayStr);
+            const enabled = found ? (found.item as { enabled?: boolean }).enabled !== false : false;
+            return (
+              <button
+                key={i}
+                type="button"
+                onClick={() => toggleDay(cell.dayStr)}
+                disabled={!isEditing}
+                className={`
+                  aspect-square w-8 rounded text-sm font-medium transition-colors
+                  ${enabled ? 'bg-[#2D4033] text-white' : 'bg-gray-100 text-gray-400'}
+                  ${isEditing ? 'hover:opacity-90 cursor-pointer' : 'cursor-default'}
+                `}
+              >
+                {cell.date.getDate()}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // 预设的标准服务列表（基于 A&K 风格）
 const STANDARD_INCLUDES = [
@@ -296,7 +414,10 @@ export default function EditJourneyPage() {
       if (!processedJourney.standardInclusions) {
         processedJourney.standardInclusions = {};
       }
-      
+      if (!Array.isArray(processedJourney.standardInclusionsList)) {
+        processedJourney.standardInclusionsList = [];
+      }
+
       // 确保 maxGuests 字段存在（从 JSONB data 中读取）
       if (processedJourney.maxGuests === undefined) {
         processedJourney.maxGuests = (processedJourney as any).data?.maxGuests || 0;
@@ -828,51 +949,75 @@ export default function EditJourneyPage() {
                 </div>
               </Card>
 
-              {/* Available Dates Management */}
+              {/* Available Dates Management：Explore Together 用日历面板，Deep Discovery 用 Add Date 列表 */}
               <Card className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <Heading level={2} className="text-xl font-semibold">Available Dates</Heading>
-                  {isEditing && (
-                    <Button
-                      onClick={() => {
-                        const currentDates = isEditing 
-                          ? (formData.availableDates || [])
-                          : (journey.availableDates || []);
-                        const basePrice = journey.price || 0;
-                        const days = parseDurationDays(isEditing ? formData.duration : journey.duration);
-                        const startDate = new Date().toISOString().split('T')[0];
-                        const startDateObj = new Date(startDate);
-                        const endDateObj = new Date(startDateObj);
-                        endDateObj.setDate(startDateObj.getDate() + days - 1);
-                        const endDate = endDateObj.toISOString().split('T')[0];
-                        
-                        const newDate = {
-                          id: crypto.randomUUID(),
-                          startDate: startDate,
-                          endDate: endDate,
-                          price: basePrice, // 初始价格等于基础价格
-                          discountPercentage: 0,
-                          discountType: 'Percentage' as const,
-                          status: 'Available' as const,
-                          offerType: undefined
-                        };
-                        handleInputChange('availableDates', [...currentDates, newDate]);
-                      }}
-                      variant="secondary"
-                      className="flex items-center gap-2"
-                    >
-                      <Plus className="w-4 h-4" />
-                      Add Date
-                    </Button>
-                  )}
-                </div>
-                
-                {isEditing ? (
-                  <div className="space-y-4">
-                    {((formData.availableDates || journey.availableDates) || []).map((dateItem, index) => (
+                {(isEditing ? (formData.journeyType ?? journey.journeyType) : journey.journeyType) === 'Explore Together' ? (
+                  <ExploreTogetherCalendarPanel
+                    currentDates={isEditing ? (formData.availableDates || []) : (journey.availableDates || [])}
+                    basePrice={typeof journey.price === 'number' ? journey.price : 0}
+                    isEditing={isEditing}
+                    onDatesChange={(list) => handleInputChange('availableDates', list)}
+                  />
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between mb-4">
+                      <Heading level={2} className="text-xl font-semibold">Available Dates</Heading>
+                      {isEditing && (
+                        <Button
+                          onClick={() => {
+                            const currentDates = isEditing 
+                              ? (formData.availableDates || [])
+                              : (journey.availableDates || []);
+                            const basePrice = journey.price || 0;
+                            const days = parseDurationDays(isEditing ? formData.duration : journey.duration);
+                            const startDate = new Date().toISOString().split('T')[0];
+                            const startDateObj = new Date(startDate);
+                            const endDateObj = new Date(startDateObj);
+                            endDateObj.setDate(startDateObj.getDate() + days - 1);
+                            const endDate = endDateObj.toISOString().split('T')[0];
+                            
+                            const newDate = {
+                              id: crypto.randomUUID(),
+                              startDate: startDate,
+                              endDate: endDate,
+                              price: basePrice, // 初始价格等于基础价格
+                              discountPercentage: 0,
+                              discountType: 'Percentage' as const,
+                              status: 'Available' as const,
+                              enabled: true as const,
+                              offerType: undefined
+                            };
+                            handleInputChange('availableDates', [...currentDates, newDate]);
+                          }}
+                          variant="secondary"
+                          className="flex items-center gap-2"
+                        >
+                          <Plus className="w-4 h-4" />
+                          Add Date
+                        </Button>
+                      )}
+                    </div>
+                    
+                    {isEditing ? (
+                      <div className="space-y-4">
+                        {((formData.availableDates || journey.availableDates) || []).map((dateItem, index) => (
                       <div key={dateItem.id || index} className="border border-gray-200 rounded-lg p-4 space-y-4 bg-gray-50">
                         <div className="flex items-center justify-between">
                           <Heading level={4} className="text-sm font-semibold">Date {index + 1}</Heading>
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <span className="text-sm font-medium text-gray-700">开启</span>
+                            <input
+                              type="checkbox"
+                              checked={(dateItem as any).enabled !== false}
+                              onChange={(e) => {
+                                const currentDates = formData.availableDates || journey.availableDates || [];
+                                const updatedDates = [...currentDates];
+                                updatedDates[index] = { ...updatedDates[index], enabled: e.target.checked };
+                                handleInputChange('availableDates', updatedDates);
+                              }}
+                              className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                            />
+                          </label>
                           <Button
                             onClick={() => {
                               const currentDates = formData.availableDates || journey.availableDates || [];
@@ -1180,6 +1325,8 @@ export default function EditJourneyPage() {
                       <p className="text-gray-500 text-sm">No dates configured. Dates will be auto-generated on the frontend.</p>
                     )}
                   </div>
+                )}
+                  </>
                 )}
               </Card>
 
@@ -2015,6 +2162,20 @@ export default function EditJourneyPage() {
                           </div>
                         ) : null}
                       </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Price Details（价格详情 Tooltip）</label>
+                        <textarea
+                          value={isEditing ? (formData.priceDetails ?? journey.priceDetails ?? '') : (journey.priceDetails ?? '')}
+                          onChange={(e) => handleInputChange('priceDetails', e.target.value)}
+                          disabled={!isEditing}
+                          rows={3}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                          placeholder="用于价格旁的 Tooltip 说明，如税费、单人/双人价说明等"
+                        />
+                      </div>
+                      <Text size="sm" className="text-gray-500">
+                        Explore Together 的包含项与 Deep Discovery 共用，请在上方「Standard Inclusions」勾选框中配置。
+                      </Text>
                     </div>
                   )}
                 </div>

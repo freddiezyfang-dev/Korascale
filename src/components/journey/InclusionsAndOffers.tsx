@@ -21,6 +21,8 @@ const ThinLineIcon = () => (
 interface InclusionsAndOffersProps {
   journey: Journey;
   onBookingClick?: (date: Date, pricePerPerson: number) => void;
+  /** 仅渲染右侧日历栏（用于 Explore Together 的 7/12 栏） */
+  rightColumnOnly?: boolean;
 }
 
 // 格式化日期
@@ -80,7 +82,7 @@ const generateStandardText = (offer: { type?: string; discount?: string; startDa
   return '';
 };
 
-export default function InclusionsAndOffers({ journey, onBookingClick }: InclusionsAndOffersProps) {
+export default function InclusionsAndOffers({ journey, onBookingClick, rightColumnOnly }: InclusionsAndOffersProps) {
   // Select Your Date 相关状态
   const today = useMemo(() => new Date(), []);
   const [monthOffset, setMonthOffset] = useState(0);
@@ -277,6 +279,158 @@ export default function InclusionsAndOffers({ journey, onBookingClick }: Inclusi
       .filter(Boolean);
   }, [journey.standardInclusions]);
 
+  const rightColumnContent = (
+    <>
+      <h3 className="text-2xl font-heading mb-8 text-gray-900">Select Your Date</h3>
+      
+      {/* 年份切换 - 动态显示所有可用年份（移除 2025） */}
+      {availableYears.length > 0 && (
+        <div className="flex gap-8 border-b border-gray-200 mb-8">
+          {availableYears.map((year) => (
+            <button
+              key={year}
+              className={`pb-4 text-sm font-medium transition-colors ${
+                baseDate.getFullYear() === year
+                  ? 'border-b-2 border-black font-medium'
+                  : 'text-gray-400'
+              }`}
+              onClick={() => {
+                const firstDateInYear = allDatesList.find(item => item.startDate.getFullYear() === year);
+                if (firstDateInYear) {
+                  const newDate = new Date(firstDateInYear.startDate);
+                  const todayDate = new Date();
+                  const monthsDiff = (newDate.getFullYear() - todayDate.getFullYear()) * 12 + (newDate.getMonth() - todayDate.getMonth());
+                  setMonthOffset(Math.max(0, monthsDiff));
+                }
+              }}
+            >
+              {year}
+            </button>
+          ))}
+        </div>
+      )}
+      
+      {/* 日期列表 - 可滚动区域（桌面端固定高度 + 内部滚动） */}
+      <div
+        className="space-y-4 lg:overflow-y-auto lg:pr-4 lg:flex-1 scrollbar-thin min-h-0"
+        style={{
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#d1d5db transparent'
+        }}
+      >
+        {dateList.map((item, index) => {
+          const startStr = item.startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          const endStr = item.endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          const dateRange = `${startStr} - ${endStr}`;
+          const dateId = item.id || `date-${index}`;
+          const isExpanded = expandedDates.has(dateId);
+          const hasOfferDetails = item.offerType && item.offerType !== 'No Offer' && item.offer;
+          const hasDiscount = (item as any).hasDiscount || (item.originalPrice && item.originalPrice > item.price);
+          const showOfferTag = hasOfferDetails || hasDiscount;
+          
+          return (
+            <div
+              key={dateId}
+              className="bg-white rounded-sm shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div 
+                className="p-6 flex items-center justify-between gap-6 cursor-pointer"
+                onClick={() => toggleDateExpand(dateId)}
+              >
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-gray-900 font-medium">{dateRange}</span>
+                    {showOfferTag && (
+                      <span className="text-xs px-2 py-1 rounded bg-[#8B4513] text-[#F5F2E9] font-semibold uppercase tracking-wider">
+                        OFFER
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span 
+                      className="text-lg text-gray-900"
+                      style={{ fontFamily: 'Playfair Display, serif' }}
+                    >
+                      ${item.price.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDateClick(item.startDate, item.price);
+                    }}
+                    className="px-6 py-2 bg-black text-white text-xs tracking-widest uppercase hover:bg-gray-800 transition-colors whitespace-nowrap"
+                  >
+                    REQUEST TO BOOK
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleDateExpand(dateId);
+                    }}
+                    className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    {isExpanded ? (
+                      <ChevronUp className="w-5 h-5" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+              
+              {isExpanded && (
+                <div className="px-6 pb-6 border-t border-gray-100 pt-4">
+                  <div className="mb-2">
+                    <p className="text-xs text-gray-900">
+                      <span className="text-[10px] font-semibold tracking-[0.2em] text-gray-500 mr-2 uppercase">
+                        PRICE
+                      </span>
+                      <span className="text-sm font-semibold text-[#8B4513]">
+                        ${item.price.toLocaleString()}
+                      </span>
+                      {item.originalPrice && item.originalPrice > item.price && (
+                        <span className="ml-2 text-xs text-gray-400 line-through">
+                          ${item.originalPrice.toLocaleString()}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  {hasOfferDetails && item.offer && (
+                    <div className="mt-1">
+                      <p className="text-xs text-gray-600 leading-relaxed flex items-start prose-force-wrap">
+                        <span className="inline-flex items-center justify-center w-4 h-4 rounded-full border border-gray-400 text-[9px] mr-2 mt-[1px] text-gray-500">
+                          i
+                        </span>
+                        <span>
+                          <span className="font-semibold">
+                            Type: {item.offer.type}
+                          </span>
+                          {': '}
+                          {generateStandardText(item.offer)}
+                        </span>
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </>
+  );
+
+  if (rightColumnOnly) {
+    return (
+      <div className="w-full flex flex-col lg:h-[70vh] relative">
+        {rightColumnContent}
+      </div>
+    );
+  }
+
   return (
     <section className="w-full py-16 bg-[#FAF9F6]">
       <div className="w-full max-w-[1440px] mx-auto px-8 lg:px-20">
@@ -306,152 +460,7 @@ export default function InclusionsAndOffers({ journey, onBookingClick }: Inclusi
 
           {/* 右侧：Select Your Date 模块 */}
           <div className="w-full lg:w-1/2 lg:border-l lg:pl-12 border-gray-200 flex flex-col lg:h-[70vh] relative">
-            <h3 className="text-2xl font-heading mb-8 text-gray-900">Select Your Date</h3>
-            
-            {/* 年份切换 - 动态显示所有可用年份（移除 2025） */}
-            {availableYears.length > 0 && (
-              <div className="flex gap-8 border-b border-gray-200 mb-8">
-                {availableYears.map((year) => (
-                  <button
-                    key={year}
-                    className={`pb-4 text-sm font-medium transition-colors ${
-                      baseDate.getFullYear() === year
-                        ? 'border-b-2 border-black font-medium'
-                        : 'text-gray-400'
-                    }`}
-                    onClick={() => {
-                      // 找到该年份的第一个日期，切换到对应的月份
-                      const firstDateInYear = allDatesList.find(item => item.startDate.getFullYear() === year);
-                      if (firstDateInYear) {
-                        const newDate = new Date(firstDateInYear.startDate);
-                        const todayDate = new Date();
-                        const monthsDiff = (newDate.getFullYear() - todayDate.getFullYear()) * 12 + (newDate.getMonth() - todayDate.getMonth());
-                        setMonthOffset(Math.max(0, monthsDiff));
-                      }
-                    }}
-                  >
-                    {year}
-                  </button>
-                ))}
-              </div>
-            )}
-            
-            {/* 日期列表 - 可滚动区域（桌面端固定高度 + 内部滚动） */}
-            <div
-              className="space-y-4 lg:overflow-y-auto lg:pr-4 lg:flex-1 scrollbar-thin"
-              style={{
-                scrollbarWidth: 'thin',
-                scrollbarColor: '#d1d5db transparent'
-              }}
-            >
-              {dateList.map((item, index) => {
-                const startStr = item.startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                const endStr = item.endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                const dateRange = `${startStr} - ${endStr}`;
-                const dateId = item.id || `date-${index}`;
-                const isExpanded = expandedDates.has(dateId);
-                const hasOfferDetails = item.offerType && item.offerType !== 'No Offer' && item.offer;
-                const hasDiscount = (item as any).hasDiscount || (item.originalPrice && item.originalPrice > item.price);
-                const showOfferTag = hasOfferDetails || hasDiscount;
-                
-                return (
-                  <div
-                    key={dateId}
-                    className="bg-white rounded-sm shadow-sm hover:shadow-md transition-shadow"
-                  >
-                    {/* 日期行 - 可点击展开 */}
-                    <div 
-                      className="p-6 flex items-center justify-between gap-6 cursor-pointer"
-                      onClick={() => toggleDateExpand(dateId)}
-                    >
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <span className="text-gray-900 font-medium">{dateRange}</span>
-                          {showOfferTag && (
-                            <span className="text-xs px-2 py-1 rounded bg-[#8B4513] text-[#F5F2E9] font-semibold uppercase tracking-wider">
-                              OFFER
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span 
-                            className="text-lg text-gray-900"
-                            style={{ fontFamily: 'Playfair Display, serif' }}
-                          >
-                            ${item.price.toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDateClick(item.startDate, item.price);
-                          }}
-                          className="px-6 py-2 bg-black text-white text-xs tracking-widest uppercase hover:bg-gray-800 transition-colors whitespace-nowrap"
-                        >
-                          REQUEST TO BOOK
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleDateExpand(dateId);
-                          }}
-                          className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-                        >
-                          {isExpanded ? (
-                            <ChevronUp className="w-5 h-5" />
-                          ) : (
-                            <ChevronDown className="w-5 h-5" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                    
-                    {/* 展开详情区域 */}
-                    {isExpanded && (
-                      <div className="px-6 pb-6 border-t border-gray-100 pt-4">
-                        {/* 价格详情：PRICE $现价 was $原价 */}
-                        <div className="mb-2">
-                          <p className="text-xs text-gray-900">
-                            <span className="text-[10px] font-semibold tracking-[0.2em] text-gray-500 mr-2 uppercase">
-                              PRICE
-                            </span>
-                            <span className="text-sm font-semibold text-[#8B4513]">
-                              ${item.price.toLocaleString()}
-                            </span>
-                            {item.originalPrice && item.originalPrice > item.price && (
-                              <span className="ml-2 text-xs text-gray-400 line-through">
-                                ${item.originalPrice.toLocaleString()}
-                              </span>
-                            )}
-                          </p>
-                        </div>
-
-                        {/* Offer 说明：ⓘ Type + 描述，仅在有 offer 时显示 */}
-                        {hasOfferDetails && item.offer && (
-                          <div className="mt-1">
-                            <p className="text-xs text-gray-600 leading-relaxed flex items-start prose-force-wrap">
-                              <span className="inline-flex items-center justify-center w-4 h-4 rounded-full border border-gray-400 text-[9px] mr-2 mt-[1px] text-gray-500">
-                                i
-                              </span>
-                              <span>
-                                <span className="font-semibold">
-                                  Type: {item.offer.type}
-                                </span>
-                                {': '}
-                                {generateStandardText(item.offer)}
-                              </span>
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
+            {rightColumnContent}
             {/* 底部渐变遮罩，提示可向下滚动（仅桌面端显示） */}
             <div className="pointer-events-none hidden lg:block absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-[#FAF9F6] to-transparent" />
           </div>

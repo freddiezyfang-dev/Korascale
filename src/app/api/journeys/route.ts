@@ -244,6 +244,8 @@ export async function POST(request: NextRequest) {
       hotels: journey.hotels || [],
       heroImage: journey.heroImage || undefined,
       mainContentImage: (journey as any).mainContentImage || undefined,
+      priceDetails: (journey as any).priceDetails ?? undefined,
+      standardInclusionsList: (journey as any).standardInclusionsList ?? undefined,
     };
     
     // 插入数据库

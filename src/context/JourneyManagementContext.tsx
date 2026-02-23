@@ -18,7 +18,7 @@ interface JourneyManagementContextType {
   isLoading: boolean;
   reloadJourneys: (includeAll?: boolean) => Promise<void>;
   resetToDefaults: () => void;
-  clearStorageAndReload: () => void;
+  clearStorageAndReload: () => Promise<void>;
   migrateFromLocalStorage: () => Promise<{ success: number; failed: number }>;
   createBackup: () => boolean;
   restoreFromBackup: () => boolean;
@@ -932,12 +932,11 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
     saveJourneys(defaultJourneys);
   };
 
-  // 清除localStorage并重新加载
-  const clearStorageAndReload = () => {
-    console.log('JourneyManagementContext: Clearing localStorage and reloading');
+  // 清除 localStorage 并从 API/数据库重新加载，使页面使用最新排版与数据
+  const clearStorageAndReload = async () => {
+    console.log('JourneyManagementContext: Clearing localStorage and reloading from API');
     localStorage.removeItem('journeys');
-    setJourneys(defaultJourneys);
-    saveJourneys(defaultJourneys);
+    await loadJourneys(typeof window !== 'undefined' && window.location.pathname.startsWith('/admin'));
   };
 
   // 手动从 localStorage 迁移到数据库

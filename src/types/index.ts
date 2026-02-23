@@ -219,9 +219,13 @@ export interface Journey {
   slug: string; // URL路径，如 "chengdu-city-one-day-deep-dive"
   pageTitle: string; // 页面标题
   metaDescription: string; // SEO描述
-  heroImage: string; // 主横幅图片（Hero Banner）
-  /** Explore Together 专用：页面中间带边框的大图，与 heroImage 独立 */
+  heroImage: string; // 主横幅图片（Hero Banner），与 mainContentImage 独立
+  /** Explore Together 专用：页面中间带边框的大图 */
   mainContentImage?: string;
+  /** Explore Together 专用：价格详情 Tooltip 文案 */
+  priceDetails?: string;
+  /** Explore Together 专用：包含项字符串列表（与 standardInclusions 对象二选一或并存） */
+  standardInclusionsList?: string[];
   heroStats?: {
     days: number;
     destinations: number;
@@ -286,6 +290,8 @@ export interface Journey {
     discountPercentage?: number; // 折扣百分比，如 15 表示 15% off
     discountType?: 'Percentage' | 'Fixed Amount'; // 折扣类型
     status: 'Available' | 'Limited' | 'Call'; // 可用状态
+    /** 日期开关：仅当为 true 时前端日历可点击；未设置时视为 true */
+    enabled?: boolean;
     offerType?: string; // Offer 类型：'Promotional Offer' | 'Companion Discount' | 'Government Subsidy' | 'Early Bird Discount' | 'No Offer'
     offerDiscount?: string; // Offer 折扣值，如 "$1500" 或 "10%"
     offerDescription?: string; // Offer 自定义描述（可选）

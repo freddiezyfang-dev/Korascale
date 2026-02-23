@@ -1,18 +1,41 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Journey } from '@/types';
 import { DYNAMIC_PADDING } from './journeySectionLayout';
-import { Check } from 'lucide-react';
+import { Check, Info } from 'lucide-react';
+import BookingCalendarGrid from './BookingCalendarGrid';
+import GoFurther from '@/components/shared/GoFurther';
 
 const CONTENT_WRAPPER = `max-w-7xl mx-auto ${DYNAMIC_PADDING}`;
+/** 预订区块专用：更大内容宽度，不与上方 Itinerary 边距对齐 */
+const BOOKING_SECTION_WRAPPER = 'max-w-7xl mx-auto px-4 md:px-6';
 
 /** 主题绿（Explore Together 专用），仅在本组件内使用 */
 const THEME_GREEN = '#2D4033';
 const SERIF_FONT = 'Playfair Display, Montaga, serif';
 
+/** 与 Deep Discovery / InclusionsAndOffers 共用的包含项 key → 文案映射 */
+const STANDARD_INCLUSIONS_PHRASES: Record<string, string> = {
+  airportTransfers: 'Airport Meet and Greet with Private Transfers',
+  entranceFees: 'Entrance Fees, Taxes and All Gratuities Except Resident Tour Director',
+  support24_7: '24/7 On-Call Support',
+  insurance: 'Comprehensive Travel Insurance',
+  meals: 'Daily Breakfast, Lunch, and Dinner',
+  transportation: 'Premium Private Transportation',
+  accommodations: 'Hand-selected Luxury Hotels',
+  tourGuides: 'English-speaking or other language-speaking tour guides',
+  highSpeedRails: 'Mainland China domestic High-speed rails',
+  internationalFlights: 'International flights to and from Mainland China',
+  optionalActivities: 'Optional activities available for purchase on-site',
+  handicraftExperiences: 'Authentic local handicraft experiences',
+  personalExpenses: 'Personal expenses during leisure time',
+};
+
 interface ExploreTogetherLayoutProps {
   journey: Journey;
+  onBookingClick?: (date: Date, pricePerPerson: number) => void;
+  journeys?: Journey[];
 }
 
 function getPriceDisplay(price: number | undefined | null, originalPrice?: number | null) {
@@ -24,7 +47,30 @@ function getPriceDisplay(price: number | undefined | null, originalPrice?: numbe
   return { from: formatted, was: null };
 }
 
-export default function ExploreTogetherLayout({ journey }: ExploreTogetherLayoutProps) {
+function PriceInfoTooltip({ text, themeGreen }: { text: string; themeGreen: string }) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <div
+      className="relative inline-flex"
+      onMouseEnter={() => setVisible(true)}
+      onMouseLeave={() => setVisible(false)}
+    >
+      <span className="text-white/80 hover:text-white cursor-help">
+        <Info className="w-5 h-5" strokeWidth={1.5} />
+      </span>
+      {visible && (
+        <div
+          className="absolute left-full bottom-full mb-2 ml-1 z-20 px-3 py-2 rounded text-white text-sm font-normal max-w-xs shadow-lg whitespace-pre-line"
+          style={{ backgroundColor: themeGreen }}
+        >
+          {text}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function ExploreTogetherLayout({ journey, onBookingClick, journeys = [] }: ExploreTogetherLayoutProps) {
   const title = journey.pageTitle || journey.title;
   const subtitle = journey.shortDescription || journey.description;
   const introText = journey.overview?.description || journey.description || '';
@@ -34,6 +80,14 @@ export default function ExploreTogetherLayout({ journey }: ExploreTogetherLayout
   const heroImage = journey.heroImage || journey.image || journey.images?.[0] || '';
   const mainContentImage = journey.mainContentImage || '';
   const itinerary = journey.itinerary || [];
+  // 与 Deep Discovery 共用：从 standardInclusions 勾选生成列表
+  const standardInclusionsList = React.useMemo(() => {
+    if (!journey.standardInclusions) return [];
+    return Object.entries(journey.standardInclusions)
+      .filter(([_, isActive]) => isActive)
+      .map(([key]) => STANDARD_INCLUSIONS_PHRASES[key] || key)
+      .filter(Boolean);
+  }, [journey.standardInclusions]);
   // 兼容 price（API/类型）、data.price、priceFrom 字符串；支持 number 或可解析的字符串
   const rawPrice = journey.price ?? (journey as any).data?.price ?? (journey as any).price;
   const priceNum =
@@ -83,15 +137,20 @@ export default function ExploreTogetherLayout({ journey }: ExploreTogetherLayout
               <span className="text-xs uppercase tracking-[0.2em] text-white/70 block mb-1">
                 Price From
               </span>
-              <span
-                className="text-xl md:text-2xl text-white font-light tabular-nums"
-                style={{ fontFamily: SERIF_FONT }}
-              >
-                {priceDisplay || '—'}
-              </span>
-              {priceWas && (
-                <span className="text-base text-white/60 line-through tabular-nums ml-2">{priceWas}</span>
-              )}
+              <div className="flex items-center gap-2 flex-wrap">
+                <span
+                  className="text-xl md:text-2xl text-white font-light tabular-nums"
+                  style={{ fontFamily: SERIF_FONT }}
+                >
+                  {priceDisplay || '—'}
+                </span>
+                {priceWas && (
+                  <span className="text-base text-white/60 line-through tabular-nums">{priceWas}</span>
+                )}
+                {(journey.priceDetails ?? '').trim() && (
+                  <PriceInfoTooltip text={journey.priceDetails!} themeGreen={THEME_GREEN} />
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -151,11 +210,11 @@ export default function ExploreTogetherLayout({ journey }: ExploreTogetherLayout
             )}
           </div>
 
-          {/* 2b. Main Content 大图：Overview 下方，留白 + 浅色细边框 */}
+          {/* 2b. Main Content 大图：Overview 下方，大面积留白 + 细边框 border-white/10 */}
           {mainContentImage && (
             <div className="mt-12 md:mt-16">
-              <div className="w-full py-6 md:py-10 px-4 md:px-8">
-                <div className="relative w-full aspect-[21/9] mx-auto rounded-sm overflow-hidden border border-white/25 shadow-xl">
+              <div className="w-full py-12 md:py-20 px-8 md:px-16 lg:px-24">
+                <div className="relative w-full aspect-[21/9] mx-auto rounded-sm overflow-hidden border border-white/10 shadow-xl">
                   <img
                     src={mainContentImage}
                     alt=""
@@ -190,7 +249,7 @@ export default function ExploreTogetherLayout({ journey }: ExploreTogetherLayout
                   className="relative flex flex-col lg:flex-row lg:items-start gap-6 py-8 md:py-10 border-b border-gray-200 last:border-b-0"
                 >
                   <div
-                    className="absolute w-6 h-6 rounded-full border-2 flex-shrink-0 z-10 mt-1 md:mt-2"
+                    className="absolute w-6 h-6 rounded-full border-2 flex-shrink-0 z-10 top-[2.75rem] md:top-[2.75rem]"
                     style={{
                       backgroundColor: '#FAF9F6',
                       borderColor: THEME_GREEN,
@@ -231,6 +290,45 @@ export default function ExploreTogetherLayout({ journey }: ExploreTogetherLayout
             </div>
           </div>
         </section>
+      )}
+
+      {/* 4. Booking Section: Standard Inclusions (5/12) + Calendar (7/12)；本区不沿用 Itinerary 边距，使用更大内容宽度 */}
+      <section className="w-full py-12 md:py-16 bg-[#FAF9F6]">
+        <div className={BOOKING_SECTION_WRAPPER}>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-stretch">
+            {/* 与 Deep Discovery 共用同一套后台勾选数据 (journey.standardInclusions)，无独立录入 */}
+            <div className="lg:col-span-5 flex flex-col">
+              <h2
+                className="text-2xl md:text-3xl text-gray-900 mb-6"
+                style={{ fontFamily: SERIF_FONT, fontWeight: 400 }}
+              >
+                Standard Inclusions
+              </h2>
+              {standardInclusionsList.length > 0 ? (
+                <ul className="space-y-3 font-sans text-sm text-gray-700">
+                  {standardInclusionsList.map((item, idx) => (
+                    <li key={idx} className="flex items-start gap-3">
+                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#2D4033]/15 flex items-center justify-center mt-0.5">
+                        <Check className="w-3 h-3 text-[#2D4033]" />
+                      </span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-gray-500 text-sm">No inclusion details available.</p>
+              )}
+            </div>
+            <div className="lg:col-span-7">
+              <BookingCalendarGrid journey={journey} onBookingClick={onBookingClick} />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Go Further：其他行程横向滚动 */}
+      {journeys.length > 0 && (
+        <GoFurther journeys={journeys} excludeJourneyId={journey.id} />
       )}
     </div>
   );

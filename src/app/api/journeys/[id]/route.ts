@@ -59,9 +59,13 @@ export async function GET(
       ...baseData,
       // 确保这些字段存在（即使为空也要返回）
       standardInclusions: baseData.standardInclusions || {},
+      standardInclusionsList: baseData.standardInclusionsList || [],
       offers: baseData.offers || [],
       destinationCount: baseData.destinationCount,
       maxGuests: baseData.maxGuests,
+      heroImage: baseData.heroImage ?? undefined,
+      mainContentImage: baseData.mainContentImage ?? undefined,
+      priceDetails: baseData.priceDetails ?? undefined,
       // 时间戳
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
@@ -239,6 +243,8 @@ export async function PUT(
     if ((updates as any).relatedTrips !== undefined) jsonbUpdates.relatedTrips = (updates as any).relatedTrips;
     if ((updates as any).offers !== undefined) jsonbUpdates.offers = (updates as any).offers;
     if ((updates as any).standardInclusions !== undefined) jsonbUpdates.standardInclusions = (updates as any).standardInclusions;
+    if ((updates as any).standardInclusionsList !== undefined) jsonbUpdates.standardInclusionsList = (updates as any).standardInclusionsList;
+    if ((updates as any).priceDetails !== undefined) jsonbUpdates.priceDetails = (updates as any).priceDetails;
     if ((updates as any).extensions !== undefined) jsonbUpdates.extensions = (updates as any).extensions;
     if ((updates as any).hotels !== undefined) jsonbUpdates.hotels = (updates as any).hotels;
     

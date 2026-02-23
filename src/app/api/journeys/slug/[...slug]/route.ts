@@ -65,9 +65,13 @@ export async function GET(
       ...baseData,
       // 确保这些字段存在（即使为空也要返回）
       standardInclusions: baseData.standardInclusions || {},
+      standardInclusionsList: baseData.standardInclusionsList || [],
       offers: baseData.offers || [],
       destinationCount: baseData.destinationCount,
       maxGuests: baseData.maxGuests,
+      heroImage: baseData.heroImage ?? undefined,
+      mainContentImage: baseData.mainContentImage ?? undefined,
+      priceDetails: baseData.priceDetails ?? undefined,
       // 时间戳
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),

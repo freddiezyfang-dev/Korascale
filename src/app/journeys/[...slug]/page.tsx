@@ -2,7 +2,7 @@
 
 import React, { useMemo, useRef, useState, useEffect, useLayoutEffect } from 'react';
 import Link from 'next/link';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/components/common';
 import { ExperienceCard } from '@/components/cards/ExperienceCard';
 import { AccommodationCard } from '@/components/cards/AccommodationCard';
@@ -25,6 +25,7 @@ import Experiences from '@/components/journey/Experiences';
 import { JourneyHotelDetailModal } from '@/components/journey/JourneyHotelDetailModal';
 import { ExperienceDetailModal } from '@/components/journey/ExperienceDetailModal';
 import ExploreTogetherLayout from '@/components/journey/ExploreTogetherLayout';
+import GoFurther from '@/components/shared/GoFurther';
 import { PlanTripModal } from '@/components/modals/PlanTripModal';
 import { LoginModal } from '@/components/modals/LoginModal';
 import { useUser } from '@/context/UserContext';
@@ -666,7 +667,7 @@ const CITY_GEO_DB: Record<string, { lng: number; lat: number; name: string }> = 
 };
 
 export default function DynamicJourneyPage() {
-  const { journeys, isLoading: journeysLoading } = useJourneyManagement();
+  const { journeys, isLoading: journeysLoading, clearStorageAndReload } = useJourneyManagement();
   const { experiences } = useExperienceManagement();
   const { hotels } = useHotelManagement();
   const [extensionsData, setExtensionsData] = useState<any[]>([]);
@@ -676,9 +677,19 @@ export default function DynamicJourneyPage() {
   const [activeExperience, setActiveExperience] = useState<any | null>(null);
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   // catch-all 路由返回数组，需要合并
   const slugArray = params.slug as string[];
   const slug = Array.isArray(slugArray) ? slugArray.join('/') : (slugArray || '');
+
+  // 支持 ?clearCache=1：清除 journey 的 localStorage 并从 API 重新加载，使页面使用最新排版后重定向到当前页
+  useEffect(() => {
+    if (searchParams.get('clearCache') !== '1') return;
+    (async () => {
+      await clearStorageAndReload();
+      router.replace(`/journeys/${slug}`, { scroll: true });
+    })();
+  }, [searchParams, slug, router, clearStorageAndReload]);
   
   // 检查是否是 journey type slug（在组件早期检查，避免执行后续逻辑）
   const isJourneyTypeSlug = slug && JOURNEY_TYPE_SLUGS.includes(slug as any);
@@ -3710,11 +3721,6 @@ export default function DynamicJourneyPage() {
     );
   }
 
-  // 分流：仅当 journeyType === 'Explore Together' 时使用 ExploreTogetherLayout，其余保持 Deep Discovery
-  if (journey.journeyType === 'Explore Together') {
-    return <ExploreTogetherLayout journey={journey} />;
-  }
-
   const openPopover = (d: Date | null) => {
     if (!d) return;
     if (popoverTimer.current) window.clearTimeout(popoverTimer.current);
@@ -3745,9 +3751,16 @@ export default function DynamicJourneyPage() {
     }
   };
 
-  // 已移除酒店点击弹窗逻辑
-
-  // 已移除酒店详情弹窗关闭逻辑
+  // 分流：仅当 journeyType === 'Explore Together' 时使用 ExploreTogetherLayout，其余保持 Deep Discovery（GoFurther 已在布局内底部渲染）
+  if (journey.journeyType === 'Explore Together') {
+    return (
+      <ExploreTogetherLayout
+        journey={journey}
+        onBookingClick={handleBookNow}
+        journeys={journeys}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -4350,6 +4363,8 @@ export default function DynamicJourneyPage() {
           </Container>
         </Section>
       )}
+
+      <GoFurther journeys={journeys} excludeJourneyId={journey.id} />
 
       {/* 已移除酒店详情弹窗 */}
     </div>
