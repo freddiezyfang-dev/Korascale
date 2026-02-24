@@ -7,6 +7,15 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 export const fetchCache = 'force-no-store';
 
+/** 标准化 availableDates：每项含 enabled（缺省 true） */
+function normalizeAvailableDates(items: unknown[] | undefined): unknown[] {
+  if (!Array.isArray(items)) return [];
+  return items.map((item: any) => ({
+    ...item,
+    enabled: item && typeof item.enabled === 'boolean' ? item.enabled : true,
+  }));
+}
+
 // GET: 获取所有journeys
 export async function GET(request?: NextRequest) {
   try {
@@ -148,6 +157,7 @@ export async function GET(request?: NextRequest) {
         reviewCount: row.review_count,
         // JSONB数据
         ...baseData,
+        availableDates: normalizeAvailableDates(baseData.availableDates),
         // 确保这些字段存在（即使为空也要返回）
         destinationCount: baseData.destinationCount,
         maxGuests: baseData.maxGuests,
@@ -246,6 +256,7 @@ export async function POST(request: NextRequest) {
       mainContentImage: (journey as any).mainContentImage || undefined,
       priceDetails: (journey as any).priceDetails ?? undefined,
       standardInclusionsList: (journey as any).standardInclusionsList ?? undefined,
+      availableDates: normalizeAvailableDates((journey as any).availableDates),
     };
     
     // 插入数据库

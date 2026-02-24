@@ -6,11 +6,6 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const THEME_GREEN = '#2D4033';
 
-function isInRange(day: Date, start: Date, end: Date) {
-  const t = day.getTime();
-  return t >= start.getTime() && t <= end.getTime();
-}
-
 /** 同一天（仅比较年月日） */
 function isSameCalendarDay(a: Date, b: Date) {
   return (
@@ -45,37 +40,41 @@ export default function BookingCalendarGrid({ journey, onBookingClick }: Booking
   });
   const [selectedSlot, setSelectedSlot] = useState<{ startDate: Date; price: number } | null>(null);
 
-  const dateSlots = useMemo((): DateSlot[] => {
-    if (journey.availableDates && journey.availableDates.length > 0) {
-      return journey.availableDates
-        .filter((item) => (item as { enabled?: boolean }).enabled !== false)
-        .map((item) => {
-          const startDate = new Date(item.startDate);
-          startDate.setHours(0, 0, 0, 0);
-          const endDate = new Date(item.endDate);
-          endDate.setHours(23, 59, 59, 999);
-          const basePrice =
-            typeof item.originalPrice === 'number' && item.originalPrice > 0
-              ? item.originalPrice
-              : journey.price || 0;
-          const price = item.price && item.price > 0 ? item.price : basePrice;
-          return { startDate, endDate, price };
-        })
-        .sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
+  /** 未在列表中或未显式标记为关闭的日期视为可订（默认全开） */
+  const disabledDaySet = useMemo(() => {
+    if (!journey.availableDates?.length) return new Set<string>();
+    const set = new Set<string>();
+    for (const item of journey.availableDates) {
+      if ((item as { enabled?: boolean }).enabled === false) {
+        const start = new Date(item.startDate);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(item.endDate);
+        end.setHours(23, 59, 59, 999);
+        for (let t = start.getTime(); t <= end.getTime(); t += 86400000) {
+          set.add(new Date(t).toISOString().split('T')[0]);
+        }
+      }
     }
-    const list: DateSlot[] = [];
-    const days = parseInt(journey.duration?.split(' ')[0] || '9', 10);
+    return set;
+  }, [journey.availableDates]);
+
+  /** 与后台剔除式管理一致：从 today 起按天生成 365 天，排除 disabledDaySet 中的日期 */
+  const dateSlots = useMemo((): DateSlot[] => {
     const basePrice = journey.price || 0;
-    for (let i = 0; i < 12; i++) {
-      const monthDate = new Date(today.getFullYear(), today.getMonth() + i, 1);
-      if (monthDate < today) continue;
-      const startDate = new Date(monthDate);
-      const endDate = new Date(startDate);
-      endDate.setDate(endDate.getDate() + days - 1);
-      list.push({ startDate, endDate, price: basePrice });
+    const list: DateSlot[] = [];
+    for (let i = 0; i < 365; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() + i);
+      const ymd = d.toISOString().split('T')[0];
+      if (disabledDaySet.has(ymd)) continue;
+      list.push({
+        startDate: new Date(d.getTime()),
+        endDate: new Date(d.getTime()),
+        price: basePrice,
+      });
     }
     return list;
-  }, [journey.availableDates, journey.duration, journey.price, today]);
+  }, [journey.price, today, disabledDaySet]);
 
   const year = viewMonth.getFullYear();
   const month = viewMonth.getMonth();
@@ -89,7 +88,7 @@ export default function BookingCalendarGrid({ journey, onBookingClick }: Booking
   for (let d = 1; d <= daysInMonth; d++) {
     const date = new Date(year, month, d);
     date.setHours(0, 0, 0, 0);
-    const slot = dateSlots.find((s) => isInRange(date, s.startDate, s.endDate)) ?? null;
+    const slot = dateSlots.find((s) => isSameCalendarDay(date, s.startDate)) ?? null;
     gridDays.push({ date, slot });
   }
 
@@ -158,26 +157,37 @@ export default function BookingCalendarGrid({ journey, onBookingClick }: Booking
             if (!cell.date) {
               return <div key={`e-${i}`} className="aspect-square" />;
             }
-            const isAvailable = !!cell.slot;
             const dayStart = new Date(cell.date);
             dayStart.setHours(0, 0, 0, 0);
             const isPast = dayStart.getTime() < today.getTime();
-            const isClickable = isAvailable && !isPast;
+            const ymd = dayStart.toISOString().split('T')[0];
+            const isExplicitlyDisabled = disabledDaySet.has(ymd);
+            const isClickable = !isPast && !isExplicitlyDisabled;
+            const activeSlot: DateSlot =
+              cell.slot ||
+              {
+                startDate: dayStart,
+                endDate: new Date(dayStart.getTime()),
+                price: journey.price || 0,
+              };
             const isSelected =
-              selectedSlot &&
-              cell.slot &&
-              isSameCalendarDay(cell.slot.startDate, selectedSlot.startDate) &&
-              cell.slot.price === selectedSlot.price;
+              selectedSlot && isSameCalendarDay(dayStart, selectedSlot.startDate);
+
             return (
               <button
                 key={i}
                 type="button"
                 disabled={!isClickable}
-                onClick={(e) => isClickable && cell.slot && handleDayClick(e, cell.slot)}
+                onClick={(e) => {
+                  if (isClickable) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleDayClick(e, activeSlot);
+                  }
+                }}
                 className={`
                   aspect-square rounded-md text-sm font-medium transition-colors select-none
-                  ${!isClickable ? 'text-gray-300 bg-gray-100 cursor-default pointer-events-none' : ''}
-                  ${isClickable && !isSelected ? 'text-gray-900 bg-white hover:bg-[#2D4033]/15 cursor-pointer' : ''}
+                  ${!isClickable ? 'text-gray-300 bg-gray-100 cursor-default' : 'text-gray-900 bg-white hover:bg-[#2D4033]/15 cursor-pointer'}
                   ${isSelected ? 'text-white cursor-pointer' : ''}
                 `}
                 style={isSelected ? { backgroundColor: THEME_GREEN } : undefined}
@@ -210,10 +220,11 @@ export default function BookingCalendarGrid({ journey, onBookingClick }: Booking
               className={`
                 px-6 py-2.5 text-xs tracking-widest uppercase transition-colors
                 ${selectedSlot
-                  ? 'bg-black text-white hover:bg-gray-800 cursor-pointer'
-                  : 'bg-gray-200 text-gray-400 cursor-not-allowed pointer-events-none'
+                  ? 'text-white hover:opacity-90 cursor-pointer'
+                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                 }
               `}
+              style={selectedSlot ? { backgroundColor: THEME_GREEN } : undefined}
             >
               REQUEST TO BOOK
             </button>

@@ -86,8 +86,10 @@ export default function BookingReviewPage() {
       router.replace('/auth/login');
       return;
     }
-    const slug = decodeURIComponent(journeyId);
-    fetch(`/api/journeys/slug/${encodeURIComponent(slug)}`)
+    const slugRaw = decodeURIComponent(journeyId);
+    const cleanSlug = slugRaw.replace(/^journeys\//, '').replace(/^\//, '').trim() || slugRaw;
+    const normalizedSlug = cleanSlug.split('/').filter(Boolean).pop() || cleanSlug;
+    fetch(`/api/journeys/slug/${encodeURIComponent(normalizedSlug)}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.journey) {

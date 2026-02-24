@@ -7,9 +7,9 @@ import { Check, Info } from 'lucide-react';
 import BookingCalendarGrid from './BookingCalendarGrid';
 import GoFurther from '@/components/shared/GoFurther';
 
-const CONTENT_WRAPPER = `max-w-7xl mx-auto ${DYNAMIC_PADDING}`;
-/** 预订区块专用：更大内容宽度，不与上方 Itinerary 边距对齐 */
-const BOOKING_SECTION_WRAPPER = 'max-w-7xl mx-auto px-4 md:px-6';
+const CONTENT_WRAPPER = `max-w-6xl mx-auto ${DYNAMIC_PADDING}`;
+/** 预订区块专用：max-width 7xl，比上方 Itinerary 更宽 */
+const BOOKING_SECTION_WRAPPER = 'max-w-7xl mx-auto px-4 md:px-8';
 
 /** 主题绿（Explore Together 专用），仅在本组件内使用 */
 const THEME_GREEN = '#2D4033';
@@ -60,7 +60,7 @@ function PriceInfoTooltip({ text, themeGreen }: { text: string; themeGreen: stri
       </span>
       {visible && (
         <div
-          className="absolute left-full bottom-full mb-2 ml-1 z-20 px-3 py-2 rounded text-white text-sm font-normal max-w-xs shadow-lg whitespace-pre-line"
+          className="absolute left-0 bottom-full mb-3 z-50 min-w-[280px] max-w-[320px] p-4 rounded text-white text-sm font-normal leading-relaxed shadow-lg whitespace-pre-line"
           style={{ backgroundColor: themeGreen }}
         >
           {text}
@@ -210,17 +210,15 @@ export default function ExploreTogetherLayout({ journey, onBookingClick, journey
             )}
           </div>
 
-          {/* 2b. Main Content 大图：Overview 下方，大面积留白 + 细边框 border-white/10 */}
+          {/* 2b. Main Content 大图：固定比例容器，图片填满无留白 */}
           {mainContentImage && (
-            <div className="mt-12 md:mt-16">
-              <div className="w-full py-12 md:py-20 px-8 md:px-16 lg:px-24">
-                <div className="relative w-full aspect-[21/9] mx-auto rounded-sm overflow-hidden border border-white/10 shadow-xl">
-                  <img
-                    src={mainContentImage}
-                    alt=""
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                </div>
+            <div className="mt-12 md:mt-16 w-full">
+              <div className="relative w-full aspect-[21/9] overflow-hidden rounded-sm border border-white/10 shadow-xl">
+                <img
+                  src={mainContentImage}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
               </div>
             </div>
           )}

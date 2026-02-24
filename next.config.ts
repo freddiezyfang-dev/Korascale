@@ -15,8 +15,16 @@ const nextConfig: NextConfig = {
     // 忽略类型错误（可选依赖的类型检查）
     ignoreBuildErrors: false,
   },
-  // 不添加 rewrites 或 headers，避免干扰 API 路由
-  // 确保 API 路由正常工作
+  // dev 时用轮询替代大量文件 watch，避免 EMFILE 导致 /api/journeys 等路由未注册而 404
+  webpack: (config, { dev }) => {
+    if (dev) {
+      config.watchOptions = {
+        poll: 2000,
+        ignored: /node_modules/,
+      };
+    }
+    return config;
+  },
 };
 
 export default nextConfig;

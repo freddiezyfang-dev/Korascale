@@ -680,20 +680,31 @@ export default function DynamicJourneyPage() {
   const searchParams = useSearchParams();
   // catch-all 路由返回数组，需要合并
   const slugArray = params.slug as string[];
-  const slug = Array.isArray(slugArray) ? slugArray.join('/') : (slugArray || '');
+  const slugRaw = Array.isArray(slugArray) ? slugArray.join('/') : (slugArray || '');
+  const slug = slugRaw.replace(/^\/+|\/+$/g, '').trim() || slugRaw;
+  /** 清理 slug：去掉 journeys/ 前缀及前导斜杠 */
+  const cleanSlug = slug.replace(/^journeys\//, '').replace(/^\//, '').trim() || slug;
+  /** 只取路径最后一段，防止重复拼接；请求始终为 /api/journeys/slug/{normalizedSlug} */
+  const normalizedSlug =
+    (cleanSlug || slug).split('/').filter(Boolean).pop() || cleanSlug || slug;
+  const slugForApi = normalizedSlug;
 
-  // 支持 ?clearCache=1：清除 journey 的 localStorage 并从 API 重新加载，使页面使用最新排版后重定向到当前页
+  // 支持 ?clearCache=1：清除缓存并重定向到规范 URL（单段 normalizedSlug）
   useEffect(() => {
     if (searchParams.get('clearCache') !== '1') return;
     (async () => {
       await clearStorageAndReload();
-      router.replace(`/journeys/${slug}`, { scroll: true });
+      router.replace(`/journeys/${normalizedSlug}`, { scroll: true });
     })();
-  }, [searchParams, slug, router, clearStorageAndReload]);
+  }, [searchParams, normalizedSlug, router, clearStorageAndReload]);
   
-  // 检查是否是 journey type slug（在组件早期检查，避免执行后续逻辑）
-  const isJourneyTypeSlug = slug && JOURNEY_TYPE_SLUGS.includes(slug as any);
-  const isTypeRoute = slug && (slug.startsWith('type/') || slug === 'type');
+  // 检查是否是 journey type slug（用 cleanSlug 一并判断）
+  const isJourneyTypeSlug =
+    (slug && JOURNEY_TYPE_SLUGS.includes(slug as any)) ||
+    (cleanSlug && JOURNEY_TYPE_SLUGS.includes(cleanSlug as any));
+  const isTypeRoute =
+    (slug && (slug.startsWith('type/') || slug === 'type')) ||
+    (cleanSlug && (cleanSlug.startsWith('type/') || cleanSlug === 'type'));
   
   // 调试信息：检查 journey type slug 识别
   if (slug) {
@@ -803,11 +814,13 @@ export default function DynamicJourneyPage() {
 
   // 已移除酒店详情弹窗状态
 
-  // 根据slug查找对应的旅行卡片（优先从context，其次从API）
+  // 根据 slug 查找（优先 context，其次 API）；用 normalizedSlug 匹配
   const journey = useMemo(() => {
-    const foundInContext = journeys.find(j => j.slug === slug);
+    const foundInContext = journeys.find(
+      (j) => j.slug === normalizedSlug || j.slug === cleanSlug || j.slug === slug
+    );
     return foundInContext || journeyFromApi;
-  }, [journeys, slug, journeyFromApi]);
+  }, [journeys, slug, cleanSlug, normalizedSlug, journeyFromApi]);
 
   // 判断 journey 是 day tour 还是 multi-day journey
   const isDayTour = useMemo(() => {
@@ -3159,8 +3172,8 @@ export default function DynamicJourneyPage() {
         return;
       }
       
-      // 再次检查是否是 journey type slug（双重保险，直接检查常量）
-      if (JOURNEY_TYPE_SLUGS.includes(slug as any)) {
+      // 再次检查是否是 journey type slug（含 cleanSlug，避免 journeys/explore-together 仍发请求）
+      if (JOURNEY_TYPE_SLUGS.includes(slug as any) || (cleanSlug && JOURNEY_TYPE_SLUGS.includes(cleanSlug as any))) {
         console.log('[DynamicJourneyPage] Aborting API call - journey type slug detected:', slug);
         return;
       }
@@ -3168,21 +3181,23 @@ export default function DynamicJourneyPage() {
       // 如果还在加载context数据，等待一下
       if (journeysLoading) return;
       
-      // 如果已经在context中找到，不需要API查询
-      const foundInContext = journeys.find(j => j.slug === slug);
+      // 如果已经在 context 中找到（用 normalizedSlug 匹配），不需要 API 查询
+      const foundInContext = journeys.find(
+        (j) => j.slug === normalizedSlug || j.slug === cleanSlug || j.slug === slug
+      );
       if (foundInContext) return;
       
       // 最后一次检查是否是 journey type slug（三重保险）
-      if (JOURNEY_TYPE_SLUGS.includes(slug as any)) {
+      if (JOURNEY_TYPE_SLUGS.includes(slug as any) || (cleanSlug && JOURNEY_TYPE_SLUGS.includes(cleanSlug as any))) {
         console.log('[DynamicJourneyPage] Final check - journey type slug, aborting:', slug);
         return;
       }
       
       // 如果已经查询过且结果为null，不需要重复查询
       // 添加 slug 验证，避免无效请求
-      if (journeyFromApi === null && !isLoadingFromApi && journeys.length > 0 && slug && slug.length > 1) {
+      if (journeyFromApi === null && !isLoadingFromApi && journeys.length > 0 && (slug?.length > 1 || cleanSlug?.length > 1)) {
         // 最后一次检查（四重保险）
-        if (JOURNEY_TYPE_SLUGS.includes(slug as any)) {
+        if (JOURNEY_TYPE_SLUGS.includes(slug as any) || (cleanSlug && JOURNEY_TYPE_SLUGS.includes(cleanSlug as any))) {
           console.log('[DynamicJourneyPage] Pre-fetch check - journey type slug, aborting:', slug);
           return;
         }
@@ -3193,7 +3208,7 @@ export default function DynamicJourneyPage() {
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 10000);
           
-          const response = await fetch(`/api/journeys/slug/${encodeURIComponent(slug)}`, {
+          const response = await fetch(`/api/journeys/slug/${encodeURIComponent(slugForApi)}`, {
             signal: controller.signal,
           });
           
@@ -3225,7 +3240,7 @@ export default function DynamicJourneyPage() {
     };
     
     fetchJourneyBySlug();
-  }, [slug, journeys, journeysLoading, journeyFromApi, isLoadingFromApi]);
+  }, [slug, cleanSlug, normalizedSlug, slugForApi, journeys, journeysLoading, journeyFromApi, isLoadingFromApi]);
 
   // 生成标准化的页面配置（必须在 Intersection Observer 之前定义）
   const pageConfig = useMemo(() => {

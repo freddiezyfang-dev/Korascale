@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { Journey } from '@/types';
 
+/** 标准化 availableDates：确保每项含 enabled（缺省 true），与单日游格式一致 */
+function normalizeAvailableDates(items: unknown[] | undefined): unknown[] {
+  if (!Array.isArray(items)) return [];
+  return items.map((item: any) => ({
+    ...item,
+    enabled: item && typeof item.enabled === 'boolean' ? item.enabled : true,
+  }));
+}
+
 // GET: 获取单个journey
 export async function GET(
   request: NextRequest,
@@ -66,6 +75,7 @@ export async function GET(
       heroImage: baseData.heroImage ?? undefined,
       mainContentImage: baseData.mainContentImage ?? undefined,
       priceDetails: baseData.priceDetails ?? undefined,
+      availableDates: normalizeAvailableDates(baseData.availableDates),
       // 时间戳
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
@@ -229,7 +239,9 @@ export async function PUT(
     if ((updates as any).accommodations !== undefined) jsonbUpdates.accommodations = (updates as any).accommodations;
     if ((updates as any).availableExperiences !== undefined) jsonbUpdates.availableExperiences = (updates as any).availableExperiences;
     if ((updates as any).availableAccommodations !== undefined) jsonbUpdates.availableAccommodations = (updates as any).availableAccommodations;
-    if ((updates as any).availableDates !== undefined) jsonbUpdates.availableDates = (updates as any).availableDates;
+    if ((updates as any).availableDates !== undefined) {
+      jsonbUpdates.availableDates = normalizeAvailableDates((updates as any).availableDates);
+    }
     if ((updates as any).included !== undefined) jsonbUpdates.included = (updates as any).included;
     if ((updates as any).excluded !== undefined) jsonbUpdates.excluded = (updates as any).excluded;
     if ((updates as any).heroStats !== undefined) jsonbUpdates.heroStats = (updates as any).heroStats;

@@ -108,13 +108,24 @@ function ExploreTogetherCalendarPanel({
     );
     return idx >= 0 ? { index: idx, item: currentDates[idx] } : null;
   };
+  /** 默认全开、点击关闭：无记录=开启(绿)，点击后写入 enabled: false 或移除记录 */
   const toggleDay = (dayStr: string) => {
     if (!isEditing) return;
     const list = [...currentDates];
     const found = findEntryForDay(dayStr);
     if (found) {
-      const next = { ...list[found.index], enabled: !(list[found.index] as { enabled?: boolean }).enabled };
-      list[found.index] = next;
+      const current = list[found.index] as { enabled?: boolean };
+      if (current.enabled === false) {
+        const start = (list[found.index] as { startDate: string }).startDate;
+        const end = (list[found.index] as { endDate: string }).endDate;
+        if (start === end) {
+          list.splice(found.index, 1);
+        } else {
+          list[found.index] = { ...list[found.index], enabled: true } as any;
+        }
+      } else {
+        list[found.index] = { ...list[found.index], enabled: false } as any;
+      }
     } else {
       list.push({
         id: crypto.randomUUID(),
@@ -122,7 +133,7 @@ function ExploreTogetherCalendarPanel({
         endDate: dayStr,
         price: basePrice,
         status: 'Available',
-        enabled: true,
+        enabled: false,
         discountPercentage: 0,
         discountType: 'Percentage',
         offerType: undefined,
@@ -147,7 +158,7 @@ function ExploreTogetherCalendarPanel({
     <div>
       <Heading level={2} className="text-xl font-semibold mb-2">Available Dates</Heading>
       <Text size="sm" className="text-gray-500 mb-4 block">
-        日历管理：点击日期可切换该日期的开启/关闭状态。开启的日期将在前端日历中可被用户选择。
+        日历管理：默认全部开启（绿色），点击日期可关闭（灰色）。关闭的日期在前端日历中不可选。
       </Text>
       <div className="inline-block border border-gray-200 rounded-lg p-4 bg-white">
         <div className="flex items-center justify-between mb-3">
@@ -176,7 +187,7 @@ function ExploreTogetherCalendarPanel({
           {gridCells.map((cell, i) => {
             if (!cell.dayStr || !cell.date) return <div key={`e-${i}`} className="aspect-square w-8" />;
             const found = findEntryForDay(cell.dayStr);
-            const enabled = found ? (found.item as { enabled?: boolean }).enabled !== false : false;
+            const enabled = found ? (found.item as { enabled?: boolean }).enabled !== false : true;
             return (
               <button
                 key={i}
@@ -949,7 +960,7 @@ export default function EditJourneyPage() {
                 </div>
               </Card>
 
-              {/* Available Dates Management：Explore Together 用日历面板，Deep Discovery 用 Add Date 列表 */}
+              {/* Available Dates：仅按 journeyType 分流，无 slug/ID 硬编码。Explore Together → 日历管理面板，其他 → Add Date 列表 */}
               <Card className="p-6">
                 {(isEditing ? (formData.journeyType ?? journey.journeyType) : journey.journeyType) === 'Explore Together' ? (
                   <ExploreTogetherCalendarPanel
