@@ -238,8 +238,12 @@ export default function ExploreTogetherLayout({ journey, onBookingClick, journey
 
             <div className="relative pl-10 md:pl-12">
               <div
-                className="absolute left-[11px] top-6 bottom-6 w-px hidden md:block"
-                style={{ backgroundColor: THEME_GREEN, opacity: 0.45 }}
+                className="absolute left-[11px] bottom-0 w-px hidden md:block"
+                style={{
+                  backgroundColor: THEME_GREEN,
+                  opacity: 0.45,
+                  top: '3.125rem',
+                }}
               />
               {itinerary.map((day, index) => (
                 <article
@@ -247,7 +251,7 @@ export default function ExploreTogetherLayout({ journey, onBookingClick, journey
                   className="relative flex flex-col lg:flex-row lg:items-start gap-6 py-8 md:py-10 border-b border-gray-200 last:border-b-0"
                 >
                   <div
-                    className="absolute w-6 h-6 rounded-full border-2 flex-shrink-0 z-10 top-[2.75rem] md:top-[2.75rem]"
+                    className="absolute w-6 h-6 rounded-full border-2 flex-shrink-0 z-10 top-8 md:top-8 mt-[6px]"
                     style={{
                       backgroundColor: '#FAF9F6',
                       borderColor: THEME_GREEN,
@@ -255,7 +259,7 @@ export default function ExploreTogetherLayout({ journey, onBookingClick, journey
                       transform: 'translateX(-50%)',
                     }}
                   />
-                  <div className="flex-1 min-w-0 pl-4 md:pl-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  <div className="flex-1 min-w-0 pl-8 md:pl-10 grid grid-cols-1 lg:grid-cols-12 gap-6">
                     <div className="lg:col-span-7 space-y-2">
                       <h3
                         className="text-lg md:text-xl text-gray-900"
