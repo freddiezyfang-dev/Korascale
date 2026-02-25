@@ -28,7 +28,7 @@ module.exports = {
         shadow: colors.shadow,
       },
       
-      // 使用设计令牌中的字体
+      // 使用设计令牌中的字体（next/font 变量优先）
       fontFamily: {
         heading: typography.fontFamily.heading,
         subheading: typography.fontFamily.subheading,
@@ -37,11 +37,10 @@ module.exports = {
         montserrat: typography.fontFamily.montserrat,
         dancingScript: typography.fontFamily.dancingScript,
         montaguSlab: typography.fontFamily.montaguSlab,
-        // 强制定义，避免被 globals.css 覆盖
-        // 对应 AK 的优雅衬线体
-        serif: ['"Playfair Display"', 'serif'],
-        // 对应 AK 的现代无衬线体
-        sans: ['Montserrat', 'ui-sans-serif', 'system-ui'],
+        // next/font 变量，避免 Windows 回退到微软雅黑
+        serif: ['var(--font-playfair)', 'serif'],
+        sans: ['var(--font-inter)', 'sans-serif'],
+        heading: ['var(--font-playfair)', 'serif'],
       },
       
       // 使用设计令牌中的字体大小
@@ -54,7 +53,10 @@ module.exports = {
       fontWeight: typography.fontWeight,
       
       // 使用设计令牌中的字间距
-      letterSpacing: typography.letterSpacing,
+      letterSpacing: {
+        ...typography.letterSpacing,
+        'widest-plus': '0.2em',
+      },
       
       // 使用设计令牌中的间距
       spacing: spacing,

@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import "react-quill-new/dist/quill.snow.css";
 import Header from "@/components/layout/Header";
@@ -15,15 +16,15 @@ import { ArticleManagementProvider } from "@/context/ArticleManagementContext";
 import { CartProvider } from "@/context/CartContext";
 import { LoginModalProvider } from "@/context/LoginModalContext";
 
-// 暂时移除 next/font/google 以避免 Turbopack 兼容性问题
-// 字体通过 globals.css 中的 @import 加载
-const geistSans = {
-	variable: "--font-geist-sans",
-};
+const playfair = Playfair_Display({
+	subsets: ["latin"],
+	variable: "--font-playfair",
+});
 
-const geistMono = {
-	variable: "--font-geist-mono",
-};
+const inter = Inter({
+	subsets: ["latin"],
+	variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
 	title: "Korascale - Craft Your Own Adventure",
@@ -43,14 +44,14 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en">
+		<html lang="en" className={`${playfair.variable} ${inter.variable}`}>
 			<head>
 				<link
 					href="https://api.mapbox.com/mapbox-gl-js/v3.17.0/mapbox-gl.css"
 					rel="stylesheet"
 				/>
 			</head>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className="font-sans antialiased text-gray-900 bg-white">
 				<UserProvider>
 					<OrderManagementProvider>
 						<HotelManagementProvider>
