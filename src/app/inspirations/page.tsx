@@ -26,7 +26,7 @@ const inspirations = [
   },
   {
     id: 2,
-    title: "Great Outdoors",
+    title: "The Western Corridor",
     image: imgGreatOutdoors,
     description: "Answer the call of the wild where China's epic landscapes unfold. Korascale curates journeys for every pace: trekking routes to sacred summits like Gongga Shan, self-drive adventures along the legendary G318 highway, and silent moments before turquoise alpine lakes. Our expertise turns remote trails and breathtaking vistas into your personal playground."
   },

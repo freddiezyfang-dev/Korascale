@@ -129,7 +129,7 @@ export default function EditArticlePage() {
   };
 
   const categories: ArticleCategory[] = [
-    'Food Journey','Great Outdoors','Immersive Encounters','Spiritual Retreat','Vibrant Nightscapes','Seasonal Highlights'
+    'Food Journey','The Western Corridor','Immersive Encounters','Spiritual Retreat','Vibrant Nightscapes','Seasonal Highlights'
   ];
 
   const toggleJourney = (jid: string) => {

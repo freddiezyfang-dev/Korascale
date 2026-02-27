@@ -14,9 +14,9 @@ const inspirations = [
   },
   {
     id: 2,
-    title: "Great Outdoors",
+    title: "The Western Corridor",
     image: "/images/inspirations/great-outdoors.jpeg",
-    href: "/inspirations/great-outdoors"
+    href: "/inspirations/the-western-corridor"
   },
   {
     id: 3,

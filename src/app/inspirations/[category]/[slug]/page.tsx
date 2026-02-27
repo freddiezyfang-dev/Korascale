@@ -131,7 +131,7 @@ export default function ArticleDetailPage() {
           <Text className="text-sm text-gray-600 mt-4">可用的分类 slug：</Text>
           <ul className="text-sm text-gray-600 mt-2 list-disc list-inside text-left">
             <li>food-journey</li>
-            <li>great-outdoors</li>
+            <li>the-western-corridor</li>
             <li>immersive-encounters</li>
             <li>spiritual-retreat</li>
             <li>vibrant-nightscapes</li>

@@ -2,7 +2,7 @@ export type ArticleStatus = 'draft' | 'active' | 'inactive';
 
 export type ArticleCategory =
   | 'Food Journey'
-  | 'Great Outdoors'
+  | 'The Western Corridor'
   | 'Immersive Encounters'
   | 'Spiritual Retreat'
   | 'Vibrant Nightscapes'
@@ -57,7 +57,7 @@ export interface Article {
 
 export const ArticleCategoryToHeroImage: Record<ArticleCategory, string> = {
   'Food Journey': '/images/inspirations/food-journey.jpg',
-  'Great Outdoors': '/images/inspirations/great-outdoors.jpeg',
+  'The Western Corridor': '/images/inspirations/great-outdoors.jpeg',
   'Immersive Encounters': '/images/inspirations/traditional%20craft.png',
   'Spiritual Retreat': '/images/inspirations/spiritual%20retreat.webp',
   'Vibrant Nightscapes': '/images/inspirations/nightscapes.jpg',
@@ -66,7 +66,7 @@ export const ArticleCategoryToHeroImage: Record<ArticleCategory, string> = {
 
 export const ArticleCategoryToSlug: Record<ArticleCategory, string> = {
   'Food Journey': 'food-journey',
-  'Great Outdoors': 'great-outdoors',
+  'The Western Corridor': 'the-western-corridor',
   'Immersive Encounters': 'immersive-encounters',
   'Spiritual Retreat': 'spiritual-retreat',
   'Vibrant Nightscapes': 'vibrant-nightscapes',
@@ -76,7 +76,7 @@ export const ArticleCategoryToSlug: Record<ArticleCategory, string> = {
 /** 二级类目展示名称（面包屑、类目列表页标题等）；含分号时类目页会拆成两行显示 */
 export const ArticleCategoryToDisplayName: Record<ArticleCategory, string> = {
   'Food Journey': 'How to Plan a China Trip; A Logic-First Guide (2026)',
-  'Great Outdoors': 'Great Outdoors',
+  'The Western Corridor': 'The Western Corridor',
   'Immersive Encounters': 'Immersive Encounters',
   'Spiritual Retreat': 'Spiritual Retreat',
   'Vibrant Nightscapes': 'Vibrant Nightscapes',
@@ -84,6 +84,7 @@ export const ArticleCategoryToDisplayName: Record<ArticleCategory, string> = {
 };
 
 export const ArticleSlugToCategory = (slug: string): ArticleCategory | null => {
+  if (slug === 'great-outdoors') return 'The Western Corridor';
   const entry = (Object.entries(ArticleCategoryToSlug) as [ArticleCategory, string][])
     .find(([, s]) => s === slug);
   return entry ? entry[0] : null;

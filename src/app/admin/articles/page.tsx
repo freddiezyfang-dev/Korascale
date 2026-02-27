@@ -28,7 +28,7 @@ export default function AdminArticlesPage() {
 
   const categories: ArticleCategory[] = [
     'Food Journey',
-    'Great Outdoors',
+    'The Western Corridor',
     'Immersive Encounters',
     'Spiritual Retreat',
     'Vibrant Nightscapes',

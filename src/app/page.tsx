@@ -158,11 +158,11 @@ export default function Home() {
           },
           {
             id: '2',
-            title: 'Great Outdoors',
+            title: 'The Western Corridor',
             shortDescription: 'Answer the call of the wild where China\'s epic landscapes unfold',
             image: '/images/inspirations/great-outdoors.jpeg',
-            slug: 'great-outdoors',
-            href: '/inspirations/great-outdoors'
+            slug: 'the-western-corridor',
+            href: '/inspirations/the-western-corridor'
           },
           {
             id: '3',
