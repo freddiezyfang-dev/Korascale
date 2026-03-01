@@ -39,7 +39,7 @@ function HeaderLeft() {
 					className="text-xl font-serif font-bold tracking-widest leading-none"
 					style={{ 
 						color: '#F5F2E9',
-						fontFamily: 'Playfair Display, serif',
+						fontFamily: 'var(--font-playfair), Playfair Display, serif',
 						letterSpacing: '0.1em'
 					}}
 				>

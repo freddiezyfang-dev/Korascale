@@ -248,7 +248,7 @@ export default function ExploreTogetherLayout({ journey, onBookingClick, journey
               {itinerary.map((day, index) => (
                 <article
                   key={day.day ?? index}
-                  className="relative flex flex-col lg:flex-row lg:items-start gap-6 py-8 md:py-10 border-b border-gray-200 last:border-b-0"
+                  className="relative flex flex-col lg:flex-row items-start gap-6 py-8 md:py-10 border-b border-gray-200 last:border-b-0"
                 >
                   <div
                     className="absolute w-6 h-6 rounded-full border-2 flex-shrink-0 z-10 top-8 md:top-8 mt-[6px]"
@@ -259,7 +259,7 @@ export default function ExploreTogetherLayout({ journey, onBookingClick, journey
                       transform: 'translateX(-50%)',
                     }}
                   />
-                  <div className="flex-1 min-w-0 pl-8 md:pl-10 grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  <div className="flex-1 min-w-0 pl-6 md:pl-10 grid grid-cols-1 lg:grid-cols-12 gap-6">
                     <div className="lg:col-span-7 space-y-2">
                       <h3
                         className="text-lg md:text-xl text-gray-900"

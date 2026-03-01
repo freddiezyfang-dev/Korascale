@@ -17,12 +17,12 @@ export default function Footer() {
 					color: rgba(255, 255, 255, 0.8) !important;
 				}
 			`}} />
-			<div className="mx-auto flex max-w-screen-2xl gap-[66px] px-[30px] py-[60px]">
+			<div className="mx-auto flex flex-col lg:flex-row max-w-screen-2xl gap-8 lg:gap-[66px] w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-[60px]">
 				{/* Left Side */}
-				<div className="relative w-[705px]">
-					<div className="flex items-start gap-4 pl-[33px] pt-[55px]">
-						{/* Logo 图片 - 添加滤镜处理 */}
-						<div className="h-[69px] w-[69px] flex items-center justify-center shrink-0">
+				<div className="relative w-full lg:max-w-[705px]">
+					<div className="flex flex-col sm:flex-row items-start gap-4 sm:pl-6 lg:pl-[33px] pt-6 sm:pt-10 lg:pt-[55px]">
+						{/* Logo 图片 - 响应式尺寸 */}
+						<div className="h-12 w-12 sm:h-14 sm:w-14 lg:h-[69px] lg:w-[69px] flex items-center justify-center shrink-0">
 							<img 
 								src={imgLogo} 
 								alt="Korascale Logo"
@@ -35,27 +35,28 @@ export default function Footer() {
 						</div>
 						{/* 品牌名称和副标题 */}
 						<div>
-							<div 
-								className="text-[24px] font-serif font-bold tracking-widest"
+							<Link
+								href="/"
+								className="text-xl sm:text-2xl font-serif font-bold tracking-widest block"
 								style={{ 
 									color: '#F5F2E9',
-									fontFamily: 'Playfair Display, serif',
+									fontFamily: 'var(--font-playfair), Playfair Display, serif',
 									letterSpacing: '0.1em'
 								}}
 							>
 								KORASCALE
-							</div>
-							<div className="mt-1 text-[14px] font-body" style={{ color: '#F5F2E9' }}>craft your own Adventure</div>
+							</Link>
+							<div className="mt-1 text-sm font-body" style={{ color: '#F5F2E9' }}>craft your own Adventure</div>
 						</div>
 					</div>
-					<div className="mt-8 grid grid-cols-2 gap-4 rounded-[5px] bg-transparent px-[34px] py-[25px] w-[394px]">
-						<input className="h-[34px] rounded-[5px] bg-white px-3 text-black" placeholder="First Name" />
-						<input className="h-[34px] rounded-[5px] bg-white px-3 text-black" placeholder="Last Name" />
-						<input className="col-span-2 h-[35px] rounded-[5px] bg-white px-3 text-black" placeholder="E-mail Address" />
+					<div className="mt-6 sm:mt-8 grid grid-cols-2 gap-4 rounded-lg bg-transparent w-full max-w-md lg:max-w-[394px] px-4 sm:px-6 lg:px-[34px] py-5 lg:py-[25px]">
+						<input className="min-h-[44px] rounded-[5px] bg-white px-3 text-black text-sm" placeholder="First Name" />
+						<input className="min-h-[44px] rounded-[5px] bg-white px-3 text-black text-sm" placeholder="Last Name" />
+						<input className="col-span-2 min-h-[44px] rounded-[5px] bg-white px-3 text-black text-sm" placeholder="E-mail Address" />
 						<p className="col-span-2 text-[10px] opacity-80">By entering your email, you agree to our Terms of Use and Privacy Policy, including receipt of emails and promotions</p>
-						<button className="justify-self-end h-[28px] w-[95px] rounded-[5px] border border-white text-[10px]">SUBSCRIBE</button>
+						<button className="justify-self-end min-h-[44px] px-6 rounded-[5px] border border-white text-[10px] touch-manipulation">SUBSCRIBE</button>
 					</div>
-					<div className="mt-6 pl-[60px] flex items-center gap-6">
+					<div className="mt-6 sm:pl-6 lg:pl-[60px] flex items-center gap-6">
 						{/* 邮件图标 */}
 						<a 
 							href="mailto:customer-service@korascale.com" 
@@ -92,9 +93,9 @@ export default function Footer() {
 						</Link>
 					</div>
 				</div>
-				{/* Right Side */}
-				<div className="flex gap-[66px]">
-					<ul className="px-[30px] py-[80px] text-base leading-relaxed font-body space-y-2">
+				{/* Right Side - 移动端垂直堆叠，桌面端横排 */}
+				<div className="flex flex-col sm:flex-row gap-8 sm:gap-12 lg:gap-[66px] w-full lg:w-auto">
+					<ul className="px-0 sm:px-4 py-6 sm:py-10 lg:px-[30px] lg:py-[80px] text-sm sm:text-base leading-relaxed font-body space-y-2">
 						<li>
 							<Link href="/support" className="hover:underline transition-all">
 								Support
@@ -121,7 +122,7 @@ export default function Footer() {
 							</Link>
 						</li>
 					</ul>
-					<ul className="px-0 py-[76px] text-base leading-relaxed font-body space-y-2">
+					<ul className="px-0 py-4 sm:py-10 lg:py-[76px] text-sm sm:text-base leading-relaxed font-body space-y-2">
 						<li>
 							<Link href="/payment-methods" className="hover:underline transition-all">
 								Payment Methods
