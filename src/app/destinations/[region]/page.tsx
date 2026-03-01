@@ -430,7 +430,7 @@ export default function RegionDestinationsPage() {
       {isFullPageRegion && (
         <>
           <Section id="map" background="primary" padding="none" className="py-16">
-            <Container size="xl" className="px-1 lg:px-2 max-w-[1600px] mx-auto">
+            <Container size="xl" className="px-1 lg:px-2 w-full max-w-7xl mx-auto">
               <div className="grid grid-cols-12 gap-4 lg:gap-6 h-[650px]">
                 {/* 左侧地图区域 */}
                 <div className="col-span-12 lg:col-span-7 h-full flex items-center justify-center">

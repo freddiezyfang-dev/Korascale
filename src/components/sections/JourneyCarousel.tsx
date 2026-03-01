@@ -85,16 +85,16 @@ export default function JourneyCarousel({
           {items.map((item, index) => (
             <div
               key={item.id}
-              className={`bg-white h-[300px] w-[615px] flex-shrink-0 border-2 border-black rounded-lg overflow-hidden snap-start transition-all duration-300 hover:scale-105 hover:shadow-2xl group ${index === items.length - 1 ? 'mr-4' : ''}`}
+              className={`bg-white w-full max-w-[615px] min-w-[280px] flex-shrink-0 border-2 border-black rounded-lg overflow-hidden snap-start transition-all duration-300 hover:scale-105 hover:shadow-2xl group ${index === items.length - 1 ? 'mr-4' : ''}`}
             >
               {item.href ? (
                 <Link href={item.href}>
-                  <div className="flex h-full">
+                  <div className="flex flex-col md:flex-row min-h-0">
                     <div 
-                      className="w-[344px] h-[225px] bg-center bg-cover bg-no-repeat m-4 transition-transform duration-300 group-hover:scale-110"
+                      className="w-full md:w-[344px] flex-shrink-0 aspect-video md:aspect-[344/225] bg-center bg-cover bg-no-repeat m-2 md:m-4 transition-transform duration-300 group-hover:scale-110"
                       style={{ backgroundImage: `url('${item.image}')` }}
                     />
-                    <div className="flex-1 p-4 flex flex-col justify-center">
+                    <div className="flex-1 p-4 flex flex-col justify-center min-w-0">
                       <h3 className="text-lg font-subheading text-black mb-4 group-hover:text-primary-500 transition-colors duration-300">
                         {item.title}
                       </h3>
@@ -105,12 +105,12 @@ export default function JourneyCarousel({
                   </div>
                 </Link>
               ) : (
-                <div className="flex h-full cursor-pointer">
+                <div className="flex flex-col md:flex-row min-h-0 cursor-pointer">
                   <div 
-                    className="w-[344px] h-[225px] bg-center bg-cover bg-no-repeat m-4 transition-transform duration-300 group-hover:scale-110"
+                    className="w-full md:w-[344px] flex-shrink-0 aspect-video md:aspect-[344/225] bg-center bg-cover bg-no-repeat m-2 md:m-4 transition-transform duration-300 group-hover:scale-110"
                     style={{ backgroundImage: `url('${item.image}')` }}
                   />
-                  <div className="flex-1 p-4 flex flex-col justify-center">
+                  <div className="flex-1 p-4 flex flex-col justify-center min-w-0">
                     <h3 className="text-lg font-subheading text-black mb-4 group-hover:text-primary-500 transition-colors duration-300">
                       {item.title}
                     </h3>

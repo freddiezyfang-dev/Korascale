@@ -433,7 +433,7 @@ export default function InclusionsAndOffers({ journey, onBookingClick, rightColu
 
   return (
     <section className="w-full py-16 bg-[#FAF9F6]">
-      <div className="w-full max-w-[1440px] mx-auto px-8 lg:px-20">
+      <div className="w-full max-w-7xl mx-auto px-4 md:px-8 lg:px-20">
         {/* Inclusions 与 Dates 的 左右布局（等高容器） */}
         <div className="flex flex-col lg:flex-row gap-12 items-stretch">
           

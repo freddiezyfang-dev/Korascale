@@ -3801,7 +3801,7 @@ export default function DynamicJourneyPage() {
                 level={1} 
                 className="text-4xl lg:text-5xl xl:text-6xl mb-4 tracking-tight leading-[1.1]"
                 style={{ 
-                  fontFamily: 'Playfair Display, serif',
+                  fontFamily: 'var(--font-playfair), Playfair Display, serif',
                   fontWeight: 400,
                   letterSpacing: '-0.02em',
                   lineHeight: '1.1',
@@ -3819,7 +3819,7 @@ export default function DynamicJourneyPage() {
               <div className="flex flex-col items-center lg:items-end">
                 <div 
                   className="text-4xl lg:text-5xl font-light text-white mb-1"
-                  style={{ fontFamily: 'Playfair Display, serif' }}
+                  style={{ fontFamily: 'var(--font-playfair), Playfair Display, serif' }}
                 >
                   {pageConfig.hero.stats.days}
                 </div>
@@ -3835,7 +3835,7 @@ export default function DynamicJourneyPage() {
               <div className="flex flex-col items-center lg:items-end">
                 <div 
                   className="text-4xl lg:text-5xl font-light text-white mb-1"
-                  style={{ fontFamily: 'Playfair Display, serif' }}
+                  style={{ fontFamily: 'var(--font-playfair), Playfair Display, serif' }}
                 >
                   {pageConfig.hero.stats.destinations}
                 </div>
@@ -3851,7 +3851,7 @@ export default function DynamicJourneyPage() {
               <div className="flex flex-col items-center lg:items-end">
                 <div 
                   className="text-4xl lg:text-5xl font-light text-white mb-1"
-                  style={{ fontFamily: 'Playfair Display, serif' }}
+                  style={{ fontFamily: 'var(--font-playfair), Playfair Display, serif' }}
                 >
                   {pageConfig.hero.stats.maxGuests}
                 </div>
@@ -3919,15 +3919,15 @@ export default function DynamicJourneyPage() {
 
       {/* Journey Overview */}
       <section id="overview" className="w-full bg-[#FAF9F6] overflow-hidden">
-        <div className="max-w-[1440px] mx-auto px-10 py-24 flex flex-col lg:flex-row items-start justify-between gap-12">
+        <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-10 py-12 md:py-24 flex flex-col lg:flex-row items-start justify-between gap-8 md:gap-12">
           {/* 左侧内容 - 文字区域，设置最大宽度避免行太长 */}
-          <div className="lg:w-[60%] flex flex-col w-full max-w-2xl">
+          <div className="w-full lg:max-w-[60%] flex flex-col max-w-2xl">
             {/* 标题和描述 */}
             <div className="space-y-8 prose-force-wrap">
               <h2 
                 className="text-2xl lg:text-3xl text-gray-900 leading-relaxed"
                 style={{ 
-                  fontFamily: 'Playfair Display, serif',
+                  fontFamily: 'var(--font-playfair), Playfair Display, serif',
                   fontWeight: 400,
                   lineHeight: '1.6'
                 }}

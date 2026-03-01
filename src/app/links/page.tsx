@@ -6,10 +6,12 @@ import { useArticleManagement } from '@/context/ArticleManagementContext';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { ArticleCategoryToSlug } from '@/types/article';
 import { Journey } from '@/types';
-import { ChevronRight } from 'lucide-react';
 
 const THEME_GREEN = '#2D4033';
 const BG_LINKS = '#FAF9F6';
+const SERIF_FONT = 'var(--font-playfair), Playfair Display, serif';
+/** 所有图片卡片底部文字遮罩，确保白色 Playfair 清晰可见 */
+const CARD_GRADIENT = 'bg-gradient-to-t from-black/60 to-transparent';
 
 export default function LinksPage() {
   const { articles, isLoading: articlesLoading } = useArticleManagement();
@@ -25,104 +27,173 @@ export default function LinksPage() {
   const featuredJourneys = useMemo((): Journey[] => {
     const active = journeys.filter((j) => j.status === 'active');
     const featured = active.filter((j) => j.featured);
-    if (featured.length >= 2) return featured.slice(0, 2);
-    if (featured.length === 1) return featured;
-    return active.slice(0, 2);
+    if (featured.length >= 1) return featured.slice(0, 1);
+    return active.slice(0, 1);
   }, [journeys]);
+
+  const journeyHeroImage = featuredJourneys[0]?.heroImage || featuredJourneys[0]?.image || featuredJourneys[0]?.images?.[0] || '';
 
   return (
     <div
-      className="min-h-screen w-full max-w-md mx-auto px-4 sm:px-6 py-12"
-      style={{ backgroundColor: BG_LINKS }}
+      className="min-h-screen w-full max-w-md mx-auto px-2 py-8 bg-[#FAF9F6]"
     >
-      <header className="text-center mb-10">
+      <header className="text-center mb-6">
         <h1
           className="font-serif uppercase tracking-[0.25em] text-xl sm:text-2xl text-gray-900"
-          style={{ fontFamily: 'var(--font-playfair), Playfair Display, serif' }}
+          style={{ fontFamily: SERIF_FONT }}
         >
           KORASCALE
         </h1>
       </header>
 
-      <section className="mb-10">
-        <h2 className="sr-only">Insights</h2>
-        {articlesLoading ? (
-          <div className="font-serif text-lg py-4 text-gray-500">Loading…</div>
-        ) : seoArticles.length === 0 ? (
-          <div className="font-serif text-lg py-4 text-gray-500 border-b border-gray-100">
-            No articles yet.
-          </div>
-        ) : (
-          <ul className="border-t border-gray-100">
-            {seoArticles.map((article) => {
-              const href = `/inspirations/${ArticleCategoryToSlug[article.category]}/${article.slug}`;
-              return (
-                <li key={article.id}>
-                  <Link
-                    href={href}
-                    className="min-h-[44px] flex justify-between items-center font-serif text-lg py-4 border-b border-gray-100 text-gray-900 hover:text-[#2D4033] transition-colors"
-                    style={{ fontFamily: 'var(--font-playfair), Playfair Display, serif' }}
-                  >
-                    <span className="flex-1 pr-2 line-clamp-2">{article.title}</span>
-                    <ChevronRight className="w-5 h-5 flex-shrink-0 text-gray-400" />
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </section>
+      {(articlesLoading || journeysLoading) ? (
+        <div className="font-sans text-gray-500 py-8 text-center text-sm">Loading…</div>
+      ) : (
+        <div className="grid grid-cols-2 gap-2">
+          {/* Featured Journey: 整行，4:5 比例，文字遮罩 */}
+          {featuredJourneys[0] && (
+            <Link
+              href={`/journeys/${featuredJourneys[0].slug || featuredJourneys[0].id}`}
+              className="col-span-2 block relative w-full aspect-[4/5] rounded-lg overflow-hidden bg-gray-200"
+            >
+              {journeyHeroImage ? (
+                <img
+                  src={journeyHeroImage}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-[#2D4033] to-[#1a2820]" />
+              )}
+              <div className={`absolute inset-0 flex flex-col items-center justify-end p-4 ${CARD_GRADIENT}`}>
+                <span
+                  className="font-serif text-lg sm:text-xl text-white drop-shadow-md text-center"
+                  style={{ fontFamily: SERIF_FONT }}
+                >
+                  {featuredJourneys[0].title}
+                </span>
+                <span className="mt-2 font-sans uppercase tracking-widest text-xs text-white/90">
+                  View Journey
+                </span>
+              </div>
+            </Link>
+          )}
 
-      <section>
-        <h2 className="font-serif text-lg font-medium text-gray-900 mb-4" style={{ fontFamily: 'var(--font-playfair), Playfair Display, serif' }}>
-          Featured Journeys
-        </h2>
-        {journeysLoading ? (
-          <div className="text-gray-500 text-sm">Loading…</div>
-        ) : featuredJourneys.length === 0 ? (
-          <div className="text-gray-500 text-sm">No journeys yet.</div>
-        ) : (
-          <ul className="space-y-6">
-            {featuredJourneys.map((journey) => {
-              const img = journey.heroImage || journey.image || journey.images?.[0] || '';
-              const href = `/journeys/${journey.slug || journey.id}`;
-              return (
-                <li key={journey.id}>
-                  <Link href={href} className="block group">
-                    <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-gray-200">
-                      {img ? (
-                        <img
-                          src={img}
-                          alt=""
-                          className="absolute inset-0 w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-sm">
-                          No image
-                        </div>
-                      )}
-                    </div>
-                    <div className="mt-3">
-                      <span className="font-serif text-base text-gray-900 block mb-2" style={{ fontFamily: 'var(--font-playfair), Playfair Display, serif' }}>
-                        {journey.title}
-                      </span>
-                      <span
-                        className="inline-flex items-center justify-center min-h-[44px] px-5 py-3 font-sans uppercase tracking-widest text-xs text-white rounded transition-opacity hover:opacity-90"
-                        style={{ backgroundColor: THEME_GREEN }}
-                      >
-                        View Journey
-                      </span>
-                    </div>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </section>
+          {/* SEO 文章：两小一大错位网格。前两篇 1:1，第三篇 col-span-2 大卡 */}
+          {seoArticles[0] && (
+            <Link
+              href={`/inspirations/${ArticleCategoryToSlug[seoArticles[0].category]}/${seoArticles[0].slug}`}
+              className="block relative w-full aspect-square rounded-lg overflow-hidden bg-gray-200"
+            >
+              {seoArticles[0].coverImage ? (
+                <img
+                  src={seoArticles[0].coverImage}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-gray-300" />
+              )}
+              <div className={`absolute inset-x-0 bottom-0 p-3 pt-12 text-white ${CARD_GRADIENT}`}>
+                <span
+                  className="font-serif text-sm sm:text-base line-clamp-2 leading-tight"
+                  style={{ fontFamily: SERIF_FONT }}
+                >
+                  {seoArticles[0].title}
+                </span>
+              </div>
+            </Link>
+          )}
+          {seoArticles[1] && (
+            <Link
+              href={`/inspirations/${ArticleCategoryToSlug[seoArticles[1].category]}/${seoArticles[1].slug}`}
+              className="block relative w-full aspect-square rounded-lg overflow-hidden bg-gray-200"
+            >
+              {seoArticles[1].coverImage ? (
+                <img
+                  src={seoArticles[1].coverImage}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-gray-300" />
+              )}
+              <div className={`absolute inset-x-0 bottom-0 p-3 pt-12 text-white ${CARD_GRADIENT}`}>
+                <span
+                  className="font-serif text-sm sm:text-base line-clamp-2 leading-tight"
+                  style={{ fontFamily: SERIF_FONT }}
+                >
+                  {seoArticles[1].title}
+                </span>
+              </div>
+            </Link>
+          )}
+          {seoArticles[2] && (
+            <Link
+              href={`/inspirations/${ArticleCategoryToSlug[seoArticles[2].category]}/${seoArticles[2].slug}`}
+              className="col-span-2 block relative w-full aspect-[3/4] rounded-lg overflow-hidden bg-gray-200"
+            >
+              {seoArticles[2].coverImage ? (
+                <img
+                  src={seoArticles[2].coverImage}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-gray-300" />
+              )}
+              <div className={`absolute inset-x-0 bottom-0 p-4 pt-16 text-white ${CARD_GRADIENT}`}>
+                <span
+                  className="font-serif text-base sm:text-lg line-clamp-2 leading-tight"
+                  style={{ fontFamily: SERIF_FONT }}
+                >
+                  {seoArticles[2].title}
+                </span>
+              </div>
+            </Link>
+          )}
 
-      <footer className="mt-16 text-center">
-        <p className="text-xs text-gray-500">Korascale · Craft Your Own Adventure</p>
+          {/* 双入口：SEO 下方 grid-cols-2，左 JOURNEYS 右 INSPIRATIONS，1:1 */}
+          <Link
+            href="/journeys"
+            className="col-span-1 block relative w-full aspect-square rounded-lg overflow-hidden bg-gray-200"
+          >
+            {journeyHeroImage ? (
+              <img
+                src={journeyHeroImage}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-br from-[#2D4033] to-[#1a2820]" />
+            )}
+            <div className={`absolute inset-0 flex items-center justify-center ${CARD_GRADIENT}`}>
+              <span
+                className="font-serif uppercase tracking-[0.2em] text-white text-sm sm:text-base"
+                style={{ fontFamily: SERIF_FONT }}
+              >
+                JOURNEYS
+              </span>
+            </div>
+          </Link>
+          <Link
+            href="/inspirations"
+            className="col-span-1 block relative w-full aspect-square rounded-lg overflow-hidden bg-[#2D4033]"
+          >
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span
+                className="font-serif uppercase tracking-[0.2em] text-white text-sm sm:text-base"
+                style={{ fontFamily: SERIF_FONT }}
+              >
+                INSPIRATIONS
+              </span>
+            </div>
+          </Link>
+        </div>
+      )}
+
+      <footer className="mt-10 text-center">
+        <p className="font-sans text-xs text-gray-500">Korascale · Craft Your Own Adventure</p>
       </footer>
     </div>
   );

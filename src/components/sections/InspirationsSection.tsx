@@ -102,7 +102,7 @@ export default function InspirationsSection() {
               <Link 
                 key={inspiration.id} 
                 href={inspiration.href}
-                className="relative w-[389px] h-[672px] overflow-hidden rounded-lg group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl flex-shrink-0 snap-start"
+                className="relative w-[280px] sm:w-[320px] md:w-[389px] aspect-[389/672] flex-shrink-0 overflow-hidden rounded-lg group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl snap-start"
               >
                 <img
                   src={inspiration.image}

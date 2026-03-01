@@ -41,7 +41,7 @@ export default function SplitHeroBanner({
           <Link
             href={viewJourneysHref}
             className="text-white font-serif text-lg tracking-wide hover:opacity-80 transition-opacity flex items-center gap-2"
-            style={{ fontFamily: 'Playfair Display, serif' }}
+            style={{ fontFamily: 'var(--font-playfair), Playfair Display, serif' }}
           >
             VIEW JOURNEYS <span className="text-xl">↓</span>
           </Link>
@@ -62,7 +62,7 @@ export default function SplitHeroBanner({
         {/* Title */}
         <h1 
           className="text-4xl md:text-5xl lg:text-6xl font-serif mb-8 leading-tight"
-          style={{ fontFamily: 'Playfair Display, serif' }}
+          style={{ fontFamily: 'var(--font-playfair), Playfair Display, serif' }}
         >
           {title}
         </h1>
@@ -74,7 +74,7 @@ export default function SplitHeroBanner({
               key={index}
               className="text-[#444] font-serif text-lg leading-relaxed"
               style={{ 
-                fontFamily: 'Playfair Display, serif',
+                fontFamily: 'var(--font-playfair), Playfair Display, serif',
                 lineHeight: '1.8'
               }}
             >

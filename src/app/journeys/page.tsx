@@ -283,7 +283,7 @@ export default function JourneysPage() {
 						</div>
 						
 						{/* Text Box Overlay - Right Side - 与其他页面统一 */}
-						<div className="bg-tertiary w-[359px] h-[352px] rounded-lg p-8 flex flex-col justify-center">
+						<div className="bg-tertiary w-full max-w-[359px] aspect-[359/352] min-h-0 rounded-lg p-6 sm:p-8 flex flex-col justify-center">
 							<Heading 
 								level={2} 
 								className="text-4xl font-heading mb-8" 

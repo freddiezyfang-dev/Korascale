@@ -13,7 +13,7 @@ const BOOKING_SECTION_WRAPPER = 'max-w-7xl mx-auto px-4 md:px-8';
 
 /** 主题绿（Explore Together 专用），仅在本组件内使用 */
 const THEME_GREEN = '#2D4033';
-const SERIF_FONT = 'Playfair Display, Montaga, serif';
+const SERIF_FONT = 'var(--font-playfair), Playfair Display, serif';
 
 /** 与 Deep Discovery / InclusionsAndOffers 共用的包含项 key → 文案映射 */
 const STANDARD_INCLUSIONS_PHRASES: Record<string, string> = {
@@ -236,7 +236,7 @@ export default function ExploreTogetherLayout({ journey, onBookingClick, journey
               Destination Itinerary
             </h2>
 
-            <div className="relative pl-10 md:pl-12">
+            <div className="relative pl-6 md:pl-12">
               <div
                 className="absolute left-[11px] bottom-0 w-px hidden md:block"
                 style={{
@@ -248,7 +248,7 @@ export default function ExploreTogetherLayout({ journey, onBookingClick, journey
               {itinerary.map((day, index) => (
                 <article
                   key={day.day ?? index}
-                  className="relative flex flex-col lg:flex-row items-start gap-6 py-8 md:py-10 border-b border-gray-200 last:border-b-0"
+                  className="relative flex flex-col lg:flex-row items-start gap-x-6 gap-y-4 py-8 md:py-10 border-b border-gray-200 last:border-b-0"
                 >
                   <div
                     className="absolute w-6 h-6 rounded-full border-2 flex-shrink-0 z-10 top-8 md:top-8 mt-[6px]"
@@ -259,7 +259,7 @@ export default function ExploreTogetherLayout({ journey, onBookingClick, journey
                       transform: 'translateX(-50%)',
                     }}
                   />
-                  <div className="flex-1 min-w-0 pl-6 md:pl-10 grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  <div className="flex-1 min-w-0 pl-12 md:pl-10 grid grid-cols-1 lg:grid-cols-12 gap-6">
                     <div className="lg:col-span-7 space-y-2">
                       <h3
                         className="text-lg md:text-xl text-gray-900"

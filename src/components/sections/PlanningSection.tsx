@@ -23,7 +23,7 @@ export const PlanningSection: React.FC<PlanningSectionProps> = ({ className = ''
         <Container size="xl" className="h-full flex items-center">
           <div className="flex justify-end w-full">
             {/* Right Content Box */}
-            <div className="bg-[#1e3b32] h-[352px] w-[359px] flex flex-col items-center justify-center p-8 relative">
+            <div className="bg-[#1e3b32] w-full max-w-[359px] min-h-[280px] aspect-[359/352] flex flex-col items-center justify-center p-6 sm:p-8 relative">
               {/* Title */}
               <h2 className="text-3xl font-heading !text-white text-center mb-8 leading-tight">
                 Plan your trip in China with Korascale

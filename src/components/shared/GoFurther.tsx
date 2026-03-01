@@ -59,7 +59,7 @@ export default function GoFurther({ journeys, excludeJourneyId }: GoFurtherProps
       <div className={CONTENT_WRAPPER}>
         <h2
           className="text-2xl md:text-3xl text-gray-900 mb-8"
-          style={{ fontFamily: 'Playfair Display, Montaga, serif', fontWeight: 400 }}
+          style={{ fontFamily: 'var(--font-playfair), Playfair Display, serif', fontWeight: 400 }}
         >
           Go Further
         </h2>
@@ -108,7 +108,7 @@ export default function GoFurther({ journeys, excludeJourneyId }: GoFurtherProps
                   />
                 </div>
                 <div className="p-4 text-left">
-                  <h3 className="font-serif text-gray-900 line-clamp-2 text-lg" style={{ fontFamily: 'Playfair Display, serif' }}>
+                  <h3 className="font-serif text-gray-900 line-clamp-2 text-lg" style={{ fontFamily: 'var(--font-playfair), Playfair Display, serif' }}>
                     {j.pageTitle || j.title}
                   </h3>
                   {j.duration && (
