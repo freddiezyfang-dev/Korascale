@@ -438,8 +438,8 @@ export default function JourneysPage() {
 			<div className="bg-[#f5f1e6] py-16">
 				<Container size="full" padding="none" className="px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
 					<div className="flex flex-col md:flex-row gap-8">
-						{/* Filter Sidebar: 桌面端常显；移动端默认折叠，点击「筛选」展开 */}
-						<div className={`w-full md:w-80 flex-shrink-0 ${filterOpen ? 'block' : 'hidden md:block'}`}>
+						{/* Filter Sidebar: 仅桌面端显示；移动端用抽屉 */}
+						<div className="hidden md:block w-80 flex-shrink-0">
 							<div className="bg-white rounded-lg p-6 shadow-lg">
 								<h3 className="text-2xl font-['Monda'] font-bold mb-6">Filter</h3>
 								
@@ -555,19 +555,114 @@ export default function JourneysPage() {
 							</div>
 						</div>
 
+						{/* 移动端 Filter 抽屉：不挤占列表空间，不遮挡标题 */}
+						{filterOpen && (
+							<div className="fixed inset-0 z-50 md:hidden" aria-modal="true" role="dialog">
+								<div
+									className="absolute inset-0 bg-black/40"
+									onClick={() => setFilterOpen(false)}
+									aria-hidden="true"
+								/>
+								<div className="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-white shadow-xl overflow-y-auto">
+									<div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+										<span className="font-['Monda'] font-bold text-lg">Filter</span>
+										<button
+											type="button"
+											onClick={() => setFilterOpen(false)}
+											className="px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded"
+										>
+											Close
+										</button>
+									</div>
+									<div className="p-4">
+										<div className="mb-6">
+											<h4 className="text-sm font-['Monda'] font-bold mb-3 uppercase tracking-wider">Journey Type</h4>
+											<div className="flex flex-wrap gap-2">
+												{journeyTypeOptions.map((opt) => (
+													<button
+														key={opt.value}
+														className={`px-3 py-2 border rounded text-sm ${selectedJourneyType === opt.value ? 'bg-gray-200 border-black' : 'bg-white border-gray-300'}`}
+														onClick={() => setSelectedJourneyType(selectedJourneyType === opt.value ? null : opt.value)}
+													>
+														{opt.label}
+													</button>
+												))}
+											</div>
+										</div>
+										<div className="mb-6">
+											<h4 className="text-sm font-['Monda'] font-bold mb-3 uppercase tracking-wider">Regions</h4>
+											<div className="flex flex-wrap gap-2">
+												{regionOptions.map((region) => (
+													<button
+														key={region}
+														className={`px-3 py-2 border rounded text-sm ${selectedRegion === region ? 'bg-gray-200 border-black' : 'bg-white border-gray-300'}`}
+														onClick={() => setSelectedRegion(selectedRegion === region ? null : region)}
+													>
+														{region}
+													</button>
+												))}
+											</div>
+										</div>
+										<div className="mb-6">
+											<h4 className="text-sm font-['Monda'] font-bold mb-3 uppercase tracking-wider">Places</h4>
+											<div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
+												{placeOptions.map((place) => (
+													<button
+														key={place}
+														className={`px-3 py-2 border rounded text-sm ${selectedPlace === place ? 'bg-gray-200 border-black' : 'bg-white border-gray-300'}`}
+														onClick={() => setSelectedPlace(selectedPlace === place ? null : place)}
+													>
+														{place}
+													</button>
+												))}
+											</div>
+										</div>
+										<div className="mb-6">
+											<h4 className="text-sm font-['Monda'] font-bold mb-3 uppercase tracking-wider">Interests</h4>
+											<div className="flex flex-wrap gap-2">
+												{interestOptions.map((interest) => (
+													<button
+														key={interest}
+														className={`px-3 py-2 border rounded text-sm ${selectedInterest === interest ? 'bg-gray-200 border-black' : 'bg-white border-gray-300'}`}
+														onClick={() => setSelectedInterest(selectedInterest === interest ? null : interest)}
+													>
+														{interest}
+													</button>
+												))}
+											</div>
+										</div>
+										<div className="mb-6">
+											<h4 className="text-sm font-['Monda'] font-bold mb-3 uppercase tracking-wider">Duration</h4>
+											<div className="flex flex-wrap gap-2">
+												{durationOptions.map((duration) => (
+													<button
+														key={duration}
+														className={`px-3 py-2 border rounded text-sm ${selectedDuration === duration ? 'bg-gray-200 border-black' : 'bg-white border-gray-300'}`}
+														onClick={() => setSelectedDuration(selectedDuration === duration ? null : duration)}
+													>
+														{duration}
+													</button>
+												))}
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						)}
+
 						{/* Results Section */}
 						<div className="flex-1 min-w-0">
-							{/* 移动端：筛选按钮；桌面端仅标题 */}
+							{/* 标题与 Filter 按钮同行，按钮不遮挡标题 */}
 							<div className="flex items-center justify-between gap-4 mb-6 md:mb-8">
-								<h2 className="text-2xl sm:text-3xl font-serif" style={{ fontFamily: 'var(--font-playfair), Playfair Display, serif' }}>
+								<h2 className="text-2xl sm:text-3xl font-serif flex-1 min-w-0" style={{ fontFamily: 'var(--font-playfair), Playfair Display, serif' }}>
 									See Where We Can Take You
 								</h2>
 								<button
 									type="button"
-									onClick={() => setFilterOpen((o) => !o)}
-									className="md:hidden flex-shrink-0 px-4 py-2 border border-gray-700 rounded-lg text-sm font-medium text-gray-800 hover:bg-gray-100"
+									onClick={() => setFilterOpen(true)}
+									className="md:hidden flex-shrink-0 px-4 py-2 border border-gray-700 rounded-lg text-xs font-medium uppercase tracking-widest text-gray-800 hover:bg-gray-100"
 								>
-									{filterOpen ? 'Hide Filter' : 'Filter'}
+									Filter
 								</button>
 							</div>
 							
@@ -582,8 +677,8 @@ export default function JourneysPage() {
 								/>
 							</div>
 
-							{/* Journey Cards Grid：固定宽高比图片、Playfair 标题、gap-y-8 */}
-							<div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 sm:gap-x-6 gap-y-8">
+							{/* Journey Cards Grid：移动端单列大间距，桌面端多列 */}
+							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 sm:gap-y-12 md:gap-y-10">
 								{filteredJourneys.map((journey) => {
 									const maxGuests = ('maxGuests' in journey && journey.maxGuests)
 										? journey.maxGuests
@@ -605,10 +700,15 @@ export default function JourneysPage() {
 										('images' in journey && Array.isArray(journey.images) && journey.images[0]) ||
 										'';
 									const imgUrl = typeof imgSrc === 'string' ? imgSrc : '';
+									const metaParts = [
+										(journey.duration || 'N/A').toUpperCase(),
+										maxGuests ? `MAX ${maxGuests} GUESTS` : null,
+										price !== 'N/A' ? `FROM ${price}` : null,
+									].filter(Boolean);
 									return (
 										<Link key={journey.id} href={href} className="block h-full">
 											<Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col h-full bg-[#f5f1e6] cursor-pointer">
-												{/* 固定 4:3 比例，图片 absolute 填满，消除白边 */}
+												{/* 强制 4:3 比例，无 padding，图片绝对定位铺满 */}
 												<div className="relative w-full aspect-[4/3] flex-shrink-0 overflow-hidden bg-gray-200">
 													{imgUrl ? (
 														<img
@@ -620,32 +720,16 @@ export default function JourneysPage() {
 														<div className="absolute inset-0 bg-gray-300" />
 													)}
 												</div>
-												<div className="p-4 flex flex-col flex-1 min-h-0">
+												<div className="p-4 sm:p-5 flex flex-col flex-1 min-h-0">
 													<h3
-														className="text-base md:text-lg font-serif mb-2 leading-tight line-clamp-2 flex-shrink-0 font-normal"
+														className="text-lg sm:text-xl font-serif leading-snug font-normal mb-2"
 														style={{ fontFamily: 'var(--font-playfair), Playfair Display, serif' }}
 													>
 														{journey.title}
 													</h3>
-													<Text className="text-sm text-gray-600 mb-3 line-clamp-2 flex-shrink-0">
-														{('shortDescription' in journey && journey.shortDescription) ||
-															('description' in journey && journey.description) ||
-															''}
-													</Text>
-													<div className="mt-auto flex flex-col flex-shrink-0">
-														<Text
-															className="text-sm mb-1"
-															style={{ fontFamily: 'Monda, sans-serif', color: '#000000', fontWeight: 400, fontSize: '0.875rem' }}
-														>
-															{journey.duration || 'N/A'}{maxGuests ? ` • Limited to ${maxGuests} guests` : ''}
-														</Text>
-														<Text
-															className="text-sm"
-															style={{ fontFamily: 'Monda, sans-serif', color: '#000000', fontWeight: 400, fontSize: '0.875rem' }}
-														>
-															{price !== 'N/A' ? `Priced from ${price}` : ''}
-														</Text>
-													</div>
+													<p className="text-xs uppercase tracking-widest text-gray-500 mb-1">
+														{metaParts.join(' · ')}
+													</p>
 												</div>
 											</Card>
 										</Link>
