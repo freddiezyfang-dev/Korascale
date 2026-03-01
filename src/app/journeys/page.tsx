@@ -206,6 +206,7 @@ export default function JourneysPage() {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [selectedJourneyType, setSelectedJourneyType] = useState<JourneyType | null>(null);
 	const [isPlanTripModalOpen, setIsPlanTripModalOpen] = useState(false);
+	const [filterOpen, setFilterOpen] = useState(false);
 
 	const filteredJourneys = useMemo(() => {
 		const filtered = journeys.filter(journey => {
@@ -436,9 +437,9 @@ export default function JourneysPage() {
 			{/* Filter and Results Section */}
 			<div className="bg-[#f5f1e6] py-16">
 				<Container size="full" padding="none" className="px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
-					<div className="flex gap-8">
-						{/* Filter Sidebar */}
-						<div className="w-80 flex-shrink-0">
+					<div className="flex flex-col md:flex-row gap-8">
+						{/* Filter Sidebar: 桌面端常显；移动端默认折叠，点击「筛选」展开 */}
+						<div className={`w-full md:w-80 flex-shrink-0 ${filterOpen ? 'block' : 'hidden md:block'}`}>
 							<div className="bg-white rounded-lg p-6 shadow-lg">
 								<h3 className="text-2xl font-['Monda'] font-bold mb-6">Filter</h3>
 								
@@ -555,11 +556,23 @@ export default function JourneysPage() {
 						</div>
 
 						{/* Results Section */}
-						<div className="flex-1">
-							<h2 className="text-3xl font-['Montaga'] mb-8">See Where We Can Take You</h2>
+						<div className="flex-1 min-w-0">
+							{/* 移动端：筛选按钮；桌面端仅标题 */}
+							<div className="flex items-center justify-between gap-4 mb-6 md:mb-8">
+								<h2 className="text-2xl sm:text-3xl font-serif" style={{ fontFamily: 'var(--font-playfair), Playfair Display, serif' }}>
+									See Where We Can Take You
+								</h2>
+								<button
+									type="button"
+									onClick={() => setFilterOpen((o) => !o)}
+									className="md:hidden flex-shrink-0 px-4 py-2 border border-gray-700 rounded-lg text-sm font-medium text-gray-800 hover:bg-gray-100"
+								>
+									{filterOpen ? 'Hide Filter' : 'Filter'}
+								</button>
+							</div>
 							
 							{/* Search Bar */}
-							<div className="mb-8">
+							<div className="mb-6 md:mb-8">
 								<input
 									type="text"
 									placeholder="Search journeys..."
@@ -569,39 +582,48 @@ export default function JourneysPage() {
 								/>
 							</div>
 
-							{/* Journey Cards Grid */}
-							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+							{/* Journey Cards Grid：固定宽高比图片、Playfair 标题、gap-y-8 */}
+							<div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 sm:gap-x-6 gap-y-8">
 								{filteredJourneys.map((journey) => {
-									// 获取 maxGuests
-									const maxGuests = ('maxGuests' in journey && journey.maxGuests) 
-										? journey.maxGuests 
-										: ('maxParticipants' in journey && journey.maxParticipants) 
-											? journey.maxParticipants 
+									const maxGuests = ('maxGuests' in journey && journey.maxGuests)
+										? journey.maxGuests
+										: ('maxParticipants' in journey && journey.maxParticipants)
+											? journey.maxParticipants
 											: null;
-									// 获取价格
 									const price = ('price' in journey && typeof journey.price === 'number')
 										? `$${journey.price}`
 										: ('price' in journey ? journey.price : 'N/A');
-									
-									// 详情页链接：优先使用 slug，其次使用自带 link，最后退回 /journeys
 									const href =
 										'slug' in journey && journey.slug
 											? `/journeys/${journey.slug}`
 											: 'link' in journey && journey.link
 												? journey.link
 												: '/journeys';
-									
+									const imgSrc =
+										('heroImage' in journey && journey.heroImage) ||
+										('image' in journey && journey.image) ||
+										('images' in journey && Array.isArray(journey.images) && journey.images[0]) ||
+										'';
+									const imgUrl = typeof imgSrc === 'string' ? imgSrc : '';
 									return (
 										<Link key={journey.id} href={href} className="block h-full">
 											<Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col h-full bg-[#f5f1e6] cursor-pointer">
-												<div 
-													className="h-48 bg-cover bg-center bg-no-repeat flex-shrink-0"
-													style={{ backgroundImage: `url('${journey.image}')` }}
-												/>
-												<div className="p-4 flex flex-col flex-1">
-													<h3 
-														className="text-lg font-['Montaga'] mb-2 leading-tight flex-shrink-0 font-normal"
-														style={{ fontWeight: 400 }}
+												{/* 固定 4:3 比例，图片 absolute 填满，消除白边 */}
+												<div className="relative w-full aspect-[4/3] flex-shrink-0 overflow-hidden bg-gray-200">
+													{imgUrl ? (
+														<img
+															src={imgUrl}
+															alt=""
+															className="absolute inset-0 w-full h-full object-cover object-center"
+														/>
+													) : (
+														<div className="absolute inset-0 bg-gray-300" />
+													)}
+												</div>
+												<div className="p-4 flex flex-col flex-1 min-h-0">
+													<h3
+														className="text-base md:text-lg font-serif mb-2 leading-tight line-clamp-2 flex-shrink-0 font-normal"
+														style={{ fontFamily: 'var(--font-playfair), Playfair Display, serif' }}
 													>
 														{journey.title}
 													</h3>
@@ -611,14 +633,12 @@ export default function JourneysPage() {
 															''}
 													</Text>
 													<div className="mt-auto flex flex-col flex-shrink-0">
-														{/* 第一行：Duration 和 Max Guests */}
 														<Text
 															className="text-sm mb-1"
 															style={{ fontFamily: 'Monda, sans-serif', color: '#000000', fontWeight: 400, fontSize: '0.875rem' }}
 														>
 															{journey.duration || 'N/A'}{maxGuests ? ` • Limited to ${maxGuests} guests` : ''}
 														</Text>
-														{/* 第二行：价格 */}
 														<Text
 															className="text-sm"
 															style={{ fontFamily: 'Monda, sans-serif', color: '#000000', fontWeight: 400, fontSize: '0.875rem' }}

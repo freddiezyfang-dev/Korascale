@@ -12,6 +12,10 @@ const BG_LINKS = '#FAF9F6';
 const SERIF_FONT = 'var(--font-playfair), Playfair Display, serif';
 /** 所有图片卡片底部文字遮罩，确保白色 Playfair 清晰可见 */
 const CARD_GRADIENT = 'bg-gradient-to-t from-black/60 to-transparent';
+/** 卡片内图片统一：block 填满定位层，w-full h-full object-cover 消除白边 */
+const IMG_FILL = 'block w-full h-full object-cover object-center';
+/** 图片定位层：必须包在 relative 容器内，确保手机端无白边 */
+const IMG_WRAPPER = 'absolute inset-0 min-w-0 min-h-0';
 
 export default function LinksPage() {
   const { articles, isLoading: articlesLoading } = useArticleManagement();
@@ -49,25 +53,23 @@ export default function LinksPage() {
       {(articlesLoading || journeysLoading) ? (
         <div className="font-sans text-gray-500 py-8 text-center text-sm">Loading…</div>
       ) : (
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-2 min-w-0">
           {/* Featured Journey: 整行，4:5 比例，文字遮罩 */}
           {featuredJourneys[0] && (
             <Link
               href={`/journeys/${featuredJourneys[0].slug || featuredJourneys[0].id}`}
-              className="col-span-2 block relative w-full aspect-[4/5] rounded-lg overflow-hidden bg-gray-200"
+              className="col-span-2 block relative w-full min-w-0 min-h-0 aspect-[4/5] rounded-lg overflow-hidden bg-gray-200"
             >
               {journeyHeroImage ? (
-                <img
-                  src={journeyHeroImage}
-                  alt=""
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
+                <div className={IMG_WRAPPER}>
+                  <img src={journeyHeroImage} alt="" className={IMG_FILL} />
+                </div>
               ) : (
                 <div className="absolute inset-0 bg-gradient-to-br from-[#2D4033] to-[#1a2820]" />
               )}
               <div className={`absolute inset-0 flex flex-col items-center justify-end p-4 ${CARD_GRADIENT}`}>
                 <span
-                  className="font-serif text-lg sm:text-xl text-white drop-shadow-md text-center"
+                  className="font-serif text-lg sm:text-xl text-white drop-shadow-md text-center line-clamp-2"
                   style={{ fontFamily: SERIF_FONT }}
                 >
                   {featuredJourneys[0].title}
@@ -83,14 +85,12 @@ export default function LinksPage() {
           {seoArticles[0] && (
             <Link
               href={`/inspirations/${ArticleCategoryToSlug[seoArticles[0].category]}/${seoArticles[0].slug}`}
-              className="block relative w-full aspect-square rounded-lg overflow-hidden bg-gray-200"
+              className="block relative w-full min-w-0 min-h-0 aspect-square rounded-lg overflow-hidden bg-gray-200"
             >
               {seoArticles[0].coverImage ? (
-                <img
-                  src={seoArticles[0].coverImage}
-                  alt=""
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
+                <div className={IMG_WRAPPER}>
+                  <img src={seoArticles[0].coverImage} alt="" className={IMG_FILL} />
+                </div>
               ) : (
                 <div className="absolute inset-0 bg-gray-300" />
               )}
@@ -107,14 +107,12 @@ export default function LinksPage() {
           {seoArticles[1] && (
             <Link
               href={`/inspirations/${ArticleCategoryToSlug[seoArticles[1].category]}/${seoArticles[1].slug}`}
-              className="block relative w-full aspect-square rounded-lg overflow-hidden bg-gray-200"
+              className="block relative w-full min-w-0 min-h-0 aspect-square rounded-lg overflow-hidden bg-gray-200"
             >
               {seoArticles[1].coverImage ? (
-                <img
-                  src={seoArticles[1].coverImage}
-                  alt=""
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
+                <div className={IMG_WRAPPER}>
+                  <img src={seoArticles[1].coverImage} alt="" className={IMG_FILL} />
+                </div>
               ) : (
                 <div className="absolute inset-0 bg-gray-300" />
               )}
@@ -131,14 +129,12 @@ export default function LinksPage() {
           {seoArticles[2] && (
             <Link
               href={`/inspirations/${ArticleCategoryToSlug[seoArticles[2].category]}/${seoArticles[2].slug}`}
-              className="col-span-2 block relative w-full aspect-[3/4] rounded-lg overflow-hidden bg-gray-200"
+              className="col-span-2 block relative w-full min-w-0 min-h-0 aspect-[4/5] rounded-lg overflow-hidden bg-gray-200"
             >
               {seoArticles[2].coverImage ? (
-                <img
-                  src={seoArticles[2].coverImage}
-                  alt=""
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
+                <div className={IMG_WRAPPER}>
+                  <img src={seoArticles[2].coverImage} alt="" className={IMG_FILL} />
+                </div>
               ) : (
                 <div className="absolute inset-0 bg-gray-300" />
               )}
@@ -156,14 +152,12 @@ export default function LinksPage() {
           {/* 双入口：SEO 下方 grid-cols-2，左 JOURNEYS 右 INSPIRATIONS，1:1 */}
           <Link
             href="/journeys"
-            className="col-span-1 block relative w-full aspect-square rounded-lg overflow-hidden bg-gray-200"
+            className="col-span-1 block relative w-full min-w-0 min-h-0 aspect-square rounded-lg overflow-hidden bg-gray-200"
           >
             {journeyHeroImage ? (
-              <img
-                src={journeyHeroImage}
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover"
-              />
+              <div className={IMG_WRAPPER}>
+                <img src={journeyHeroImage} alt="" className={IMG_FILL} />
+              </div>
             ) : (
               <div className="absolute inset-0 bg-gradient-to-br from-[#2D4033] to-[#1a2820]" />
             )}
@@ -178,7 +172,7 @@ export default function LinksPage() {
           </Link>
           <Link
             href="/inspirations"
-            className="col-span-1 block relative w-full aspect-square rounded-lg overflow-hidden bg-[#2D4033]"
+            className="col-span-1 block relative w-full min-w-0 min-h-0 aspect-square rounded-lg overflow-hidden bg-[#2D4033]"
           >
             <div className="absolute inset-0 flex items-center justify-center">
               <span
