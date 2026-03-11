@@ -7,16 +7,16 @@ import { CategoryExplorer } from '@/components/sections';
 import OurPerspectiveSection from '@/components/sections/OurPerspectiveSection';
 import TheLensBehindKorascaleSection from '@/components/sections/TheLensBehindKorascaleSection';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
+import { articleAPI } from '@/lib/databaseClient';
+import { Article } from '@/types/article';
+import { ArticleCategoryToSlug } from '@/types/article';
 import hotelsData from '@/data/hotels.json';
 
-// 使用本地图片资源 - 按功能分类的图片路径
-// 1. 主页主要功能卡片 (Main Action Cards)
-const imgDestinationsButton = "/images/main-cards/destinations.jpeg"; // 目的地卡片
-const imgJourneysButton = "/images/main-cards/journeys.jpeg"; // 旅程卡片
-const imgInspirationsButton = "/images/main-cards/inspirations.png"; // 灵感卡片
-const imgAccommodationsButton = "/images/main-cards/accommodations.jpg"; // 住宿卡片
+const imgDestinationsButton = "/images/main-cards/destinations.jpeg";
+const imgJourneysButton = "/images/main-cards/journeys.jpeg";
+const imgInspirationsButton = "/images/main-cards/inspirations.png";
+const imgAccommodationsButton = "/images/main-cards/accommodations.jpg";
 
-// 2. 旅程精选卡片 (用于首页 \"What do you want to travel\" 区域，样式与 journeys filter 卡片保持一致)
 const imgJourneyCard1 = "/images/journey-cards/chengdu-deep-dive.jpeg";
 const imgJourneyCard2 = "/images/journey-cards/chongqing-cyber-city.jpg";
 const imgJourneyCard3 = "/images/journey-cards/tibet-buddhist-journey.jpg";
@@ -24,23 +24,36 @@ const imgJourneyCard4 = "/images/journey-cards/food-tour.jpg";
 const imgJourneyCard5 = "/images/journey-cards/chongqing-wulong-karst-national-park.jpg";
 const imgJourneyCard6 = "/images/journey-cards/jiuzhaigou-huanglong-national-park-tour.jpg";
 
-// 3. 文章卡片 (Article Cards)
-const imgArticle1 = "/images/article-cards/adventures-custom-made.jpg"; // 定制冒险
-const imgArticle2 = "/images/article-cards/cyber-city-chongqing.jpg"; // 赛博城市重庆
-const imgArticle3 = "/images/article-cards/chinese-food-tour.jpg"; // 中国美食之旅
-const imgArticle4 = "/images/article-cards/tibet-buddhist-journey.jpg"; // 西藏佛教之旅
-const imgArticle5 = "/images/article-cards/sacred-horizons.jpg"; // 神圣地平线
+const FALLBACK_CONTENT = [
+  { title: 'Adventures Custom Made For You', excerpt: 'Korascale offers fully tailored expeditions. Curate your own adventure by selecting from our unique experiences.', image: '/images/article-cards/adventures-custom-made.jpg', href: '/journeys' },
+  { title: 'Cyber-City Chongqing', excerpt: 'Where neon-drenched skyscrapers pierce the mist, rising from ancient hills.', image: '/images/article-cards/cyber-city-chongqing.jpg', href: '/destinations' },
+  { title: 'Chinese Food Tour', excerpt: 'Embark on the ultimate sensory adventure. Let your taste buds explode with flavors from China\'s diverse regions.', image: '/images/article-cards/chinese-food-tour.jpg', href: '/inspirations' },
+  { title: 'Sacred Horizons · A Tibetan Buddhist Journey', excerpt: 'Discover the serene beauty of snow-capped mountains, ancient monasteries, and timeless Tibetan traditions.', image: '/images/article-cards/tibet-buddhist-journey.jpg', href: '/journeys' },
+  { title: 'Sacred Horizons', excerpt: 'Discover the serene beauty of sacred landscapes and ancient traditions.', image: '/images/article-cards/sacred-horizons.jpg', href: '/inspirations' },
+];
+
+const CONTENT_GRADIENT = 'bg-gradient-to-t from-black/60 to-transparent';
+const SERIF_FONT = 'var(--font-playfair), Playfair Display, serif';
 
 export default function Home() {
   const { journeys } = useJourneyManagement();
-  
-  // 确保页面加载时滚动到顶部
+  const [featuredArticles, setFeaturedArticles] = useState<Article[]>([]);
+
   useEffect(() => {
-    // 如果 URL 中没有 hash，滚动到顶部
-    if (!window.location.hash) {
-      window.scrollTo(0, 0);
-    }
+    if (!window.location.hash) window.scrollTo(0, 0);
   }, []);
+  useEffect(() => {
+    articleAPI.getFeatured().then(setFeaturedArticles);
+  }, []);
+
+  const contentItems = featuredArticles.length >= 5
+    ? featuredArticles.slice(0, 5).map((a) => ({
+        title: a.title,
+        excerpt: a.excerpt || '',
+        image: a.heroImage || a.coverImage || '',
+        href: `/inspirations/${ArticleCategoryToSlug[a.category]}/${a.slug}`,
+      }))
+    : FALLBACK_CONTENT;
 
   return (
     <div className="min-h-screen bg-white">
@@ -183,162 +196,68 @@ export default function Home() {
         ]}
       />
 
-      {/* Content Articles */}
+      {/* Content Section：后台精选 5 篇 (featured + display_order)，无则用占位；移动端单列，图片铺满无灰边 */}
       <Section background="tertiary" padding="xl">
         <Container size="xl">
-          {/* Article 1 */}
-          <div className="bg-[#1e3b32] flex flex-col lg:flex-row items-center gap-4 md:gap-8 mb-8 md:mb-16 rounded-lg overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]">
-            <div 
-              className="w-full lg:w-1/2 h-[300px] sm:h-[400px] md:h-[500px] lg:h-[601px] bg-center bg-cover bg-no-repeat transition-transform duration-300 group-hover:scale-110"
-              style={{ backgroundImage: `url('${imgArticle1}')` }}
-            />
-            <div className="w-full lg:w-1/2 p-4 md:p-6 lg:p-8 text-white" style={{ color: 'white' }}>
-              <h3 
-                className="text-2xl sm:text-3xl lg:text-4xl font-heading mb-4 md:mb-6 text-white" 
-                style={{ color: 'white' }}
+          {/* 移动端单列；桌面端保持 1 大 + 2+2 网格 */}
+          <div className="flex flex-col md:grid md:grid-cols-2 md:gap-6 lg:gap-8">
+            {/* Slot 1：大图 aspect-[4/5]，桌面端占整行或左半 */}
+            <Link
+              href={contentItems[0]?.href || '#'}
+              className="relative w-full overflow-hidden rounded-lg mb-6 md:mb-0 md:col-span-2 flex flex-col md:flex-row md:items-stretch group"
+            >
+              <div className="relative w-full md:w-1/2 aspect-[4/5] overflow-hidden bg-gray-200 flex-shrink-0">
+                {contentItems[0]?.image ? (
+                  <img
+                    src={contentItems[0].image}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover object-center"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-[#1e3b32]" />
+                )}
+                <div className={`absolute inset-0 flex flex-col justify-end p-4 md:hidden ${CONTENT_GRADIENT}`}>
+                  <h3 className="text-xl font-serif text-white" style={{ fontFamily: SERIF_FONT }}>
+                    {contentItems[0]?.title}
+                  </h3>
+                  <span className="text-white/90 text-sm mt-1">view more</span>
+                </div>
+              </div>
+              <div className="w-full md:w-1/2 bg-[#1e3b32] p-4 md:p-6 lg:p-8 flex flex-col justify-center hidden md:flex">
+                <h3 className="text-2xl lg:text-4xl font-serif text-white mb-4" style={{ fontFamily: SERIF_FONT }}>
+                  {contentItems[0]?.title}
+                </h3>
+                <p className="text-white/90 font-body text-base lg:text-lg mb-4">{contentItems[0]?.excerpt}</p>
+                <span className="text-white underline font-body text-base">view more</span>
+              </div>
+            </Link>
+
+            {/* Slots 2–5：小图 aspect-square，强制 relative overflow-hidden + img 填满 */}
+            {[1, 2, 3, 4].map((i) => (
+              <Link
+                key={i}
+                href={contentItems[i]?.href || '#'}
+                className="relative w-full overflow-hidden rounded-lg group block mb-6 md:mb-0"
               >
-                Adventures Custom Made For You
-              </h3>
-              <p 
-                className="text-base sm:text-lg mb-6 md:mb-8 font-body text-white" 
-                style={{ color: 'white' }}
-              >
-                Korascale offers fully tailored expeditions. Curate your own adventure by selecting from our unique experiences to build a handcrafted itinerary that is uniquely yours.
-              </p>
-              <Link 
-                href="/journeys" 
-                className="text-white underline font-body hover:opacity-80 text-base sm:text-lg"
-                style={{ color: 'white' }}
-              >
-                view more
+                <div className="relative w-full aspect-square overflow-hidden bg-gray-200">
+                  {contentItems[i]?.image ? (
+                    <img
+                      src={contentItems[i].image}
+                      alt=""
+                      className="absolute inset-0 w-full h-full object-cover object-center"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-[#1e3b32]" />
+                  )}
+                  <div className={`absolute inset-0 flex flex-col justify-end p-4 ${CONTENT_GRADIENT}`}>
+                    <h3 className="text-lg sm:text-xl lg:text-2xl font-serif text-white" style={{ fontFamily: SERIF_FONT }}>
+                      {contentItems[i]?.title}
+                    </h3>
+                    <span className="text-white/90 text-sm mt-1">view more</span>
+                  </div>
+                </div>
               </Link>
-            </div>
-          </div>
-
-          {/* Article 2 & 3 */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8 mb-8 md:mb-16">
-            <div className="bg-[#1e3b32] rounded-lg overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]">
-              <Link href="/destinations">
-                <div 
-                  className="h-[250px] sm:h-[350px] md:h-[400px] lg:h-[475px] bg-center bg-cover bg-no-repeat transition-transform duration-300 group-hover:scale-110"
-                  style={{ backgroundImage: `url('${imgArticle2}')` }}
-                />
-              </Link>
-              <div className="p-4 md:p-6 lg:p-8 text-white" style={{ color: 'white' }}>
-                <h3 
-                  className="text-2xl sm:text-3xl lg:text-4xl font-heading mb-4 md:mb-6 text-white" 
-                  style={{ color: 'white' }}
-                >
-                  Cyber-City Chongqing
-                </h3>
-                <p 
-                  className="text-base sm:text-lg mb-6 md:mb-8 font-body text-white" 
-                  style={{ color: 'white' }}
-                >
-                  Where neon-drenched skyscrapers pierce the mist, rising from ancient hills. Experience the breathtaking fusion of cutting-edge lightscapes and timeless tradition.
-                </p>
-                <Link 
-                  href="/destinations" 
-                  className="text-white underline font-body hover:opacity-80 group-hover:text-yellow-300 transition-colors duration-300 text-base sm:text-lg"
-                  style={{ color: 'white' }}
-                >
-                  view more
-                </Link>
-              </div>
-            </div>
-
-            <div className="bg-[#1e3b32] rounded-lg overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]">
-              <Link href="/inspirations">
-                <div 
-                  className="h-[250px] sm:h-[350px] md:h-[400px] lg:h-[479px] bg-center bg-cover bg-no-repeat transition-transform duration-300 group-hover:scale-110"
-                  style={{ backgroundImage: `url('${imgArticle3}')` }}
-                />
-              </Link>
-              <div className="p-4 md:p-6 lg:p-8 text-white" style={{ color: 'white' }}>
-                <h3 
-                  className="text-2xl sm:text-3xl lg:text-4xl font-heading mb-4 md:mb-6 text-white" 
-                  style={{ color: 'white' }}
-                >
-                  Chinese Food Tour
-                </h3>
-                <p 
-                  className="text-base sm:text-lg mb-6 md:mb-8 font-body text-white" 
-                  style={{ color: 'white' }}
-                >
-                  Embark on the ultimate sensory adventure. Let your taste buds explode with flavors from China&apos;s diverse regions, guided by the wisdom of generations of culinary masters.
-                </p>
-                <Link 
-                  href="/inspirations" 
-                  className="text-white underline font-body hover:opacity-80 group-hover:text-yellow-300 transition-colors duration-300 text-base sm:text-lg"
-                  style={{ color: 'white' }}
-                >
-                  view more
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* Article 4 & 5 */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
-            <div className="bg-[#1e3b32] rounded-lg overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]">
-              <Link href="/journeys">
-                <div 
-                  className="h-[250px] sm:h-[350px] md:h-[400px] lg:h-[479px] bg-center bg-cover bg-no-repeat transition-transform duration-300 group-hover:scale-110"
-                  style={{ backgroundImage: `url('${imgArticle4}')` }}
-                />
-              </Link>
-              <div className="p-4 md:p-6 lg:p-8 text-white text-center" style={{ color: 'white' }}>
-                <h3 
-                  className="text-2xl sm:text-3xl lg:text-4xl font-heading mb-4 md:mb-6 text-white" 
-                  style={{ color: 'white' }}
-                >
-                  Sacred Horizons · A Tibetan Buddhist Journey
-                </h3>
-                <p 
-                  className="text-base sm:text-lg mb-6 md:mb-8 font-body text-white" 
-                  style={{ color: 'white' }}
-                >
-                  Discover the serene beauty of snow-capped mountains, ancient monasteries, and timeless Tibetan traditions. Immerse yourself in a cultural journey where spirituality meets breathtaking landscapes.
-                </p>
-                <Link 
-                  href="/journeys" 
-                  className="text-white underline font-body hover:opacity-80 group-hover:text-yellow-300 transition-colors duration-300 text-sm sm:text-base"
-                  style={{ color: 'white' }}
-                >
-                  VIEW MORE
-                </Link>
-              </div>
-            </div>
-
-            <div className="bg-[#1e3b32] rounded-lg overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]">
-              <Link href="/inspirations">
-                <div 
-                  className="h-[250px] sm:h-[350px] md:h-[400px] lg:h-[479px] bg-center bg-cover bg-no-repeat transition-transform duration-300 group-hover:scale-110"
-                  style={{ backgroundImage: `url('${imgArticle5}')` }}
-                />
-              </Link>
-              <div className="p-4 md:p-6 lg:p-8 text-white text-center" style={{ color: 'white' }}>
-                <h3 
-                  className="text-2xl sm:text-3xl lg:text-4xl font-heading mb-4 md:mb-6 text-white" 
-                  style={{ color: 'white' }}
-                >
-                  Sacred Horizons
-                </h3>
-                <p 
-                  className="text-base sm:text-lg mb-6 md:mb-8 font-body text-white" 
-                  style={{ color: 'white' }}
-                >
-                  Discover the serene beauty of sacred landscapes and ancient traditions that have shaped civilizations for centuries.
-                </p>
-                <Link 
-                  href="/inspirations" 
-                  className="text-white underline font-body hover:opacity-80 group-hover:text-yellow-300 transition-colors duration-300 text-base sm:text-lg"
-                  style={{ color: 'white' }}
-                >
-                  view more
-                </Link>
-              </div>
-            </div>
+            ))}
           </div>
         </Container>
       </Section>

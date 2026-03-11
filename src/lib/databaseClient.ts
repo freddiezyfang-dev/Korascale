@@ -552,6 +552,28 @@ export const articleAPI = {
     return [];
   },
 
+  /** 首页 Content Section：获取精选文章，按 display_order 1–5 排序，最多 5 篇 */
+  async getFeatured(): Promise<Article[]> {
+    try {
+      const apiUrl = getApiUrl('/api/articles?featured=true');
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        signal: createTimeoutSignal(15000),
+        cache: 'no-store',
+        headers: { 'Accept': 'application/json', 'Cache-Control': 'no-cache' },
+      });
+      if (!response.ok) return [];
+      const data = await response.json();
+      return (data.articles || []).map((a: any) => ({
+        ...a,
+        createdAt: new Date(a.createdAt),
+        updatedAt: new Date(a.updatedAt),
+      }));
+    } catch {
+      return [];
+    }
+  },
+
   // 创建新article
   async create(article: Omit<Article, 'id' | 'createdAt' | 'updatedAt'>): Promise<Article> {
     try {

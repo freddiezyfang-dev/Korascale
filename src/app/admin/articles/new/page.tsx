@@ -26,13 +26,15 @@ export default function NewArticlePage() {
     heroImage: '',
     readingTime: '12 min read',
     category: categories[0] as ArticleCategory,
-    content: '', // Legacy field
+    content: '',
     contentBlocks: [] as ContentBlock[],
     excerpt: '',
     relatedJourneyIds: [] as string[],
     recommendedItems: [] as RecommendedItem[],
     status: 'draft' as Article['status'],
-    slug: ''
+    slug: '',
+    featured: false,
+    displayOrder: undefined as number | undefined,
   });
 
   const [isUploadingCover, setIsUploadingCover] = useState(false);
@@ -97,8 +99,9 @@ export default function NewArticlePage() {
         slug,
         pageTitle,
         metaDescription,
-        // Only include contentBlocks if it has items, otherwise use legacy content
-        contentBlocks: form.contentBlocks.length > 0 ? form.contentBlocks : undefined
+        contentBlocks: form.contentBlocks.length > 0 ? form.contentBlocks : undefined,
+        featured: form.featured,
+        displayOrder: form.displayOrder,
       } as Omit<Article, 'id'|'createdAt'|'updatedAt'>);
 
       if (savedToDatabase) {
@@ -334,6 +337,40 @@ export default function NewArticlePage() {
                   <option value="active">active</option>
                   <option value="inactive">inactive</option>
                 </select>
+              </div>
+              <div className="md:col-span-2 border border-gray-200 rounded-lg p-4 bg-gray-50/50">
+                <h4 className="text-sm font-semibold text-gray-800 mb-3">首页展示位</h4>
+                <div className="flex flex-wrap items-center gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={form.featured}
+                      onChange={e => setForm(prev => ({ ...prev, featured: e.target.checked }))}
+                      className="rounded border-gray-300"
+                    />
+                    <span className="text-sm text-gray-700">设为首页精选 (isFeatured)</span>
+                  </label>
+                  {form.featured && (
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm text-gray-600">展示顺序 (1–5)</label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={5}
+                        value={form.displayOrder ?? ''}
+                        onChange={e => {
+                          const v = e.target.value === '' ? undefined : Math.min(5, Math.max(1, Number(e.target.value)));
+                          setForm(prev => ({ ...prev, displayOrder: v }));
+                        }}
+                        className="w-16 border rounded px-2 py-1.5 text-sm"
+                        placeholder="1"
+                      />
+                    </div>
+                  )}
+                </div>
+                <Text size="sm" className="text-gray-500 mt-2">
+                  仅当「设为首页精选」勾选且填写 1–5 时，该文章会出现在首页 Content Section，按 featuredOrder 排序填充 5 个展示位。
+                </Text>
               </div>
               <div>
                 <label className="block text-sm text-gray-600 mb-1">Slug（可选）</label>

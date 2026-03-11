@@ -8,10 +8,10 @@ export const runtime = 'nodejs';
 export const fetchCache = 'force-no-store';
 export const revalidate = 0;
 
-// GET: 获取所有articles
+// GET: 获取所有articles；?featured=true 时仅返回首页精选，按 display_order 1–5 排序
 export async function GET(request: NextRequest) {
-  // 简化日志，避免打印过多信息导致崩溃
-  console.log('[API /articles] GET request received');
+  const featuredOnly = request.nextUrl.searchParams.get('featured') === 'true';
+  console.log('[API /articles] GET request received', featuredOnly ? '(featured only)' : '');
   
   try {
     // 检查数据库连接
@@ -73,8 +73,16 @@ export async function GET(request: NextRequest) {
       `, []);
       
       const hasRecommendedItemsColumn = columnCheck.rows[0]?.exists;
+
+      const featuredColumnCheck = await query(`
+        SELECT EXISTS (
+          SELECT FROM information_schema.columns 
+          WHERE table_schema = 'public' AND table_name = 'articles' AND column_name = 'is_featured'
+        );
+      `, []);
+      const hasFeaturedColumns = featuredColumnCheck.rows[0]?.exists;
+      const featuredSelect = hasFeaturedColumns ? 'is_featured, display_order,' : '';
       
-      // 根据列是否存在构建查询
       const recommendedItemsSelect = hasRecommendedItemsColumn ? 'recommended_items,' : '';
       
       const result = await query(`
@@ -96,6 +104,7 @@ export async function GET(request: NextRequest) {
           ${recommendedItemsSelect}
           tags,
           status,
+          ${featuredSelect}
           created_at,
           updated_at
         FROM articles
@@ -133,7 +142,7 @@ export async function GET(request: NextRequest) {
     }
     
     // 转换数据库行到 Article 类型
-    const articles: Article[] = rows.map((row: any) => ({
+    let articles: Article[] = rows.map((row: any) => ({
       id: row.id,
       slug: row.slug,
       title: row.title,
@@ -149,13 +158,23 @@ export async function GET(request: NextRequest) {
       recommendedItems: row.recommended_items ? (row.recommended_items as RecommendedItem[]) : undefined,
       tags: row.tags ? (row.tags as string[]) : undefined,
       status: row.status as Article['status'],
+      featured: row.is_featured === true,
+      displayOrder: row.display_order != null ? Number(row.display_order) : undefined,
       pageTitle: row.page_title || undefined,
       metaDescription: row.meta_description || undefined,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
     }));
-    
-    console.log(`[API /articles] Found ${articles.length} articles`);
+
+    if (featuredOnly) {
+      articles = articles
+        .filter((a) => a.featured)
+        .sort((a, b) => (a.displayOrder ?? 999) - (b.displayOrder ?? 999))
+        .slice(0, 5);
+      console.log(`[API /articles] Featured articles: ${articles.length}`);
+    } else {
+      console.log(`[API /articles] Found ${articles.length} articles`);
+    }
     
     return NextResponse.json(
       { articles },
@@ -230,6 +249,14 @@ export async function POST(request: NextRequest) {
       console.warn('[API /articles] Could not add recommended_items column:', alterError);
     }
     
+    // 确保 is_featured / display_order 列存在
+    try {
+      await query(`ALTER TABLE articles ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT false`, []);
+      await query(`ALTER TABLE articles ADD COLUMN IF NOT EXISTS display_order INTEGER`, []);
+    } catch (alterErr) {
+      console.warn('[API /articles] Could not add featured columns:', alterErr);
+    }
+
     // 插入文章
     const { rows } = await query(`
       INSERT INTO articles (
@@ -248,8 +275,10 @@ export async function POST(request: NextRequest) {
         related_journey_ids,
         recommended_items,
         tags,
-        status
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+        status,
+        is_featured,
+        display_order
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
       RETURNING *
     `, [
       article.title,
@@ -267,7 +296,9 @@ export async function POST(request: NextRequest) {
       JSON.stringify(article.relatedJourneyIds || []),
       JSON.stringify(article.recommendedItems || []),
       JSON.stringify(article.tags || []),
-      article.status || 'draft'
+      article.status || 'draft',
+      (article as any).featured === true,
+      (article as any).displayOrder != null ? Number((article as any).displayOrder) : null,
     ]);
     
     const row = rows[0];
@@ -287,6 +318,8 @@ export async function POST(request: NextRequest) {
       recommendedItems: row.recommended_items ? (row.recommended_items as RecommendedItem[]) : undefined,
       tags: row.tags ? (row.tags as string[]) : undefined,
       status: row.status as Article['status'],
+      featured: row.is_featured === true,
+      displayOrder: row.display_order != null ? Number(row.display_order) : undefined,
       pageTitle: row.page_title || undefined,
       metaDescription: row.meta_description || undefined,
       createdAt: new Date(row.created_at),

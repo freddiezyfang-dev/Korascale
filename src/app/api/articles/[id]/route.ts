@@ -40,6 +40,8 @@ export async function GET(
       recommendedItems: row.recommended_items ? (row.recommended_items as RecommendedItem[]) : undefined,
       tags: row.tags ? (row.tags as string[]) : undefined,
       status: row.status as Article['status'],
+      featured: row.is_featured === true,
+      displayOrder: row.display_order != null ? Number(row.display_order) : undefined,
       pageTitle: row.page_title || undefined,
       metaDescription: row.meta_description || undefined,
       createdAt: new Date(row.created_at),
@@ -64,7 +66,15 @@ export async function PUT(
   try {
     const { id } = await context.params;
     const updates: Partial<Article> = await request.json();
-    
+
+    // 确保首页展示位列存在，避免未执行迁移时更新报错
+    try {
+      await query(`ALTER TABLE articles ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT false`, []);
+      await query(`ALTER TABLE articles ADD COLUMN IF NOT EXISTS display_order INTEGER`, []);
+    } catch (alterErr) {
+      console.warn('[API /articles/[id]] Could not ensure featured columns:', alterErr);
+    }
+
     console.log('[API /articles/[id]] Updating article:', id);
     
     // 构建更新查询
@@ -140,6 +150,14 @@ export async function PUT(
     if (updates.status !== undefined) {
       updateFields.push(`status = $${paramIndex++}`);
       values.push(updates.status);
+    }
+    if (Object.prototype.hasOwnProperty.call(updates, 'featured')) {
+      updateFields.push(`is_featured = $${paramIndex++}`);
+      values.push(updates.featured === true);
+    }
+    if (Object.prototype.hasOwnProperty.call(updates, 'displayOrder')) {
+      updateFields.push(`display_order = $${paramIndex++}`);
+      values.push(updates.displayOrder != null && updates.displayOrder >= 1 && updates.displayOrder <= 5 ? updates.displayOrder : null);
     }
     
     if (updateFields.length === 0) {
@@ -275,6 +293,8 @@ export async function PUT(
       recommendedItems: row.recommended_items ? (row.recommended_items as RecommendedItem[]) : (row.recommended_items === null ? undefined : []),
       tags: row.tags ? (row.tags as string[]) : undefined,
       status: row.status as Article['status'],
+      featured: row.is_featured === true,
+      displayOrder: row.display_order != null ? Number(row.display_order) : undefined,
       pageTitle: row.page_title || undefined,
       metaDescription: row.meta_description || undefined,
       createdAt: new Date(row.created_at),

@@ -32,7 +32,9 @@ export default function EditArticlePage() {
     relatedJourneyIds: [] as string[],
     recommendedItems: [] as RecommendedItem[],
     status: 'draft' as Article['status'],
-    slug: ''
+    slug: '',
+    featured: false,
+    displayOrder: undefined as number | undefined,
   });
 
   const [isUploadingCover, setIsUploadingCover] = useState(false);
@@ -53,7 +55,9 @@ export default function EditArticlePage() {
         relatedJourneyIds: target.relatedJourneyIds,
         recommendedItems: target.recommendedItems || [],
         status: target.status,
-        slug: target.slug
+        slug: target.slug,
+        featured: target.featured ?? false,
+        displayOrder: target.displayOrder ?? undefined,
       });
     }
   }, [target]);
@@ -111,7 +115,9 @@ export default function EditArticlePage() {
       const { savedToDatabase, errorMessage } = await updateArticle(target.id, {
         ...form,
         metaDescription,
-        contentBlocks: form.contentBlocks.length > 0 ? form.contentBlocks : undefined
+        contentBlocks: form.contentBlocks.length > 0 ? form.contentBlocks : undefined,
+        featured: form.featured,
+        displayOrder: form.displayOrder,
       });
       if (savedToDatabase) {
         alert('已保存到数据库。刷新页面后仍会保留。');
@@ -352,6 +358,41 @@ export default function EditArticlePage() {
                   <option value="active">active</option>
                   <option value="inactive">inactive</option>
                 </select>
+              </div>
+              {/* 首页展示位：精选 + 顺序 1–5 */}
+              <div className="md:col-span-2 border border-gray-200 rounded-lg p-4 bg-gray-50/50">
+                <h4 className="text-sm font-semibold text-gray-800 mb-3">首页展示位</h4>
+                <div className="flex flex-wrap items-center gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={form.featured}
+                      onChange={e => setForm(prev => ({ ...prev, featured: e.target.checked }))}
+                      className="rounded border-gray-300"
+                    />
+                    <span className="text-sm text-gray-700">设为首页精选 (isFeatured)</span>
+                  </label>
+                  {form.featured && (
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm text-gray-600">展示顺序 (1–5)</label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={5}
+                        value={form.displayOrder ?? ''}
+                        onChange={e => {
+                          const v = e.target.value === '' ? undefined : Math.min(5, Math.max(1, Number(e.target.value)));
+                          setForm(prev => ({ ...prev, displayOrder: v }));
+                        }}
+                        className="w-16 border rounded px-2 py-1.5 text-sm"
+                        placeholder="1"
+                      />
+                    </div>
+                  )}
+                </div>
+                <Text size="sm" className="text-gray-500 mt-2">
+                  仅当「设为首页精选」勾选且填写 1–5 时，该文章会出现在首页 Content Section，按 featuredOrder 排序填充 5 个展示位。
+                </Text>
               </div>
               <div>
                 <label className="block text-sm text-gray-600 mb-1">Slug</label>

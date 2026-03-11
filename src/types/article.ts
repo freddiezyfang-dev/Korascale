@@ -47,6 +47,10 @@ export interface Article {
   recommendedItems?: RecommendedItem[]; // 推荐项（支持混合 Journey 和 Article）
   tags?: string[];
   status: ArticleStatus;
+  /** 首页精选：true 时出现在首页 Content Section */
+  featured?: boolean;
+  /** 首页展示位序号 1–5，按此字段排序展示 */
+  displayOrder?: number;
   // SEO
   pageTitle?: string;
   metaDescription?: string;
