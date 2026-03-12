@@ -50,6 +50,10 @@ export default function RootLayout({
 					href="https://api.mapbox.com/mapbox-gl-js/v3.17.0/mapbox-gl.css"
 					rel="stylesheet"
 				/>
+				<meta
+					name="google-site-verification"
+					content="googlef6afa6924e0fd7fd.html"
+				/>
 			</head>
 			<body className="font-sans antialiased text-gray-900 bg-white">
 				<UserProvider>
