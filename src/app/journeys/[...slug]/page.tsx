@@ -1,5 +1,3 @@
-'use server';
-
 import { journeyAPI } from '@/lib/databaseClient';
 import ClientJourneyPage from './ClientJourneyPage';
 

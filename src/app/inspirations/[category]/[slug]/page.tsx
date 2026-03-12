@@ -1,5 +1,3 @@
-'use server';
-
 import { articleAPI } from '@/lib/databaseClient';
 import {
   ArticleCategoryToSlug,
