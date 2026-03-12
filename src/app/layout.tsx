@@ -52,7 +52,7 @@ export default function RootLayout({
 				/>
 				<meta
 					name="google-site-verification"
-					content="googlef6afa6924e0fd7fd.html"
+					content="3bFOTt6z5dCiVgQPXKRLM87PCf_7rx5jef6XS55MZ4M"
 				/>
 			</head>
 			<body className="font-sans antialiased text-gray-900 bg-white">
