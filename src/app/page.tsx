@@ -46,8 +46,8 @@ export default function Home() {
     articleAPI.getFeatured().then(setFeaturedArticles);
   }, []);
 
-  const contentItems = featuredArticles.length >= 5
-    ? featuredArticles.slice(0, 5).map((a) => ({
+  const contentItems = featuredArticles.length > 0
+    ? featuredArticles.map((a) => ({
         title: a.title,
         excerpt: a.excerpt || '',
         image: a.heroImage || a.coverImage || '',
@@ -199,7 +199,7 @@ export default function Home() {
       {/* Content Section：后台精选 5 篇 (featured + display_order)，无则用占位；移动端单列，图片铺满无灰边 */}
       <Section background="tertiary" padding="xl">
         <Container size="xl">
-          {/* 移动端单列；桌面端保持 1 大 + 2+2 网格 */}
+          {/* 移动端单列；桌面端保持 1 大 + 多小网格 */}
           <div className="flex flex-col md:grid md:grid-cols-2 md:gap-6 lg:gap-8">
             {/* Slot 1：大图 aspect-[4/5]，桌面端占整行或左半 */}
             <Link
@@ -232,17 +232,17 @@ export default function Home() {
               </div>
             </Link>
 
-            {/* Slots 2–5：小图 aspect-square，强制 relative overflow-hidden + img 填满 */}
-            {[1, 2, 3, 4].map((i) => (
+            {/* Slots 2+：小图 aspect-square，强制 relative overflow-hidden + img 填满 */}
+            {contentItems.slice(1).map((item, index) => (
               <Link
-                key={i}
-                href={contentItems[i]?.href || '#'}
+                key={item.href + index}
+                href={item.href || '#'}
                 className="relative w-full overflow-hidden rounded-lg group block mb-6 md:mb-0"
               >
                 <div className="relative w-full aspect-square overflow-hidden bg-gray-200">
-                  {contentItems[i]?.image ? (
+                  {item.image ? (
                     <img
-                      src={contentItems[i].image}
+                      src={item.image}
                       alt=""
                       className="absolute inset-0 w-full h-full object-cover object-center"
                     />
@@ -251,7 +251,7 @@ export default function Home() {
                   )}
                   <div className={`absolute inset-0 flex flex-col justify-end p-4 ${CONTENT_GRADIENT}`}>
                     <h3 className="text-lg sm:text-xl lg:text-2xl font-serif text-white" style={{ fontFamily: SERIF_FONT }}>
-                      {contentItems[i]?.title}
+                      {item.title}
                     </h3>
                     <span className="text-white/90 text-sm mt-1">view more</span>
                   </div>
