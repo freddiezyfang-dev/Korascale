@@ -9,6 +9,26 @@ import { Section, Container, Heading, Text, Breadcrumb } from '@/components/comm
 import { useArticleManagement } from '@/context/ArticleManagementContext';
 import { ArticleCategoryToHeroImage, ArticleSlugToCategory, ArticleCategoryToSlug, ArticleCategoryToDisplayName, ContentBlock, RecommendedItem, ArticleCategory } from '@/types/article';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
+import { articleAPI } from '@/lib/databaseClient';
+
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  try {
+    const articles = await articleAPI.getAll();
+    // 只为已发布的文章生成静态路径，避免草稿被收录进 sitemap
+    const activeArticles = articles.filter((article) => article.status === 'active');
+
+    return activeArticles.map((article) => ({
+      category: ArticleCategoryToSlug[article.category as ArticleCategory],
+      slug: article.slug,
+    }));
+  } catch (error) {
+    console.error('[Inspirations Detail] Failed to generate static params:', error);
+    // 出错时不要阻塞构建，返回空数组，依赖 dynamicParams 在运行时兜底
+    return [];
+  }
+}
 
 interface TOCItem {
   id: string;

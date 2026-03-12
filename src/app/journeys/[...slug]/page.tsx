@@ -29,6 +29,34 @@ import GoFurther from '@/components/shared/GoFurther';
 import { PlanTripModal } from '@/components/modals/PlanTripModal';
 import { LoginModal } from '@/components/modals/LoginModal';
 import { useUser } from '@/context/UserContext';
+import { journeyAPI } from '@/lib/databaseClient';
+
+export const dynamicParams = true;
+
+/**
+ * 为 [...slug] 生成静态路径参数
+ * 返回格式必须为 { slug: string[] }
+ */
+export async function generateStaticParams() {
+  try {
+    const journeys = await journeyAPI.getAll();
+    
+    // 1. 仅保留 active 状态的行程
+    const activeJourneys = journeys.filter(j => j.status === 'active');
+
+    // 2. 将字符串 slug 转换为路径数组
+    return activeJourneys.map((journey) => {
+      // 兼容 "china/beijing" 或 "beijing" 格式
+      const slugArray = journey.slug.split('/').filter(Boolean);
+      return {
+        slug: slugArray,
+      };
+    });
+  } catch (error) {
+    console.error('[Journeys Detail] Failed to generate static params:', error);
+    return []; // 出错时返回空，由 dynamicParams 确保运行时生成
+  }
+}
 
 // Details Accordion 组件 - 用于可折叠的技术细节
 function DetailsAccordion({ meals, accommodation, transportation }: { meals?: string[]; accommodation?: string; transportation?: string }) {
