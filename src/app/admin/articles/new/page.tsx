@@ -169,6 +169,69 @@ export default function NewArticlePage() {
     }
   };
 
+  const MAX_ALT_LENGTH = 125;
+  const cleanAndTruncateAlt = (s: string): string => {
+    const cleaned = s.replace(/,+/g, ',').replace(/\s*,\s*/g, ', ').trim();
+    if (cleaned.length <= MAX_ALT_LENGTH) return cleaned;
+    const cut = cleaned.slice(0, MAX_ALT_LENGTH);
+    const lastSpace = cut.lastIndexOf(' ');
+    const lastComma = cut.lastIndexOf(',');
+    const splitAt = Math.max(lastSpace, lastComma, 0);
+    return (splitAt > 0 ? cut.slice(0, splitAt) : cut.slice(0, MAX_ALT_LENGTH)).trim();
+  };
+
+  type AltContext = 'cover' | 'content';
+  const generateAltFromTags = (title: string, tags: string[], context: AltContext): string => {
+    const t = title.trim() || 'Article';
+    const tagList = [...new Set(tags.map(s => s.trim()).filter(Boolean))];
+    if (tagList.length === 0) return cleanAndTruncateAlt(t);
+
+    if (context === 'cover') {
+      const part = tagList.slice(0, 2).join(', ');
+      return cleanAndTruncateAlt(`${t} | ${part} - Korascale Bespoke Travel`);
+    }
+    const count = Math.min(2 + Math.floor(Math.random() * 2), tagList.length);
+    const shuffled = [...tagList].sort(() => Math.random() - 0.5);
+    const picked = shuffled.slice(0, count);
+    const tagPhrase = count === 1 ? picked[0] : count === 2 ? `${picked[0]} and ${picked[1]}` : `${picked[0]}, ${picked[1]} and ${picked[2]}`;
+    return cleanAndTruncateAlt(`Exploring ${tagPhrase} during our ${t} trip.`);
+  };
+
+  const syncCaptionFromTags = (blockId: string, context: AltContext = 'content') => {
+    const tags = form.tags ?? [];
+    const title = form.title.trim() || 'Article';
+    const suggested = generateAltFromTags(title, tags, context);
+    updateContentBlock(blockId, { caption: suggested });
+  };
+
+  const [uploadingBlockId, setUploadingBlockId] = useState<string | null>(null);
+  const handleBlockImageUpload = async (blockId: string, event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      alert('请选择图片文件');
+      return;
+    }
+    setUploadingBlockId(blockId);
+    try {
+      const imageUrl = await uploadAPI.uploadImage(file, 'journeys');
+      const block = form.contentBlocks.find(b => b.id === blockId);
+      const nameWithoutExt = file.name.replace(/\.[^.]+$/, '');
+      const suggestedCaption = (form.title.trim() || 'Image') + ' - ' + nameWithoutExt;
+      updateContentBlock(blockId, {
+        imageSrc: imageUrl,
+        ...((!block?.caption || !block.caption.trim()) ? { caption: suggestedCaption } : {}),
+      });
+      alert('图片上传成功！');
+    } catch (error) {
+      console.error('Block image upload failed:', error);
+      alert('图片上传失败，请重试');
+    } finally {
+      setUploadingBlockId(null);
+      event.target.value = '';
+    }
+  };
+
   const handleCoverImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -518,15 +581,45 @@ export default function NewArticlePage() {
                         <div className="space-y-2">
                           <div>
                             <label className="block text-xs text-gray-600 mb-1">图片 URL</label>
-                            <input
-                              className="w-full border rounded px-2 py-1 text-sm"
-                              value={block.imageSrc || ''}
-                              onChange={e => updateContentBlock(block.id, { imageSrc: e.target.value })}
-                              placeholder="图片 URL"
-                            />
+                            <div className="flex gap-2">
+                              <input
+                                className="flex-1 border rounded px-2 py-1 text-sm"
+                                value={block.imageSrc || ''}
+                                onChange={e => updateContentBlock(block.id, { imageSrc: e.target.value })}
+                                placeholder="图片 URL"
+                              />
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                id={`block-image-upload-${block.id}`}
+                                onChange={e => handleBlockImageUpload(block.id, e)}
+                                disabled={!!uploadingBlockId}
+                              />
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="secondary"
+                                className="border text-xs shrink-0"
+                                disabled={!!uploadingBlockId}
+                                onClick={() => document.getElementById(`block-image-upload-${block.id}`)?.click()}
+                              >
+                                {uploadingBlockId === block.id ? '上传中...' : '上传'}
+                              </Button>
+                            </div>
                           </div>
                           <div>
-                            <label className="block text-xs text-gray-600 mb-1">图片说明</label>
+                            <div className="flex items-center justify-between gap-2 mb-1">
+                              <label className="block text-xs text-gray-600">图片说明 (alt)</label>
+                              <button
+                                type="button"
+                                className="border rounded px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-50 shrink-0"
+                                onClick={() => syncCaptionFromTags(block.id, 'content')}
+                                title="从标签生成 alt（无标签时使用文章标题）"
+                              >
+                                Sync from Tags
+                              </button>
+                            </div>
                             <input
                               className="w-full border rounded px-2 py-1 text-sm"
                               value={block.caption || ''}
