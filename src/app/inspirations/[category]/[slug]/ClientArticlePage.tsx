@@ -390,11 +390,23 @@ export default function ClientArticlePage() {
   };
 
   const siteUrl = 'https://www.korascale.com';
+  const PERSON_TAGS = ['Lewis Hamilton', 'Max Verstappen', 'George Russell'];
+  const PLACE_TAGS = ['Jiuzhaigou', 'Shanghai', 'Chengdu'];
+
+  const tagList = safeArticle?.tags ?? [];
+  const about = tagList.map((name) => {
+    const trimmed = (name ?? '').trim();
+    if (!trimmed) return null;
+    if (PERSON_TAGS.includes(trimmed)) return { '@type': 'Person' as const, name: trimmed };
+    if (PLACE_TAGS.includes(trimmed)) return { '@type': 'Place' as const, name: trimmed };
+    return { '@type': 'Thing' as const, name: trimmed };
+  }).filter(Boolean) as Array<{ '@type': 'Person' | 'Place' | 'Thing'; name: string }>;
+
   const articleImage = safeArticle.heroImage || safeArticle.coverImage || '';
   const articleImageUrl = articleImage.startsWith('http') ? articleImage : `${siteUrl}${articleImage.startsWith('/') ? '' : '/'}${articleImage}`;
   const articleJsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'Article',
+    '@type': 'BlogPosting',
     headline: safeArticle.title,
     image: articleImage ? [articleImageUrl] : undefined,
     datePublished: safeArticle.createdAt ? (typeof safeArticle.createdAt === 'string' ? safeArticle.createdAt : new Date(safeArticle.createdAt).toISOString()) : undefined,
@@ -411,6 +423,7 @@ export default function ClientArticlePage() {
       '@type': 'WebPage',
       '@id': `${siteUrl}/inspirations/${categorySlug}/${safeArticle.slug}`,
     },
+    ...(about.length > 0 ? { about } : {}),
   };
 
   return (
@@ -604,6 +617,27 @@ export default function ClientArticlePage() {
                   )
                 )}
               </div>
+              {tagList.length > 0 && (
+                <div className="mt-8 pt-6 border-t border-gray-100">
+                  <div className="flex flex-wrap gap-2">
+                    {tagList.map((tag) => {
+                      const label = (tag ?? '').trim();
+                      if (!label) return null;
+                      return (
+                        <span
+                          key={label}
+                          className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-xs text-gray-700 font-sans"
+                          role="listitem"
+                          data-tag={label}
+                          /* 预留：未来可改为 Link 跳转到 /inspirations?tag=... 或分类页 */
+                        >
+                          {label}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </article>
 
             {recommendedItems.length > 0 && (

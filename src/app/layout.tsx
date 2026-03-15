@@ -38,6 +38,25 @@ export const viewport: Viewport = {
 	initialScale: 1,
 };
 
+const SITE_URL = "https://www.korascale.com";
+const organizationJsonLd = {
+	"@context": "https://schema.org",
+	"@type": "Organization",
+	name: "Korascale",
+	url: SITE_URL,
+	description:
+		"Craft your own adventure in China. Discover authentic travel experiences, curated journeys, and luxury accommodations.",
+	sameAs: [],
+};
+const travelAgencyJsonLd = {
+	"@context": "https://schema.org",
+	"@type": "TravelAgency",
+	name: "Korascale",
+	url: SITE_URL,
+	description:
+		"Korascale designs journeys through a China that is still in motion. Tailored expeditions across borderlands, highlands, and evolving communities.",
+};
+
 export default function RootLayout({
 	children,
 }: Readonly<{
@@ -53,6 +72,18 @@ export default function RootLayout({
 				<meta
 					name="google-site-verification"
 					content="3bFOTt6z5dCiVgQPXKRLM87PCf_7rx5jef6XS55MZ4M"
+				/>
+				<script
+					type="application/ld+json"
+					dangerouslySetInnerHTML={{
+						__html: JSON.stringify(organizationJsonLd),
+					}}
+				/>
+				<script
+					type="application/ld+json"
+					dangerouslySetInnerHTML={{
+						__html: JSON.stringify(travelAgencyJsonLd),
+					}}
 				/>
 			</head>
 			<body className="font-sans antialiased text-gray-900 bg-white">

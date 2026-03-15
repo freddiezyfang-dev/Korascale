@@ -55,27 +55,8 @@ export default function Home() {
       }))
     : FALLBACK_CONTENT;
 
-  const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://korascale.com';
-  const organizationJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'Korascale',
-    url: siteUrl,
-    description: 'Craft your own adventure in China. Discover authentic travel experiences, curated journeys, and luxury accommodations.',
-    sameAs: [],
-  };
-  const travelAgencyJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'TravelAgency',
-    name: 'Korascale',
-    url: siteUrl,
-    description: 'Korascale designs journeys through a China that is still in motion. Tailored expeditions across borderlands, highlands, and evolving communities.',
-  };
-
   return (
     <div className="min-h-screen bg-white">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(travelAgencyJsonLd) }} />
       {/* 修复后的全宽容器 */}
       <div className="w-full flex flex-col">
         

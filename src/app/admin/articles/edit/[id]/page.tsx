@@ -35,10 +35,12 @@ export default function EditArticlePage() {
     slug: '',
     featured: false,
     displayOrder: undefined as number | undefined,
+    tags: [] as string[],
   });
 
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [isUploadingHero, setIsUploadingHero] = useState(false);
+  const [tagInputValue, setTagInputValue] = useState('');
 
   useEffect(() => {
     if (target) {
@@ -58,6 +60,7 @@ export default function EditArticlePage() {
         slug: target.slug,
         featured: target.featured ?? false,
         displayOrder: target.displayOrder ?? undefined,
+        tags: target.tags ?? [],
       });
     }
   }, [target]);
@@ -170,6 +173,22 @@ export default function EditArticlePage() {
 
   const isRecommendedItemSelected = (type: 'journey' | 'article', id: string): boolean => {
     return (form.recommendedItems || []).some(item => item.type === type && item.id === id);
+  };
+
+  const addTag = (label: string) => {
+    const trimmed = label.trim();
+    if (!trimmed || (form.tags ?? []).includes(trimmed)) return;
+    setForm(prev => ({ ...prev, tags: [...(prev.tags ?? []), trimmed] }));
+    setTagInputValue('');
+  };
+  const removeTag = (index: number) => {
+    setForm(prev => ({ ...prev, tags: (prev.tags ?? []).filter((_, i) => i !== index) }));
+  };
+  const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      addTag(tagInputValue);
+    }
   };
 
   const handleCoverImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -358,6 +377,36 @@ export default function EditArticlePage() {
                   <option value="active">active</option>
                   <option value="inactive">inactive</option>
                 </select>
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm text-gray-600 mb-1">标签 (Tags)</label>
+                <input
+                  type="text"
+                  className="w-full border rounded px-3 py-2"
+                  value={tagInputValue}
+                  onChange={e => setTagInputValue(e.target.value)}
+                  onKeyDown={handleTagKeyDown}
+                  onBlur={() => { if (tagInputValue.trim()) addTag(tagInputValue); }}
+                  placeholder="输入后按回车或逗号添加标签"
+                />
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {(form.tags ?? []).map((tag, index) => (
+                    <span
+                      key={`${tag}-${index}`}
+                      className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gray-100 text-xs text-gray-700"
+                    >
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => removeTag(index)}
+                        className="text-gray-500 hover:text-red-600 ml-0.5"
+                        aria-label={`移除 ${tag}`}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
               </div>
               {/* 首页展示位：精选 + 顺序 1–5 */}
               <div className="md:col-span-2 border border-gray-200 rounded-lg p-4 bg-gray-50/50">
