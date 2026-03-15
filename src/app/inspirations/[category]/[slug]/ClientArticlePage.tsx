@@ -389,8 +389,33 @@ export default function ClientArticlePage() {
     }
   };
 
+  const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://korascale.com';
+  const articleImage = safeArticle.heroImage || safeArticle.coverImage || '';
+  const articleImageUrl = articleImage.startsWith('http') ? articleImage : `${siteUrl}${articleImage.startsWith('/') ? '' : '/'}${articleImage}`;
+  const articleJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: safeArticle.title,
+    image: articleImage ? [articleImageUrl] : undefined,
+    datePublished: safeArticle.createdAt ? (typeof safeArticle.createdAt === 'string' ? safeArticle.createdAt : new Date(safeArticle.createdAt).toISOString()) : undefined,
+    author: {
+      '@type': 'Person',
+      name: safeArticle.author,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Korascale',
+      url: siteUrl,
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${siteUrl}/inspirations/${categorySlug}/${safeArticle.slug}`,
+    },
+  };
+
   return (
     <main className="overflow-x-hidden w-full max-w-full">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
       <Head>
         <title>{safeArticle.pageTitle || safeArticle.title}</title>
         {safeArticle.metaDescription && (

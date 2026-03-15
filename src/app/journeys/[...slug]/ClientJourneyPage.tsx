@@ -225,10 +225,47 @@ export default function ClientJourneyPage() {
     );
   }
 
-  // 简化版本：仅渲染一个占位，保持类型正确。
-  // 真实环境中，这里应保留原始 JSX 结构。
+  const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://korascale.com';
+  const journeyImage = journey.image || (journey as any).heroImage || '';
+  const journeyImageUrl = journeyImage.startsWith('http') ? journeyImage : `${siteUrl}${journeyImage.startsWith('/') ? '' : '/'}${journeyImage}`;
+  const durationDays = getDurationDays();
+  const tripJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Trip',
+    name: journey.title,
+    description: journey.description || journey.shortDescription || '',
+    image: journeyImage ? [journeyImageUrl] : undefined,
+    itinerary: journey.itinerary?.length
+      ? {
+          '@type': 'ItemList',
+          numberOfItems: journey.itinerary.length,
+          itemListElement: journey.itinerary.slice(0, 5).map((day: any, i: number) => ({
+            '@type': 'ListItem',
+            position: i + 1,
+            name: day.title || `Day ${day.day}`,
+          })),
+        }
+      : undefined,
+    duration: `P${durationDays}D`,
+    location: journey.region || journey.city
+      ? {
+          '@type': 'Place',
+          name: journey.region || journey.city,
+          address: journey.location ? { '@type': 'PostalAddress', addressLocality: journey.city } : undefined,
+        }
+      : undefined,
+    offers: {
+      '@type': 'Offer',
+      price: journey.price,
+      priceCurrency: 'CNY',
+      availability: 'https://schema.org/InStock',
+    },
+    url: `${siteUrl}/journeys/${journey.slug}`,
+  };
+
   return (
     <main className="min-h-screen">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(tripJsonLd) }} />
       <Section>
         <Container>
           <Heading level={1}>{journey.title}</Heading>
