@@ -389,7 +389,7 @@ export default function ClientArticlePage() {
     }
   };
 
-  const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://korascale.com';
+  const siteUrl = 'https://www.korascale.com';
   const articleImage = safeArticle.heroImage || safeArticle.coverImage || '';
   const articleImageUrl = articleImage.startsWith('http') ? articleImage : `${siteUrl}${articleImage.startsWith('/') ? '' : '/'}${articleImage}`;
   const articleJsonLd = {

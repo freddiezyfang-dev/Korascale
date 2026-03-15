@@ -225,7 +225,7 @@ export default function ClientJourneyPage() {
     );
   }
 
-  const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://korascale.com';
+  const siteUrl = 'https://www.korascale.com';
   const journeyImage = journey.image || (journey as any).heroImage || '';
   const journeyImageUrl = journeyImage.startsWith('http') ? journeyImage : `${siteUrl}${journeyImage.startsWith('/') ? '' : '/'}${journeyImage}`;
   const durationDays = getDurationDays();
