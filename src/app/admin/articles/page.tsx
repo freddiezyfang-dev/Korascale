@@ -2,7 +2,6 @@
 
 import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { Heading, Text, Card, Button, Container, Section } from '@/components/common';
 import { useUser } from '@/context/UserContext';
 import { useArticleManagement } from '@/context/ArticleManagementContext';
@@ -13,7 +12,6 @@ import { Plus, Edit, Trash2, Eye, Filter } from 'lucide-react';
 
 export default function AdminArticlesPage() {
   const { user } = useUser();
-  const router = useRouter();
   const { articles, deleteArticle, updateArticleStatus } = useArticleManagement();
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');

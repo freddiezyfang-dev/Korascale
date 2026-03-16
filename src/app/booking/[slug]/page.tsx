@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import Link from 'next/link';
-import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
+import { Container, Heading, Text, Button, Card } from '@/components/common';
 import { useUser } from '@/context/UserContext';
 import { useOrderManagement } from '@/context/OrderManagementContext';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
@@ -14,24 +13,15 @@ import { useHotelManagement } from '@/context/HotelManagementContext';
 import { HotelDetailModal } from '@/components/modals/HotelDetailModal';
 import { WishlistSidebar } from '@/components/wishlist/WishlistSidebar';
 import { 
-  X, 
   Plus, 
   Minus, 
-  Calendar, 
   Users, 
   MapPin, 
   Clock, 
   Heart,
-  Trash2,
-  CreditCard,
-  User,
-  Mail,
-  Phone,
-  CheckCircle,
-  Settings,
   Star,
+  ChevronUp,
   ChevronDown,
-  ChevronUp
 } from 'lucide-react';
 
 export default function InteractiveJourneyBookingPage() {
@@ -40,7 +30,7 @@ export default function InteractiveJourneyBookingPage() {
   const slug = params.slug as string;
   
   const { user } = useUser();
-  const { items: wishlistItems, toggleWishlist, removeFromWishlist } = useWishlist();
+  const { items: wishlistItems, removeFromWishlist } = useWishlist();
   const { addOrder } = useOrderManagement();
   const { journeys, isLoading: journeysLoading } = useJourneyManagement();
   const { experiences, isLoading: experiencesLoading } = useExperienceManagement();
@@ -80,8 +70,6 @@ export default function InteractiveJourneyBookingPage() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const checkIn = urlParams.get('checkIn');
-    const adults = urlParams.get('adults');
-    const children = urlParams.get('children');
     const travelers = urlParams.get('travelers');
     
     if (checkIn) {
@@ -92,15 +80,6 @@ export default function InteractiveJourneyBookingPage() {
       }));
     }
   }, []);
-
-  // 获取可用的体验
-  const availableExperiences = useMemo(() => {
-    if (!journey) return [];
-    return experiences.filter(exp => 
-      journey.availableExperiences?.includes(exp.id) || 
-      journey.experiences?.includes(exp.id)
-    );
-  }, [journey, experiences]);
 
   // 获取相关的住宿
   const relatedAccommodations = useMemo(() => {

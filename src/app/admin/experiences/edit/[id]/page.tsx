@@ -32,7 +32,7 @@ const statusOptions: { value: ExperienceStatus; label: string }[] = [
 
 export default function EditExperiencePage() {
   const { user } = useUser();
-  const { experiences, updateExperience, getExperiencesByStatus } = useExperienceManagement();
+  const { experiences, updateExperience } = useExperienceManagement();
   const router = useRouter();
   const params = useParams();
   const experienceId = params.id as string;

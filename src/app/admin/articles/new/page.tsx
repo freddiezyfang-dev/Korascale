@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import React, { useMemo, useState } from 'react';
+import React, { useState } from "react";
 import { useRouter } from 'next/navigation';
 import { Heading, Text, Card, Button, Container, Section } from '@/components/common';
 import { useArticleManagement } from '@/context/ArticleManagementContext';
-import { Article, ArticleCategory, ArticleCategoryToSlug, ContentBlock, ContentBlockType, RecommendedItem } from '@/types/article';
+import { Article, ArticleCategory, ContentBlock, ContentBlockType, RecommendedItem } from '@/types/article';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { uploadAPI } from '@/lib/databaseClient';
 import { Upload } from 'lucide-react';

@@ -9,12 +9,9 @@ import { Hotel, RoomAvailability } from '@/types';
 import { 
   ArrowLeft, 
   Calendar, 
-  DollarSign, 
   ToggleLeft, 
   ToggleRight,
-  Plus,
   Save,
-  Edit3
 } from 'lucide-react';
 
 export default function HotelAvailabilityPage() {

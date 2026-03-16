@@ -8,7 +8,6 @@ import {
   Plus, 
   Edit, 
   Trash2, 
-  Eye,
   ToggleLeft,
   ToggleRight,
   Search
