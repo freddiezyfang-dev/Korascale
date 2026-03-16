@@ -12,7 +12,6 @@ export async function trySendWithResend(
   try {
     // 使用字符串拼接避免静态分析
     const moduleName = 're' + 'send';
-    // @ts-expect-error 可选依赖：在未安装时忽略类型错误
     const resendModule = await import(moduleName).catch(() => null);
     if (!resendModule) return null;
     
@@ -51,7 +50,6 @@ export async function trySendWithNodemailer(
   try {
     // 使用字符串拼接避免静态分析
     const moduleName = 'node' + 'mailer';
-    // @ts-expect-error 可选依赖：在未安装时忽略类型错误
     const nodemailerModule = await import(moduleName).catch(() => null);
     if (!nodemailerModule) return null;
     
