@@ -130,7 +130,7 @@ export function InspirationsDropdown() {
         </div>
         <div className="px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group">
           <p className="text-gray-700 text-[18px] font-subheading leading-normal capitalize group-hover:text-black transition-colors duration-200">
-            Immersive Encounters
+            Ancient Chinese Culture
           </p>
         </div>
         <div className="px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group">

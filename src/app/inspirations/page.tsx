@@ -10,7 +10,7 @@ import { useArticleManagement } from '@/context/ArticleManagementContext';
 const imgHeroBanner = "/images/hero/slide7-emeishan.jpg";
 const imgFoodJourney = "/images/inspirations/food-journey.jpg";
 const imgGreatOutdoors = "/images/inspirations/great-outdoors.jpeg";
-const imgImmersiveEncounters = "/images/inspirations/traditional%20craft.png";
+const imgAncientChineseCulture = "/images/inspirations/traditional%20craft.png";
 const imgSpiritualRetreat = "/images/inspirations/spiritual%20retreat.webp";
 const imgVibrantNightscapes = "/images/inspirations/nightscapes.jpg";
 const imgSeasonalHighlights = "/images/inspirations/seasonal-highlights.jpg";
@@ -32,8 +32,8 @@ const inspirations = [
   },
   {
     id: 3,
-    title: "Immersive Encounters",
-    image: imgImmersiveEncounters,
+    title: "Ancient Chinese Culture",
+    image: imgAncientChineseCulture,
     description: "Go beyond observation and step into the role of an apprentice. Under the guidance of master artisans, learn the ancient techniques that have defined our cultures for generations. Shape your own thangka painting, feel the rhythm of traditional loom weaving, or forge a piece of nomadic silverware. These are not just souvenirs; they are your stories, crafted by your own hands."
   },
   {

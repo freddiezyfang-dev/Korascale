@@ -179,11 +179,11 @@ export default function Home() {
           },
           {
             id: '3',
-            title: 'Immersive Encounters',
+            title: 'Ancient Chinese Culture',
             shortDescription: 'Go beyond observation and step into the role of an apprentice',
             image: '/images/inspirations/traditional%20craft.png',
-            slug: 'immersive-encounters',
-            href: '/inspirations/immersive-encounters'
+            slug: 'ancient-chinese-culture',
+            href: '/inspirations/ancient-chinese-culture'
           },
           {
             id: '4',

@@ -3,7 +3,7 @@ export type ArticleStatus = 'draft' | 'active' | 'inactive';
 export type ArticleCategory =
   | 'Food Journey'
   | 'The Western Corridor'
-  | 'Immersive Encounters'
+  | 'Ancient Chinese Culture'
   | 'Spiritual Retreat'
   | 'Vibrant Nightscapes'
   | 'Seasonal Highlights';
@@ -63,7 +63,7 @@ export interface Article {
 export const ArticleCategoryToHeroImage: Record<ArticleCategory, string> = {
   'Food Journey': '/images/inspirations/food-journey.jpg',
   'The Western Corridor': '/images/inspirations/great-outdoors.jpeg',
-  'Immersive Encounters': '/images/inspirations/traditional%20craft.png',
+  'Ancient Chinese Culture': '/images/inspirations/traditional%20craft.png',
   'Spiritual Retreat': '/images/inspirations/spiritual%20retreat.webp',
   'Vibrant Nightscapes': '/images/inspirations/nightscapes.jpg',
   'Seasonal Highlights': '/images/inspirations/seasonal-highlights.jpg'
@@ -72,7 +72,7 @@ export const ArticleCategoryToHeroImage: Record<ArticleCategory, string> = {
 export const ArticleCategoryToSlug: Record<ArticleCategory, string> = {
   'Food Journey': 'food-journey',
   'The Western Corridor': 'the-western-corridor',
-  'Immersive Encounters': 'immersive-encounters',
+  'Ancient Chinese Culture': 'ancient-chinese-culture',
   'Spiritual Retreat': 'spiritual-retreat',
   'Vibrant Nightscapes': 'vibrant-nightscapes',
   'Seasonal Highlights': 'seasonal-highlights'
@@ -82,7 +82,7 @@ export const ArticleCategoryToSlug: Record<ArticleCategory, string> = {
 export const ArticleCategoryToDisplayName: Record<ArticleCategory, string> = {
   'Food Journey': 'How to Plan a China Trip; A Logic-First Guide (2026)',
   'The Western Corridor': 'The Western Corridor',
-  'Immersive Encounters': 'Immersive Encounters',
+  'Ancient Chinese Culture': 'Ancient Chinese Culture',
   'Spiritual Retreat': 'Spiritual Retreat',
   'Vibrant Nightscapes': 'Vibrant Nightscapes',
   'Seasonal Highlights': 'Seasonal Highlights'

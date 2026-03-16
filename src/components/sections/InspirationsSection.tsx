@@ -20,9 +20,9 @@ const inspirations = [
   },
   {
     id: 3,
-    title: "Immersive Encounters",
+    title: "Ancient Chinese Culture",
     image: "/images/inspirations/traditional craft.png",
-    href: "/inspirations/immersive-encounters"
+    href: "/inspirations/ancient-chinese-culture"
   },
   {
     id: 4,

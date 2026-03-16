@@ -146,7 +146,7 @@ export default function ClientArticlePage() {
           <ul className="text-sm text-gray-600 mt-2 list-disc list-inside text-left">
             <li>food-journey</li>
             <li>the-western-corridor</li>
-            <li>immersive-encounters</li>
+            <li>ancient-chinese-culture</li>
             <li>spiritual-retreat</li>
             <li>vibrant-nightscapes</li>
             <li>seasonal-highlights</li>
