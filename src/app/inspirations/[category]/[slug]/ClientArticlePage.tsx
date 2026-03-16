@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import Head from 'next/head';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -426,9 +426,37 @@ export default function ClientArticlePage() {
     ...(about.length > 0 ? { about } : {}),
   };
 
+  const faqList = (safeArticle.faqs || [])
+    .map((f) => ({
+      question: (f.question || '').trim(),
+      answer: (f.answer || '').trim(),
+    }))
+    .filter((f) => f.question && f.answer);
+
+  const faqJsonLd = faqList.length
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqList.map((f) => ({
+          '@type': 'Question',
+          name: f.question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: f.answer,
+          },
+        })),
+      }
+    : null;
+
   return (
     <main className="overflow-x-hidden w-full max-w-full">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
       <Head>
         <title>{safeArticle.pageTitle || safeArticle.title}</title>
         {safeArticle.metaDescription && (
@@ -635,6 +663,33 @@ export default function ClientArticlePage() {
                         </span>
                       );
                     })}
+                  </div>
+                </div>
+              )}
+              {faqList.length > 0 && (
+                <div className="mt-10 pt-6 border-t border-gray-100">
+                  <Heading level={3} className="text-xl font-heading mb-4">
+                    Frequently Asked Questions
+                  </Heading>
+                  <div className="space-y-3">
+                    {faqList.map((f, index) => (
+                      <details
+                        key={`${f.question}-${index}`}
+                        className="group border border-gray-200 rounded-lg px-4 py-3 bg-white"
+                      >
+                        <summary className="flex items-center justify-between cursor-pointer list-none">
+                          <h3 className="text-sm md:text-base font-semibold text-gray-900">
+                            {f.question}
+                          </h3>
+                          <span className="ml-3 text-gray-400 group-open:rotate-180 transition-transform">
+                            ˅
+                          </span>
+                        </summary>
+                        <div className="mt-2 text-sm text-gray-700 leading-relaxed">
+                          {f.answer}
+                        </div>
+                      </details>
+                    ))}
                   </div>
                 </div>
               )}

@@ -46,6 +46,7 @@ export interface Article {
   relatedJourneyIds: string[]; // 关联 Journey IDs（向后兼容）
   recommendedItems?: RecommendedItem[]; // 推荐项（支持混合 Journey 和 Article）
   tags?: string[];
+  faqs?: { question: string; answer: string }[];
   status: ArticleStatus;
   /** 首页精选：true 时出现在首页 Content Section */
   featured?: boolean;

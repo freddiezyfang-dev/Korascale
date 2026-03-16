@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS articles (
   -- 关联
   related_journey_ids JSONB DEFAULT '[]'::jsonb, -- 关联的 Journey IDs 数组
   tags JSONB DEFAULT '[]'::jsonb, -- 标签数组
+  faqs JSONB DEFAULT '[]'::jsonb, -- FAQ 问答数组 [{question, answer}]
   
   -- 状态
   status VARCHAR(20) DEFAULT 'draft', -- draft, active, inactive

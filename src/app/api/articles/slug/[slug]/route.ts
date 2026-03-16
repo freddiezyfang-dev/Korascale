@@ -41,6 +41,7 @@ export async function GET(
       excerpt: row.excerpt || undefined,
       relatedJourneyIds: row.related_journey_ids ? (row.related_journey_ids as string[]) : [],
       recommendedItems: row.recommended_items ? (row.recommended_items as RecommendedItem[]) : undefined,
+      faqs: row.faqs ? (row.faqs as { question: string; answer: string }[]) : undefined,
       tags: row.tags ? (row.tags as string[]) : undefined,
       status: row.status as Article['status'],
       pageTitle: row.page_title || undefined,

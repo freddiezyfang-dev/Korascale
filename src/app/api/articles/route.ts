@@ -84,6 +84,17 @@ export async function GET(request: NextRequest) {
       const featuredSelect = hasFeaturedColumns ? 'is_featured, display_order,' : '';
       
       const recommendedItemsSelect = hasRecommendedItemsColumn ? 'recommended_items,' : '';
+
+      const faqsColumnCheck = await query(`
+        SELECT EXISTS (
+          SELECT FROM information_schema.columns 
+          WHERE table_schema = 'public' 
+          AND table_name = 'articles'
+          AND column_name = 'faqs'
+        );
+      `, []);
+      const hasFaqsColumn = faqsColumnCheck.rows[0]?.exists;
+      const faqsSelect = hasFaqsColumn ? 'faqs,' : '';
       
       const result = await query(`
         SELECT 
@@ -102,6 +113,7 @@ export async function GET(request: NextRequest) {
           meta_description,
           related_journey_ids,
           ${recommendedItemsSelect}
+          ${faqsSelect}
           tags,
           status,
           ${featuredSelect}
@@ -156,6 +168,7 @@ export async function GET(request: NextRequest) {
       excerpt: row.excerpt || undefined,
       relatedJourneyIds: row.related_journey_ids ? (row.related_journey_ids as string[]) : [],
       recommendedItems: row.recommended_items ? (row.recommended_items as RecommendedItem[]) : undefined,
+      faqs: row.faqs ? (row.faqs as { question: string; answer: string }[]) : undefined,
       tags: row.tags ? (row.tags as string[]) : undefined,
       status: row.status as Article['status'],
       featured: row.is_featured === true,
@@ -257,6 +270,16 @@ export async function POST(request: NextRequest) {
       console.warn('[API /articles] Could not add featured columns:', alterErr);
     }
 
+    // 确保 faqs 列存在
+    try {
+      await query(`
+        ALTER TABLE articles
+        ADD COLUMN IF NOT EXISTS faqs JSONB DEFAULT '[]'::jsonb;
+      `, []);
+    } catch (alterFaqsErr) {
+      console.warn('[API /articles] Could not add faqs column:', alterFaqsErr);
+    }
+
     // 插入文章
     const { rows } = await query(`
       INSERT INTO articles (
@@ -274,6 +297,7 @@ export async function POST(request: NextRequest) {
         meta_description,
         related_journey_ids,
         recommended_items,
+        faqs,
         tags,
         status,
         is_featured,
@@ -295,6 +319,7 @@ export async function POST(request: NextRequest) {
       article.metaDescription || null,
       JSON.stringify(article.relatedJourneyIds || []),
       JSON.stringify(article.recommendedItems || []),
+      JSON.stringify(article.faqs || []),
       JSON.stringify(article.tags || []),
       article.status || 'draft',
       (article as any).featured === true,

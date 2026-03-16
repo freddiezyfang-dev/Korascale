@@ -36,6 +36,7 @@ export default function EditArticlePage() {
     featured: false,
     displayOrder: undefined as number | undefined,
     tags: [] as string[],
+    faqs: [] as { question: string; answer: string }[],
   });
 
   const [isUploadingCover, setIsUploadingCover] = useState(false);
@@ -61,6 +62,7 @@ export default function EditArticlePage() {
         featured: target.featured ?? false,
         displayOrder: target.displayOrder ?? undefined,
         tags: target.tags ?? [],
+        faqs: target.faqs ?? [],
       });
     }
   }, [target]);
@@ -115,12 +117,17 @@ export default function EditArticlePage() {
   const onSubmit = async () => {
     try {
       const metaDescription = form.excerpt || (form.content ? form.content.replace(/<[^>]+>/g,'').slice(0, 150) : '');
+      const cleanedFaqs = (form.faqs || []).map(f => ({
+        question: (f.question || '').trim(),
+        answer: (f.answer || '').trim(),
+      })).filter(f => f.question && f.answer);
       const { savedToDatabase, errorMessage } = await updateArticle(target.id, {
         ...form,
         metaDescription,
         contentBlocks: form.contentBlocks.length > 0 ? form.contentBlocks : undefined,
         featured: form.featured,
         displayOrder: form.displayOrder,
+        faqs: cleanedFaqs.length > 0 ? cleanedFaqs : undefined,
       });
       if (savedToDatabase) {
         alert('已保存到数据库。刷新页面后仍会保留。');
@@ -470,6 +477,93 @@ export default function EditArticlePage() {
                     </span>
                   ))}
                 </div>
+              </div>
+              <div className="md:col-span-2 border border-dashed border-gray-200 rounded-lg p-4 bg-white/60">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-semibold text-gray-800">FAQ Management</h4>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="text-xs"
+                      onClick={() => setForm(prev => ({ ...prev, faqs: [...(prev.faqs || []), { question: '', answer: '' }] }))}
+                    >
+                      + Add FAQ
+                    </Button>
+                    {form.faqs && form.faqs.length > 0 && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="text-xs text-red-600 border-red-200"
+                        onClick={() => setForm(prev => ({ ...prev, faqs: [] }))}
+                      >
+                        Clear all
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                {(!form.faqs || form.faqs.length === 0) ? (
+                  <Text size="sm" className="text-gray-500">暂无 FAQ，可点击「+ Add FAQ」添加常见问答。</Text>
+                ) : (
+                  <div className="space-y-3">
+                    {form.faqs.map((faq, index) => (
+                      <div key={index} className="border border-gray-200 rounded-md p-3 bg-gray-50/80">
+                        <div className="flex items-start gap-2">
+                          <div className="flex-1 space-y-2">
+                            <div>
+                              <label className="block text-xs text-gray-600 mb-1">Question</label>
+                              <input
+                                className="w-full border rounded px-2 py-1 text-sm"
+                                value={faq.question}
+                                onChange={e => {
+                                  const value = e.target.value;
+                                  setForm(prev => {
+                                    const next = [...(prev.faqs || [])];
+                                    next[index] = { ...next[index], question: value };
+                                    return { ...prev, faqs: next };
+                                  });
+                                }}
+                                placeholder="用户可能会问的问题，例如：What is the best season to visit?"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs text-gray-600 mb-1">Answer</label>
+                              <textarea
+                                className="w-full border rounded px-2 py-1 text-sm"
+                                rows={3}
+                                value={faq.answer}
+                                onChange={e => {
+                                  const value = e.target.value;
+                                  setForm(prev => {
+                                    const next = [...(prev.faqs || [])];
+                                    next[index] = { ...next[index], answer: value };
+                                    return { ...prev, faqs: next };
+                                  });
+                                }}
+                                placeholder="为该问题提供简洁直接的回答。"
+                              />
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            className="ml-2 text-gray-400 hover:text-red-500"
+                            onClick={() => {
+                              setForm(prev => ({
+                                ...prev,
+                                faqs: (prev.faqs || []).filter((_, i) => i !== index),
+                              }));
+                            }}
+                            aria-label="删除该 FAQ"
+                          >
+                            🗑
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               {/* 首页展示位：精选 + 顺序 1–5 */}
               <div className="md:col-span-2 border border-gray-200 rounded-lg p-4 bg-gray-50/50">

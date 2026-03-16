@@ -38,6 +38,7 @@ export async function GET(
       excerpt: row.excerpt || undefined,
       relatedJourneyIds: row.related_journey_ids ? (row.related_journey_ids as string[]) : [],
       recommendedItems: row.recommended_items ? (row.recommended_items as RecommendedItem[]) : undefined,
+      faqs: row.faqs ? (row.faqs as { question: string; answer: string }[]) : undefined,
       tags: row.tags ? (row.tags as string[]) : undefined,
       status: row.status as Article['status'],
       featured: row.is_featured === true,
@@ -147,6 +148,10 @@ export async function PUT(
       updateFields.push(`tags = $${paramIndex++}`);
       values.push(JSON.stringify(updates.tags));
     }
+    if (updates.faqs !== undefined) {
+      updateFields.push(`faqs = $${paramIndex++}`);
+      values.push(JSON.stringify(updates.faqs));
+    }
     if (updates.status !== undefined) {
       updateFields.push(`status = $${paramIndex++}`);
       values.push(updates.status);
@@ -250,6 +255,10 @@ export async function PUT(
           retryUpdateFields.push(`tags = $${retryParamIndex++}`);
           retryValues.push(JSON.stringify(updates.tags));
         }
+        if (updates.faqs !== undefined) {
+          retryUpdateFields.push(`faqs = $${retryParamIndex++}`);
+          retryValues.push(JSON.stringify(updates.faqs));
+        }
         if (updates.status !== undefined) {
           retryUpdateFields.push(`status = $${retryParamIndex++}`);
           retryValues.push(updates.status);
@@ -291,6 +300,7 @@ export async function PUT(
       excerpt: row.excerpt || undefined,
       relatedJourneyIds: row.related_journey_ids ? (row.related_journey_ids as string[]) : [],
       recommendedItems: row.recommended_items ? (row.recommended_items as RecommendedItem[]) : (row.recommended_items === null ? undefined : []),
+      faqs: row.faqs ? (row.faqs as { question: string; answer: string }[]) : undefined,
       tags: row.tags ? (row.tags as string[]) : undefined,
       status: row.status as Article['status'],
       featured: row.is_featured === true,
