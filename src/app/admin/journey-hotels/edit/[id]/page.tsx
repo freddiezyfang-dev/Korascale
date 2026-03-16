@@ -31,30 +31,29 @@ export default function EditJourneyHotelPage() {
       router.push('/');
       return;
     }
-    fetchHotel();
-  }, [user, router, hotelId]);
-
-  const fetchHotel = async () => {
-    try {
-      const res = await fetch(`/api/journey-hotels/${hotelId}`);
-      if (res.ok) {
-        const data = await res.json();
-        const hotel = data.hotel;
-        setFormData({
-          name: hotel.name || '',
-          location: hotel.location || '',
-          image: hotel.image || '',
-          status: hotel.status || 'active',
-          galleryImages: (hotel.galleryImages as string[] | undefined) || hotel.data?.galleryImages || [],
-          longDescription: (hotel.longDescription as string | undefined) || hotel.data?.longDescription || ''
-        });
+    const loadHotel = async () => {
+      try {
+        const res = await fetch(`/api/journey-hotels/${hotelId}`);
+        if (res.ok) {
+          const data = await res.json();
+          const hotel = data.hotel;
+          setFormData({
+            name: hotel.name || '',
+            location: hotel.location || '',
+            image: hotel.image || '',
+            status: hotel.status || 'active',
+            galleryImages: (hotel.galleryImages as string[] | undefined) || hotel.data?.galleryImages || [],
+            longDescription: (hotel.longDescription as string | undefined) || hotel.data?.longDescription || ''
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching hotel:', error);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Error fetching hotel:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
+    loadHotel();
+  }, [user, router, hotelId]);
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
