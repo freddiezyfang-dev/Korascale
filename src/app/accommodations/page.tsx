@@ -4,27 +4,8 @@ import Link from "next/link";
 import { useState, useEffect, useRef } from 'react';
 import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/components/common';
 import { AccommodationCard } from '@/components/cards/AccommodationCard';
-import { WishlistSidebar } from '@/components/wishlist/WishlistSidebar';
-import { useWishlist } from '@/context/WishlistContext';
 import hotelsData from '@/data/hotels.json';
-import { Heart } from 'lucide-react';
-
-// 定义酒店类型
-interface Hotel {
-  id: string;
-  name: string;
-  location: string;
-  city?: string;
-  starRating?: string;
-  images: string[];
-  rating: string;
-  description: string;
-  roomTypes: Array<{
-    name: string;
-    description: string;
-    amenities: string[];
-  }>;
-}
+// 其余 UI 组件与类型按需在此文件内定义
 
 // 图片资源 - 使用Figma设计中的图片
 const imgHeroBanner = "/images/hero/slide8-accommodation.png";
@@ -34,9 +15,6 @@ const imgFrame37 = "https://images.unsplash.com/photo-1571896349842-33c89424de2d
 // 移除未使用的图片常量
 
 export default function Accommodations() {
-  // 已移除酒店详情弹窗
-  const { toggleWishlist, items } = useWishlist();
-  
   // 自动轮播状态
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -110,20 +88,6 @@ export default function Accommodations() {
         }
       `}</style>
       
-      {/* Wishlist Sidebar */}
-      {/* <WishlistSidebar /> */}
-      
-      {/* Wishlist Button - 固定定位跟随屏幕 */}
-      {/* <div className="fixed top-6 right-6 z-40">
-        <Button
-          variant="secondary"
-          onClick={toggleWishlist}
-          className="flex items-center gap-2 bg-white text-tertiary hover:bg-gray-100 shadow-lg hover:shadow-xl transition-all duration-300"
-        >
-          <Heart className="w-5 h-5" />
-          Wishlist ({items.length})
-        </Button>
-      </div> */}
       {/* Hero Banner - 按照Figma设计的左右分栏布局 */}
       <section className="flex h-[800px] w-full overflow-hidden relative">
         {/* 左侧图片区域 */}

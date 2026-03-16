@@ -153,9 +153,9 @@ export default function InteractiveJourneyBookingPage() {
     
     // 添加选中的模块价格（每人价格）乘以 travelers 数量
     selectedModules.forEach(moduleId => {
-      const module = journey.modules?.find(m => m.id === moduleId);
-      if (module) {
-        total += module.price * travelersCount;
+      const sectionModule = journey.modules?.find(m => m.id === moduleId);
+      if (sectionModule) {
+        total += sectionModule.price * travelersCount;
       }
     });
     
@@ -443,29 +443,29 @@ export default function InteractiveJourneyBookingPage() {
                       Choose which modules to include in your journey. Base modules are included by default.
                     </Text>
                     
-                    {journey.modules.map((module) => (
-                      <div key={module.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-primary-500 transition-colors">
+                    {journey.modules.map((sectionModule) => (
+                      <div key={sectionModule.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-primary-500 transition-colors">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <Heading level={4} className="font-semibold">{module.title}</Heading>
-                            {module.included && (
+                            <Heading level={4} className="font-semibold">{sectionModule.title}</Heading>
+                            {sectionModule.included && (
                               <span className="px-2 py-1 bg-green-100 text-green-600 text-xs rounded-full">
                                 Included
                               </span>
                             )}
                           </div>
-                          <Text size="sm" className="text-gray-600 mb-2">{module.description}</Text>
+                          <Text size="sm" className="text-gray-600 mb-2">{sectionModule.description}</Text>
                           <div className="flex items-center gap-4 text-sm">
-                            <Text className="text-primary-600 font-medium">¥{module.price}</Text>
-                            <Text className="text-gray-500">{module.duration}</Text>
+                            <Text className="text-primary-600 font-medium">¥{sectionModule.price}</Text>
+                            <Text className="text-gray-500">{sectionModule.duration}</Text>
                           </div>
                         </div>
                         <Button
-                          variant={selectedModules.includes(module.id) || module.included ? "primary" : "outline"}
-                          onClick={() => toggleModule(module.id)}
-                          disabled={!!module.included}
+                          variant={selectedModules.includes(sectionModule.id) || sectionModule.included ? "primary" : "outline"}
+                          onClick={() => toggleModule(sectionModule.id)}
+                          disabled={!!sectionModule.included}
                         >
-                          {selectedModules.includes(module.id) || module.included ? 'Selected' : 'Add'}
+                          {selectedModules.includes(sectionModule.id) || sectionModule.included ? 'Selected' : 'Add'}
                         </Button>
                       </div>
                     ))}
@@ -635,11 +635,11 @@ export default function InteractiveJourneyBookingPage() {
                   <div>
                     <Text size="sm" className="text-gray-600 mb-1">Selected Modules:</Text>
                     {selectedModules.map(moduleId => {
-                      const module = journey.modules?.find(m => m.id === moduleId);
-                      return module ? (
+                      const sectionModule = journey.modules?.find(m => m.id === moduleId);
+                      return sectionModule ? (
                         <div key={moduleId} className="flex justify-between text-sm">
-                          <Text>{module.title}</Text>
-                          <Text>¥{module.price}</Text>
+                          <Text>{sectionModule.title}</Text>
+                          <Text>¥{sectionModule.price}</Text>
                         </div>
                       ) : null;
                     })}

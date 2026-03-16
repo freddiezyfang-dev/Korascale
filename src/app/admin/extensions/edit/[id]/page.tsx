@@ -32,32 +32,31 @@ export default function EditExtensionPage() {
       router.push('/');
       return;
     }
-    fetchExtension();
-  }, [user, router, extensionId]);
-
-  const fetchExtension = async () => {
-    try {
-      const res = await fetch(`/api/extensions/${extensionId}`);
-      if (res.ok) {
-        const data = await res.json();
-        const ext = data.extension;
-        setFormData({
-          title: ext.title || '',
-          description: ext.description || '',
-          days: ext.days || '',
-          image: ext.image || '',
-          longitude: ext.longitude?.toString() || '',
-          latitude: ext.latitude?.toString() || '',
-          link: ext.link || '',
-          status: ext.status || 'active'
-        });
+    const loadExtension = async () => {
+      try {
+        const res = await fetch(`/api/extensions/${extensionId}`);
+        if (res.ok) {
+          const data = await res.json();
+          const ext = data.extension;
+          setFormData({
+            title: ext.title || '',
+            description: ext.description || '',
+            days: ext.days || '',
+            image: ext.image || '',
+            longitude: ext.longitude?.toString() || '',
+            latitude: ext.latitude?.toString() || '',
+            link: ext.link || '',
+            status: ext.status || 'active'
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching extension:', error);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Error fetching extension:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
+    loadExtension();
+  }, [user, router, extensionId]);
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
