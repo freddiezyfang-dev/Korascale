@@ -42,6 +42,7 @@ export default function EditArticlePage() {
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [isUploadingHero, setIsUploadingHero] = useState(false);
   const [tagInputValue, setTagInputValue] = useState('');
+  const [uploadingBlockId, setUploadingBlockId] = useState<string | null>(null);
 
   useEffect(() => {
     if (target) {
@@ -233,7 +234,6 @@ export default function EditArticlePage() {
     updateContentBlock(blockId, { caption: suggested });
   };
 
-  const [uploadingBlockId, setUploadingBlockId] = useState<string | null>(null);
   const handleBlockImageUpload = async (blockId: string, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;

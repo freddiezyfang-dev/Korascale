@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import Link from "next/link";
 import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/components/common';
@@ -116,7 +116,10 @@ export default function RegionDestinationsPage() {
     }
   }, [region, currentCategory]);
   
-  const currentRegionSidebarData = currentCategory ? getSidebarDataByCategory(currentCategory) : [];
+  const currentRegionSidebarData = useMemo(
+    () => (currentCategory ? getSidebarDataByCategory(currentCategory) : []),
+    [currentCategory]
+  );
   
   // 🔍 数据一致性检查：验证 sidebar 数据的 id 是否都在 REGION_MAPPING 中
   useEffect(() => {

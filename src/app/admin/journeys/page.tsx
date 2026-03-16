@@ -146,7 +146,7 @@ export default function AdminJourneysPage() {
   // 在后台管理页面加载时，重新加载所有状态的 journeys（包括 inactive）
   useEffect(() => {
     reloadJourneys(true);
-  }, []);
+  }, [reloadJourneys]);
 
   const handleLogout = () => {
     logout();
