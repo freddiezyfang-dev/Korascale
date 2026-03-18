@@ -63,11 +63,13 @@ const GEO_FALLBACKS: Array<
   ['北京', { lng: 116.41, lat: 39.9, name: 'Beijing' }],
 ];
 
-function isValidCoordinate(value: unknown, min: number, max: number) {
+type GeoCoords = { lng: number; lat: number; name: string };
+
+function isValidCoordinate(value: unknown, min: number, max: number): value is number {
   return typeof value === 'number' && Number.isFinite(value) && value >= min && value <= max;
 }
 
-function inferCoordsFromText(text?: string | null) {
+function inferCoordsFromText(text?: string | null): GeoCoords | null {
   const normalized = text?.toLowerCase().trim();
   if (!normalized) return null;
 
@@ -80,7 +82,7 @@ function inferCoordsFromText(text?: string | null) {
   return null;
 }
 
-function inferJourneyBaseCoords(journey?: Journey | null) {
+function inferJourneyBaseCoords(journey?: Journey | null): GeoCoords {
   const journeyWithCoords = journey as (Journey & { longitude?: number; latitude?: number }) | null;
   const lng = journeyWithCoords?.longitude;
   const lat = journeyWithCoords?.latitude;
@@ -629,7 +631,7 @@ export default function ClientJourneyPage() {
         city?: string;
         location?: string;
       };
-      const dayCoords =
+      const dayCoords: GeoCoords =
         inferCoordsFromText(
           [
             dayWithCoords.city,
@@ -666,7 +668,7 @@ export default function ClientJourneyPage() {
         city?: string;
         location?: string;
       };
-      const dayCoords =
+      const dayCoords: GeoCoords =
         inferCoordsFromText(
           [
             dayWithCoords.city,
