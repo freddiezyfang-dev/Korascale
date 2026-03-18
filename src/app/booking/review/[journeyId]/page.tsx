@@ -5,6 +5,7 @@ import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
 import { useUser } from '@/context/UserContext';
+import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 interface JourneyData {
   id: string;
@@ -198,7 +199,7 @@ function BookingReviewContent() {
                 </div>
                 {heroImage && (
                   <div className="w-full md:w-[45%] flex-shrink-0 aspect-[16/9] rounded-sm overflow-hidden bg-gray-200">
-                    <img src={heroImage} alt={journey.title} className="w-full h-full object-cover" />
+                    <img src={getRenderableImageUrl(heroImage)} alt={journey.title} className="w-full h-full object-cover" />
                   </div>
                 )}
               </div>

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Journey } from '@/types';
 import { DYNAMIC_PADDING, DYNAMIC_GAP } from '@/components/journey/journeySectionLayout';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 const CONTENT_WRAPPER = `max-w-7xl mx-auto ${DYNAMIC_PADDING}`;
 const CARD_WIDTH = 320;
@@ -102,7 +103,7 @@ export default function GoFurther({ journeys, excludeJourneyId }: GoFurtherProps
               >
                 <div className="relative aspect-[3/4] w-full overflow-hidden bg-gray-100">
                   <img
-                    src={j.heroImage || j.image || j.images?.[0] || ''}
+                    src={getRenderableImageUrl(j.heroImage || j.image || j.images?.[0] || '')}
                     alt=""
                     className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                   />

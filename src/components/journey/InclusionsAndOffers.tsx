@@ -432,38 +432,31 @@ export default function InclusionsAndOffers({ journey, onBookingClick, rightColu
   }
 
   return (
-    <section className="w-full py-16 bg-[#FAF9F6]">
-      <div className="w-full max-w-7xl mx-auto px-4 md:px-8 lg:px-20">
-        {/* Inclusions 与 Dates 的 左右布局（等高容器） */}
-        <div className="flex flex-col lg:flex-row gap-12 items-stretch">
-          
-          {/* 左侧：Inclusions 垂直列表 */}
-          <div className="w-full lg:w-1/2 flex flex-col">
-            <h3 className="text-2xl font-heading mb-8 text-gray-900">Includes</h3>
-            {inclusionsList.length > 0 ? (
-              <div className="flex flex-col gap-6">
-                {inclusionsList.map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-5 group">
-                    <div className="w-5 h-5 flex-shrink-0 text-gray-800 mt-0.5 opacity-80">
-                      <ThinLineIcon /> 
-                    </div>
-                    <p className="text-[14px] text-gray-700 font-light leading-snug">
-                      {item}
-                    </p>
+    <section className="w-full py-0 bg-transparent">
+      <div className="w-full flex flex-col lg:flex-row items-start justify-between gap-16">
+        <div className="w-full lg:w-[42%] flex flex-col">
+          <h3 className="text-2xl font-heading mb-8 text-gray-900">Includes</h3>
+          {inclusionsList.length > 0 ? (
+            <div className="flex flex-col gap-6">
+              {inclusionsList.map((item, idx) => (
+                <div key={idx} className="flex items-start gap-5 group">
+                  <div className="w-5 h-5 flex-shrink-0 text-gray-800 mt-0.5 opacity-80">
+                    <ThinLineIcon />
                   </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-500 text-sm">No inclusion details available for this journey.</p>
-            )}
-          </div>
+                  <p className="text-[14px] text-gray-700 font-light leading-snug">
+                    {item}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-sm">No inclusion details available for this journey.</p>
+          )}
+        </div>
 
-          {/* 右侧：Select Your Date 模块 */}
-          <div className="w-full lg:w-1/2 lg:border-l lg:pl-12 border-gray-200 flex flex-col lg:h-[70vh] relative">
-            {rightColumnContent}
-            {/* 底部渐变遮罩，提示可向下滚动（仅桌面端显示） */}
-            <div className="pointer-events-none hidden lg:block absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-[#FAF9F6] to-transparent" />
-          </div>
+        <div className="w-full lg:w-[48%] lg:ml-auto lg:border-l lg:pl-12 border-stone-200 flex flex-col lg:h-[70vh] relative">
+          {rightColumnContent}
+          <div className="pointer-events-none hidden lg:block absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-stone-50 to-transparent" />
         </div>
       </div>
     </section>

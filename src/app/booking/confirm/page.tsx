@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Container, Section, Heading, Text, Card, Button } from '@/components/common';
 import { useOrderManagement } from '@/context/OrderManagementContext';
 import { CheckCircle, X } from 'lucide-react';
+import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 export default function BookingConfirmationPage() {
   const router = useRouter();
@@ -71,7 +72,7 @@ export default function BookingConfirmationPage() {
               <Card className="p-6">
                 <Heading level={2} className="text-lg font-semibold mb-4">Journey Overview</Heading>
                 <div className="flex items-center gap-4">
-                  <img src={order.accommodation.image} alt={order.accommodation.title} className="w-24 h-24 object-cover rounded" />
+                  <img src={getRenderableImageUrl(order.accommodation.image)} alt={order.accommodation.title} className="w-24 h-24 object-cover rounded" />
                   <div>
                     <Text className="font-medium">{order.accommodation.title}</Text>
                     <Text className="text-sm text-gray-600">{order.accommodation.location}</Text>

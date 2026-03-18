@@ -6,8 +6,9 @@ import Script from 'next/script';
 type MapMode = 'single-location' | 'multi-stop-route';
 
 interface JourneyMapProps {
-  mode: MapMode;
-  locations: {
+  journeySteps?: any[];
+  mode?: MapMode;
+  locations?: {
     id: string;
     lng: number;
     lat: number;
@@ -44,10 +45,11 @@ declare global {
 const MAP_CONTAINER_ID = 'itinerary-map-canvas';
 
 export default function JourneyMap({ 
-  mode, 
-  locations, 
+  journeySteps: rawJourneySteps = [],
+  mode: requestedMode = 'multi-stop-route', 
+  locations: requestedLocations = [], 
   radius = 5000, 
-  dayLocations,
+  dayLocations: requestedDayLocations,
   currentDay,
   activeDay,
   className = '',
@@ -64,6 +66,51 @@ export default function JourneyMap({
   const lastCurrentDayRef = useRef<number | undefined>(undefined);
   const markersRef = useRef<Map<string, any>>(new Map());
   const routeGeoJsonDataRef = useRef<any>(null);
+
+  const derivedDayLocations = useMemo(() => {
+    if (!Array.isArray(rawJourneySteps) || rawJourneySteps.length === 0) return undefined;
+
+    return rawJourneySteps
+      .map((step: any, index: number) => {
+        const lng = Number(step?.longitude);
+        const lat = Number(step?.latitude);
+
+        if (!Number.isFinite(lng) || !Number.isFinite(lat)) return null;
+
+        const day = typeof step?.day === 'number' ? step.day : index + 1;
+
+        return {
+          day,
+          title: step?.title,
+          locations: [
+            {
+              id: step?.id || `journey-step-${day}`,
+              lng,
+              lat,
+              city: step?.city || step?.location,
+              label: step?.city || step?.location || step?.title || `Day ${day}`,
+            },
+          ],
+        };
+      })
+      .filter(Boolean) as JourneyMapProps['dayLocations'];
+  }, [rawJourneySteps]);
+
+  const dayLocations = requestedDayLocations?.length
+    ? requestedDayLocations
+    : derivedDayLocations;
+
+  const locations = requestedLocations?.length
+    ? requestedLocations
+    : dayLocations?.flatMap((day) => day.locations.map((loc) => ({
+        id: loc.id,
+        lng: loc.lng,
+        lat: loc.lat,
+      }))) || [];
+
+  const mode: MapMode =
+    requestedMode ||
+    ((dayLocations?.length || locations.length) > 1 ? 'multi-stop-route' : 'single-location');
 
   // Stable reference for locations array (prevents dependency array size changes)
   const locationsLength = locations?.length ?? 0;
@@ -331,6 +378,7 @@ export default function JourneyMap({
         });
 
         map.current = m;
+        map.current.resize();
         (window as any).__MAP__ = m;
         console.log(`[JourneyMap] Map instance created @ ${Date.now()}`);
 
@@ -365,6 +413,13 @@ export default function JourneyMap({
           } else if (mode === 'single-location' && locations && locations.length > 0) {
             updateSingleLocation(m);
           }
+
+          setTimeout(() => {
+            if (map.current) {
+              map.current.resize();
+              map.current.flyTo({ padding: 50, duration: 0 });
+            }
+          }, 300);
         });
 
         // 样式加载后的处理（可能触发多次）
@@ -1206,7 +1261,7 @@ export default function JourneyMap({
         }}
       />
       <div 
-        className={`relative w-full h-full min-h-[500px] bg-gray-100 ${className}`}
+        className={`relative w-full h-full bg-gray-100 ${className}`}
         style={{
           overflow: 'hidden',
           position: 'relative',
@@ -1229,9 +1284,6 @@ export default function JourneyMap({
             ref={mapContainer} 
             className="absolute inset-0 w-full h-full"
             style={{
-              height: '100%',
-              width: '100%',
-              minHeight: '500px', // 确保有最小高度
               position: 'absolute',
               top: 0,
               left: 0,

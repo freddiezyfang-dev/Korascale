@@ -6,6 +6,7 @@ import { Container, Section, Heading, Text, Button, Card } from '@/components/co
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useRouter } from 'next/navigation';
+import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 export default function BookingReviewPage() {
   const { items, totals, removeJourney, clearCart, removeExperienceFromJourney } = useCart();
@@ -48,7 +49,7 @@ export default function BookingReviewPage() {
                       <div className="flex gap-4">
                         {j.image && (
                           <div className="w-40 h-28 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                            <img src={j.image} alt={j.title} className="w-full h-full object-cover" />
+                            <img src={getRenderableImageUrl(j.image)} alt={j.title} className="w-full h-full object-cover" />
                           </div>
                         )}
                         <div className="flex-1 min-w-0">

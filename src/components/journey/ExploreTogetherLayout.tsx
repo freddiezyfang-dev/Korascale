@@ -5,7 +5,7 @@ import { Journey } from '@/types';
 import { DYNAMIC_PADDING } from './journeySectionLayout';
 import { Check, Info } from 'lucide-react';
 import BookingCalendarGrid from './BookingCalendarGrid';
-import GoFurther from '@/components/shared/GoFurther';
+import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 const CONTENT_WRAPPER = `max-w-6xl mx-auto ${DYNAMIC_PADDING}`;
 /** 预订区块专用：max-width 7xl，比上方 Itinerary 更宽 */
@@ -35,7 +35,6 @@ const STANDARD_INCLUSIONS_PHRASES: Record<string, string> = {
 interface ExploreTogetherLayoutProps {
   journey: Journey;
   onBookingClick?: (date: Date, pricePerPerson: number) => void;
-  journeys?: Journey[];
 }
 
 function getPriceDisplay(price: number | undefined | null, originalPrice?: number | null) {
@@ -70,7 +69,7 @@ function PriceInfoTooltip({ text, themeGreen }: { text: string; themeGreen: stri
   );
 }
 
-export default function ExploreTogetherLayout({ journey, onBookingClick, journeys = [] }: ExploreTogetherLayoutProps) {
+export default function ExploreTogetherLayout({ journey, onBookingClick }: ExploreTogetherLayoutProps) {
   const title = journey.pageTitle || journey.title;
   const subtitle = journey.shortDescription || journey.description;
   const introText = journey.overview?.description || journey.description || '';
@@ -215,7 +214,7 @@ export default function ExploreTogetherLayout({ journey, onBookingClick, journey
             <div className="mt-12 md:mt-16 w-full">
               <div className="relative w-full aspect-[21/9] overflow-hidden rounded-sm border border-white/10 shadow-xl">
                 <img
-                  src={mainContentImage}
+                  src={getRenderableImageUrl(mainContentImage)}
                   alt=""
                   className="absolute inset-0 w-full h-full object-cover"
                 />
@@ -328,10 +327,6 @@ export default function ExploreTogetherLayout({ journey, onBookingClick, journey
         </div>
       </section>
 
-      {/* 5. Go Further：其他行程横向滚动 */}
-      {journeys.length > 0 && (
-        <GoFurther journeys={journeys} excludeJourneyId={journey.id} />
-      )}
     </div>
   );
 }

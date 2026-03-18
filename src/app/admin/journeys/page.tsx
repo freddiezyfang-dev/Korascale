@@ -6,6 +6,7 @@ import { Container, Section, Heading, Text, Card, Button } from '@/components/co
 import { useUser } from '@/context/UserContext';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { Journey, JourneyStatus, JourneyType } from '@/types';
+import { getRenderableImageUrl, pickFirstValidImagePath } from '@/lib/imageUtils';
 import { migrateExistingPage, validateMigratedPage } from '@/lib/pageMigration';
 import { DeleteConfirmationModal } from '@/components/modals/DeleteConfirmationModal';
 import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation';
@@ -93,6 +94,7 @@ export default function AdminJourneysPage() {
   const { user, logout } = useUser();
   const { 
     journeys, 
+    error,
     updateJourneyStatus, 
     updateJourney,
     deleteJourney,
@@ -145,12 +147,39 @@ export default function AdminJourneysPage() {
 
   // 在后台管理页面加载时，重新加载所有状态的 journeys（包括 inactive）
   useEffect(() => {
-    reloadJourneys(true);
+    void reloadJourneys(true);
   }, [reloadJourneys]);
+
+  const normalizeAdminUrl = (value?: string) => {
+    if (!value) return '';
+    if (value.startsWith('http://') || value.startsWith('https://')) return value;
+    return value.startsWith('/') ? value : `/${value}`;
+  };
+
+  const getJourneyThumbnailSrc = (journey: Journey) => {
+    const candidate = pickFirstValidImagePath(
+      journey.image,
+      journey.heroImage,
+      journey.mainContentImage,
+      journey.images?.[0],
+      journey.overview?.sideImage
+    );
+    return getRenderableImageUrl(candidate);
+  };
+
+  const truncateDescription = (value?: string) => {
+    const text = value?.trim();
+    if (!text) return '';
+    return `${text.substring(0, 160)}${text.length > 160 ? '...' : ''}`;
+  };
 
   const handleLogout = () => {
     logout();
     router.push('/');
+  };
+
+  const handleRetryLoad = () => {
+    void reloadJourneys(true);
   };
 
   const handleStatusToggle = (journeyId: string, currentStatus: JourneyStatus) => {
@@ -240,6 +269,29 @@ export default function AdminJourneysPage() {
         <div className="text-center">
           <Text className="text-gray-600">Loading journeys...</Text>
         </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
+        <Card className="w-full max-w-2xl p-8 border border-red-200 bg-red-50">
+          <Heading level={2} className="text-2xl font-bold text-red-900 mb-3">
+            Failed to load journeys
+          </Heading>
+          <Text className="text-red-800 mb-6">
+            {error || 'Failed to load journeys. Please check API.'}
+          </Text>
+          <div className="flex gap-3">
+            <Button onClick={handleRetryLoad} variant="primary">
+              Retry
+            </Button>
+            <Button onClick={() => router.push('/admin')} variant="secondary">
+              Back to Dashboard
+            </Button>
+          </div>
+        </Card>
       </div>
     );
   }
@@ -386,7 +438,6 @@ export default function AdminJourneysPage() {
               </div>
             </div>
           </div>
-
           {/* Statistics */}
           <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
             <Card className="p-4">
@@ -560,7 +611,7 @@ export default function AdminJourneysPage() {
                   <Card key={journey.id} className="overflow-hidden">
                     <div className="relative">
                       <img
-                        src={journey.image}
+                        src={getJourneyThumbnailSrc(journey)}
                         alt={journey.title}
                         className="w-full h-48 object-cover"
                       />
@@ -601,7 +652,7 @@ export default function AdminJourneysPage() {
                       </div>
                       
                       <Text className="text-sm text-gray-600 mb-4 line-clamp-2">
-                        {journey.shortDescription}
+                        {truncateDescription(journey.shortDescription || journey.description)}
                       </Text>
 
                       <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
@@ -646,7 +697,7 @@ export default function AdminJourneysPage() {
                         {journey.slug ? (
                           <div className="flex gap-2">
                             <Button
-                              onClick={() => window.open(`/journeys/${journey.slug}`, '_blank')}
+                              onClick={() => window.open(normalizeAdminUrl(`journeys/${journey.slug}`), '_blank')}
                               variant="secondary"
                               size="sm"
                               className="flex-1"
@@ -655,7 +706,7 @@ export default function AdminJourneysPage() {
                               View Page
                             </Button>
                             <Button
-                              onClick={() => navigator.clipboard.writeText(`${window.location.origin}/journeys/${journey.slug}`)}
+                              onClick={() => navigator.clipboard.writeText(`${window.location.origin}${normalizeAdminUrl(`journeys/${journey.slug}`)}`)}
                               variant="secondary"
                               size="sm"
                               className="flex-1"

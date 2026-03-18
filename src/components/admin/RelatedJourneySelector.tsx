@@ -3,6 +3,7 @@
 import React from 'react';
 import { Card, Heading, Text, Button } from '@/components/common';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
+import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 interface RelatedJourneySelectorProps {
   value: string[];
@@ -29,7 +30,7 @@ export const RelatedJourneySelector: React.FC<RelatedJourneySelectorProps> = ({ 
             <label key={j.id} className="flex items-center gap-2 p-2 border rounded">
               <input type="checkbox" checked={value.includes(j.id)} onChange={() => toggle(j.id)} disabled={!isEditing} />
               <div className="flex items-center gap-2">
-                <img src={j.image} alt={j.title} className="w-8 h-8 rounded object-cover" />
+                <img src={getRenderableImageUrl(j.image)} alt={j.title} className="w-8 h-8 rounded object-cover" />
                 <div>
                   <Text className="font-medium text-sm">{j.title}</Text>
                   <Text className="text-xs text-gray-500">{j.category} • {j.duration}</Text>
@@ -46,7 +47,7 @@ export const RelatedJourneySelector: React.FC<RelatedJourneySelectorProps> = ({ 
           {selected.map(j => (
             <div key={j.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
               <div className="flex items-center gap-2">
-                <img src={j.image} alt={j.title} className="w-10 h-10 rounded object-cover" />
+                <img src={getRenderableImageUrl(j.image)} alt={j.title} className="w-10 h-10 rounded object-cover" />
                 <div>
                   <Text className="font-medium">{j.title}</Text>
                   <Text className="text-sm text-gray-500">{j.duration} • ¥{j.price}</Text>

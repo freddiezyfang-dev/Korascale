@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { pickFirstValidImagePath, sanitizeImageList, sanitizeImagePath } from '@/lib/imageUtils';
 import { Journey } from '@/types';
 
 // Route Segment Config - 确保路由被正确识别
@@ -14,6 +15,32 @@ function normalizeAvailableDates(items: unknown[] | undefined): unknown[] {
     ...item,
     enabled: item && typeof item.enabled === 'boolean' ? item.enabled : true,
   }));
+}
+
+function sanitizeJourneyBaseData(baseData: any) {
+  const safeImages = sanitizeImageList(baseData?.images);
+  const safeOverview = baseData?.overview
+    ? {
+        ...baseData.overview,
+        sideImage: sanitizeImagePath(baseData.overview.sideImage),
+      }
+    : undefined;
+  const safeItinerary = Array.isArray(baseData?.itinerary)
+    ? baseData.itinerary.map((item: any) => ({
+        ...item,
+        image: sanitizeImagePath(item?.image),
+      }))
+    : [];
+
+  return {
+    ...baseData,
+    images: safeImages,
+    overview: safeOverview,
+    itinerary: safeItinerary,
+    heroImage: sanitizeImagePath(baseData?.heroImage),
+    mainContentImage: sanitizeImagePath(baseData?.mainContentImage),
+    availableDates: normalizeAvailableDates(baseData?.availableDates),
+  };
 }
 
 // GET: 获取所有journeys
@@ -32,6 +59,7 @@ export async function GET(request?: NextRequest) {
     // 解析查询参数：支持 includeAll 参数来获取所有状态的 journeys（用于后台管理）
     const searchParams = request?.nextUrl?.searchParams;
     const includeAll = searchParams?.get('includeAll') === 'true';
+    const minimalFields = searchParams?.get('fields') === 'minimal';
     
     console.log('[API /journeys] Fetching journeys from database...', { includeAll });
     
@@ -54,6 +82,9 @@ export async function GET(request?: NextRequest) {
           database: url.pathname?.replace('/', '') || 'N/A',
           username: url.username || 'N/A',
           hasPassword: !!url.password,
+          isNeon: url.hostname.includes('neon.tech'),
+          hasPooler: url.hostname.includes('-pooler'),
+          hasPgbouncerParam: url.searchParams.get('pgbouncer') === 'true',
         };
       } catch (parseError) {
         connectionInfo.parseError = String(parseError);
@@ -73,30 +104,50 @@ export async function GET(request?: NextRequest) {
       const statusCondition = includeAll 
         ? '' // 不添加 WHERE 条件，返回所有状态
         : "WHERE status = 'active' OR status IS NULL";
-      
-      // 使用更简单的查询，只选择必要的字段，减少数据传输量
-      // 添加查询超时控制（使用 Promise.race）- 增加到60秒
-      const queryPromise = query(`
-        SELECT 
-          id, title, slug, description, short_description,
-          price, original_price, category, journey_type, region, place, city, location,
-          duration, difficulty, max_participants, min_participants,
-          image, status, featured, rating, review_count,
-          data, created_at, updated_at
-        FROM journeys 
-        ${statusCondition}
-        ORDER BY created_at DESC
-        LIMIT 1000
-      `);
-      
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Database query timeout after 60 seconds')), 60000)
-      );
-      
-      const result = await Promise.race([queryPromise, timeoutPromise]) as any;
-      rows = result.rows;
+
+      const selectClause = minimalFields
+        ? `
+          SELECT id, slug, title
+          FROM journeys
+        `
+        : `
+          SELECT
+            id, title, slug, description, short_description,
+            price, original_price, category, journey_type, region, place, city, location,
+            duration, difficulty, max_participants, min_participants,
+            image, status, featured, rating, review_count,
+            data, created_at, updated_at
+          FROM journeys
+        `;
+
+      console.time('db-query');
+      try {
+        const queryPromise = query(`
+          ${selectClause}
+          ${statusCondition}
+          ORDER BY created_at DESC
+          LIMIT 1000
+        `);
+
+        const timeoutLimitMs = 30000;
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(
+            () => reject(new Error(`Database query timeout after ${timeoutLimitMs / 1000} seconds`)),
+            timeoutLimitMs
+          )
+        );
+
+        const result = await Promise.race([queryPromise, timeoutPromise]) as any;
+        rows = result.rows;
+      } finally {
+        console.timeEnd('db-query');
+      }
+
       const queryDuration = Date.now() - queryStartTime;
-      console.log(`[API /journeys] Found ${rows.length} journeys in ${queryDuration}ms`);
+      console.log(`[API /journeys] Found ${rows.length} journeys in ${queryDuration}ms`, {
+        includeAll,
+        minimalFields,
+      });
     } catch (dbError) {
       const queryDuration = Date.now() - queryStartTime;
       console.error(`[API /journeys] Database query error after ${queryDuration}ms:`, dbError);
@@ -119,7 +170,10 @@ export async function GET(request?: NextRequest) {
         return NextResponse.json(
           { 
             error: 'Database query timeout. The database may be slow or overloaded. Please try again later.',
-            details: process.env.NODE_ENV === 'development' ? `Query took ${queryDuration}ms before timeout (60s limit)` : undefined
+            details:
+              process.env.NODE_ENV === 'development'
+                ? `Query took ${queryDuration}ms before timeout (30s limit)`
+                : undefined
           },
           { status: 504 } // Gateway Timeout
         );
@@ -128,10 +182,44 @@ export async function GET(request?: NextRequest) {
       throw dbError; // 重新抛出其他错误
     }
     
+    if (minimalFields) {
+      return NextResponse.json(
+        {
+          journeys: rows.map((row: any) => ({
+            id: row.id,
+            slug: row.slug,
+            title: row.title,
+          })),
+          debug: {
+            fields: 'minimal',
+          },
+        },
+        {
+          headers: {
+            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+          },
+        }
+      );
+    }
+
     // 转换数据库格式到应用格式
     const journeys = rows.map((row: any) => {
-      const baseData = row.data || {};
+      const baseData = sanitizeJourneyBaseData(row.data || {});
+      const safePrimaryImage = pickFirstValidImagePath(
+        row.image,
+        baseData.image,
+        baseData.heroImage,
+        baseData.mainContentImage,
+        baseData.images?.[0]
+      );
       return {
+        // JSONB数据先展开，再用结构化列覆盖，避免旧 data.image 等脏值反向污染主字段
+        ...baseData,
         // 基础字段
         id: row.id,
         title: row.title,
@@ -150,17 +238,18 @@ export async function GET(request?: NextRequest) {
         difficulty: row.difficulty,
         maxParticipants: row.max_participants,
         minParticipants: row.min_participants,
-        image: row.image,
+        image: safePrimaryImage,
         status: row.status,
         featured: row.featured,
         rating: row.rating,
         reviewCount: row.review_count,
-        // JSONB数据
-        ...baseData,
-        availableDates: normalizeAvailableDates(baseData.availableDates),
         // 确保这些字段存在（即使为空也要返回）
         destinationCount: baseData.destinationCount,
         maxGuests: baseData.maxGuests,
+        heroImage: pickFirstValidImagePath(baseData.heroImage, row.image, safePrimaryImage),
+        mainContentImage: sanitizeImagePath(baseData.mainContentImage),
+        images: sanitizeImageList(baseData.images),
+        availableDates: normalizeAvailableDates(baseData.availableDates),
         // 时间戳
         createdAt: new Date(row.created_at),
         updatedAt: new Date(row.updated_at),

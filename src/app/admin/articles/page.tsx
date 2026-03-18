@@ -8,6 +8,7 @@ import { useArticleManagement } from '@/context/ArticleManagementContext';
 import { Article, ArticleCategory, ArticleCategoryToSlug } from '@/types/article';
 import { DeleteConfirmationModal } from '@/components/modals/DeleteConfirmationModal';
 import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation';
+import { getRenderableImageUrl } from '@/lib/imageUtils';
 import { Plus, Edit, Trash2, Eye, Filter } from 'lucide-react';
 
 export default function AdminArticlesPage() {
@@ -198,7 +199,7 @@ ${localArticles.length > 0 ? '💾 localStorage 有备份数据' : '💾 localSt
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map(article => (
               <Card key={article.id} className="overflow-hidden">
-                <img src={article.coverImage} alt={article.title} className="w-full h-40 object-cover" />
+                <img src={getRenderableImageUrl(article.coverImage)} alt={article.title} className="w-full h-40 object-cover" />
                 <div className="p-4">
                   <div className="flex items-center justify-between mb-1">
                     <Text className="text-xs text-gray-500">{article.category}</Text>

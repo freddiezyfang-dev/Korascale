@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Card, Heading, Text, Button } from '@/components/common';
 import { useExperienceManagement } from '@/context/ExperienceManagementContext';
 import { Plus, Trash2, Edit, Eye } from 'lucide-react';
+import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 interface ExperienceSelectorProps {
   selectedExperiences: string[];
@@ -78,7 +79,7 @@ export const ExperienceSelector: React.FC<ExperienceSelectorProps> = ({
               />
               <label htmlFor={`available-exp-${experience.id}`} className="flex-1 cursor-pointer">
                 <div className="flex items-center gap-2">
-                  <img src={experience.image} alt={experience.title} className="w-8 h-8 rounded object-cover" />
+                  <img src={getRenderableImageUrl(experience.image)} alt={experience.title} className="w-8 h-8 rounded object-cover" />
                   <div>
                     <Text className="font-medium text-sm">{experience.title}</Text>
                     <Text className="text-xs text-gray-500">{experience.type} • {experience.duration}</Text>
@@ -116,7 +117,7 @@ export const ExperienceSelector: React.FC<ExperienceSelectorProps> = ({
           {selectedExpObjects.map((experience) => (
             <div key={experience.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
               <div className="flex items-center gap-3">
-                <img src={experience.image} alt={experience.title} className="w-10 h-10 rounded object-cover" />
+                <img src={getRenderableImageUrl(experience.image)} alt={experience.title} className="w-10 h-10 rounded object-cover" />
                 <div>
                   <Text className="font-medium">{experience.title}</Text>
                   <Text className="text-sm text-gray-500">{experience.type} • {experience.duration} • ¥{experience.price}</Text>

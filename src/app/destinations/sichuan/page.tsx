@@ -8,6 +8,7 @@ import { PlanTripModal } from '@/components/modals/PlanTripModal';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { useHotelManagement } from '@/context/HotelManagementContext';
 import PlanningSectionNew from '@/components/sections/PlanningSectionNew';
+import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 // 图片资源
 const imgHeroBanner = "/images/journey-cards/chengdu-deep-dive.jpeg";
@@ -299,7 +300,7 @@ export default function SichuanChongqingPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 h-[400px]">
                     <div className="h-full">
                       <img
-                        src={journey.image}
+                        src={getRenderableImageUrl(journey.image)}
                         alt={journey.title}
                         className="w-full h-full object-cover"
                       />

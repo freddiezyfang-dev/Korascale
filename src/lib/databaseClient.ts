@@ -55,7 +55,8 @@ function sanitizeErrorMessage(message: string, status?: number): string {
 export const journeyAPI = {
   // 获取所有journeys（带重试机制）
   // includeAll: 如果为 true，返回所有状态的 journeys（包括 inactive），用于后台管理
-  async getAll(retries: number = 2, includeAll: boolean = false): Promise<Journey[]> {
+  async getAll(retries: number = 2, includeAll: boolean = false, throwOnError: boolean = false): Promise<Journey[]> {
+    let lastError: Error | null = null;
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
         // 增加超时时间：第一次45秒，重试60秒（给数据库更多时间）
@@ -103,7 +104,11 @@ export const journeyAPI = {
           } catch (e) {
             errorMessage = `HTTP ${response.status}: ${response.statusText || errorMessage}`;
           }
-          if (response.status === 404) {
+          const safeMsg = sanitizeErrorMessage(
+            errorMessage.length > 300 ? errorMessage.slice(0, 300) + '…' : errorMessage,
+            response.status
+          );
+          if (response.status === 404 && !throwOnError) {
             console.warn('[JourneyAPI]', errorMessage, '— returning empty array');
             return [];
           }
@@ -112,10 +117,6 @@ export const journeyAPI = {
             await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
             continue;
           }
-          const safeMsg = sanitizeErrorMessage(
-            errorMessage.length > 300 ? errorMessage.slice(0, 300) + '…' : errorMessage,
-            response.status
-          );
           console.error('API Error:', safeMsg);
           throw new Error(safeMsg);
         }
@@ -123,6 +124,7 @@ export const journeyAPI = {
         const data = await response.json();
         return data.journeys || [];
       } catch (error) {
+        lastError = error instanceof Error ? error : new Error('Failed to fetch journeys.');
         // 如果是 AbortError（超时）
         if (error instanceof Error && error.name === 'AbortError') {
           const timeoutMsg = `Request timeout: Failed to fetch journeys within ${attempt === 0 ? 45 : 60} seconds`;
@@ -166,6 +168,10 @@ export const journeyAPI = {
             continue;
           }
         }
+
+        if (throwOnError) {
+          break;
+        }
         
         // 最后一次尝试失败，返回空数组
         if (attempt === retries) {
@@ -175,6 +181,10 @@ export const journeyAPI = {
       }
     }
     
+    if (throwOnError && lastError) {
+      throw lastError;
+    }
+
     // 理论上不会到达这里，但为了类型安全
     return [];
   },

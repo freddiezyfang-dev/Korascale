@@ -9,6 +9,7 @@ import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { uploadAPI } from '@/lib/databaseClient';
 import { Upload } from 'lucide-react';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
+import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 export default function NewArticlePage() {
   const router = useRouter();
@@ -343,7 +344,7 @@ export default function NewArticlePage() {
                 {form.coverImage && (
                   <div className="mt-3">
                     <img
-                      src={form.coverImage}
+                      src={getRenderableImageUrl(form.coverImage)}
                       alt="Cover image preview"
                       className="w-full h-40 object-cover rounded-lg border border-gray-300"
                       onError={(e) => {
@@ -397,7 +398,7 @@ export default function NewArticlePage() {
                 {form.heroImage && (
                   <div className="mt-3">
                     <img
-                      src={form.heroImage}
+                      src={getRenderableImageUrl(form.heroImage)}
                       alt="Hero image preview"
                       className="w-full h-40 object-cover rounded-lg border border-gray-300"
                       onError={(e) => {

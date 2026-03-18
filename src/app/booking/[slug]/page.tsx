@@ -12,6 +12,7 @@ import { useWishlist } from '@/context/WishlistContext';
 import { useHotelManagement } from '@/context/HotelManagementContext';
 import { HotelDetailModal } from '@/components/modals/HotelDetailModal';
 import { WishlistSidebar } from '@/components/wishlist/WishlistSidebar';
+import { getRenderableImageUrl } from '@/lib/imageUtils';
 import { 
   Plus, 
   Minus, 
@@ -311,7 +312,7 @@ export default function InteractiveJourneyBookingPage() {
             <Card className="p-6">
               <div className="flex gap-4 mb-6">
                 <img
-                  src={journey.image}
+                  src={getRenderableImageUrl(journey.image)}
                   alt={journey.title}
                   className="w-32 h-24 object-cover rounded-lg"
                 />

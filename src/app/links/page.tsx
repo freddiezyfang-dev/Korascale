@@ -6,6 +6,7 @@ import { useArticleManagement } from '@/context/ArticleManagementContext';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { ArticleCategoryToSlug } from '@/types/article';
 import { Journey } from '@/types';
+import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 const THEME_GREEN = '#2D4033';
 const BG_LINKS = '#FAF9F6';
@@ -89,7 +90,7 @@ export default function LinksPage() {
             >
               {seoArticles[0].coverImage ? (
                 <div className={IMG_WRAPPER}>
-                  <img src={seoArticles[0].coverImage} alt="" className={IMG_FILL} />
+                  <img src={getRenderableImageUrl(seoArticles[0].coverImage)} alt="" className={IMG_FILL} />
                 </div>
               ) : (
                 <div className="absolute inset-0 bg-gray-300" />
@@ -111,7 +112,7 @@ export default function LinksPage() {
             >
               {seoArticles[1].coverImage ? (
                 <div className={IMG_WRAPPER}>
-                  <img src={seoArticles[1].coverImage} alt="" className={IMG_FILL} />
+                  <img src={getRenderableImageUrl(seoArticles[1].coverImage)} alt="" className={IMG_FILL} />
                 </div>
               ) : (
                 <div className="absolute inset-0 bg-gray-300" />
@@ -133,7 +134,7 @@ export default function LinksPage() {
             >
               {seoArticles[2].coverImage ? (
                 <div className={IMG_WRAPPER}>
-                  <img src={seoArticles[2].coverImage} alt="" className={IMG_FILL} />
+                  <img src={getRenderableImageUrl(seoArticles[2].coverImage)} alt="" className={IMG_FILL} />
                 </div>
               ) : (
                 <div className="absolute inset-0 bg-gray-300" />

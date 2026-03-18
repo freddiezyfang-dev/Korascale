@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Journey } from '@/types';
+import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 interface RecommendedJourneySectionProps {
   journeys: Journey[];
@@ -111,7 +112,7 @@ export default function RecommendedJourneySection({
                 {/* Left: 16:9 cinematic image */}
                 <div className="relative w-full md:w-[60%] aspect-video overflow-hidden">
                   <img
-                    src={journey.image}
+                        src={getRenderableImageUrl(journey.image)}
                     alt={journey.title}
                     className="w-full h-full object-cover"
                   />

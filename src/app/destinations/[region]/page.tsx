@@ -8,6 +8,7 @@ import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import RegionMap, { RegionMapHandle } from '@/components/map/RegionMap';
 import { getRegionMapping, getSidebarDataByCategory, REGION_MAPPING } from '@/lib/regionMapping';
 import PlanningSectionNew from '@/components/sections/PlanningSectionNew';
+import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 // 地区映射
 const regionMap: { [key: string]: { name: string; description: string; image: string } } = {
@@ -368,7 +369,7 @@ export default function RegionDestinationsPage() {
                 >
                   <div className="h-56 overflow-hidden">
                     <img
-                      src={journey.image}
+                      src={getRenderableImageUrl(journey.image)}
                       alt={journey.title}
                       className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300"
                     />

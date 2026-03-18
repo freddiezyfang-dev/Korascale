@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Card, Heading, Text, Button } from '@/components/common';
 import { useHotelManagement } from '@/context/HotelManagementContext';
 import { Plus, Trash2, Edit, Eye } from 'lucide-react';
+import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 interface AccommodationSelectorProps {
   selectedAccommodations: string[];
@@ -78,7 +79,7 @@ export const AccommodationSelector: React.FC<AccommodationSelectorProps> = ({
               />
               <label htmlFor={`available-hotel-${hotel.id}`} className="flex-1 cursor-pointer">
                 <div className="flex items-center gap-2">
-                  <img src={hotel.images?.[0] || '/images/hotels/fallback.png'} alt={hotel.name} className="w-8 h-8 rounded object-cover" />
+                  <img src={getRenderableImageUrl(hotel.images?.[0] || '/images/hotels/fallback.png')} alt={hotel.name} className="w-8 h-8 rounded object-cover" />
                   <div>
                     <Text className="font-medium text-sm">{hotel.name}</Text>
                     <Text className="text-xs text-gray-500">{hotel.location} • {hotel.rating}★</Text>
@@ -110,7 +111,7 @@ export const AccommodationSelector: React.FC<AccommodationSelectorProps> = ({
           {selectedHotelObjects.map((hotel) => (
             <div key={hotel.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
               <div className="flex items-center gap-3">
-                <img src={hotel.images?.[0] || '/images/hotels/fallback.png'} alt={hotel.name} className="w-10 h-10 rounded object-cover" />
+                <img src={getRenderableImageUrl(hotel.images?.[0] || '/images/hotels/fallback.png')} alt={hotel.name} className="w-10 h-10 rounded object-cover" />
                 <div>
                   <Text className="font-medium">{hotel.name}</Text>
                   <Text className="text-sm text-gray-500">{hotel.location} • {hotel.rating}★</Text>

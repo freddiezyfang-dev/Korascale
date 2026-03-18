@@ -17,6 +17,7 @@ import {
   ArticleCategory,
 } from '@/types/article';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
+import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 interface TOCItem {
   id: string;
@@ -360,7 +361,7 @@ export default function ClientArticlePage() {
             <Link href={`/journeys/${journey.slug}`} className="block group">
               <div className="flex flex-col md:flex-row gap-4">
                 <img
-                  src={journey.image}
+                  src={getRenderableImageUrl(journey.image)}
                   alt={journey.title}
                   className="w-full md:w-48 h-48 object-cover rounded-lg"
                 />

@@ -5,6 +5,7 @@ import { Container, Section, Heading, Text, Button, Breadcrumb } from '@/compone
 import { PlanningSectionNew } from '@/components/sections';
 import { useState, useEffect } from 'react';
 import { useArticleManagement } from '@/context/ArticleManagementContext';
+import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 // 图片资源
 const imgHeroBanner = "/images/hero/slide7-emeishan.jpg";
@@ -143,7 +144,7 @@ export default function Inspirations() {
                       {/* Image with 4:3 aspect ratio */}
                       <div className="relative w-full aspect-[4/3] overflow-hidden">
                         <img
-                          src={article.coverImage}
+                          src={getRenderableImageUrl(article.coverImage)}
                           alt={article.title}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />

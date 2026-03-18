@@ -6,6 +6,7 @@ import { Container, Section, Heading, Text, Card, Button } from '@/components/co
 import { useUser } from '@/context/UserContext';
 import { ArrowLeft, Save, Upload } from 'lucide-react';
 import { uploadAPI } from '@/lib/databaseClient';
+import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 export default function AddExtensionPage() {
   const { user } = useUser();
@@ -179,7 +180,7 @@ export default function AddExtensionPage() {
                   </div>
                   {formData.image && (
                     <div className="mt-4">
-                      <img src={formData.image} alt="Preview" className="w-48 h-48 object-cover rounded" />
+                      <img src={getRenderableImageUrl(formData.image)} alt="Preview" className="w-48 h-48 object-cover rounded" />
                     </div>
                   )}
                 </div>

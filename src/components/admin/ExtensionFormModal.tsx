@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Heading, Text, Button } from '@/components/common';
 import { X, Save, Upload } from 'lucide-react';
 import { uploadAPI } from '@/lib/databaseClient';
+import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 interface ExtensionFormModalProps {
   isOpen: boolean;
@@ -220,7 +221,7 @@ export function ExtensionFormModal({ isOpen, onClose, onSuccess, extension }: Ex
                   </div>
                   {formData.image && (
                     <div className="mt-4">
-                      <img src={formData.image} alt="Preview" className="w-32 h-32 object-cover rounded" />
+                      <img src={getRenderableImageUrl(formData.image)} alt="Preview" className="w-32 h-32 object-cover rounded" />
                     </div>
                   )}
                 </div>

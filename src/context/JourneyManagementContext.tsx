@@ -7,6 +7,7 @@ import { journeyAPI } from '@/lib/databaseClient';
 
 interface JourneyManagementContextType {
   journeys: Journey[];
+  error: string | null;
   updateJourneyStatus: (journeyId: string, status: JourneyStatus) => Promise<void>;
   updateJourney: (journeyId: string, updates: Partial<Omit<Journey, 'id' | 'createdAt' | 'updatedAt'>>) => Promise<Journey | undefined>;
   addJourney: (journey: Omit<Journey, 'id' | 'createdAt' | 'updatedAt'>) => Promise<Journey>;
@@ -806,6 +807,17 @@ const defaultJourneys: Journey[] = [
 export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps> = ({ children }) => {
   const [journeys, setJourneys] = useState<Journey[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const getJourneyLoadErrorMessage = (value: unknown) => {
+    if (value instanceof Error && value.message.trim()) {
+      return value.message;
+    }
+    if (typeof value === 'string' && value.trim()) {
+      return value;
+    }
+    return 'Failed to load journeys. Please check API.';
+  };
 
   // 从数据库加载旅行卡片数据的函数
   // includeAll: 如果为 true，加载所有状态的 journeys（包括 inactive），用于后台管理
@@ -813,14 +825,16 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
     try {
       console.log('JourneyManagementContext: Loading journeys from database...', { includeAll });
       setIsLoading(true);
+      setError(null);
       
       // 首先尝试从数据库加载
       // 如果 includeAll=true，获取所有状态的 journeys（用于后台管理）
-      const dbJourneys = await journeyAPI.getAll(2, includeAll);
+      const dbJourneys = await journeyAPI.getAll(2, includeAll, true);
       
       if (dbJourneys.length > 0) {
         console.log('JourneyManagementContext: Loaded from database:', dbJourneys.length, 'journeys');
         setJourneys(dbJourneys);
+        setError(null);
       } else {
         // 如果没有数据库数据，尝试从localStorage加载（向后兼容）
         const storedJourneys = localStorage.getItem('journeys');
@@ -833,6 +847,7 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
           
           console.log('JourneyManagementContext: Found localStorage data, migrating to database:', parsedJourneys.length, 'journeys');
           setJourneys(parsedJourneys);
+          setError(null);
           
           // 迁移到数据库（使用 Promise.all 确保所有迁移完成）
           const migrationPromises = parsedJourneys.map(async (journey: any) => {
@@ -864,10 +879,13 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
         } else {
           console.log('JourneyManagementContext: No stored journeys, using default data');
           setJourneys(defaultJourneys);
+          setError(null);
         }
       }
     } catch (error) {
       console.error('Error loading journeys from database:', error);
+      const errorMessage = getJourneyLoadErrorMessage(error);
+      setError(errorMessage);
       
       // 如果数据库失败，使用localStorage作为fallback
       try {
@@ -885,6 +903,7 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
       } catch (localStorageError) {
         console.error('Error loading from localStorage:', localStorageError);
         setJourneys(defaultJourneys);
+        setError(`${errorMessage} Local fallback also failed.`);
       }
     } finally {
       // 确保 isLoading 总是被设置为 false
@@ -1188,6 +1207,7 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
 
   const value: JourneyManagementContextType = {
     journeys,
+    error,
     updateJourneyStatus,
     updateJourney,
     addJourney,

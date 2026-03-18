@@ -33,6 +33,7 @@ import { ExtensionFormModal } from '@/components/admin/ExtensionFormModal';
 import { JourneyHotelFormModal } from '@/components/admin/JourneyHotelFormModal';
 import { ExperienceFormModal } from '@/components/admin/ExperienceFormModal';
 import { uploadAPI } from '@/lib/databaseClient';
+import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 const categoryOptions = [
   'Nature', 'Culture', 'History', 'City', 'Cruises'
@@ -2143,7 +2144,7 @@ export default function EditJourneyPage() {
                         </div>
                         {(formData.heroImage ?? journey.heroImage) && (
                           <div className="mt-2">
-                            <img src={formData.heroImage ?? journey.heroImage} alt="Hero" className="w-full max-w-md h-24 object-cover rounded-lg" />
+                            <img src={getRenderableImageUrl(formData.heroImage ?? journey.heroImage)} alt="Hero" className="w-full max-w-md h-24 object-cover rounded-lg" />
                           </div>
                         )}
                       </div>
@@ -2169,7 +2170,7 @@ export default function EditJourneyPage() {
                         </div>
                         {(formData.mainContentImage ?? journey.mainContentImage) ? (
                           <div className="mt-2">
-                            <img src={formData.mainContentImage ?? journey.mainContentImage} alt="Main content" className="w-full max-w-md h-24 object-cover rounded-lg" />
+                            <img src={getRenderableImageUrl(formData.mainContentImage ?? journey.mainContentImage)} alt="Main content" className="w-full max-w-md h-24 object-cover rounded-lg" />
                           </div>
                         ) : null}
                       </div>
