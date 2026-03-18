@@ -6,6 +6,7 @@ import Script from 'next/script';
 type MapMode = 'single-location' | 'multi-stop-route';
 
 interface JourneyMapProps {
+  mapId?: string;
   journeySteps?: any[];
   mode?: MapMode;
   locations?: {
@@ -43,8 +44,44 @@ declare global {
 
 // 唯一 ID 防止多实例冲突
 const MAP_CONTAINER_ID = 'itinerary-map-canvas';
+const ROUTE_LAYER_ID = 'route';
+const ROUTE_SOURCE_ID = 'route';
+const LEGACY_ROUTE_LAYER_ID = 'multi-day-route';
+const LEGACY_ROUTE_SOURCE_ID = 'multi-day-route';
+const GEOGRAPHY_DATABASE: Record<string, [number, number]> = {
+  // --- 新增缺失点 ---
+  "xi'an": [108.9401, 34.3416],
+  xian: [108.9401, 34.3416],
+  dali: [100.2676, 25.6065],
+  xining: [101.7782, 36.6171],
+  zhangjiajie: [110.4792, 29.1171],
+  fenghuang: [109.6019, 27.9482],
+  suzhou: [120.5853, 31.2990],
+  huangshan: [118.3375, 29.7147],
+  'yellow mountain': [118.3375, 29.7147],
+  hangzhou: [120.1551, 30.2741],
+  huashan: [110.0861, 34.4768],
+  datong: [113.3001, 40.0768],
+  pingyao: [112.1812, 37.1890],
+  jiuzhaigou: [103.9214, 33.2631],
+  huanglong: [103.7846, 32.7388],
+
+  // --- 原有核心点保持不变 ---
+  lhasa: [91.1322, 29.6604],
+  everest: [86.9250, 27.9881],
+  shanghai: [121.4737, 31.2304],
+  beijing: [116.4074, 39.9042],
+  kunming: [102.7122, 25.0406],
+  lijiang: [100.2220, 26.8708],
+  'shangri-la': [99.7065, 27.8231],
+  guilin: [110.2902, 25.2736],
+  yangshuo: [110.4791, 24.7777],
+  namtso: [90.6226, 30.7303],
+  yamdrok: [90.4126, 28.9897],
+};
 
 export default function JourneyMap({ 
+  mapId,
   journeySteps: rawJourneySteps = [],
   mode: requestedMode = 'multi-stop-route', 
   locations: requestedLocations = [], 
@@ -63,19 +100,330 @@ export default function JourneyMap({
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const [isContainerReady, setIsContainerReady] = useState(false);
   const layersInitializedRef = useRef(false);
-  const lastCurrentDayRef = useRef<number | undefined>(undefined);
   const markersRef = useRef<Map<string, any>>(new Map());
   const routeGeoJsonDataRef = useRef<any>(null);
+  const hasShownOverviewRef = useRef(false);
+  const mapContainerId = mapId || MAP_CONTAINER_ID;
+
+  const removeMarkers = () => {
+    markersRef.current.forEach(({ marker }) => {
+      try {
+        marker.remove();
+      } catch (error) {
+        console.warn('[JourneyMap] Error removing marker:', error);
+      }
+    });
+    markersRef.current.clear();
+  };
+
+  const removeRouteArtifacts = (m: any) => {
+    if (!m) return;
+
+    if (m.getLayer(ROUTE_LAYER_ID)) m.removeLayer(ROUTE_LAYER_ID);
+    if (m.getSource(ROUTE_SOURCE_ID)) m.removeSource(ROUTE_SOURCE_ID);
+
+    if (m.getLayer(LEGACY_ROUTE_LAYER_ID)) m.removeLayer(LEGACY_ROUTE_LAYER_ID);
+    if (m.getSource(LEGACY_ROUTE_SOURCE_ID)) m.removeSource(LEGACY_ROUTE_SOURCE_ID);
+  };
+
+  const isValidLineCoordinate = (coord: unknown): coord is [number, number] => {
+    if (!Array.isArray(coord) || coord.length < 2) return false;
+
+    const lng = Number(coord[0]);
+    const lat = Number(coord[1]);
+
+    return Number.isFinite(lng) && Number.isFinite(lat) && lng >= -180 && lng <= 180 && lat >= -90 && lat <= 90;
+  };
+
+  const sanitizeLineCoordinates = (coords: unknown): [number, number][] => {
+    if (!Array.isArray(coords)) return [];
+
+    return coords
+      .filter(isValidLineCoordinate)
+      .map((coord) => [Number(coord[0]), Number(coord[1])] as [number, number]);
+  };
+
+  const dedupeConsecutiveCoordinates = (coords: [number, number][]): [number, number][] => {
+    return coords.filter((coord, index) => {
+      if (index === 0) return true;
+
+      const prev = coords[index - 1];
+      return !(coord[0] === prev[0] && coord[1] === prev[1]);
+    });
+  };
+
+  const extractCoordsFromKeywordText = (...values: unknown[]): [number, number] | null => {
+    const haystack = values
+      .flatMap((value) => {
+        if (Array.isArray(value)) return value;
+        return [value];
+      })
+      .filter(Boolean)
+      .map((value) => String(value).toLowerCase())
+      .join(' ');
+
+    if (!haystack) return null;
+
+    const matchedFallback = Object.entries(GEOGRAPHY_DATABASE).find(([keyword]) =>
+      haystack.includes(keyword.toLowerCase())
+    );
+
+    return matchedFallback?.[1] || null;
+  };
+
+  const extractCoordsFromValue = (value: unknown): [number, number] | null => {
+    if (!value) return null;
+
+    if (typeof value === 'string') {
+      const matches = value.match(/-?\d+(?:\.\d+)?/g);
+      if (matches && matches.length >= 2) {
+        const coords = sanitizeLineCoordinates([[Number(matches[0]), Number(matches[1])]]);
+        return coords[0] || null;
+      }
+    }
+
+    if (Array.isArray(value)) {
+      const coords = sanitizeLineCoordinates([value]);
+      return coords[0] || null;
+    }
+
+    if (typeof value === 'object') {
+      const candidate = value as {
+        lng?: unknown;
+        lat?: unknown;
+        lon?: unknown;
+        latitude?: unknown;
+        longitude?: unknown;
+        coords?: unknown;
+        coordinates?: unknown;
+        mapCenter?: unknown;
+        center?: unknown;
+        position?: unknown;
+        geo?: unknown;
+        point?: unknown;
+      };
+
+      const lng = Number(candidate.lng ?? candidate.lon ?? candidate.longitude);
+      const lat = Number(candidate.lat ?? candidate.latitude);
+
+      if (
+        Number.isFinite(lng) &&
+        Number.isFinite(lat) &&
+        lng >= -180 &&
+        lng <= 180 &&
+        lat >= -90 &&
+        lat <= 90
+      ) {
+        return [lng, lat];
+      }
+
+      return (
+        extractCoordsFromValue(candidate.coords) ||
+        extractCoordsFromValue(candidate.coordinates) ||
+        extractCoordsFromValue(candidate.mapCenter) ||
+        extractCoordsFromValue(candidate.center) ||
+        extractCoordsFromValue(candidate.position) ||
+        extractCoordsFromValue(candidate.geo) ||
+        extractCoordsFromValue(candidate.point)
+      );
+    }
+
+    return null;
+  };
+
+  const extractCoordsFromStep = (step: any): [number, number] | null => {
+    const directLng = Number(step?.longitude ?? step?.lng);
+    const directLat = Number(step?.latitude ?? step?.lat);
+
+    if (
+      Number.isFinite(directLng) &&
+      Number.isFinite(directLat) &&
+      directLng >= -180 &&
+      directLng <= 180 &&
+      directLat >= -90 &&
+      directLat <= 90
+    ) {
+      return [directLng, directLat];
+    }
+
+    const structuredCoords =
+      extractCoordsFromValue(step?.location) ||
+      extractCoordsFromValue(step?.coords) ||
+      extractCoordsFromValue(step?.coordinates) ||
+      extractCoordsFromValue(step?.mapCenter) ||
+      extractCoordsFromValue(step?.center) ||
+      extractCoordsFromValue(step?.position) ||
+      extractCoordsFromValue(step?.geo) ||
+      extractCoordsFromValue(step?.point);
+
+    if (structuredCoords) {
+      return structuredCoords;
+    }
+
+    if (!step?.location) {
+      return extractCoordsFromKeywordText(
+        step?.title,
+        step?.description,
+        step?.city,
+        step?.label,
+        step?.name,
+        step?.place,
+        step?.region
+      );
+    }
+
+    return extractCoordsFromKeywordText(
+      step?.location,
+      step?.title,
+      step?.description,
+      step?.city,
+      step?.label,
+      step?.name,
+      step?.place,
+      step?.region
+    );
+  };
+
+  const getActualCoords = (step: any): [number, number] | null => {
+    return (
+      extractCoordsFromValue(step?.extractedCoords) ||
+      extractCoordsFromKeywordText(step?.title) ||
+      extractCoordsFromStep(step)
+    );
+  };
+
+  const getForcedCoordsForStep = (step: any): [number, number] => {
+    const haystack = [
+      step?.title,
+      step?.label,
+      step?.city,
+      step?.name,
+      typeof step?.location === 'string' ? step.location : '',
+      step?.description,
+      step?.place,
+      step?.region,
+    ]
+      .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+      .join(' ')
+      .toLowerCase();
+
+    const matchedGeography = Object.entries(GEOGRAPHY_DATABASE).find(([keyword]) =>
+      haystack.includes(keyword.toLowerCase())
+    );
+
+    if (matchedGeography) {
+      return matchedGeography[1];
+    }
+
+    return (
+      extractCoordsFromValue(step?.extractedCoords) ||
+      getActualCoords(step) ||
+      [121.4737, 31.2304]
+    );
+  };
+
+  const getForcedRouteCoords = (steps: any[]): [number, number][] => {
+    return dedupeConsecutiveCoordinates(
+      sanitizeLineCoordinates(
+        steps.map((step) => getForcedCoordsForStep(step)) as [number, number][]
+      )
+    );
+  };
+
+  const getMarkerLabelText = (step: any): string => {
+    const candidates = [
+      step?.title,
+      step?.label,
+      step?.city,
+      step?.name,
+      step?.location,
+      `Day ${step?.day ?? ''}`.trim(),
+    ];
+
+    for (const candidate of candidates) {
+      if (typeof candidate === 'string') {
+        const trimmed = candidate.trim();
+        if (trimmed && trimmed !== '[object Object]') {
+          return trimmed;
+        }
+      }
+    }
+
+    return 'Journey Stop';
+  };
+
+  const buildLineStringFeature = (coordinates: [number, number][]) => ({
+    type: 'Feature' as const,
+    geometry: {
+      type: 'LineString' as const,
+      coordinates,
+    },
+  });
+
+  const sanitizeRouteFeature = (feature: any) => {
+    if (!feature?.geometry || feature.geometry.type !== 'LineString') return null;
+
+    const coordinates = sanitizeLineCoordinates(feature.geometry.coordinates);
+    if (coordinates.length < 2) return null;
+
+    return {
+      ...feature,
+      geometry: {
+        ...feature.geometry,
+        type: 'LineString',
+        coordinates,
+      },
+    };
+  };
+
+  const drawRouteLayer = (m: any, feature: any) => {
+    removeRouteArtifacts(m);
+
+    const finalRouteCoords = sanitizeLineCoordinates(feature?.geometry?.coordinates);
+    console.log('Final Route Coords:', finalRouteCoords);
+
+    if (finalRouteCoords.length < 2) {
+      console.warn('[JourneyMap] Skipping route draw because final coords are insufficient');
+      return;
+    }
+
+    m.addSource(ROUTE_SOURCE_ID, {
+      type: 'geojson',
+      data: buildLineStringFeature(finalRouteCoords),
+    });
+
+    m.addLayer({
+      id: ROUTE_LAYER_ID,
+      type: 'line',
+      source: ROUTE_SOURCE_ID,
+      layout: {
+        'line-join': 'round',
+        'line-cap': 'round',
+      },
+      paint: {
+        'line-color': '#1e3b32',
+        'line-width': 5,
+        'line-opacity': 1,
+        'line-dasharray': [2, 2],
+      },
+    });
+
+    m.moveLayer(ROUTE_LAYER_ID);
+    m.setPaintProperty(ROUTE_LAYER_ID, 'line-opacity', 1);
+
+    layersInitializedRef.current = true;
+  };
 
   const derivedDayLocations = useMemo(() => {
     if (!Array.isArray(rawJourneySteps) || rawJourneySteps.length === 0) return undefined;
 
     return rawJourneySteps
       .map((step: any, index: number) => {
-        const lng = Number(step?.longitude);
-        const lat = Number(step?.latitude);
+        const coords = getActualCoords(step);
 
-        if (!Number.isFinite(lng) || !Number.isFinite(lat)) return null;
+        if (!coords) return null;
+
+        const [lng, lat] = coords;
 
         const day = typeof step?.day === 'number' ? step.day : index + 1;
 
@@ -87,6 +435,7 @@ export default function JourneyMap({
               id: step?.id || `journey-step-${day}`,
               lng,
               lat,
+              extractedCoords: [lng, lat] as [number, number],
               city: step?.city || step?.location,
               label: step?.city || step?.location || step?.title || `Day ${day}`,
             },
@@ -133,14 +482,17 @@ export default function JourneyMap({
       id: string;
       lng: number;
       lat: number;
+      extractedCoords?: [number, number];
+      title?: string;
       label: string;
       city?: string;
     }> = [];
 
     sortedDays.forEach((dayData) => {
       dayData.locations.forEach((loc, stepIndex) => {
-        const lng = Number(loc.lng);
-        const lat = Number(loc.lat);
+        const actualCoords = getActualCoords(loc);
+        const lng = Number(actualCoords?.[0] ?? loc.lng);
+        const lat = Number(actualCoords?.[1] ?? loc.lat);
 
         // Validate coordinates - 简化逻辑：直接使用原始数值，不进行自动校正
         if (isNaN(lng) || isNaN(lat) || lng < -180 || lng > 180 || lat < -90 || lat > 90) {
@@ -164,6 +516,8 @@ export default function JourneyMap({
           id: loc.id,
           lng: finalLng,
           lat: finalLat,
+          extractedCoords: [finalLng, finalLat] as [number, number],
+          title: dayData.title,
           label,
           city: loc.city
         });
@@ -410,14 +764,19 @@ export default function JourneyMap({
           if (mode === 'multi-stop-route' && journeySteps.length > 0) {
             initializeMarkers(m);
             initializeMultiDayLayers(m);
+            updateMultiDayRoute(m);
           } else if (mode === 'single-location' && locations && locations.length > 0) {
             updateSingleLocation(m);
           }
 
+          if (map.current?.getCanvas()) {
+            map.current.getCanvas().style.width = '100%';
+          }
+          map.current?.resize();
+
           setTimeout(() => {
             if (map.current) {
               map.current.resize();
-              map.current.flyTo({ padding: 50, duration: 0 });
             }
           }, 300);
         });
@@ -441,6 +800,7 @@ export default function JourneyMap({
           if (mode === 'multi-stop-route' && journeySteps.length > 0) {
             initializeMarkers(m);
             initializeMultiDayLayers(m);
+            updateMultiDayRoute(m);
           } else if (mode === 'single-location' && locations && locations.length > 0) {
             updateSingleLocation(m);
           }
@@ -474,14 +834,8 @@ export default function JourneyMap({
         console.log(`[JourneyMap] Force Cleanup Start @ ${cleanupTime}`);
         
         // 清理所有 markers
-        markersRef.current.forEach(({ marker }) => {
-          try {
-            marker.remove();
-          } catch (e) {
-            console.warn("[JourneyMap] Error removing marker:", e);
-          }
-        });
-        markersRef.current.clear();
+        removeMarkers();
+        removeRouteArtifacts(map.current);
 
         // 强制移除地图实例（多次尝试确保成功）
         const mapInstance = map.current;
@@ -522,10 +876,7 @@ export default function JourneyMap({
     }
 
     // 清理现有 markers
-    markersRef.current.forEach(({ marker }) => {
-      marker.remove();
-    });
-    markersRef.current.clear();
+    removeMarkers();
 
     // 检查 ID 唯一性
     const markerKeys = new Set<string>();
@@ -533,47 +884,63 @@ export default function JourneyMap({
 
     // Use journeySteps as single source of truth
     journeySteps.forEach((step) => {
-      const markerKey = `${step.day}-${step.id}`;
-      
-      // 检查 ID 是否重复
-      if (markerKeys.has(markerKey)) {
-        duplicateIds.push(markerKey);
-        console.warn(`[JourneyMap] Duplicate marker key detected: ${markerKey}`);
+      try {
+        const markerKey = `${step.day}-${step.id}`;
+        
+        // 检查 ID 是否重复
+        if (markerKeys.has(markerKey)) {
+          duplicateIds.push(markerKey);
+          console.warn(`[JourneyMap] Duplicate marker key detected: ${markerKey}`);
+        }
+        markerKeys.add(markerKey);
+
+        // 验证坐标
+        const markerCoords = getForcedCoordsForStep(step);
+        if (!markerCoords) {
+          console.warn(`[JourneyMap] Invalid coordinates for marker ${markerKey}:`, {
+            lng: step.lng,
+            lat: step.lat,
+            extractedCoords: step.extractedCoords,
+            title: step.title,
+          });
+          return;
+        }
+
+        const markerContainer = document.createElement('div');
+        markerContainer.className = 'custom-marker';
+        markerContainer.style.display = 'flex';
+
+        const dot = document.createElement('div');
+        dot.className = 'marker-dot';
+        
+        const label = document.createElement('div');
+        label.className = 'marker-label';
+        label.textContent = getMarkerLabelText(step);
+
+        markerContainer.appendChild(dot);
+        markerContainer.appendChild(label);
+
+        const marker = new mapboxgl.Marker({
+          element: markerContainer,
+          anchor: 'bottom'
+        })
+          .setLngLat(markerCoords)
+          .addTo(m);
+
+        markersRef.current.set(markerKey, {
+          marker,
+          element: markerContainer,
+          day: step.day
+        });
+      } catch (error) {
+        console.warn('[JourneyMap] Failed to render marker, skipping step:', {
+          stepId: step?.id,
+          day: step?.day,
+          lng: step?.lng,
+          lat: step?.lat,
+          error,
+        });
       }
-      markerKeys.add(markerKey);
-
-      // 验证坐标
-      if (isNaN(step.lng) || isNaN(step.lat) || step.lng < -180 || step.lng > 180 || step.lat < -90 || step.lat > 90) {
-        console.warn(`[JourneyMap] Invalid coordinates for marker ${markerKey}:`, { lng: step.lng, lat: step.lat });
-        return;
-      }
-
-      const markerContainer = document.createElement('div');
-      markerContainer.className = 'custom-marker';
-      markerContainer.style.display = 'flex';
-
-      const dot = document.createElement('div');
-      dot.className = 'marker-dot';
-      
-      const label = document.createElement('div');
-      label.className = 'marker-label';
-      label.textContent = step.label;
-
-      markerContainer.appendChild(dot);
-      markerContainer.appendChild(label);
-
-      const marker = new mapboxgl.Marker({
-        element: markerContainer,
-        anchor: 'bottom'
-      })
-        .setLngLat([step.lng, step.lat])
-        .addTo(m);
-
-      markersRef.current.set(markerKey, {
-        marker,
-        element: markerContainer,
-        day: step.day
-      });
     });
 
     console.log(`[JourneyMap] Markers initialized:`, {
@@ -620,6 +987,85 @@ export default function JourneyMap({
     
     curved.push(coords[coords.length - 1]);
     return curved;
+  };
+
+  const buildProgressiveRouteFeature = (
+    steps: any[],
+    endDay?: number
+  ) => {
+    const filteredSteps =
+      endDay === undefined || endDay === -1
+        ? steps
+        : steps.filter((step) => Number(step?.day) <= endDay);
+
+    const routeCoords = getForcedRouteCoords(filteredSteps);
+    if (routeCoords.length === 0) return null;
+
+    if (routeCoords.length < 2) {
+      const singlePoint = routeCoords[0];
+      routeCoords.push([singlePoint[0], singlePoint[1]]);
+    }
+
+    let curvedCoords = routeCoords;
+    if (routeCoords.length >= 2) {
+      try {
+        curvedCoords = createCurvedLine(routeCoords);
+      } catch (err) {
+        console.warn('[JourneyMap] Error creating progressive curved line, using straight line:', err);
+        curvedCoords = routeCoords;
+      }
+    }
+
+    const sanitizedCurvedCoords = sanitizeLineCoordinates(curvedCoords);
+    const feature = buildLineStringFeature(
+      sanitizedCurvedCoords.length >= 2 ? sanitizedCurvedCoords : routeCoords
+    );
+
+    return sanitizeRouteFeature(feature);
+  };
+
+  const upsertRouteFeature = (m: any, feature: any) => {
+    const sanitizedFeature = sanitizeRouteFeature(feature);
+    if (!sanitizedFeature) return;
+
+    const existingSource = m.getSource(ROUTE_SOURCE_ID);
+    const hasRouteLayer = !!m.getLayer(ROUTE_LAYER_ID);
+
+    if (existingSource && hasRouteLayer && typeof existingSource.setData === 'function') {
+      existingSource.setData(sanitizedFeature);
+      m.moveLayer(ROUTE_LAYER_ID);
+      m.setPaintProperty(ROUTE_LAYER_ID, 'line-opacity', 1);
+      return;
+    }
+
+    drawRouteLayer(m, sanitizedFeature);
+  };
+
+  const fitMapToOverview = (m: any) => {
+    const mapboxgl = (window as any).mapboxgl;
+    if (!m || !mapboxgl) return;
+
+    const overviewCoords = getForcedRouteCoords(journeySteps);
+    if (overviewCoords.length === 0) return;
+
+    if (overviewCoords.length === 1) {
+      m.flyTo({
+        center: overviewCoords[0],
+        zoom: 5,
+        essential: true,
+        duration: 1200,
+      });
+      return;
+    }
+
+    const bounds = new mapboxgl.LngLatBounds();
+    overviewCoords.forEach((coord) => bounds.extend(coord));
+    m.fitBounds(bounds, {
+      padding: 80,
+      duration: 1500,
+      maxZoom: 10,
+      essential: true,
+    });
   };
 
   // Single-location mode: 单点 + 圆形活动范围
@@ -738,11 +1184,12 @@ export default function JourneyMap({
           const lineFeature = geojson.features.find((f: any) => 
             f.geometry && f.geometry.type === 'LineString'
           );
-          if (lineFeature) {
-            routeGeoJsonDataRef.current = lineFeature;
+          const sanitizedLineFeature = sanitizeRouteFeature(lineFeature);
+          if (sanitizedLineFeature) {
+            routeGeoJsonDataRef.current = sanitizedLineFeature;
             console.log("[JourneyMap] Route GeoJSON loaded successfully (FeatureCollection)", {
               featuresCount: geojson.features.length,
-              usingFeature: lineFeature.id || 'first LineString'
+              usingFeature: sanitizedLineFeature.id || 'first LineString'
             });
           } else {
             console.warn('[JourneyMap] No LineString feature found in GeoJSON FeatureCollection. Continuing without GeoJSON route.');
@@ -751,7 +1198,12 @@ export default function JourneyMap({
           }
         } else if (geojson.type === 'Feature' && geojson.geometry && geojson.geometry.type === 'LineString') {
           // 如果是单个 Feature，直接使用
-          routeGeoJsonDataRef.current = geojson;
+          const sanitizedGeoJson = sanitizeRouteFeature(geojson);
+          routeGeoJsonDataRef.current = sanitizedGeoJson;
+          if (!sanitizedGeoJson) {
+            console.warn('[JourneyMap] GeoJSON route coordinates are invalid. Continuing without GeoJSON route.');
+            return;
+          }
           console.log("[JourneyMap] Route GeoJSON loaded successfully (Feature)");
         } else {
           console.warn('[JourneyMap] Invalid GeoJSON format: expected FeatureCollection with LineString feature or LineString Feature. Continuing without GeoJSON route.');
@@ -762,11 +1214,9 @@ export default function JourneyMap({
         // 如果地图已初始化，立即更新路线
         const m = map.current;
         if (m && m.isStyleLoaded() && mode === 'multi-stop-route') {
-          const source = m.getSource('multi-day-route');
-          if (source && source.type === 'geojson') {
-            (source as any).setData(routeGeoJsonDataRef.current);
-            console.log("[JourneyMap] Route updated with GeoJSON data");
-          }
+          initializeMultiDayLayers(m);
+          updateMultiDayRoute(m);
+          console.log("[JourneyMap] Route updated with GeoJSON data");
         }
       } catch (error) {
         // 网络错误或其他异常：静默失败，不抛出异常
@@ -780,48 +1230,13 @@ export default function JourneyMap({
 
   // Multi-stop route mode: 初始化图层
   const initializeMultiDayLayers = (m: any) => {
-    if (!m.isStyleLoaded() || layersInitializedRef.current) return;
+    if (!m.isStyleLoaded()) return;
 
     try {
-      const sourceId = 'multi-day-route';
-      const layerId = 'multi-day-route';
-
-      if (m.getLayer(layerId)) m.removeLayer(layerId);
-      if (m.getSource(sourceId)) m.removeSource(sourceId);
-
-      // 如果有 GeoJSON 路径数据，使用它；否则使用空 LineString
-      const initialData = routeGeoJsonDataRef.current || {
-        type: 'Feature',
-        geometry: {
-          type: 'LineString',
-          coordinates: []
-        }
-      };
-
-      m.addSource(sourceId, {
-        type: 'geojson',
-        data: initialData
-      });
-
-      m.addLayer({
-        id: layerId,
-        type: 'line',
-        source: sourceId,
-        layout: {
-          'line-join': 'round',
-          'line-cap': 'round'
-        },
-        paint: {
-          'line-color': '#1e3b32', // 深绿色，与背景形成对比
-          'line-width': 5, // 增加到 5 以便观察
-          'line-opacity': 1, // 设置为 1 确保完全可见
-          'line-dasharray': [2, 2] // 虚线样式
-        }
-      });
-
-      layersInitializedRef.current = true;
+      const initialData = sanitizeRouteFeature(routeGeoJsonDataRef.current) || buildLineStringFeature([]);
+      drawRouteLayer(m, initialData);
       console.log("[JourneyMap] Multi-day layers initialized", {
-        hasGeoJsonRoute: !!routeGeoJsonDataRef.current
+        hasGeoJsonRoute: !!routeGeoJsonDataRef.current || journeySteps.length > 0
       });
     } catch (err) {
       console.error("[JourneyMap] Error initializing multi-day layers:", err);
@@ -835,186 +1250,58 @@ export default function JourneyMap({
     try {
       const mapboxgl = (window as any).mapboxgl;
       if (!mapboxgl) return;
-
-      const targetDay = activeDay !== undefined ? activeDay : (currentDay !== undefined ? currentDay : undefined);
-      
-      // Filter steps by targetDay using journeySteps (single source of truth)
-      const stepsToShow = targetDay 
-        ? journeySteps.filter(step => step.day <= targetDay)
-        : journeySteps;
-
       // 调试：打印当前要绘制的步骤
       console.log('[JourneyMap] Current steps to draw line:', {
-        targetDay,
         totalSteps: journeySteps.length,
-        stepsToShow: stepsToShow.length,
-        steps: stepsToShow.map(s => ({ day: s.day, id: s.id, coords: [s.lng, s.lat] }))
+        stepsToShow: journeySteps.length,
+        steps: journeySteps.map(s => ({ day: s.day, id: s.id, coords: [s.lng, s.lat] }))
       });
 
-      if (stepsToShow.length === 0) {
+      if (journeySteps.length === 0) {
         console.warn("[JourneyMap] No valid steps for multi-day route");
+        removeRouteArtifacts(m);
         return;
       }
 
-      // Build coordinates array from filtered steps (already sorted by day, then stepIndex)
-      const allCoords: [number, number][] = stepsToShow.map(step => [step.lng, step.lat]);
-      
+      // 初始绘制完整路线；滚动时会在 activeDay effect 中裁剪为 progressive route
+      const fullRouteFeature = buildProgressiveRouteFeature(journeySteps);
+      const routeCoords = sanitizeLineCoordinates(fullRouteFeature?.geometry?.coordinates);
+      console.log('Map Points:', routeCoords);
+
       // 检查坐标是否为空
-      if (allCoords.length === 0) {
+      if (routeCoords.length === 0 || !fullRouteFeature) {
         console.warn("[JourneyMap] allCoords is empty after mapping");
+        removeRouteArtifacts(m);
         return;
       }
-      
-      // 连线至少需要 2 个点，但如果只有 1 个点，也要确保数据源不为空
-      if (allCoords.length < 2) {
-        console.warn(`[JourneyMap] Not enough points to draw line (need 2, got ${allCoords.length}), but will still update source`);
-        // 如果只有一个点，添加一个微小偏移的点，确保可以生成线段
-        const singlePoint = allCoords[0];
-        allCoords.push([
-          singlePoint[0] + 0.0001,
-          singlePoint[1] + 0.0001
-        ]);
-        console.log(`[JourneyMap] Added offset point to single coordinate:`, allCoords);
-      }
-      
-      // 检查所有坐标点是否相同（防止所有点重合）
-      const firstCoord = allCoords[0];
-      const allSame = allCoords.every(coord => 
-        Math.abs(coord[0] - firstCoord[0]) < 0.0001 && 
-        Math.abs(coord[1] - firstCoord[1]) < 0.0001
-      );
-      
-      if (allSame && allCoords.length > 1) {
-        console.warn("[JourneyMap] All coordinates are the same, adding offset");
-        // 为每个点添加微小偏移，确保可以生成路线
-        const adjustedCoords: [number, number][] = allCoords.map((coord, idx) => [
-          coord[0] + (idx * 0.0001),
-          coord[1] + (idx * 0.0001)
-        ]);
-        allCoords.splice(0, allCoords.length, ...adjustedCoords);
-        console.log("[JourneyMap] Adjusted coordinates with offset:", allCoords);
-      }
+      upsertRouteFeature(m, fullRouteFeature);
 
-      // Find first step of activeDay for camera anchor
-      let activeDayCoords: [number, number] | null = null;
-      if (targetDay !== undefined) {
-        const firstStepOfDay = journeySteps.find(step => step.day === targetDay);
-        if (firstStepOfDay) {
-          activeDayCoords = [firstStepOfDay.lng, firstStepOfDay.lat];
-        }
-      }
+      console.log('[JourneyMap] Route updated with full itinerary', {
+        originalPoints: routeCoords.length,
+        curvedPoints: fullRouteFeature.geometry.coordinates.length,
+        firstPoint: fullRouteFeature.geometry.coordinates[0],
+        lastPoint: fullRouteFeature.geometry.coordinates[fullRouteFeature.geometry.coordinates.length - 1],
+      });
 
-      // 生成曲线坐标
-      let curvedCoords = allCoords;
-      if (allCoords.length >= 2) {
-        try {
-          curvedCoords = createCurvedLine(allCoords);
-        } catch (err) {
-          console.warn("[JourneyMap] Error creating curved line, using straight line:", err);
-          curvedCoords = allCoords;
-        }
-      }
-      
-      // 确保 curvedCoords 不为空
-      if (!curvedCoords || curvedCoords.length === 0) {
-        console.error("[JourneyMap] curvedCoords is empty, using allCoords");
-        curvedCoords = allCoords;
-      }
-
-      const sourceId = 'multi-day-route';
-      const source = m.getSource(sourceId);
-
-      if (!source) {
-        console.warn("[JourneyMap] Source not found, initializing layers");
-        initializeMultiDayLayers(m);
-        // 等待图层初始化后再次尝试更新
-        setTimeout(() => {
-          const newSource = m.getSource(sourceId);
-          if (newSource && newSource.type === 'geojson') {
-            // 如果有预加载的 GeoJSON 路径数据，优先使用它
-            const dataToUse = routeGeoJsonDataRef.current || {
-              type: 'Feature',
-              geometry: {
-                type: 'LineString',
-                coordinates: curvedCoords
-              }
-            };
-            (newSource as any).setData(dataToUse);
-          }
-        }, 100);
-        return;
-      }
-
-      if (source && source.type === 'geojson') {
-        // 如果有预加载的 GeoJSON 路径数据，优先使用它
-        let geoJsonData;
-        if (routeGeoJsonDataRef.current) {
-          // 使用 GeoJSON 路径数据
-          geoJsonData = routeGeoJsonDataRef.current;
-          console.log("[JourneyMap] Using preloaded GeoJSON route data");
-        } else {
-          // 否则使用计算出的曲线坐标
-          geoJsonData = {
-            type: 'Feature',
-            geometry: {
-              type: 'LineString',
-              coordinates: curvedCoords
-            }
-          };
-        }
-        
-        // 强制更新数据源，即使只有一个点也要更新
-        (source as any).setData(geoJsonData);
-        
-        // 确保虚线样式在更新时依然生效
-        if (m.getLayer('multi-day-route')) {
-          m.setPaintProperty('multi-day-route', 'line-dasharray', [2, 2]);
-        }
-        
-        console.log(`[JourneyMap] Route updated dynamically to day ${targetDay || 'all'}`, {
-          originalPoints: allCoords.length,
-          curvedPoints: curvedCoords.length,
-          firstPoint: curvedCoords[0],
-          lastPoint: curvedCoords[curvedCoords.length - 1],
-          sourceData: (source as any)._data
-        });
-        
-        // 验证数据源是否正确更新
-        const sourceData = (source as any)._data;
-        if (sourceData && sourceData.geometry && sourceData.geometry.coordinates) {
-          console.log('[JourneyMap] Source data verified:', {
-            coordinatesCount: sourceData.geometry.coordinates.length,
-            firstCoord: sourceData.geometry.coordinates[0],
-            lastCoord: sourceData.geometry.coordinates[sourceData.geometry.coordinates.length - 1]
-          });
-        }
-      }
-
-      // 自动缩放：计算所有点的边界并执行 fitBounds
-      if (allCoords.length > 0) {
+      // 初次挂载时先给用户一个全局总览，覆盖整条中国线路
+      const routeCoordsForViewport = sanitizeLineCoordinates(fullRouteFeature.geometry.coordinates);
+      if (routeCoordsForViewport.length > 0 && !hasShownOverviewRef.current) {
         const bounds = new mapboxgl.LngLatBounds();
-        allCoords.forEach(c => bounds.extend(c));
+        routeCoordsForViewport.forEach(c => bounds.extend(c));
         
         m.fitBounds(bounds, { 
-          padding: 50, 
-          duration: 1200, 
+          padding: 80,
+          animate: true,
+          duration: 1800,
           maxZoom: 10,
           essential: true
         });
-        
-        console.log("[JourneyMap] Auto-zoom fitBounds completed with padding: 50");
-      } else if (activeDayCoords && targetDay) {
-        // 当 activeDay 变化时，使用 flyTo
-        m.flyTo({
-          center: activeDayCoords,
-          zoom: 10, // 从 9 改为 10，使镜头聚焦时能更清晰地看到景区
-          duration: 1500,
-          essential: true
-        });
-        console.log(`[JourneyMap] Map centered on active day ${targetDay} at:`, activeDayCoords);
+        hasShownOverviewRef.current = true;
+        console.log("[JourneyMap] Auto-zoom fitBounds completed with padding: 80");
       }
 
       m.resize();
+      map.current?.resize();
     } catch (err) {
       console.error("[JourneyMap] Error updating multi-day route:", err);
     }
@@ -1042,6 +1329,10 @@ export default function JourneyMap({
   const mapModeForUpdate = mode || 'single-location';
   const currentDayValue = currentDay !== undefined ? currentDay : -1;
   const activeDayValue = activeDay !== undefined ? activeDay : -1;
+
+  useEffect(() => {
+    hasShownOverviewRef.current = false;
+  }, [journeyStepsKey, routeGeoJsonPath]);
   
   // Multi-stop route mode: 更新多日路线 - 使用 journeySteps 作为单一数据源
   useEffect(() => {
@@ -1057,9 +1348,6 @@ export default function JourneyMap({
         const checkInterval = setInterval(() => {
           if (routeGeoJsonDataRef.current || !routeUrlForUpdate) {
             clearInterval(checkInterval);
-            if (!m.getSource('multi-day-route')) {
-              initializeMultiDayLayers(m);
-            }
             updateMultiDayRoute(m);
           }
         }, 100);
@@ -1067,18 +1355,12 @@ export default function JourneyMap({
         // 超时保护：5秒后即使没有加载也继续
         setTimeout(() => {
           clearInterval(checkInterval);
-          if (!m.getSource('multi-day-route')) {
-            initializeMultiDayLayers(m);
-          }
           updateMultiDayRoute(m);
         }, 5000);
         
         return;
       }
       
-      if (!m.getSource('multi-day-route')) {
-        initializeMultiDayLayers(m);
-      }
       updateMultiDayRoute(m);
     };
 
@@ -1087,12 +1369,12 @@ export default function JourneyMap({
     } else {
       m.once('style.load', updateRoute);
     }
-  }, [mapModeForUpdate, journeyStepsKey, journeyStepsLength, currentDayValue, activeDayValue, isScriptLoaded, routeUrlForUpdate]); // 使用稳定的值，确保数组长度固定为 7
+  }, [mapModeForUpdate, journeyStepsKey, journeyStepsLength, isScriptLoaded, routeUrlForUpdate]);
 
   // 监听 journeyData 变化，重新计算边界并执行 fitBounds
   useEffect(() => {
     const m = map.current;
-    if (!m || !m.isStyleLoaded()) return;
+    if (!m || !m.isStyleLoaded() || hasShownOverviewRef.current) return;
 
     const mapboxgl = (window as any).mapboxgl;
     if (!mapboxgl) return;
@@ -1114,8 +1396,8 @@ export default function JourneyMap({
     // 如果没有从 GeoJSON 获取到坐标，从 journeySteps 或 locations 获取
     if (allCoords.length === 0) {
       if (mapModeForUpdate === 'multi-stop-route' && journeySteps.length > 0) {
-        // 多日路线模式：从 journeySteps 获取所有坐标
-        allCoords = journeySteps.map(step => [step.lng, step.lat]);
+        // 多日路线模式：强制使用标题兜底后的最终坐标
+        allCoords = getForcedRouteCoords(journeySteps);
       } else if (mapModeForUpdate === 'single-location' && locations && locations.length > 0) {
         // 单点模式：从 locations 获取坐标
         allCoords = locations.map(loc => [Number(loc.lng), Number(loc.lat)]);
@@ -1141,6 +1423,7 @@ export default function JourneyMap({
             maxZoom: 10,
             essential: true
           });
+          hasShownOverviewRef.current = true;
           console.log("[JourneyMap] fitBounds executed on journeyData change", {
             bounds: {
               north: bounds.getNorth(),
@@ -1159,6 +1442,7 @@ export default function JourneyMap({
             zoom: 9,
             duration: 1200
           });
+          hasShownOverviewRef.current = true;
           console.log("[JourneyMap] All points are the same, centered on single point", center);
         }
       } catch (err) {
@@ -1167,40 +1451,9 @@ export default function JourneyMap({
     }
   }, [routeUrlForUpdate, mapModeForUpdate, journeyStepsKey, locationsKey, isScriptLoaded]); // 使用稳定的字符串值，确保数组长度固定为 5
 
-  // FlyTo 动画：监听 currentDay 变化 - 使用 journeySteps 作为单一数据源
-  useEffect(() => {
-    const m = map.current;
-    if (!m || mapModeForUpdate !== 'multi-stop-route' || journeyStepsLength === 0) return;
-    if (!m.isStyleLoaded()) return;
-
-    const targetDay = activeDayValue !== -1 ? activeDayValue : (currentDayValue !== -1 ? currentDayValue : undefined);
-    
-    if (targetDay === undefined || targetDay === -1 || targetDay === lastCurrentDayRef.current) return;
-    
-    // Find first step of targetDay using journeySteps (single source of truth)
-    const firstStepOfDay = journeySteps.find(step => step.day === targetDay);
-    
-    if (!firstStepOfDay) {
-      console.warn(`[JourneyMap] No step found for day ${targetDay}`);
-      return;
-    }
-
-    m.flyTo({
-      center: [firstStepOfDay.lng, firstStepOfDay.lat],
-      zoom: 9, // 从 6 改为 9，使镜头聚焦时能清晰看到景区地形
-      pitch: 45,
-      bearing: 0,
-      duration: 2500,
-      essential: true
-    });
-
-    lastCurrentDayRef.current = targetDay;
-    console.log(`[JourneyMap] FlyTo executed for day ${targetDay} at:`, [firstStepOfDay.lng, firstStepOfDay.lat]);
-  }, [mapModeForUpdate, journeyStepsKey, journeyStepsLength, currentDayValue, activeDayValue, isScriptLoaded]); // 使用稳定的值，确保数组长度固定为 6
-
   // 动态高亮：根据 activeDay 高亮 Marker
   useEffect(() => {
-    if (!map.current || mapModeForUpdate !== 'multi-stop-route') return;
+    if (!map.current || mapModeForUpdate !== 'multi-stop-route' || !map.current.isStyleLoaded()) return;
     
     const targetDay = activeDayValue !== -1 ? activeDayValue : (currentDayValue !== -1 ? currentDayValue : undefined);
 
@@ -1212,10 +1465,38 @@ export default function JourneyMap({
       }
     });
 
-    if (targetDay !== undefined && targetDay !== -1) {
-      console.log(`[JourneyMap] Markers highlighted for day ${targetDay}`);
+    const fullRouteFeature = buildProgressiveRouteFeature(journeySteps);
+    const partialRouteFeature = buildProgressiveRouteFeature(journeySteps, targetDay);
+    const nextRouteFeature = targetDay !== undefined && targetDay !== -1
+      ? partialRouteFeature || fullRouteFeature
+      : fullRouteFeature;
+
+    if (nextRouteFeature) {
+      upsertRouteFeature(map.current, nextRouteFeature);
     }
-  }, [mapModeForUpdate, currentDayValue, activeDayValue]); // 使用稳定的值，确保数组长度固定为 3
+
+    if (targetDay !== undefined && targetDay !== -1) {
+      const currentStep =
+        journeySteps.find((step) => step?.day === targetDay) ||
+        journeySteps.find((step) => Number(step?.day) === targetDay);
+      const coords = currentStep ? getForcedCoordsForStep(currentStep) : null;
+
+      if (coords && map.current) {
+        map.current.flyTo({
+          center: coords,
+          zoom: 6,
+          essential: true,
+          duration: 1500,
+        });
+      } else if (map.current) {
+        fitMapToOverview(map.current);
+      }
+
+      console.log(`[JourneyMap] Markers highlighted for day ${targetDay}`);
+    } else if (map.current) {
+      fitMapToOverview(map.current);
+    }
+  }, [mapModeForUpdate, currentDayValue, activeDayValue, journeyStepsKey]); // 使用稳定的值，确保数组长度固定
 
   // 监听窗口大小变化，确保地图正确调整大小
   useEffect(() => {
@@ -1235,6 +1516,14 @@ export default function JourneyMap({
       window.removeEventListener('resize', handleResize);
     };
   }, [isScriptLoaded]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      map.current?.resize();
+    }, 500);
+
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <>
@@ -1261,7 +1550,7 @@ export default function JourneyMap({
         }}
       />
       <div 
-        className={`relative w-full h-full bg-gray-100 ${className}`}
+        className={`sticky top-0 w-full h-screen bg-gray-100 ${className}`}
         style={{
           overflow: 'hidden',
           position: 'relative',
@@ -1280,7 +1569,7 @@ export default function JourneyMap({
           </div>
         ) : (
           <div 
-            id={MAP_CONTAINER_ID}
+            id={mapContainerId}
             ref={mapContainer} 
             className="absolute inset-0 w-full h-full"
             style={{

@@ -100,6 +100,129 @@ function inferJourneyBaseCoords(journey?: Journey | null): GeoCoords {
   );
 }
 
+function extractRawCoordsFromValue(value: unknown): { lng: number; lat: number } | null {
+  if (!value) return null;
+
+  if (typeof value === 'string') {
+    const matches = value.match(/-?\d+(?:\.\d+)?/g);
+    if (matches && matches.length >= 2) {
+      const lng = Number(matches[0]);
+      const lat = Number(matches[1]);
+      if (isValidCoordinate(lng, -180, 180) && isValidCoordinate(lat, -90, 90)) {
+        return { lng, lat };
+      }
+    }
+  }
+
+  if (Array.isArray(value) && value.length >= 2) {
+    const lng = Number(value[0]);
+    const lat = Number(value[1]);
+    if (isValidCoordinate(lng, -180, 180) && isValidCoordinate(lat, -90, 90)) {
+      return { lng, lat };
+    }
+  }
+
+  if (typeof value === 'object') {
+    const candidate = value as {
+      lng?: unknown;
+      lat?: unknown;
+      lon?: unknown;
+      latitude?: unknown;
+      longitude?: unknown;
+      coords?: unknown;
+      coordinates?: unknown;
+      mapCenter?: unknown;
+      center?: unknown;
+      position?: unknown;
+      geo?: unknown;
+      point?: unknown;
+    };
+
+    const directLng = Number(candidate.lng ?? candidate.lon ?? candidate.longitude);
+    const directLat = Number(candidate.lat ?? candidate.latitude);
+
+    if (isValidCoordinate(directLng, -180, 180) && isValidCoordinate(directLat, -90, 90)) {
+      return { lng: directLng, lat: directLat };
+    }
+
+    return (
+      extractRawCoordsFromValue(candidate.coords) ||
+      extractRawCoordsFromValue(candidate.coordinates) ||
+      extractRawCoordsFromValue(candidate.mapCenter) ||
+      extractRawCoordsFromValue(candidate.center) ||
+      extractRawCoordsFromValue(candidate.position) ||
+      extractRawCoordsFromValue(candidate.geo) ||
+      extractRawCoordsFromValue(candidate.point)
+    );
+  }
+
+  return null;
+}
+
+function extractRawCoordsFromStep(step: unknown): { lng: number; lat: number } | null {
+  if (!step || typeof step !== 'object') return null;
+
+  const candidate = step as {
+    longitude?: unknown;
+    latitude?: unknown;
+    lng?: unknown;
+    lat?: unknown;
+    location?: unknown;
+    coords?: unknown;
+    coordinates?: unknown;
+    mapCenter?: unknown;
+    center?: unknown;
+    position?: unknown;
+    geo?: unknown;
+    point?: unknown;
+  };
+
+  const directLng = Number(candidate.longitude ?? candidate.lng);
+  const directLat = Number(candidate.latitude ?? candidate.lat);
+
+  if (isValidCoordinate(directLng, -180, 180) && isValidCoordinate(directLat, -90, 90)) {
+    return { lng: directLng, lat: directLat };
+  }
+
+  return (
+    extractRawCoordsFromValue(candidate.location) ||
+    extractRawCoordsFromValue(candidate.coords) ||
+    extractRawCoordsFromValue(candidate.coordinates) ||
+    extractRawCoordsFromValue(candidate.mapCenter) ||
+    extractRawCoordsFromValue(candidate.center) ||
+    extractRawCoordsFromValue(candidate.position) ||
+    extractRawCoordsFromValue(candidate.geo) ||
+    extractRawCoordsFromValue(candidate.point)
+  );
+}
+
+function getForcedLocationFromTitle(title?: string | null): { lng: number; lat: number } | null {
+  const normalizedTitle = title?.toLowerCase().trim();
+  if (!normalizedTitle) return null;
+
+  if (normalizedTitle.includes('lhasa') || normalizedTitle.includes('tibet')) {
+    return { lng: 91.1322, lat: 29.6604 };
+  }
+
+  if (normalizedTitle.includes('yunnan') || normalizedTitle.includes('kunming')) {
+    return { lng: 102.7122, lat: 25.0406 };
+  }
+
+  if (normalizedTitle.includes('guilin')) {
+    return { lng: 110.2902, lat: 25.2736 };
+  }
+
+  if (normalizedTitle.includes('shanghai')) {
+    return { lng: 121.4737, lat: 31.2304 };
+  }
+
+  if (normalizedTitle.includes('beijing')) {
+    return { lng: 116.4074, lat: 39.9042 };
+  }
+
+  return null;
+}
+
 function truncateText(text: string, maxLength: number) {
   if (!text) return '';
   if (text.length <= maxLength) return text;
@@ -475,6 +598,39 @@ export default function ClientJourneyPage() {
   const resolvedJourney = useMemo(() => contextJourney || journeyFromApi || mockJourney, [contextJourney, journeyFromApi, mockJourney]);
   const isUsingMockJourney = !contextJourney && !journeyFromApi;
 
+  useEffect(() => {
+    if (!resolvedJourney?.itinerary?.length) return;
+
+    const itineraryDebug = resolvedJourney.itinerary.map((day: any, index: number) => ({
+      day: day?.day ?? index + 1,
+      title: day?.title,
+      city: day?.city,
+      location: day?.location,
+      coords: day?.coords,
+      coordinates: day?.coordinates,
+      mapCenter: day?.mapCenter,
+      longitude: day?.longitude,
+      latitude: day?.latitude,
+      extractedCoords: extractRawCoordsFromStep(day),
+      keys: Object.keys(day || {}),
+      raw: day,
+    }));
+
+    console.log('[ClientJourneyPage] Raw itinerary structure:', itineraryDebug);
+
+    const focusEntries = itineraryDebug.filter((entry) =>
+      [entry.title, entry.city, String(entry.location || '')]
+        .filter(Boolean)
+        .some((value) => /yunnan|guilin|lhasa|云南|桂林|拉萨/i.test(String(value)))
+    );
+
+    console.log('[ClientJourneyPage] Focus itinerary entries (Yunnan/Guilin/Lhasa):', focusEntries);
+    console.log(
+      '[ClientJourneyPage] Focus itinerary entries JSON:',
+      JSON.stringify(focusEntries, null, 2)
+    );
+  }, [resolvedJourney]);
+
   const displayDescription = useMemo(
     () => getCleanDescription(resolvedJourney),
     [resolvedJourney]
@@ -599,15 +755,37 @@ export default function ClientJourneyPage() {
     [safeJourney]
   );
 
-  const journeyLocations = useMemo(() => {
+  const stableMapItinerary = useMemo(() => {
+    const itinerary = safeJourney?.itinerary || [];
+
+    return itinerary.map((item) => {
+      if (item?.location) {
+        return item;
+      }
+
+      const forcedLocation = getForcedLocationFromTitle(item?.title);
+      if (!forcedLocation) {
+        return item;
+      }
+
+      return {
+        ...item,
+        location: forcedLocation,
+      };
+    });
+  }, [safeJourney?.id, safeJourney?.itinerary]);
+
+  const mapJourneySteps = useMemo(() => {
     if (!safeJourney) return [];
 
+    const sourceItinerary = stableMapItinerary;
     const journeyWithCoords = safeJourney as Journey & {
       longitude?: number;
       latitude?: number;
+      location?: string;
     };
 
-    if (isDayTour) {
+    if (sourceItinerary.length === 0) {
       const lng = isValidCoordinate(journeyWithCoords.longitude, -180, 180)
         ? journeyWithCoords.longitude
         : journeyMapBaseCoords.lng;
@@ -617,91 +795,59 @@ export default function ClientJourneyPage() {
 
       return [
         {
-          id: safeJourney.id,
-          lng,
-          lat,
+          id: `${safeJourney.id}-map-root`,
+          day: 1,
+          title: safeJourney.title,
+          description: safeJourney.description,
+          city: safeJourney.city,
+          location: safeJourney.location,
+          longitude: lng,
+          latitude: lat,
         },
       ];
     }
 
-    return (safeJourney.itinerary || []).map((day, index) => {
-      const dayWithCoords = day as typeof day & {
-        longitude?: number;
-        latitude?: number;
-        city?: string;
-        location?: string;
-      };
-      const dayCoords: GeoCoords =
-        inferCoordsFromText(
-          [
-            dayWithCoords.city,
-            dayWithCoords.location,
-            day.title,
-            day.description,
-          ]
-            .filter(Boolean)
-            .join(' ')
-        ) || journeyMapBaseCoords;
+    return sourceItinerary
+      .map((day, index) => {
+        const dayWithCoords = day as typeof day & {
+          id?: string;
+          longitude?: number;
+          latitude?: number;
+          city?: string;
+          location?: string;
+        };
+        const dayCoords: GeoCoords =
+          inferCoordsFromText(
+            [
+              dayWithCoords.city,
+              dayWithCoords.location,
+              day.title,
+              day.description,
+            ]
+              .filter(Boolean)
+              .join(' ')
+          ) || journeyMapBaseCoords;
 
-      const lng = isValidCoordinate(dayWithCoords.longitude, -180, 180)
-        ? dayWithCoords.longitude
-        : dayCoords.lng + index * 0.12;
-      const lat = isValidCoordinate(dayWithCoords.latitude, -90, 90)
-        ? dayWithCoords.latitude
-        : dayCoords.lat + index * 0.08;
+        const rawCoords = extractRawCoordsFromStep(dayWithCoords);
+        const longitude = rawCoords?.lng ?? dayCoords.lng;
+        const latitude = rawCoords?.lat ?? dayCoords.lat;
 
-      return {
-        id: `${safeJourney.id}-day-${day.day || index + 1}`,
-        lng,
-        lat,
-      };
-    });
-  }, [isDayTour, journeyMapBaseCoords, safeJourney]);
+        if (!isValidCoordinate(longitude, -180, 180) || !isValidCoordinate(latitude, -90, 90)) {
+          return null;
+        }
 
-  const dayLocations = useMemo(() => {
-    if (!safeJourney || isDayTour) return undefined;
-
-    return (safeJourney.itinerary || []).map((day, index) => {
-      const dayWithCoords = day as typeof day & {
-        longitude?: number;
-        latitude?: number;
-        city?: string;
-        location?: string;
-      };
-      const dayCoords: GeoCoords =
-        inferCoordsFromText(
-          [
-            dayWithCoords.city,
-            dayWithCoords.location,
-            day.title,
-            day.description,
-          ]
-            .filter(Boolean)
-            .join(' ')
-        ) || journeyMapBaseCoords;
-
-      const lng = isValidCoordinate(dayWithCoords.longitude, -180, 180)
-        ? dayWithCoords.longitude
-        : dayCoords.lng + index * 0.12;
-      const lat = isValidCoordinate(dayWithCoords.latitude, -90, 90)
-        ? dayWithCoords.latitude
-        : dayCoords.lat + index * 0.08;
-
-      return {
-        day: day.day || index + 1,
-        title: day.title,
-        locations: [
-          {
-            id: `${safeJourney.id}-map-day-${day.day || index + 1}`,
-            lng,
-            lat,
-            city: dayWithCoords.city || dayWithCoords.location || dayCoords.name,
-            label: dayWithCoords.city || dayWithCoords.location || day.title,
-          },
-        ],
-      };
-    });
-  }, [isDayTour, journeyMapBaseCoords, safeJourney]);
+        return {
+          ...day,
+          id: dayWithCoords.id || `${safeJourney.id}-map-day-${day.day || index + 1}`,
+          day: day.day || index + 1,
+          city: dayWithCoords.city || safeJourney.city,
+          location: dayWithCoords.location || safeJourney.location,
+          longitude,
+          latitude,
+        };
+      })
+      .filter(Boolean);
+  }, [journeyMapBaseCoords, safeJourney, stableMapItinerary]);
 
   const pageNavigation = useMemo(() => {
     if (!pageConfig?.navigation) return [];
@@ -1166,13 +1312,13 @@ export default function ClientJourneyPage() {
       >
         <div className="w-full lg:w-1/2 h-[500px] lg:h-full relative border-r">
           <div className="absolute inset-0">
-            {journeyLocations.length > 0 ? (
+            {mapJourneySteps.length > 0 ? (
               <JourneyMap
-                journeySteps={resolvedJourney?.itinerary || []}
+                key={`journey-map-${currentJourney.id}`}
+                mapId={`journey-map-${currentJourney.id}`}
+                journeySteps={mapJourneySteps}
                 mode={isDayTour ? 'single-location' : 'multi-stop-route'}
-                locations={journeyLocations}
                 radius={5000}
-                dayLocations={dayLocations}
                 currentDay={currentDay}
                 activeDay={activeDay}
                 routeGeoJsonPath={

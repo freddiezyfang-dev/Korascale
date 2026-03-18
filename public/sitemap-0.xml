@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+<url><loc>https://korascale.com/accommodations</loc><lastmod>2026-03-18T05:59:31.277Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/about</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/auth/login</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/admin</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/auth/register</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/booking/chengdu-deep-dive</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/booking/accommodation</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/booking/cart</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/booking/review</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/booking/success</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/booking/confirm</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/checkout</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/contact</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/currency</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/destinations</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/destinations/sichuan</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/faq</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/journeys</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/language</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/inspirations</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/payment-methods</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/privacy-policy</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/terms-and-conditions</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/search</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/test-layout</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/support</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/test</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/links</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://korascale.com/wishlist-demo</loc><lastmod>2026-03-18T05:59:31.278Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+</urlset>
