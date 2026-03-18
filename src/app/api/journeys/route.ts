@@ -44,7 +44,7 @@ function sanitizeJourneyBaseData(baseData: any) {
 }
 
 // GET: 获取所有journeys
-export async function GET(request?: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     // 检查数据库连接（支持 NEON_POSTGRES_URL 或 POSTGRES_URL）
     const connectionString = process.env.NEON_POSTGRES_URL || process.env.POSTGRES_URL;
@@ -57,9 +57,9 @@ export async function GET(request?: NextRequest) {
     }
     
     // 解析查询参数：支持 includeAll 参数来获取所有状态的 journeys（用于后台管理）
-    const searchParams = request?.nextUrl?.searchParams;
-    const includeAll = searchParams?.get('includeAll') === 'true';
-    const minimalFields = searchParams?.get('fields') === 'minimal';
+    const searchParams = request.nextUrl.searchParams;
+    const includeAll = searchParams.get('includeAll') === 'true';
+    const minimalFields = searchParams.get('fields') === 'minimal';
     
     console.log('[API /journeys] Fetching journeys from database...', { includeAll });
     

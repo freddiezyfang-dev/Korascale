@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack --hostname 0.0.0.0 --port 3001",
     "dev:stable": "next dev --hostname 0.0.0.0 --port 3001",
-    "build": "next build --turbopack",
+    "build": "next build",
     "postbuild": "next-sitemap",
     "start": "next start",
     "lint": "eslint",

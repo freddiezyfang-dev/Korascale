@@ -3,6 +3,15 @@ import path from "path";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  async redirects() {
+    return [
+      {
+        source: '/inspirations/immersive-encounters/:slug*',
+        destination: '/inspirations/ancient-chinese-culture/:slug*',
+        permanent: true,
+      },
+    ];
+  },
   // 明确指定项目根目录，避免 Turbopack 误用上级 lockfile 导致 404
   turbopack: {
     root: path.join(__dirname),

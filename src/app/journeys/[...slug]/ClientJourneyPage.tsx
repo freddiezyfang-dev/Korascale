@@ -882,7 +882,10 @@ export default function ClientJourneyPage() {
     );
   }
 
-  if (safeJourney.journeyType === 'Explore Together') {
+  const currentJourney = safeJourney!;
+  const currentPageConfig = pageConfig!;
+
+  if (currentJourney.journeyType === 'Explore Together') {
     return (
       <>
         <script
@@ -890,7 +893,7 @@ export default function ClientJourneyPage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(tripJsonLd) }}
         />
         <ExploreTogetherLayout
-          journey={safeJourney}
+          journey={currentJourney}
           onBookingClick={handleBookNow}
         />
         <LoginModal
@@ -904,7 +907,7 @@ export default function ClientJourneyPage() {
             if (pendingBooking) {
               const dateStr = formatLocalYmd(pendingBooking.date);
               router.push(
-                `/booking/review/${safeJourney.slug}?date=${encodeURIComponent(dateStr)}&price=${pendingBooking.price}`
+                `/booking/review/${currentJourney.slug}?date=${encodeURIComponent(dateStr)}&price=${pendingBooking.price}`
               );
               setPendingBooking(null);
             }
@@ -924,7 +927,7 @@ export default function ClientJourneyPage() {
       <section className={`relative ${JOURNEY_PAGE_TEMPLATE.hero.height} overflow-hidden`}>
         <div
           className="absolute inset-0 bg-center bg-cover bg-no-repeat"
-          style={{ backgroundImage: `url('${pageConfig.hero.image}')` }}
+          style={{ backgroundImage: `url('${currentPageConfig.hero.image}')` }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#1e3b32]/90 via-[#1e3b32]/40 to-transparent z-0" />
         <div className="relative z-10 flex items-end h-full pb-16 px-8 lg:px-16">
@@ -941,10 +944,10 @@ export default function ClientJourneyPage() {
                   color: '#ffffff',
                 }}
               >
-                {pageConfig.hero.title}
+                {currentPageConfig.hero.title}
               </Heading>
               <Text className="text-lg lg:text-xl text-white/90 w-full leading-relaxed">
-                {safeJourney.shortDescription || `${safeJourney.description?.substring(0, 160) || ''}${safeJourney.description && safeJourney.description.length > 160 ? '...' : ''}`}
+                {currentJourney.shortDescription || `${currentJourney.description?.substring(0, 160) || ''}${currentJourney.description && currentJourney.description.length > 160 ? '...' : ''}`}
               </Text>
             </div>
 
@@ -954,7 +957,7 @@ export default function ClientJourneyPage() {
                   className="text-4xl lg:text-5xl font-light text-white mb-1"
                   style={{ fontFamily: 'Playfair Display, serif' }}
                 >
-                  {pageConfig.hero.stats.days}
+                  {currentPageConfig.hero.stats.days}
                 </div>
                 <div className="text-xs uppercase tracking-widest text-white/80 font-light">
                   DAYS
@@ -966,7 +969,7 @@ export default function ClientJourneyPage() {
                   className="text-4xl lg:text-5xl font-light text-white mb-1"
                   style={{ fontFamily: 'Playfair Display, serif' }}
                 >
-                  {pageConfig.hero.stats.destinations}
+                  {currentPageConfig.hero.stats.destinations}
                 </div>
                 <div className="text-xs uppercase tracking-widest text-white/80 font-light">
                   DESTINATIONS
@@ -978,7 +981,7 @@ export default function ClientJourneyPage() {
                   className="text-4xl lg:text-5xl font-light text-white mb-1"
                   style={{ fontFamily: 'Playfair Display, serif' }}
                 >
-                  {pageConfig.hero.stats.maxGuests}
+                  {currentPageConfig.hero.stats.maxGuests}
                 </div>
                 <div className="text-xs uppercase tracking-widest text-white/80 font-light">
                   GUESTS MAX
@@ -1071,20 +1074,20 @@ export default function ClientJourneyPage() {
                   lineHeight: '1.6',
                 }}
               >
-                {pageConfig.overview.description}
+                {currentPageConfig.overview.description}
               </h2>
-              {safeJourney.shortDescription && (
+              {currentJourney.shortDescription && (
                 <p
                   className="text-xl text-gray-600 font-light leading-relaxed prose-force-wrap"
                   style={{ lineHeight: '1.6' }}
                 >
-                  {safeJourney.shortDescription}
+                  {currentJourney.shortDescription}
                 </p>
               )}
             </div>
 
             {(() => {
-              const highlights = pageConfig.overview?.highlights || [];
+              const highlights = currentPageConfig.overview?.highlights || [];
 
               if (highlights.length === 0) {
                 return (
@@ -1144,8 +1147,8 @@ export default function ClientJourneyPage() {
           <div className="lg:w-[40%] relative flex items-start">
             <div className="w-full h-[600px] lg:h-[700px] relative group">
               <img
-                src={pageConfig.overview.sideImage}
-                alt={safeJourney.title || 'Journey image'}
+                src={currentPageConfig.overview.sideImage}
+                alt={currentJourney.title || 'Journey image'}
                 className="w-full h-full object-cover shadow-2xl transition-transform duration-1000 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors pointer-events-none" />
@@ -1172,7 +1175,10 @@ export default function ClientJourneyPage() {
                 dayLocations={dayLocations}
                 currentDay={currentDay}
                 activeDay={activeDay}
-                routeGeoJsonPath={pageConfig?.overview?.routeGeojson || safeJourney.routeGeojson}
+                routeGeoJsonPath={
+                  (currentPageConfig.overview as { routeGeojson?: string } | undefined)?.routeGeojson ||
+                  (currentJourney as Journey & { routeGeojson?: string }).routeGeojson
+                }
                 className="w-full h-full"
               />
             ) : (
@@ -1201,7 +1207,7 @@ export default function ClientJourneyPage() {
             </header>
 
             <div className="space-y-12">
-              {pageConfig.itinerary.map((day, index) => (
+              {currentPageConfig.itinerary.map((day, index) => (
                 <div
                   key={index}
                   ref={(el) => {
@@ -1236,10 +1242,10 @@ export default function ClientJourneyPage() {
                     {day.description}
                   </p>
 
-                  {((day as any).city || (day as any).location || safeJourney.city) && (
+                  {((day as any).city || (day as any).location || currentJourney.city) && (
                     <div className="mt-4">
                       <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-[#d4a574] text-white">
-                        {(day as any).city || (day as any).location || safeJourney.city}
+                        {(day as any).city || (day as any).location || currentJourney.city}
                       </span>
                     </div>
                   )}
@@ -1280,7 +1286,7 @@ export default function ClientJourneyPage() {
         }}
         className="w-full bg-stone-50 py-20 px-12 border-t border-stone-200"
       >
-        <InclusionsAndOffers journey={safeJourney} onBookingClick={handleBookNow} />
+          <InclusionsAndOffers journey={currentJourney} onBookingClick={handleBookNow} />
       </section>
 
       <PlanTripModal
@@ -1299,7 +1305,7 @@ export default function ClientJourneyPage() {
           if (pendingBooking) {
             const dateStr = formatLocalYmd(pendingBooking.date);
             router.push(
-              `/booking/review/${safeJourney.slug}?date=${encodeURIComponent(dateStr)}&price=${pendingBooking.price}`
+                `/booking/review/${currentJourney.slug}?date=${encodeURIComponent(dateStr)}&price=${pendingBooking.price}`
             );
             setPendingBooking(null);
           }
