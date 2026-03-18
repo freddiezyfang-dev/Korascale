@@ -759,17 +759,22 @@ export default function ClientJourneyPage() {
     const itinerary = safeJourney?.itinerary || [];
 
     return itinerary.map((item) => {
-      if (item?.location) {
-        return item;
+      const itineraryItem = item as typeof item & {
+        location?: unknown;
+        title?: string;
+      };
+
+      if (itineraryItem.location) {
+        return itineraryItem;
       }
 
-      const forcedLocation = getForcedLocationFromTitle(item?.title);
+      const forcedLocation = getForcedLocationFromTitle(itineraryItem.title);
       if (!forcedLocation) {
-        return item;
+        return itineraryItem;
       }
 
       return {
-        ...item,
+        ...itineraryItem,
         location: forcedLocation,
       };
     });
