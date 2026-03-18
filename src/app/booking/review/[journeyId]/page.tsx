@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { Suspense, useEffect, useState, useMemo } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
@@ -18,7 +18,7 @@ interface JourneyData {
   location?: string;
 }
 
-export default function BookingReviewPage() {
+function BookingReviewContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -400,5 +400,13 @@ export default function BookingReviewPage() {
         </div>
       )}
     </main>
+  );
+}
+
+export default function BookingReviewPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <BookingReviewContent />
+    </Suspense>
   );
 }

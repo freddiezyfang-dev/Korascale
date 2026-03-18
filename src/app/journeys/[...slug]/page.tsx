@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { journeyAPI } from '@/lib/databaseClient';
 import ClientJourneyPage from './ClientJourneyPage';
 
@@ -26,6 +27,10 @@ export async function generateStaticParams() {
 }
 
 export default function DynamicJourneyPage() {
-  return <ClientJourneyPage />;
+  return (
+    <Suspense fallback={<div>Loading journey...</div>}>
+      <ClientJourneyPage />
+    </Suspense>
+  );
 }
 

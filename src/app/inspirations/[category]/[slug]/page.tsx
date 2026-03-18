@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { articleAPI } from '@/lib/databaseClient';
 import {
   ArticleCategoryToSlug,
@@ -28,6 +29,10 @@ export async function generateStaticParams() {
 }
 
 export default function ArticleDetailPage() {
-  return <ClientArticlePage />;
+  return (
+    <Suspense fallback={<div>Loading article...</div>}>
+      <ClientArticlePage />
+    </Suspense>
+  );
 }
 
