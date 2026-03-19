@@ -1296,7 +1296,7 @@ export default function ClientJourneyPage() {
           </div>
 
           <div className="lg:w-[40%] relative flex items-start">
-            <div className="w-full h-[600px] lg:h-[700px] relative group">
+            <div className="w-full aspect-[16/9] lg:h-[700px] relative group">
               <img
                 src={currentPageConfig.overview.sideImage}
                 alt={currentJourney.title || 'Journey image'}
