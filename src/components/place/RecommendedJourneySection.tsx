@@ -40,7 +40,8 @@ export default function RecommendedJourneySection({
       title: journey.title,
       duration: journey.duration || 'N/A',
       destinations: journey.highlights?.slice(0, 4) || [],
-      image: journey.image || journey.heroImage || '/images/placeholder.jpg',
+      // 不在这里写死 placeholder 路径；由 getRenderableImageUrl 在渲染时兜底
+      image: journey.image || journey.heroImage || '',
       slug: journey.slug,
       isPrivate: journey.journeyType === 'Deep Discovery'
     }));

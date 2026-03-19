@@ -55,16 +55,26 @@ function sanitizeErrorMessage(message: string, status?: number): string {
 export const journeyAPI = {
   // 获取所有journeys（带重试机制）
   // includeAll: 如果为 true，返回所有状态的 journeys（包括 inactive），用于后台管理
-  async getAll(retries: number = 2, includeAll: boolean = false, throwOnError: boolean = false): Promise<Journey[]> {
+  async getAll(
+    retries: number = 2,
+    includeAll: boolean = false,
+    throwOnError: boolean = false,
+    fields: 'full' | 'minimal' | 'list' = 'full'
+  ): Promise<Journey[]> {
     let lastError: Error | null = null;
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
         // 增加超时时间：第一次45秒，重试60秒（给数据库更多时间）
         const timeoutMs = attempt === 0 ? 45000 : 60000;
         // 如果 includeAll=true，添加查询参数
-        const apiUrl = includeAll 
+        let apiUrl = includeAll
           ? getApiUrl('/api/journeys?includeAll=true')
           : getApiUrl('/api/journeys');
+
+        // 为不同页面传入轻量字段集（减少 DB 查询负载）
+        if (fields && fields !== 'full') {
+          apiUrl += (apiUrl.includes('?') ? '&' : '?') + `fields=${encodeURIComponent(fields)}`;
+        }
         
         // 调试：打印完整的请求 URL
         console.log(`[JourneyAPI] Fetching from: ${apiUrl} (attempt ${attempt + 1}/${retries + 1}, includeAll=${includeAll})`);

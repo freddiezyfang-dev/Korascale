@@ -59,7 +59,9 @@ export async function GET(request: NextRequest) {
     // 解析查询参数：支持 includeAll 参数来获取所有状态的 journeys（用于后台管理）
     const searchParams = request.nextUrl.searchParams;
     const includeAll = searchParams.get('includeAll') === 'true';
-    const minimalFields = searchParams.get('fields') === 'minimal';
+    const fieldsParam = searchParams.get('fields') || 'full';
+    const minimalFields = fieldsParam === 'minimal';
+    const listFields = fieldsParam === 'list';
     
     console.log('[API /journeys] Fetching journeys from database...', { includeAll });
     
@@ -105,12 +107,24 @@ export async function GET(request: NextRequest) {
         ? '' // 不添加 WHERE 条件，返回所有状态
         : "WHERE status = 'active' OR status IS NULL";
 
+      const limit = listFields ? 500 : 1000;
+
       const selectClause = minimalFields
         ? `
           SELECT id, slug, title
           FROM journeys
         `
-        : `
+        : listFields
+          ? `
+          SELECT
+            id, title, slug, description, short_description,
+            price, original_price, category, journey_type, region, place, city, location,
+            duration, difficulty, max_participants, min_participants,
+            image, status, featured, rating, review_count,
+            (data - 'itinerary') as data, created_at, updated_at
+          FROM journeys
+        `
+          : `
           SELECT
             id, title, slug, description, short_description,
             price, original_price, category, journey_type, region, place, city, location,
@@ -126,7 +140,7 @@ export async function GET(request: NextRequest) {
           ${selectClause}
           ${statusCondition}
           ORDER BY created_at DESC
-          LIMIT 1000
+          LIMIT ${limit}
         `);
 
         const timeoutLimitMs = 30000;

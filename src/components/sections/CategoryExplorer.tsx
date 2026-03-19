@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Journey } from '@/types';
 import { Card, Text } from '@/components/common';
 import { AccommodationCard } from '@/components/cards/AccommodationCard';
+import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 interface CategoryItem {
   id: string;
@@ -116,7 +117,7 @@ export default function CategoryExplorer({
                   <div className="relative aspect-[4/5] w-full overflow-hidden group cursor-pointer rounded-sm">
                     {/* 1. 背景图片层 */}
                     <img
-                      src={item.image || '/images/placeholder.jpg'}
+                      src={getRenderableImageUrl(item.image)}
                       alt={item.title}
                       className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
@@ -149,7 +150,7 @@ export default function CategoryExplorer({
                     id={item.id}
                     title={item.title}
                     location={item.shortDescription || item.description || ''}
-                    image={item.image || '/images/placeholder.jpg'}
+                    image={getRenderableImageUrl(item.image)}
                     description={item.description}
                     variant="light"
                     showWishlist={false}
@@ -183,7 +184,7 @@ export default function CategoryExplorer({
                   {/* Image - 固定高度 h-48 */}
                   <div 
                     className="h-48 bg-cover bg-center bg-no-repeat flex-shrink-0"
-                    style={{ backgroundImage: `url('${item.image || '/images/placeholder.jpg'}')` }}
+                    style={{ backgroundImage: `url('${getRenderableImageUrl(item.image)}')` }}
                   />
                   
                   {/* Content - 与 journey filter 格式统一 */}

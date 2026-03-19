@@ -11,6 +11,7 @@ import { articleAPI } from '@/lib/databaseClient';
 import { Article } from '@/types/article';
 import { ArticleCategoryToSlug } from '@/types/article';
 import hotelsData from '@/data/hotels.json';
+import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 const imgDestinationsButton = "/images/main-cards/destinations.jpeg";
 const imgJourneysButton = "/images/main-cards/journeys.jpeg";
@@ -156,7 +157,7 @@ export default function Home() {
           title: hotel.name,
           shortDescription: hotel.location,
           description: hotel.description,
-          image: hotel.images[0] || '/images/placeholder.jpg',
+          image: getRenderableImageUrl(hotel.images?.[0]),
           slug: hotel.id,
           href: '/accommodations'
         }))}

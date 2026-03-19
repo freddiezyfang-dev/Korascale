@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from 'react';
 import { Journey, JourneyStatus } from '@/types';
 import { dataPersistence } from '@/utils/dataPersistence';
 import { journeyAPI } from '@/lib/databaseClient';
@@ -808,6 +808,7 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
   const [journeys, setJourneys] = useState<Journey[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const loadInFlightRef = useRef(false);
 
   const getJourneyLoadErrorMessage = (value: unknown) => {
     if (value instanceof Error && value.message.trim()) {
@@ -821,7 +822,9 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
 
   // 从数据库加载旅行卡片数据的函数
   // includeAll: 如果为 true，加载所有状态的 journeys（包括 inactive），用于后台管理
-  const loadJourneys = async (includeAll: boolean = false) => {
+  const loadJourneys = useCallback(async (includeAll: boolean = false) => {
+    if (loadInFlightRef.current) return;
+    loadInFlightRef.current = true;
     try {
       console.log('JourneyManagementContext: Loading journeys from database...', { includeAll });
       setIsLoading(true);
@@ -829,7 +832,13 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
       
       // 首先尝试从数据库加载
       // 如果 includeAll=true，获取所有状态的 journeys（用于后台管理）
-      const dbJourneys = await journeyAPI.getAll(2, includeAll, true);
+      // 后台列表页只需要卡片信息，不需要完整 itinerary，因此使用 list 轻量模式避免 DB timeout。
+      const dbJourneys = await journeyAPI.getAll(
+        2,
+        includeAll,
+        true,
+        includeAll ? 'list' : 'full'
+      );
       
       if (dbJourneys.length > 0) {
         console.log('JourneyManagementContext: Loaded from database:', dbJourneys.length, 'journeys');
@@ -906,23 +915,23 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
         setError(`${errorMessage} Local fallback also failed.`);
       }
     } finally {
+      loadInFlightRef.current = false;
       // 确保 isLoading 总是被设置为 false
       setIsLoading(false);
     }
-  };
+  }, []);
 
   // 从数据库加载旅行卡片数据（首次加载）
   useEffect(() => {
     // 检查当前路径，如果是后台管理页面，加载所有状态的 journeys
     const isAdminPage = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
     loadJourneys(isAdminPage);
-  }, []);
+  }, [loadJourneys]);
 
-  // 手动刷新函数
-  // includeAll: 如果为 true，加载所有状态的 journeys（包括 inactive），用于后台管理
-  const reloadJourneys = async (includeAll: boolean = false) => {
+  // 手动刷新函数（稳定引用，避免 admin 页 useEffect 重复触发）
+  const reloadJourneys = useCallback(async (includeAll: boolean = false) => {
     await loadJourneys(includeAll);
-  };
+  }, [loadJourneys]);
 
   // 保存旅行卡片数据到持久化存储
   const saveJourneys = async (journeysData: Journey[]) => {
