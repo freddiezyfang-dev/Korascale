@@ -26,6 +26,7 @@ export default function SichuanChongqingPage() {
   const [selectedDuration, setSelectedDuration] = useState<string>('All');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [isPlanTripModalOpen, setIsPlanTripModalOpen] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
 
   // 筛选 Sichuan 和 Chongqing 地区的 journeys
   const filteredJourneys = useMemo(() => {
@@ -388,97 +389,215 @@ export default function SichuanChongqingPage() {
       <div id="all-journeys" className="bg-[#f5f1e6] py-16">
         <Container size="full" padding="none" className="px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
           <div className="flex flex-col lg:flex-row gap-8">
-            {/* Filter Sidebar */}
-            <div className="w-full lg:w-80 flex-shrink-0">
-              <div className="bg-white rounded-lg p-6 shadow-lg">
-                <h3 className="text-2xl font-['Monda'] font-bold mb-6">Filter</h3>
+                {/* Filter Sidebar (desktop only) */}
+                <div className="hidden lg:block w-full lg:w-80 flex-shrink-0">
+                  <div className="bg-white rounded-lg p-6 shadow-lg">
+                    <h3 className="text-2xl font-['Monda'] font-bold mb-6">Filter</h3>
 
-                {/* Journey Type Filter */}
-                <div className="mb-8">
-                  <h4 className="text-xl font-['Monda'] font-bold mb-4">JOURNEY TYPE</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {journeyTypes.map((type) => (
-                      <button
-                        key={type}
-                        className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
-                          selectedJourneyType === type ? 'bg-gray-200' : 'bg-white'
-                        }`}
-                        style={{
-                          color: 'black',
-                          backgroundColor: selectedJourneyType === type ? '#e5e7eb' : 'white'
-                        }}
-                        onClick={() => setSelectedJourneyType(type)}
-                      >
-                        {type}
-                      </button>
-                    ))}
+                    {/* Journey Type Filter */}
+                    <div className="mb-8">
+                      <h4 className="text-xl font-['Monda'] font-bold mb-4">JOURNEY TYPE</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {journeyTypes.map((type) => (
+                          <button
+                            key={type}
+                            className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 flex-1 text-center lg:flex-none ${
+                              selectedJourneyType === type ? 'bg-gray-200' : 'bg-white'
+                            }`}
+                            style={{
+                              color: 'black',
+                              backgroundColor: selectedJourneyType === type ? '#e5e7eb' : 'white'
+                            }}
+                            onClick={() => setSelectedJourneyType(type)}
+                          >
+                            {type}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Category Filter */}
+                    <div className="mb-8">
+                      <h4 className="text-xl font-['Monda'] font-bold mb-4">CATEGORY</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {categories.map((category) => (
+                          <button
+                            key={category}
+                            className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 flex-1 text-center lg:flex-none ${
+                              selectedCategory === category ? 'bg-gray-200' : 'bg-white'
+                            }`}
+                            style={{
+                              color: 'black',
+                              backgroundColor: selectedCategory === category ? '#e5e7eb' : 'white'
+                            }}
+                            onClick={() => setSelectedCategory(category)}
+                          >
+                            {category}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Duration Filter */}
+                    <div className="mb-8">
+                      <h4 className="text-xl font-['Monda'] font-bold mb-4">DURATION</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {durations.map((duration) => (
+                          <button
+                            key={duration}
+                            className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 flex-1 text-center lg:flex-none ${
+                              selectedDuration === duration ? 'bg-gray-200' : 'bg-white'
+                            }`}
+                            style={{
+                              color: 'black',
+                              backgroundColor: selectedDuration === duration ? '#e5e7eb' : 'white'
+                            }}
+                            onClick={() => setSelectedDuration(duration)}
+                          >
+                            {duration}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedJourneyType('All');
+                        setSelectedCategory('All');
+                        setSelectedDuration('All');
+                        setSearchTerm('');
+                      }}
+                      className="w-full"
+                    >
+                      Clear All Filters
+                    </Button>
                   </div>
                 </div>
-
-                {/* Category Filter */}
-                <div className="mb-8">
-                  <h4 className="text-xl font-['Monda'] font-bold mb-4">CATEGORY</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {categories.map((category) => (
-                      <button
-                        key={category}
-                        className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
-                          selectedCategory === category ? 'bg-gray-200' : 'bg-white'
-                        }`}
-                        style={{
-                          color: 'black',
-                          backgroundColor: selectedCategory === category ? '#e5e7eb' : 'white'
-                        }}
-                        onClick={() => setSelectedCategory(category)}
-                      >
-                        {category}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Duration Filter */}
-                <div className="mb-8">
-                  <h4 className="text-xl font-['Monda'] font-bold mb-4">DURATION</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {durations.map((duration) => (
-                      <button
-                        key={duration}
-                        className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
-                          selectedDuration === duration ? 'bg-gray-200' : 'bg-white'
-                        }`}
-                        style={{
-                          color: 'black',
-                          backgroundColor: selectedDuration === duration ? '#e5e7eb' : 'white'
-                        }}
-                        onClick={() => setSelectedDuration(duration)}
-                      >
-                        {duration}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setSelectedJourneyType('All');
-                    setSelectedCategory('All');
-                    setSelectedDuration('All');
-                    setSearchTerm('');
-                  }}
-                  className="w-full"
-                >
-                  Clear All Filters
-                </Button>
-              </div>
-            </div>
 
             {/* Results Section */}
-            <div className="flex-1">
-              <Heading level={2} className="text-3xl font-heading mb-8" style={{ fontFamily: 'Montaga, serif' }}>
-                See Where We Can Take You
-              </Heading>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between gap-4 mb-6 md:mb-8 lg:mb-8">
+                <Heading
+                  level={2}
+                  className="text-3xl font-heading mb-0"
+                  style={{ fontFamily: 'Montaga, serif' }}
+                >
+                  See Where We Can Take You
+                </Heading>
+
+                {/* Mobile entry button */}
+                <button
+                  type="button"
+                  onClick={() => setFilterOpen(true)}
+                  className="lg:hidden flex-shrink-0 px-4 py-2 border border-gray-700 rounded-lg text-xs font-medium uppercase tracking-widest text-gray-800 hover:bg-gray-100"
+                >
+                  Filter
+                </button>
+              </div>
+
+              {/* Mobile Drawer */}
+              {filterOpen && (
+                <div className="fixed inset-0 z-[100] bg-white w-screen h-screen overflow-y-auto lg:hidden">
+                  <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+                    <span className="font-['Monda'] font-bold text-lg">Filter</span>
+                    <button
+                      type="button"
+                      onClick={() => setFilterOpen(false)}
+                      className="px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded"
+                    >
+                      Close
+                    </button>
+                  </div>
+
+                  <div className="p-4">
+                    {/* Journey Type Filter */}
+                    <div className="mb-6">
+                      <h4 className="text-sm font-['Monda'] font-bold mb-3 uppercase tracking-wider">
+                        JOURNEY TYPE
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {journeyTypes.map((type) => (
+                          <button
+                            key={type}
+                            className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 flex-1 text-center ${
+                              selectedJourneyType === type ? 'bg-gray-200' : 'bg-white'
+                            }`}
+                            style={{
+                              color: 'black',
+                              backgroundColor: selectedJourneyType === type ? '#e5e7eb' : 'white'
+                            }}
+                            onClick={() => setSelectedJourneyType(type)}
+                          >
+                            {type}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Category Filter */}
+                    <div className="mb-6">
+                      <h4 className="text-sm font-['Monda'] font-bold mb-3 uppercase tracking-wider">
+                        CATEGORY
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {categories.map((category) => (
+                          <button
+                            key={category}
+                            className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 flex-1 text-center ${
+                              selectedCategory === category ? 'bg-gray-200' : 'bg-white'
+                            }`}
+                            style={{
+                              color: 'black',
+                              backgroundColor: selectedCategory === category ? '#e5e7eb' : 'white'
+                            }}
+                            onClick={() => setSelectedCategory(category)}
+                          >
+                            {category}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Duration Filter */}
+                    <div className="mb-6">
+                      <h4 className="text-sm font-['Monda'] font-bold mb-3 uppercase tracking-wider">
+                        DURATION
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {durations.map((duration) => (
+                          <button
+                            key={duration}
+                            className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 flex-1 text-center ${
+                              selectedDuration === duration ? 'bg-gray-200' : 'bg-white'
+                            }`}
+                            style={{
+                              color: 'black',
+                              backgroundColor: selectedDuration === duration ? '#e5e7eb' : 'white'
+                            }}
+                            onClick={() => setSelectedDuration(duration)}
+                          >
+                            {duration}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedJourneyType('All');
+                        setSelectedCategory('All');
+                        setSelectedDuration('All');
+                        setSearchTerm('');
+                      }}
+                      className="w-full mt-6"
+                    >
+                      Clear All Filters
+                    </Button>
+                  </div>
+                </div>
+              )}
 
               {/* Search Bar */}
               <div className="mb-8">
