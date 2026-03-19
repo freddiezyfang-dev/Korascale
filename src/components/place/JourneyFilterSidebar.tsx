@@ -25,6 +25,8 @@ export default function JourneyFilterSidebar({
   placeName,
   autoSelectPlace
 }: JourneyFilterSidebarProps) {
+  const [filterOpen, setFilterOpen] = useState(false);
+
   // Journey Type 选项
   const journeyTypeOptions: { value: JourneyType; label: string }[] = [
     { value: 'Explore Together', label: 'Explore Together' },
@@ -121,12 +123,12 @@ export default function JourneyFilterSidebar({
   return (
     <div className="bg-[#f5f1e6] py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
-        <div className="flex gap-8">
-          {/* Filter Sidebar */}
-          <div className="w-80 flex-shrink-0">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Desktop Filter Sidebar */}
+          <div className="hidden lg:block w-80 flex-shrink-0">
             <div className="bg-white rounded-lg p-6 shadow-lg">
               <h3 className="text-2xl font-['Monda'] font-bold mb-6">Filter</h3>
-              
+
               {/* Journey Type Filter */}
               <div className="mb-8">
                 <h4 className="text-base font-['Monda'] font-bold mb-4">JOURNEY TYPE</h4>
@@ -139,16 +141,18 @@ export default function JourneyFilterSidebar({
                       }`}
                       style={{
                         color: 'black',
-                        backgroundColor: selectedJourneyType === opt.value ? '#e5e7eb' : 'white'
+                        backgroundColor: selectedJourneyType === opt.value ? '#e5e7eb' : 'white',
                       }}
-                      onClick={() => setSelectedJourneyType(selectedJourneyType === opt.value ? null : opt.value)}
+                      onClick={() =>
+                        setSelectedJourneyType(selectedJourneyType === opt.value ? null : opt.value)
+                      }
                     >
                       {opt.label}
                     </button>
                   ))}
                 </div>
               </div>
-              
+
               {/* Regions Filter */}
               <div className="mb-8">
                 <h4 className="text-base font-['Monda'] font-bold mb-4">REGIONS</h4>
@@ -161,9 +165,11 @@ export default function JourneyFilterSidebar({
                       }`}
                       style={{
                         color: 'black',
-                        backgroundColor: selectedRegion === region ? '#e5e7eb' : 'white'
+                        backgroundColor: selectedRegion === region ? '#e5e7eb' : 'white',
                       }}
-                      onClick={() => setSelectedRegion(selectedRegion === region ? null : region)}
+                      onClick={() =>
+                        setSelectedRegion(selectedRegion === region ? null : region)
+                      }
                     >
                       {region}
                     </button>
@@ -183,9 +189,11 @@ export default function JourneyFilterSidebar({
                       }`}
                       style={{
                         color: 'black',
-                        backgroundColor: selectedPlace === place ? '#e5e7eb' : 'white'
+                        backgroundColor: selectedPlace === place ? '#e5e7eb' : 'white',
                       }}
-                      onClick={() => setSelectedPlace(selectedPlace === place ? null : place)}
+                      onClick={() =>
+                        setSelectedPlace(selectedPlace === place ? null : place)
+                      }
                     >
                       {place}
                     </button>
@@ -205,9 +213,11 @@ export default function JourneyFilterSidebar({
                       }`}
                       style={{
                         color: 'black',
-                        backgroundColor: selectedInterest === interest ? '#e5e7eb' : 'white'
+                        backgroundColor: selectedInterest === interest ? '#e5e7eb' : 'white',
                       }}
-                      onClick={() => setSelectedInterest(selectedInterest === interest ? null : interest)}
+                      onClick={() =>
+                        setSelectedInterest(selectedInterest === interest ? null : interest)
+                      }
                     >
                       {interest}
                     </button>
@@ -227,9 +237,11 @@ export default function JourneyFilterSidebar({
                       }`}
                       style={{
                         color: 'black',
-                        backgroundColor: selectedDuration === duration ? '#e5e7eb' : 'white'
+                        backgroundColor: selectedDuration === duration ? '#e5e7eb' : 'white',
                       }}
-                      onClick={() => setSelectedDuration(selectedDuration === duration ? null : duration)}
+                      onClick={() =>
+                        setSelectedDuration(selectedDuration === duration ? null : duration)
+                      }
                     >
                       {duration}
                     </button>
@@ -240,10 +252,20 @@ export default function JourneyFilterSidebar({
           </div>
 
           {/* Results Section */}
-          <div className="flex-1">
-            <h2 className="text-3xl font-['Montaga'] mb-8">
-              {placeName ? `Journeys in ${placeName}` : 'See Where We Can Take You'}
-            </h2>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-4 mb-8 lg:mb-8">
+              <h2 className="text-3xl font-['Montaga']">
+                {placeName ? `Journeys in ${placeName}` : 'See Where We Can Take You'}
+              </h2>
+
+              <button
+                type="button"
+                onClick={() => setFilterOpen(true)}
+                className="lg:hidden flex-shrink-0 px-4 py-2 border border-gray-700 rounded-lg text-xs font-medium uppercase tracking-widest text-gray-800 hover:bg-gray-100"
+              >
+                FILTER
+              </button>
+            </div>
             
             {/* Search Bar */}
             <div className="mb-8">
@@ -314,6 +336,168 @@ export default function JourneyFilterSidebar({
             </div>
           </div>
         </div>
+
+        {/* Mobile Filter Drawer */}
+        {filterOpen && (
+          <div className="fixed inset-0 z-[100] lg:hidden" aria-modal="true" role="dialog">
+            <div
+              className="absolute inset-0 bg-black/40"
+              onClick={() => setFilterOpen(false)}
+              aria-hidden="true"
+            />
+
+            <div className="fixed inset-y-0 left-0 right-0 w-screen bg-white shadow-xl overflow-y-auto">
+              <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+                <span className="font-['Monda'] font-bold text-lg">Filter</span>
+                <button
+                  type="button"
+                  onClick={() => setFilterOpen(false)}
+                  className="px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded"
+                >
+                  Close
+                </button>
+              </div>
+
+              <div className="p-4">
+                {/* Journey Type Filter */}
+                <div className="mb-6">
+                  <h4 className="text-sm font-['Monda'] font-bold mb-3 uppercase tracking-wider">
+                    JOURNEY TYPE
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {journeyTypeOptions.map((opt) => (
+                      <button
+                        key={opt.value}
+                        className={`px-3 py-2 border rounded text-sm font-['Monda'] hover:bg-gray-100 flex-grow text-center ${
+                          selectedJourneyType === opt.value ? 'bg-gray-200 border-black' : 'bg-white border-gray-300'
+                        }`}
+                        style={{
+                          color: 'black',
+                          backgroundColor:
+                            selectedJourneyType === opt.value ? '#e5e7eb' : 'white',
+                        }}
+                        onClick={() =>
+                          setSelectedJourneyType(
+                            selectedJourneyType === opt.value ? null : opt.value
+                          )
+                        }
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Regions Filter */}
+                <div className="mb-6">
+                  <h4 className="text-sm font-['Monda'] font-bold mb-3 uppercase tracking-wider">
+                    REGIONS
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {regionOptions.map((region) => (
+                      <button
+                        key={region}
+                        className={`px-3 py-2 border rounded text-sm font-['Monda'] hover:bg-gray-100 flex-grow text-center ${
+                          selectedRegion === region ? 'bg-gray-200 border-black' : 'bg-white border-gray-300'
+                        }`}
+                        style={{
+                          color: 'black',
+                          backgroundColor: selectedRegion === region ? '#e5e7eb' : 'white',
+                        }}
+                        onClick={() =>
+                          setSelectedRegion(selectedRegion === region ? null : region)
+                        }
+                      >
+                        {region}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Places Filter */}
+                <div className="mb-6">
+                  <h4 className="text-sm font-['Monda'] font-bold mb-3 uppercase tracking-wider">
+                    PLACES
+                  </h4>
+                  <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
+                    {placeOptions.map((place) => (
+                      <button
+                        key={place}
+                        className={`px-3 py-2 border rounded text-sm font-['Monda'] hover:bg-gray-100 flex-grow text-center ${
+                          selectedPlace === place ? 'bg-gray-200 border-black' : 'bg-white border-gray-300'
+                        }`}
+                        style={{
+                          color: 'black',
+                          backgroundColor: selectedPlace === place ? '#e5e7eb' : 'white',
+                        }}
+                        onClick={() =>
+                          setSelectedPlace(selectedPlace === place ? null : place)
+                        }
+                      >
+                        {place}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Interests Filter */}
+                <div className="mb-6">
+                  <h4 className="text-sm font-['Monda'] font-bold mb-3 uppercase tracking-wider">
+                    INTERESTS
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {interestOptions.map((interest) => (
+                      <button
+                        key={interest}
+                        className={`px-3 py-2 border rounded text-sm font-['Monda'] hover:bg-gray-100 flex-grow text-center ${
+                          selectedInterest === interest ? 'bg-gray-200 border-black' : 'bg-white border-gray-300'
+                        }`}
+                        style={{
+                          color: 'black',
+                          backgroundColor: selectedInterest === interest ? '#e5e7eb' : 'white',
+                        }}
+                        onClick={() =>
+                          setSelectedInterest(selectedInterest === interest ? null : interest)
+                        }
+                      >
+                        {interest}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Duration Filter */}
+                <div className="mb-6">
+                  <h4 className="text-sm font-['Monda'] font-bold mb-3 uppercase tracking-wider">
+                    DURATION
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {durationOptions.map((duration) => (
+                      <button
+                        key={duration}
+                        className={`px-3 py-2 border rounded text-sm font-['Monda'] hover:bg-gray-100 flex-grow text-center ${
+                          selectedDuration === duration
+                            ? 'bg-gray-200 border-black'
+                            : 'bg-white border-gray-300'
+                        }`}
+                        style={{
+                          color: 'black',
+                          backgroundColor:
+                            selectedDuration === duration ? '#e5e7eb' : 'white',
+                        }}
+                        onClick={() =>
+                          setSelectedDuration(selectedDuration === duration ? null : duration)
+                        }
+                      >
+                        {duration}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
