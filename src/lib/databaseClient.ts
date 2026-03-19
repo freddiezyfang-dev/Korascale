@@ -81,6 +81,8 @@ export const journeyAPI = {
             'Cache-Control': 'no-cache',
           },
         });
+
+        console.log('Response status:', response.status);
         
         if (!response.ok) {
           // 尝试获取详细的错误信息（避免把 404 HTML 整页当错误信息）
@@ -152,10 +154,10 @@ export const journeyAPI = {
               return parsed;
             }
           } catch (e) {
-            console.error('[JourneyAPI] Failed to load from localStorage:', e);
+            console.dir(e);
           }
         } else {
-          console.error('Error fetching journeys:', error);
+          console.dir(error);
           
           // 如果是网络错误且还有重试次数，继续重试
           if (attempt < retries && error instanceof Error && (
