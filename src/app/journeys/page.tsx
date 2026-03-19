@@ -450,7 +450,7 @@ export default function JourneysPage() {
 										{journeyTypeOptions.map((opt) => (
 											<button
 												key={opt.value}
-												className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
+												className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 flex-grow text-center md:flex-grow-0 ${
 													selectedJourneyType === opt.value ? 'bg-gray-200' : 'bg-white'
 												}`}
 												style={{
@@ -472,7 +472,7 @@ export default function JourneysPage() {
 										{regionOptions.map((region) => (
 											<button
 												key={region}
-												className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
+												className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 flex-grow text-center md:flex-grow-0 ${
 													selectedRegion === region ? 'bg-gray-200' : 'bg-white'
 												}`}
 												style={{
@@ -563,7 +563,7 @@ export default function JourneysPage() {
 									onClick={() => setFilterOpen(false)}
 									aria-hidden="true"
 								/>
-								<div className="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-white shadow-xl overflow-y-auto">
+								<div className="absolute right-0 top-0 bottom-0 w-full bg-white shadow-xl overflow-y-auto">
 									<div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
 										<span className="font-['Monda'] font-bold text-lg">Filter</span>
 										<button
@@ -581,7 +581,7 @@ export default function JourneysPage() {
 												{journeyTypeOptions.map((opt) => (
 													<button
 														key={opt.value}
-														className={`px-3 py-2 border rounded text-sm ${selectedJourneyType === opt.value ? 'bg-gray-200 border-black' : 'bg-white border-gray-300'}`}
+														className={`px-3 py-2 border rounded text-sm flex-grow text-center md:flex-grow-0 ${selectedJourneyType === opt.value ? 'bg-gray-200 border-black' : 'bg-white border-gray-300'}`}
 														onClick={() => setSelectedJourneyType(selectedJourneyType === opt.value ? null : opt.value)}
 													>
 														{opt.label}
@@ -595,7 +595,7 @@ export default function JourneysPage() {
 												{regionOptions.map((region) => (
 													<button
 														key={region}
-														className={`px-3 py-2 border rounded text-sm ${selectedRegion === region ? 'bg-gray-200 border-black' : 'bg-white border-gray-300'}`}
+														className={`px-3 py-2 border rounded text-sm flex-grow text-center md:flex-grow-0 ${selectedRegion === region ? 'bg-gray-200 border-black' : 'bg-white border-gray-300'}`}
 														onClick={() => setSelectedRegion(selectedRegion === region ? null : region)}
 													>
 														{region}
