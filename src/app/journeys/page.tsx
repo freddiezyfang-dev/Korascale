@@ -563,7 +563,7 @@ export default function JourneysPage() {
 									onClick={() => setFilterOpen(false)}
 									aria-hidden="true"
 								/>
-								<div className="absolute right-0 top-0 bottom-0 w-full bg-white shadow-xl overflow-y-auto">
+								<div className="fixed inset-y-0 left-0 right-0 w-screen bg-white shadow-xl overflow-y-auto">
 									<div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
 										<span className="font-['Monda'] font-bold text-lg">Filter</span>
 										<button
