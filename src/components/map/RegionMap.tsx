@@ -24,6 +24,10 @@ interface RegionMapProps {
   currentCategory?: string; // 当前页面类别（如 'northwest', 'southwest'），用于初始过滤
   activeRegionId?: string | null; // 当前激活的 region ID（Single Source of Truth）
   onRegionClick?: (regionId: string) => void; // 地图区域点击回调
+  /** Where to go 列表对应的地点标记（lng/lat） */
+  placeMarkers?: { id: string; lng: number; lat: number }[];
+  /** 当前悬停的列表项 id，用于放大/变色 Marker */
+  hoveredPlaceId?: string | null;
 }
 
 export interface RegionMapHandle {
@@ -31,6 +35,15 @@ export interface RegionMapHandle {
   setHoverState: (adcode: string, hover: boolean) => void; // 设置 hover 状态（只在未 selected 时生效）
   clearAllStates: () => void; // 清除所有 selected 和 hover 状态
   flyToRegion: (bounds: [[number, number], [number, number]]) => void; // 相机动画
+  /** 列表悬停：飞到单点（倾斜视角） */
+  flyToPlace: (
+    center: [number, number],
+    options?: { zoom?: number; pitch?: number; bearing?: number; duration?: number }
+  ) => void;
+  /** 鼠标离开列表：恢复当前 category 的全局 fitBounds */
+  resetCategoryView: () => void;
+  /** 清除当前 category 下所有省份的 hover 高亮（不影响 selected） */
+  clearCategoryHover: () => void;
   // 保留旧方法以兼容
   highlightRegion: (id: string | string[]) => void;
   clearRegion: (id: string | string[]) => void;
@@ -136,7 +149,9 @@ const RegionMap = forwardRef<RegionMapHandle, RegionMapProps>(({
   defaultBearing = 0,
   currentCategory,
   activeRegionId,
-  onRegionClick
+  onRegionClick,
+  placeMarkers = [],
+  hoveredPlaceId = null,
 }, ref) => {
   // 添加日志验证 props 变化
   console.log('[RegionMap] Render with activeRegionId:', activeRegionId);
@@ -148,6 +163,8 @@ const RegionMap = forwardRef<RegionMapHandle, RegionMapProps>(({
   const styleReadyRef = useRef(false); // Style 是否完全加载完成
   const sourceReadyRef = useRef(false); // Source 是否加载完成
   const [mapFullyReady, setMapFullyReady] = useState(false); // 真正的 ready state
+  /** GeoJSON 异步加载完成后递增，用于在「style 已就绪但数据曾未到」时补跑 initSourcesAndLayers */
+  const [geoJsonReadyVersion, setGeoJsonReadyVersion] = useState(0);
   const fullyReadySetRef = useRef(false); // 闸门：确保 mapFullyReady 只设置一次
   const styleLoadBoundRef = useRef(false); // 闸门：确保 style.load 监听只注册一次
   const hoveredIdRef = useRef<string | string[] | null>(null);
@@ -159,6 +176,7 @@ const RegionMap = forwardRef<RegionMapHandle, RegionMapProps>(({
   const selectedProvinceIdsRef = useRef<Set<string>>(new Set()); // 当前被选中的省份 ID 集合
   const geojsonDataRef = useRef<any>(null); // 缓存 GeoJSON 数据
   const cameraTimeoutRef = useRef<NodeJS.Timeout | null>(null); // 存储相机动画的 timeout，用于清理
+  const placeMarkerMapRef = useRef<Map<string, { marker: any; element: HTMLDivElement }>>(new Map());
   // const cameraLockRef = useRef<boolean>(false); // 相机锁定：当 sidebar 触发 fitBounds 时锁定，防止其他逻辑覆盖
   // const cameraLockTimeoutRef = useRef<NodeJS.Timeout | null>(null); // 相机锁定的超时定时器
 
@@ -261,6 +279,8 @@ const RegionMap = forwardRef<RegionMapHandle, RegionMapProps>(({
 
   // 加载 GeoJSON 数据
   useEffect(() => {
+    let cancelled = false;
+
     const loadGeoJSON = async () => {
       if (geojsonDataRef.current) return; // 已加载，跳过
 
@@ -360,6 +380,10 @@ const RegionMap = forwardRef<RegionMapHandle, RegionMapProps>(({
           if (boundsCacheCount < geojson.features.length) {
             console.warn(`[RegionMap] ⚠️ Some provinces missing bounds: ${geojson.features.length - boundsCacheCount} failed`);
           }
+
+          if (!cancelled) {
+            setGeoJsonReadyVersion((v) => v + 1);
+          }
         } catch (error) {
           console.error('[RegionMap] Error loading GeoJSON:', error);
         }
@@ -405,11 +429,18 @@ const RegionMap = forwardRef<RegionMapHandle, RegionMapProps>(({
           // 缓存所有省份 ID
           allProvinceIdsRef.current = geoJson.features.map(f => f.properties.adcode).map(String);
           console.log('[RegionMap] Cached province IDs:', allProvinceIdsRef.current);
+
+          if (!cancelled) {
+            setGeoJsonReadyVersion((v) => v + 1);
+          }
         }
       }
     };
 
     loadGeoJSON();
+    return () => {
+      cancelled = true;
+    };
   }, [geojsonUrl, regions]);
 
   // 初始化 Source 和 Layer（集中处理地图结构）
@@ -557,6 +588,15 @@ const RegionMap = forwardRef<RegionMapHandle, RegionMapProps>(({
       }
     });
   };
+
+  // 修复客户端路由进入：style.load 早于 GeoJSON 时 initSourcesAndLayers 会空跑；数据到达后补初始化
+  useEffect(() => {
+    if (geoJsonReadyVersion === 0) return;
+    if (!map.current || !styleReadyRef.current || !geojsonDataRef.current) return;
+    if (map.current.getSource('regions')) return;
+
+    initSourcesAndLayers();
+  }, [geoJsonReadyVersion]);
 
   useImperativeHandle(ref, () => ({
     selectRegion: (regionId: string) => {
@@ -763,6 +803,67 @@ const RegionMap = forwardRef<RegionMapHandle, RegionMapProps>(({
           console.warn('[RegionMap] Error flying to region:', error);
         }
       // });
+    },
+    flyToPlace: (
+      center: [number, number],
+      options?: { zoom?: number; pitch?: number; bearing?: number; duration?: number }
+    ) => {
+      if (!map.current || !mapReadyRef.current || !styleReadyRef.current) return;
+      try {
+        map.current.stop();
+        map.current.flyTo({
+          center,
+          zoom: options?.zoom ?? 7,
+          pitch: options?.pitch ?? 45,
+          bearing: options?.bearing ?? -20,
+          duration: options?.duration ?? 2000,
+          essential: true,
+        });
+      } catch (error) {
+        console.warn('[RegionMap] flyToPlace failed:', error);
+      }
+    },
+    resetCategoryView: () => {
+      if (!map.current || !mapReadyRef.current || !styleReadyRef.current || !currentCategory) return;
+
+      const categoryIds = getCategoryIds(currentCategory).map(String);
+      const categoryBounds = categoryIds
+        .map((id) => regionsDataRef.current.get(String(id))?.bounds)
+        .filter(Boolean) as Array<[[number, number], [number, number]]>;
+
+      const mergedBounds = mergeBounds(categoryBounds);
+
+      if (mergedBounds) {
+        try {
+          map.current.stop();
+          const maxZoom =
+            categoryIds.length <= 1 ? 7 : categoryIds.length <= 3 ? 6.5 : 5.5;
+          map.current.fitBounds(mergedBounds, {
+            padding: { top: 100, bottom: 100, left: 100, right: 100 },
+            duration: 2000,
+            maxZoom,
+            pitch: 0,
+            bearing: 0,
+          });
+        } catch (error) {
+          console.warn('[RegionMap] resetCategoryView fitBounds failed:', error);
+        }
+      }
+    },
+    clearCategoryHover: () => {
+      if (!map.current || !mapReadyRef.current || !styleReadyRef.current || !sourceReadyRef.current) return;
+      if (!currentCategory) return;
+      if (!map.current.getSource('regions')) return;
+
+      const categoryIds = getCategoryIds(currentCategory).map(String);
+      categoryIds.forEach((adcode) => {
+        try {
+          map.current.setFeatureState({ source: 'regions', id: adcode }, { hover: false });
+        } catch {
+          // ignore
+        }
+      });
+      hoveredProvinceIdRef.current = null;
     },
     showOnlyRegion: (id: string | string[]) => {
       if (!map.current || !mapReadyRef.current || !id) return;
@@ -1200,6 +1301,66 @@ const RegionMap = forwardRef<RegionMapHandle, RegionMapProps>(({
       resizeObserver.disconnect();
     };
   }, [mapboxScriptLoaded]); // 当脚本加载后开始监听
+
+  // Where to go：地点 Marker（与列表 hoveredPlaceId 联动样式）
+  useEffect(() => {
+    if (!map.current || !mapFullyReady || typeof window === 'undefined' || !(window as any).mapboxgl) {
+      return;
+    }
+    const mapboxgl = (window as any).mapboxgl;
+
+    placeMarkerMapRef.current.forEach(({ marker }) => {
+      try {
+        marker.remove();
+      } catch {
+        /* ignore */
+      }
+    });
+    placeMarkerMapRef.current.clear();
+
+    if (!placeMarkers?.length) return;
+
+    placeMarkers.forEach((pm) => {
+      const el = document.createElement('div');
+      el.dataset.placeId = pm.id;
+      el.style.borderRadius = '9999px';
+      el.style.border = '2px solid white';
+      el.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.25)';
+      el.style.transition =
+        'transform 0.25s ease, width 0.25s ease, height 0.25s ease, background-color 0.25s ease';
+      el.style.width = '12px';
+      el.style.height = '12px';
+      el.style.backgroundColor = '#c0a273';
+      el.style.transform = 'scale(1)';
+
+      const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
+        .setLngLat([pm.lng, pm.lat])
+        .addTo(map.current);
+
+      placeMarkerMapRef.current.set(pm.id, { marker, element: el });
+    });
+
+    return () => {
+      placeMarkerMapRef.current.forEach(({ marker }) => {
+        try {
+          marker.remove();
+        } catch {
+          /* ignore */
+        }
+      });
+      placeMarkerMapRef.current.clear();
+    };
+  }, [placeMarkers, mapFullyReady]);
+
+  useEffect(() => {
+    placeMarkerMapRef.current.forEach(({ element }, id) => {
+      const hovered = hoveredPlaceId === id;
+      element.style.width = '12px';
+      element.style.height = '12px';
+      element.style.backgroundColor = hovered ? '#ef4444' : '#c0a273';
+      element.style.transform = hovered ? 'scale(1.5)' : 'scale(1)';
+    });
+  }, [hoveredPlaceId]);
 
   return (
     <>

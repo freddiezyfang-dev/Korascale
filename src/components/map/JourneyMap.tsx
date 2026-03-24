@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useMemo } from 'react';
 import Script from 'next/script';
+import { GEOGRAPHY_DATABASE } from '@/lib/geographyDatabase';
 
 type MapMode = 'single-location' | 'multi-stop-route';
 
@@ -48,37 +49,6 @@ const ROUTE_LAYER_ID = 'route';
 const ROUTE_SOURCE_ID = 'route';
 const LEGACY_ROUTE_LAYER_ID = 'multi-day-route';
 const LEGACY_ROUTE_SOURCE_ID = 'multi-day-route';
-const GEOGRAPHY_DATABASE: Record<string, [number, number]> = {
-  // --- 新增缺失点 ---
-  "xi'an": [108.9401, 34.3416],
-  xian: [108.9401, 34.3416],
-  dali: [100.2676, 25.6065],
-  xining: [101.7782, 36.6171],
-  zhangjiajie: [110.4792, 29.1171],
-  fenghuang: [109.6019, 27.9482],
-  suzhou: [120.5853, 31.2990],
-  huangshan: [118.3375, 29.7147],
-  'yellow mountain': [118.3375, 29.7147],
-  hangzhou: [120.1551, 30.2741],
-  huashan: [110.0861, 34.4768],
-  datong: [113.3001, 40.0768],
-  pingyao: [112.1812, 37.1890],
-  jiuzhaigou: [103.9214, 33.2631],
-  huanglong: [103.7846, 32.7388],
-
-  // --- 原有核心点保持不变 ---
-  lhasa: [91.1322, 29.6604],
-  everest: [86.9250, 27.9881],
-  shanghai: [121.4737, 31.2304],
-  beijing: [116.4074, 39.9042],
-  kunming: [102.7122, 25.0406],
-  lijiang: [100.2220, 26.8708],
-  'shangri-la': [99.7065, 27.8231],
-  guilin: [110.2902, 25.2736],
-  yangshuo: [110.4791, 24.7777],
-  namtso: [90.6226, 30.7303],
-  yamdrok: [90.4126, 28.9897],
-};
 
 export default function JourneyMap({ 
   mapId,

@@ -3,12 +3,13 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import Link from "next/link";
-import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/components/common';
+import { Container, Section, Heading, Text, Button, Breadcrumb } from '@/components/common';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import RegionMap, { RegionMapHandle } from '@/components/map/RegionMap';
 import { getRegionMapping, getSidebarDataByCategory, REGION_MAPPING } from '@/lib/regionMapping';
 import PlanningSectionNew from '@/components/sections/PlanningSectionNew';
 import { getRenderableImageUrl } from '@/lib/imageUtils';
+import { getCoordsForPlacePageId } from '@/lib/geographyDatabase';
 
 // 地区映射
 const regionMap: { [key: string]: { name: string; description: string; image: string } } = {
@@ -59,13 +60,18 @@ const regionMap: { [key: string]: { name: string; description: string; image: st
   }
 };
 
-// 区域映射到 category 的转换
+// 区域映射到 category 的转换（子路由与对应大区共用同一套地图 / Where to go 数据）
 const REGION_TO_CATEGORY: { [key: string]: 'southwest' | 'northwest' | 'north' | 'south' | 'east-central' } = {
   'southwest-china': 'southwest',
   'northwest': 'northwest',
   'north': 'north',
   'south': 'south',
-  'east-central': 'east-central'
+  'east-central': 'east-central',
+  // 省/主题子页：与主区共用 RegionMap + sidebar
+  gansu: 'northwest',
+  shaanxi: 'northwest',
+  xinjiang: 'northwest',
+  sichuan: 'southwest',
 };
 
 // 地图配置：每个区域的地图中心点和缩放级别
@@ -89,8 +95,121 @@ const MAP_CONFIG: { [key: string]: { center: [number, number]; zoom: number } } 
   'east-central': {
     center: [118, 32], // 华东地区中心（上海/江苏）
     zoom: 6
+  },
+  gansu: {
+    center: [100.5, 38.5],
+    zoom: 5.5
+  },
+  shaanxi: {
+    center: [108.94, 34.34],
+    zoom: 6
+  },
+  xinjiang: {
+    center: [85.5, 41.0],
+    zoom: 4.5
+  },
+  sichuan: {
+    center: [104.06, 30.57],
+    zoom: 5.5
   }
 };
+
+const REGION_NARRATIVES: Record<string, string> = {
+  'southwest-china':
+    "Southwest China is a realm of impossible verticality and millions of stories, where life scales the prayer-flag-strewn ridges of the Tibetan Plateau and dives into the neon-lit foggy chasms of Chongqing. It begins in the clouds of Lhasa, where pilgrims circumambulate the sacred Potala Palace, and follows the ancient Tea Horse Road into the jade-colored valleys of Yunnan. From the fiery spice of a Chengdu teahouse to the meditative silence of the Meili Snow Mountain, and the timeless cobblestones of Dali and Lijiang, each stop is a story of resilience and wonder, etched into the most dramatic terrain on earth.",
+  northwest:
+    "Northwest China unfolds as a vast corridor of civilizations and frontiers, where caravan routes once stitched together empires across wind-cut deserts and high plateaus. The journey moves through the storied Silk Road Corridor and into the luminous quiet of the Qinghai-Tibet Plateau, then opens toward the sweeping horizons of Xinjiang. In Xi'an, imperial memory and cosmopolitan exchange still pulse through ancient walls and Muslim Quarter lanes, while dunes, oases, and mountain passes carry the echo of merchants, monks, and explorers who crossed these lands for centuries.",
+  north:
+    "North China reveals the architecture of empire and the endurance of frontier cultures, where capitals, grasslands, cave temples, and old merchant towns coexist in one historical continuum. It begins in Beijing's ceremonial heart, expands into the sky-wide Inner Mongolian Grasslands, and follows the loess landscapes and Shanxi heritage routes that once powered caravan trade. Further northeast, forests and winter cities introduce a different rhythm of life, proving that North China is not a single story, but a layered geography of power, memory, and movement.",
+  south:
+    "South China is a region of misted peaks, river towns, subtropical coasts, and living craft traditions, where nature and daily life remain deeply interwoven. From the trading legacy of Canton to the quartzite pillars of Zhangjiajie and the karst poetry of Guilin, every landscape reshapes the pace of travel. In Hakka Fujian, fortified tulou communities and mountain settlements preserve vernacular architecture and collective memory. Together, these places form a southern world of texture and vitality, where cuisine, language, and terrain shift beautifully from one valley to the next.",
+  'east-central':
+    "East & Central China is a meeting ground of classical elegance and modern momentum, where river civilizations, waterborne towns, and global cities share one connected cultural map. The route spans Wuhan's central crossroads, Shanghai's metropolitan edge, and Hangzhou's lyrical lake-and-tea landscapes. It drifts through Water Towns threaded by stone bridges and canals, then rises toward Yellow Mountain and Southern Anhui, where granite peaks and white-walled villages preserve a timeless aesthetic. Here, refinement and reinvention are not opposites, but parallel currents of the same journey.",
+};
+
+const PLACE_LINK_CLASS =
+  'text-white hover:opacity-90 transition-all font-medium';
+
+const REGION_PLACE_LINK_MAP: Record<string, Record<string, string>> = {
+  'southwest-china': {
+    'Tibetan Plateau': '/places/tibetan-plateau',
+    Chongqing: '/places/chongqing-gorges',
+    Lhasa: '/places/tibetan-plateau',
+    Yunnan: '/places/yunnan-guizhou-highlands',
+    Chengdu: '/places/sichuan-basin',
+    'Meili Snow Mountain': '/places/yunnan-guizhou-highlands',
+    Dali: '/places/yunnan-guizhou-highlands',
+    Lijiang: '/places/yunnan-guizhou-highlands',
+  },
+  northwest: {
+    'Silk Road Corridor': '/places/silk-road-corridor',
+    'Qinghai-Tibet Plateau': '/places/qinghai-tibet-plateau',
+    Xinjiang: '/places/xinjiang-oases-deserts',
+    "Xi'an": '/places/xian',
+  },
+  north: {
+    Beijing: '/places/beijing',
+    'Inner Mongolian Grasslands': '/places/inner-mongolian-grasslands',
+    'Shanxi heritage': '/places/loess-shanxi-heritage',
+    forests: '/places/northeastern-forests',
+  },
+  south: {
+    Canton: '/places/canton',
+    Zhangjiajie: '/places/zhangjiajie',
+    Guilin: '/places/guilin',
+    'Hakka Fujian': '/places/hakka-fujian',
+  },
+  'east-central': {
+    Wuhan: '/places/wuhan',
+    Shanghai: '/places/shanghai',
+    Hangzhou: '/places/hangzhou',
+    'Water Towns': '/places/water-towns',
+    'Yellow Mountain': '/places/yellow-mountain-southern-anhui',
+    'Southern Anhui': '/places/yellow-mountain-southern-anhui',
+  },
+};
+
+const CATEGORY_TO_REGION_KEY: Record<string, keyof typeof REGION_NARRATIVES> = {
+  southwest: 'southwest-china',
+  northwest: 'northwest',
+  north: 'north',
+  south: 'south',
+  'east-central': 'east-central',
+};
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function renderDescriptionWithPlaceLinks(text: string, linkMap: Record<string, string>) {
+  const keys = Object.keys(linkMap).sort((a, b) => b.length - a.length);
+  if (keys.length === 0) return text;
+
+  const matcher = new RegExp(`(${keys.map(escapeRegExp).join('|')})`, 'gi');
+  const parts = text.split(matcher);
+
+  return parts.map((part, index) => {
+    const matchedKey = keys.find((key) => key.toLowerCase() === part.toLowerCase());
+    if (!matchedKey) return part;
+
+    return (
+      <Link
+        key={`${matchedKey}-${index}`}
+        href={linkMap[matchedKey]}
+        className={PLACE_LINK_CLASS}
+        style={{
+          color: '#ffffff',
+          textDecorationLine: 'underline',
+          textDecorationColor: '#ffffff',
+          textDecorationThickness: '2px',
+          textUnderlineOffset: '4px',
+        }}
+      >
+        {part}
+      </Link>
+    );
+  });
+}
 
 export default function RegionDestinationsPage() {
   const params = useParams();
@@ -100,13 +219,30 @@ export default function RegionDestinationsPage() {
   const [filteredJourneys, setFilteredJourneys] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeRegionId, setActiveRegionId] = useState<string | null>(null);
+  const [hoveredPlaceId, setHoveredPlaceId] = useState<string | null>(null);
   const mapRef = useRef<RegionMapHandle>(null);
 
   const regionInfo = regionMap[region];
-  const isFullPageRegion = ['southwest-china', 'northwest', 'north', 'south', 'east-central'].includes(region);
+  const isFullPageRegion = [
+    'southwest-china',
+    'northwest',
+    'north',
+    'south',
+    'east-central',
+    'gansu',
+    'shaanxi',
+    'xinjiang',
+    'sichuan',
+  ].includes(region);
   
   // 动态获取当前 category 的 sidebar 数据
   const currentCategory = REGION_TO_CATEGORY[region];
+  const narrativeKey =
+    (region in REGION_NARRATIVES
+      ? (region as keyof typeof REGION_NARRATIVES)
+      : currentCategory
+        ? CATEGORY_TO_REGION_KEY[currentCategory]
+        : undefined) || null;
   
   // 🔍 调试日志：检查 currentCategory 是否正确
   useEffect(() => {
@@ -121,6 +257,17 @@ export default function RegionDestinationsPage() {
     () => (currentCategory ? getSidebarDataByCategory(currentCategory) : []),
     [currentCategory]
   );
+
+  const placeMarkers = useMemo(() => {
+    if (!currentCategory) return [];
+    return currentRegionSidebarData
+      .map((item) => {
+        const coords = getCoordsForPlacePageId(item.id);
+        if (!coords) return null;
+        return { id: item.id, lng: coords[0], lat: coords[1] };
+      })
+      .filter((x): x is { id: string; lng: number; lat: number } => x !== null);
+  }, [currentRegionSidebarData, currentCategory]);
   
   // 🔍 数据一致性检查：验证 sidebar 数据的 id 是否都在 REGION_MAPPING 中
   useEffect(() => {
@@ -155,6 +302,8 @@ export default function RegionDestinationsPage() {
       // 特殊匹配规则
       if (targetRegion === 'sichuan' && journeyRegion?.includes('sichuan')) return true;
       if (targetRegion === 'gansu' && journeyRegion?.includes('gansu')) return true;
+      if (targetRegion === 'shaanxi' && journeyRegion?.includes('shaanxi')) return true;
+      if (targetRegion === 'xinjiang' && journeyRegion?.includes('xinjiang')) return true;
       if (targetRegion === 'southwest-china' && journeyRegion && journeyRegion.includes('southwest')) return true;
       if (targetRegion === 'northwest' && journeyRegion && (journeyRegion.includes('northwest') || journeyRegion.includes('north west'))) return true;
       if (targetRegion === 'north' && journeyRegion && journeyRegion.includes('north') && !journeyRegion.includes('northwest')) return true;
@@ -214,7 +363,7 @@ export default function RegionDestinationsPage() {
   return (
     <main className="min-h-screen bg-white">
       {/* Hero Banner 容器：必须有 overflow-hidden */}
-      <Section background="primary" padding="none" className="relative h-[600px] w-full overflow-hidden">
+      <Section background="primary" padding="none" className="relative h-[70vh] min-h-[620px] w-full overflow-hidden">
         <div 
           className="absolute inset-0 opacity-85 transition-all duration-700"
           style={shouldRotateImage ? {
@@ -268,27 +417,32 @@ export default function RegionDestinationsPage() {
           </div>
           
           {/* Hero Content */}
-          <div className="flex-1 flex items-center px-4">
-            <div className="text-white max-w-4xl">
-              <Heading 
-                level={1} 
-                className="text-5xl md:text-6xl lg:text-7xl font-normal mb-2 tracking-tight" 
-                style={{ 
-                  fontFamily: 'Montserrat, sans-serif',
+          <div className="flex-1 flex items-center px-4 py-24">
+            <div className="w-full text-white grid grid-cols-1 md:grid-cols-2 items-center gap-8 md:gap-12">
+              <div className="flex items-center">
+                <Heading
+                  level={1}
+                  className="text-5xl md:text-6xl lg:text-7xl font-normal tracking-tight font-serif"
+                  style={{
+                    fontFamily: 'var(--font-playfair), Playfair Display, serif',
+                    color: '#FFFFFF'
+                  }}
+                >
+                  {regionInfo.name}
+                </Heading>
+              </div>
+
+              <p
+                className="text-lg md:text-xl lg:text-2xl leading-relaxed font-sans md:col-start-2 max-w-2xl md:pl-12"
+                style={{
+                  fontFamily: 'Monda, sans-serif',
                   color: '#FFFFFF'
                 }}
               >
-                {regionInfo.name}
-              </Heading>
-              
-              <p 
-                className="text-lg md:text-xl lg:text-2xl mt-6 leading-relaxed max-w-2xl" 
-                style={{ 
-                  fontFamily: 'Montagu Slab, serif',
-                  color: '#FFFFFF'
-                }}
-              >
-                {regionInfo.description}
+                {renderDescriptionWithPlaceLinks(
+                  (narrativeKey && REGION_NARRATIVES[narrativeKey]) || regionInfo.description,
+                  (narrativeKey && REGION_PLACE_LINK_MAP[narrativeKey]) || {}
+                )}
               </p>
             </div>
           </div>
@@ -303,34 +457,25 @@ export default function RegionDestinationsPage() {
             <Container size="xl" className="pt-6 pb-4 max-w-3xl mx-auto">
               {/* 四个栏目：等距分布（container 更窄，间距更紧凑） */}
               <nav
-                className="grid grid-cols-4 gap-1 md:gap-2 text-xs sm:text-sm md:text-base text-center"
+                className="grid grid-cols-3 gap-1 md:gap-2 text-center font-sans text-xs uppercase tracking-widest font-medium"
+                style={{ fontFamily: 'Monda, sans-serif' }}
                 aria-label={`${regionInfo.name} subsections`}
               >
                 <a
                   href="#trip-inspiration"
-                  className="uppercase tracking-wide py-1.5 md:py-2 border-b-2 border-transparent hover:border-black transition-colors"
-                  style={{ fontFamily: 'Monda, sans-serif' }}
+                  className="py-1.5 md:py-2 border-b-2 border-transparent hover:border-black transition-colors"
                 >
                   Trip inspiration
                 </a>
                 <a
                   href="#map"
-                  className="uppercase tracking-wide py-1.5 md:py-2 border-b-2 border-transparent hover:border-black transition-colors"
-                  style={{ fontFamily: 'Monda, sans-serif' }}
+                  className="py-1.5 md:py-2 border-b-2 border-transparent hover:border-black transition-colors"
                 >
                   Map
                 </a>
                 <a
-                  href="#why-with-us"
-                  className="uppercase tracking-wide py-1.5 md:py-2 border-b-2 border-transparent hover:border-black transition-colors"
-                  style={{ fontFamily: 'Monda, sans-serif' }}
-                >
-                  Why travel with us
-                </a>
-                <a
                   href="#plan-your-trip"
-                  className="uppercase tracking-wide py-1.5 md:py-2 border-b-2 border-transparent hover:border-black transition-colors"
-                  style={{ fontFamily: 'Monda, sans-serif' }}
+                  className="py-1.5 md:py-2 border-b-2 border-transparent hover:border-black transition-colors"
                 >
                   Plan your trip
                 </a>
@@ -346,84 +491,48 @@ export default function RegionDestinationsPage() {
         id={isFullPageRegion ? 'trip-inspiration' : undefined}
         background="secondary"
         padding="xl"
-        className="py-24"
+        className="pt-10 pb-20 md:pt-12 md:pb-24"
       >
         <Container size="xl">
-          <div className="text-center mb-16">
-            <Heading level={2} className="text-4xl font-heading mb-4">
-              Trip Inspiration
-            </Heading>
-            <Text className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Discover handpicked journeys and ideas for exploring {regionInfo.name}.
-            </Text>
-          </div>
-
-          {/* 三个 Featured Journeys 卡片占位 */}
-          <div className="mb-16 grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* 三个 Featured Journeys 卡片（已移除 Trip Inspiration 标题与描述，整体上移） */}
+          <div className="mb-12 md:mb-16 grid grid-cols-1 md:grid-cols-3 gap-6">
             {filteredJourneys.length > 0 ? (
               // 如果有数据，显示实际的旅程卡片
               filteredJourneys.slice(0, 3).map((journey) => (
-                <Card
+                <Link
                   key={`featured-${journey.id}`}
-                  className="overflow-hidden bg-white shadow-md hover:shadow-xl transition-shadow"
+                  href={`/journeys/${journey.slug || journey.id}`}
+                  className="block h-full"
                 >
-                  <div className="h-56 overflow-hidden">
+                  <div className="relative aspect-[4/5] w-full overflow-hidden group cursor-pointer rounded-sm">
                     <img
                       src={getRenderableImageUrl(journey.image)}
                       alt={journey.title}
-                      className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300"
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
-                  </div>
-                  <div className="p-5 flex flex-col h-full">
-                    <Text
-                      className="text-xs uppercase tracking-[0.2em] mb-2 text-gray-500"
-                      style={{ fontFamily: 'Monda, sans-serif' }}
-                    >
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-85" />
+                    <div className="absolute top-4 right-4 bg-black/70 text-white px-2.5 py-1 text-[10px] tracking-wider uppercase font-medium">
                       Featured Journey
-                    </Text>
-                    <Heading
-                      level={3}
-                      className="text-lg md:text-xl mb-3"
-                      style={{ fontFamily: 'Montaga, serif' }}
-                    >
-                      {journey.title}
-                    </Heading>
-                    <Text className="text-sm text-gray-600 flex-1 mb-4 line-clamp-3">
-                      {journey.shortDescription || journey.description}
-                    </Text>
-                    <Link href={`/journeys/${journey.slug || journey.id}`}>
-                      <Button variant="secondary" className="w-full">
-                        View journey
-                      </Button>
-                    </Link>
+                    </div>
+                    <div className="absolute inset-0 flex flex-col justify-end items-center pb-10 px-6 text-white text-center">
+                      <h3 className="text-3xl md:text-4xl font-heading mb-3 tracking-wide drop-shadow-sm">
+                        {journey.title}
+                      </h3>
+                      <p className="text-sm md:text-base font-light leading-relaxed opacity-90 max-w-[280px] line-clamp-3">
+                        {journey.shortDescription || journey.description}
+                      </p>
+                    </div>
                   </div>
-                </Card>
+                </Link>
               ))
             ) : (
               // 如果没有数据，显示三个占位卡片
               [1, 2, 3].map((index) => (
-                <Card
+                <div
                   key={`placeholder-${index}`}
-                  className="overflow-hidden bg-gray-100 shadow-md"
+                  className="relative aspect-[4/5] w-full overflow-hidden rounded-sm bg-gray-200"
                 >
-                  <div className="h-56 bg-gray-200 flex items-center justify-center">
-                    <Text className="text-gray-400" style={{ fontFamily: 'Monda, sans-serif' }}>
-                      Journey {index}
-                    </Text>
-                  </div>
-                  <div className="p-5 flex flex-col h-full">
-                    <Text
-                      className="text-xs uppercase tracking-[0.2em] mb-2 text-gray-400"
-                      style={{ fontFamily: 'Monda, sans-serif' }}
-                    >
-                      Featured Journey
-                    </Text>
-                    <div className="h-6 bg-gray-200 rounded mb-3"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-4 w-3/4"></div>
-                    <div className="h-10 bg-gray-200 rounded"></div>
-                  </div>
-                </Card>
+                </div>
               ))
             )}
           </div>
@@ -447,6 +556,8 @@ export default function RegionDestinationsPage() {
                       currentCategory={currentCategory}
                       activeRegionId={activeRegionId}
                       onRegionClick={setActiveRegionId}
+                      placeMarkers={placeMarkers}
+                      hoveredPlaceId={hoveredPlaceId}
                     />
                   </div>
                 </div>
@@ -458,7 +569,14 @@ export default function RegionDestinationsPage() {
                       Where to go
                     </Heading>
                     
-                    <div className="space-y-6">
+                    <div
+                      className="space-y-6"
+                      onMouseLeave={() => {
+                        setHoveredPlaceId(null);
+                        mapRef.current?.clearCategoryHover();
+                        mapRef.current?.resetCategoryView();
+                      }}
+                    >
                       {currentRegionSidebarData.map((regionItem) => {
                         // 检查是否是 Tibetan Plateau，如果是则链接到 Place 页面
                         const isTibetanPlateau = regionItem.id === 'tibetan-plateau';
@@ -471,6 +589,16 @@ export default function RegionDestinationsPage() {
                             id={regionItem.id}
                             className="flex gap-4 pb-6 border-b border-gray-200 last:border-b-0 cursor-pointer hover:bg-gray-50 transition-colors scroll-mt-20"
                             onMouseEnter={() => {
+                              setHoveredPlaceId(regionItem.id);
+                              const coords = getCoordsForPlacePageId(regionItem.id);
+                              if (coords && mapRef.current) {
+                                mapRef.current.flyToPlace(coords, {
+                                  zoom: 7,
+                                  pitch: 45,
+                                  bearing: -20,
+                                  duration: 2000,
+                                });
+                              }
                               const mapping = getRegionMapping(regionItem.id);
                               if (mapping && mapRef.current) {
                                 // 只在未 selected 时设置 hover
@@ -479,15 +607,6 @@ export default function RegionDestinationsPage() {
                                     mapRef.current?.setHoverState(adcode, true);
                                   });
                                 }
-                              }
-                            }}
-                            onMouseLeave={() => {
-                              const mapping = getRegionMapping(regionItem.id);
-                              if (mapping && mapRef.current) {
-                                // 清除 hover
-                                mapping.geojsonIds.forEach(adcode => {
-                                  mapRef.current?.setHoverState(adcode, false);
-                                });
                               }
                             }}
                             onClick={() => {
@@ -550,19 +669,6 @@ export default function RegionDestinationsPage() {
                   </div>
                 </div>
               </div>
-            </Container>
-          </Section>
-
-          {/* Why With Us Section */}
-          <Section id="why-with-us" background="primary" padding="xl" className="py-16">
-            <Container size="xl">
-              <Heading level={2} className="text-3xl font-heading mb-4">
-                Why travel with Korascale in {regionInfo.name}
-              </Heading>
-              <Text className="text-lg text-gray-600 max-w-3xl">
-                We combine local expertise, carefully vetted partners, and immersive cultural access to craft journeys
-                across {regionInfo.name} that are safe, seamless and deeply enriching.
-              </Text>
             </Container>
           </Section>
 

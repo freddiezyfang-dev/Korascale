@@ -72,9 +72,9 @@ export default function SplitHeroBanner({
           {content.map((paragraph, index) => (
             <p
               key={index}
-              className="text-[#444] font-serif text-lg leading-relaxed"
+              className="text-[#444] font-sans text-lg leading-relaxed"
               style={{ 
-                fontFamily: 'var(--font-playfair), Playfair Display, serif',
+                fontFamily: 'Inter, var(--font-inter), sans-serif',
                 lineHeight: '1.8'
               }}
             >
