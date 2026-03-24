@@ -123,7 +123,11 @@ export default function ClientArticlePage() {
 
   const cleanContent = (content: string | undefined): string => {
     if (!content) return '';
-    return content.replace(/&shy;|\u00AD/g, '');
+    return content
+      .replace(/&shy;|\u00AD/g, '')
+      .replace(/\u200B/g, '')
+      .replace(/\u200C/g, '')
+      .replace(/\u200D/g, '');
   };
 
   if (isLoading) {
@@ -235,7 +239,7 @@ export default function ClientArticlePage() {
         const isH2 = block.level === 2;
         const headingProps = {
           id: headingId,
-          className: `font-heading text-[#111] mb-6 ${
+          className: `font-heading text-[#111] mb-6 w-full max-w-3xl mx-auto text-left break-words ${
             isH2 ? 'mt-12' : block.level === 1 ? 'mt-0' : 'mt-8'
           } first:mt-0 ${
             block.level === 1
@@ -249,6 +253,9 @@ export default function ClientArticlePage() {
           style: {
             fontFamily: 'Playfair Display, serif',
             scrollMarginTop: '80px',
+            wordBreak: 'normal',
+            overflowWrap: 'break-word',
+            hyphens: 'none',
           } as React.CSSProperties,
         };
 
@@ -275,41 +282,51 @@ export default function ClientArticlePage() {
             return match;
           }
         );
+        const hasInlineWordSplit = /[A-Za-z]\s*<[^>]+>\s*[A-Za-z]/.test(processedText);
+        if (hasInlineWordSplit) {
+          console.warn('[Article] Possible inline tag splits a word in paragraph block:', {
+            blockId: block.id,
+            sample: processedText.slice(0, 220),
+          });
+        }
         return (
-          <div
-            className="prose prose-lg prose-slate max-w-none w-full prose-force-wrap prose-headings:font-serif prose-headings:text-[#111] prose-p:font-sans prose-p:text-[#333] prose-p:leading-[1.8] prose-img:rounded-sm prose-img:w-full mb-6"
-            dangerouslySetInnerHTML={{ __html: processedText }}
-          />
+          <div className="w-full max-w-3xl mx-auto px-6 mb-10">
+            <p
+              className="font-sans text-gray-800 leading-[1.8] text-[16px] md:text-[17.5px] antialiased"
+              style={{
+                textAlign: 'left',
+                wordBreak: 'keep-all',
+                overflowWrap: 'anywhere',
+                hyphens: 'none',
+                textRendering: 'optimizeLegibility',
+                lineBreak: 'anywhere',
+                fontFeatureSettings: '"liga" 0, "clig" 0'
+              } as React.CSSProperties}
+              dangerouslySetInnerHTML={{ __html: processedText }}
+            />
+          </div>
         );
       }
 
       case 'image': {
         if (!block.imageSrc) return null;
-        const isFullBleed = block.imageWidth === 'full-bleed';
         return (
-          <div
-            className={`mb-8 ${
-              isFullBleed
-                ? 'w-full -mx-4 md:-mx-8 lg:-mx-16 max-w-full overflow-hidden'
-                : 'max-w-prose mx-auto w-full'
-            }`}
-          >
-            <img
-              src={block.imageSrc}
-              alt={block.caption || ''}
-              className={`w-full max-w-full h-auto ${
-                isFullBleed ? 'object-cover' : 'object-contain'
-              } rounded-lg`}
-              style={{ maxWidth: '100%', height: 'auto' }}
-            />
-            {block.caption && (
-              <p
-                className="text-sm text-gray-600 mt-2 text-center italic"
-                style={{ fontFamily: 'Montserrat, sans-serif' }}
-              >
-                {block.caption}
-              </p>
-            )}
+          <div className="w-full my-16 flex justify-center">
+            <div className="w-full max-w-md">
+              <img
+                src={block.imageSrc}
+                alt={block.caption || ''}
+                className="block w-full h-auto object-contain rounded-lg shadow-md"
+              />
+              {block.caption && (
+                <p
+                  className="text-sm text-gray-600 mt-3 text-center italic"
+                  style={{ fontFamily: 'Montserrat, sans-serif' }}
+                >
+                  {block.caption}
+                </p>
+              )}
+            </div>
           </div>
         );
       }
@@ -337,7 +354,7 @@ export default function ClientArticlePage() {
             )}
             {block.text && (
               <div
-                className="prose prose-base prose-slate max-w-none w-full prose-force-wrap prose-headings:font-serif prose-headings:text-[#111] prose-p:font-sans prose-p:text-[#333] prose-p:leading-[1.8] prose-img:rounded-sm prose-img:w-full"
+                className="prose prose-slate max-w-none w-full prose-headings:font-serif prose-headings:text-[#111] prose-h2:text-2xl md:prose-h2:text-3xl prose-h3:text-xl md:prose-h3:text-2xl prose-p:font-sans prose-p:text-gray-800 prose-p:leading-relaxed prose-p:text-base md:prose-p:text-[17px] prose-p:mb-8 prose-img:max-w-md prose-img:mx-auto prose-img:rounded-lg prose-img:shadow-md prose-img:mt-16 prose-img:mb-16"
                 dangerouslySetInnerHTML={{ __html: cleanContent(block.text) }}
               />
             )}
@@ -464,6 +481,43 @@ export default function ClientArticlePage() {
           <meta name="description" content={safeArticle.metaDescription} />
         )}
         <style>{`
+          .article-body,
+          .article-body * {
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            hyphens: none !important;
+          }
+          .article-body h1,
+          .article-body h2,
+          .article-body h3,
+          .article-body h4,
+          .article-body h5,
+          .article-body h6,
+          .article-body p {
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            hyphens: none !important;
+          }
+          .article-body p,
+          .article-body div,
+          .article-body span {
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            hyphens: none !important;
+            line-break: strict;
+          }
+          .article-body .prose p,
+          .article-body p {
+            word-break: keep-all !important;
+            word-wrap: normal !important;
+            overflow-wrap: break-word !important;
+            hyphens: none !important;
+            -webkit-hyphens: none !important;
+            font-feature-settings: "liga" 0, "clig" 0 !important;
+          }
+          .article-body p {
+            line-break: anywhere;
+          }
           .article-body a,
           .article-internal-link {
             color: #24332d !important;
@@ -625,10 +679,11 @@ export default function ClientArticlePage() {
         padding="xl"
         className="w-full overflow-hidden"
       >
-        <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6">
+        <div className="w-full max-w-screen-xl mx-auto">
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-            <article className="flex-1 min-w-0 prose-force-wrap w-full lg:max-w-4xl article-body">
-              <div className="prose prose-lg prose-slate w-full max-w-none prose-force-wrap prose-headings:font-serif prose-headings:text-[#111] prose-p:font-sans prose-p:text-[#333] prose-p:leading-[1.8]">
+            <article className="flex-1 min-w-0 w-full article-body">
+              <div className="max-w-4xl mx-auto px-6 md:px-12 py-16">
+                <div className="prose prose-slate w-full max-w-none prose-headings:font-serif prose-headings:text-[#111] prose-h2:text-2xl md:prose-h2:text-3xl prose-h3:text-xl md:prose-h3:text-2xl prose-p:font-sans prose-p:text-gray-800 prose-p:leading-relaxed prose-p:text-base md:prose-p:text-[17px] prose-img:max-w-md prose-img:mx-auto prose-img:rounded-lg prose-img:shadow-md prose-img:mt-10 prose-img:mb-16">
                 {contentBlocks.length > 0 ? (
                   contentBlocks.map((block, index) => (
                     <React.Fragment key={block.id || index}>
@@ -638,62 +693,63 @@ export default function ClientArticlePage() {
                 ) : (
                   safeArticle.content && (
                     <div
-                      className="article-body"
+                      className="article-body prose prose-slate max-w-none prose-headings:font-serif prose-headings:text-[#111] prose-h2:text-2xl md:prose-h2:text-3xl prose-h3:text-xl md:prose-h3:text-2xl prose-p:font-sans prose-p:text-gray-800 prose-p:leading-relaxed prose-p:text-base md:prose-p:text-[17px] prose-img:max-w-md prose-img:mx-auto prose-img:rounded-lg prose-img:shadow-md prose-img:mt-10 prose-img:mb-16"
                       dangerouslySetInnerHTML={{
                         __html: cleanContent(safeArticle.content),
                       }}
                     />
                   )
                 )}
-              </div>
-              {tagList.length > 0 && (
-                <div className="mt-8 pt-6 border-t border-gray-100">
-                  <div className="flex flex-wrap gap-2">
-                    {tagList.map((tag) => {
-                      const label = (tag ?? '').trim();
-                      if (!label) return null;
-                      return (
-                        <span
-                          key={label}
-                          className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-xs text-gray-700 font-sans"
-                          role="listitem"
-                          data-tag={label}
-                          /* 预留：未来可改为 Link 跳转到 /inspirations?tag=... 或分类页 */
-                        >
-                          {label}
-                        </span>
-                      );
-                    })}
-                  </div>
                 </div>
-              )}
-              {faqList.length > 0 && (
-                <div className="mt-10 pt-6 border-t border-gray-100">
-                  <Heading level={3} className="text-xl font-heading mb-4">
-                    Frequently Asked Questions
-                  </Heading>
-                  <div className="space-y-3">
-                    {faqList.map((f, index) => (
-                      <details
-                        key={`${f.question}-${index}`}
-                        className="group border border-gray-200 rounded-lg px-4 py-3 bg-white"
-                      >
-                        <summary className="flex items-center justify-between cursor-pointer list-none">
-                          <h3 className="text-sm md:text-base font-semibold text-gray-900">
-                            {f.question}
-                          </h3>
-                          <span className="ml-3 text-gray-400 group-open:rotate-180 transition-transform">
-                            ˅
+                {tagList.length > 0 && (
+                  <div className="mt-8 pt-6 border-t border-gray-100">
+                    <div className="flex flex-wrap gap-2">
+                      {tagList.map((tag) => {
+                        const label = (tag ?? '').trim();
+                        if (!label) return null;
+                        return (
+                          <span
+                            key={label}
+                            className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-xs text-gray-700 font-sans"
+                            role="listitem"
+                            data-tag={label}
+                            /* 预留：未来可改为 Link 跳转到 /inspirations?tag=... 或分类页 */
+                          >
+                            {label}
                           </span>
-                        </summary>
-                        <div className="mt-2 text-sm text-gray-700 leading-relaxed">
-                          {f.answer}
-                        </div>
-                      </details>
-                    ))}
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+                {faqList.length > 0 && (
+                  <div className="mt-10 pt-6 border-t border-gray-100">
+                    <Heading level={3} className="text-xl font-heading mb-4">
+                      Frequently Asked Questions
+                    </Heading>
+                    <div className="space-y-3">
+                      {faqList.map((f, index) => (
+                        <details
+                          key={`${f.question}-${index}`}
+                          className="group border border-gray-200 rounded-lg px-4 py-3 bg-white"
+                        >
+                          <summary className="flex items-center justify-between cursor-pointer list-none">
+                            <h3 className="text-sm md:text-base font-semibold text-gray-900">
+                              {f.question}
+                            </h3>
+                            <span className="ml-3 text-gray-400 group-open:rotate-180 transition-transform">
+                              ˅
+                            </span>
+                          </summary>
+                          <div className="mt-2 text-sm text-gray-700 leading-relaxed">
+                            {f.answer}
+                          </div>
+                        </details>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </article>
 
             {recommendedItems.length > 0 && (
