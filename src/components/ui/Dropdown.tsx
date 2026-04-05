@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import {
+  ARTICLE_CATEGORIES,
+  ArticleCategoryToSlug,
+  ArticleCategoryToCardTitle,
+} from '@/types/article';
 
 interface DropdownProps {
   trigger: React.ReactNode;
@@ -116,38 +121,19 @@ export function JourneysDropdown() {
 
 export function InspirationsDropdown() {
   return (
-    <div className="bg-white p-[20px] min-w-[220px] shadow-lg border border-gray-300 border-t-0" data-name="Inspirations dropdowns" data-node-id="776:402">
-      <div className="flex flex-col gap-[8px]">
-        <div className="px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group">
-          <p className="text-gray-700 text-[18px] font-subheading leading-normal capitalize group-hover:text-black transition-colors duration-200">
-            Food Journeys
-          </p>
-        </div>
-        <div className="px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group">
-          <p className="text-gray-700 text-[18px] font-subheading leading-normal capitalize group-hover:text-black transition-colors duration-200">
-            The Western Corridor
-          </p>
-        </div>
-        <div className="px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group">
-          <p className="text-gray-700 text-[18px] font-subheading leading-normal capitalize group-hover:text-black transition-colors duration-200">
-            Ancient Chinese Culture
-          </p>
-        </div>
-        <div className="px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group">
-          <p className="text-gray-700 text-[18px] font-subheading leading-normal capitalize group-hover:text-black transition-colors duration-200">
-            Spiritual Retreat
-          </p>
-        </div>
-        <div className="px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group">
-          <p className="text-gray-700 text-[18px] font-subheading leading-normal capitalize group-hover:text-black transition-colors duration-200">
-            Nightscapes
-          </p>
-        </div>
-        <div className="px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group">
-          <p className="text-gray-700 text-[18px] font-subheading leading-normal capitalize group-hover:text-black transition-colors duration-200">
-            Seasonal Highlights
-          </p>
-        </div>
+    <div className="bg-white p-[20px] min-w-[260px] shadow-lg border border-gray-300 border-t-0" data-name="Inspirations dropdowns" data-node-id="776:402">
+      <div className="flex flex-col gap-[4px]">
+        {ARTICLE_CATEGORIES.map((cat) => (
+          <Link
+            key={cat}
+            href={`/inspirations/${ArticleCategoryToSlug[cat]}`}
+            className="block px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group rounded-sm"
+          >
+            <p className="text-gray-800 text-[17px] font-serif leading-snug group-hover:text-black transition-colors duration-200">
+              {ArticleCategoryToCardTitle[cat]}
+            </p>
+          </Link>
+        ))}
       </div>
     </div>
   );

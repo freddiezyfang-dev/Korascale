@@ -498,6 +498,11 @@ input, textarea, select {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
+/* Plan Your Trip 弹窗：左侧自定义图标，需覆盖上面的统一 padding（否则仅 12px 左内边距会与文字重叠） */
+.plan-trip-modal .react-datepicker__input-container input {
+  padding-left: 3rem;
+}
+
 .react-datepicker {
   font-family: var(--font-sans);  /* UI 组件使用无衬线系统字体 */
   border: 1px solid #e5e7eb;

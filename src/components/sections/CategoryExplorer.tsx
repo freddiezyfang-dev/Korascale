@@ -173,6 +173,7 @@ export default function CategoryExplorer({
               ? (typeof journeyItem.price === 'number' ? `$${journeyItem.price}` : journeyItem.price)
               : null;
             const duration = journeyItem?.duration || null;
+            const isInspirationCard = activeCategory === 'inspirations';
 
             return (
               <Link
@@ -187,18 +188,28 @@ export default function CategoryExplorer({
                     style={{ backgroundImage: `url('${getRenderableImageUrl(item.image)}')` }}
                   />
                   
-                  {/* Content - 与 journey filter 格式统一 */}
-                  <div className="p-4 flex flex-col flex-1">
+                  {/* Content - Inspirations：更大衬线标题 + 18px 正文；Journeys 保持原样 */}
+                  <div className={`p-4 flex flex-col flex-1 ${isInspirationCard ? 'md:p-5' : ''}`}>
                     {/* Title */}
                     <h3 
-                      className="text-lg font-heading mb-2 leading-tight flex-shrink-0 font-normal"
-                      style={{ fontWeight: 400 }}
+                      className={
+                        isInspirationCard
+                          ? 'text-2xl font-serif text-[#111] mb-3 leading-snug flex-shrink-0 font-normal'
+                          : 'text-lg font-heading mb-2 leading-tight flex-shrink-0 font-normal'
+                      }
+                      style={!isInspirationCard ? { fontWeight: 400 } : undefined}
                     >
                       {item.title}
                     </h3>
                     
                     {/* Description */}
-                    <Text className="text-sm text-gray-600 mb-3 line-clamp-2 flex-shrink-0">
+                    <Text
+                      className={
+                        isInspirationCard
+                          ? 'text-[17px] md:text-[18px] text-gray-700 leading-[1.7] mb-3 flex-shrink-0 line-clamp-6 max-w-none lg:max-w-xl'
+                          : 'text-sm text-gray-600 mb-3 line-clamp-2 flex-shrink-0'
+                      }
+                    >
                       {item.shortDescription || item.description || ''}
                     </Text>
                     

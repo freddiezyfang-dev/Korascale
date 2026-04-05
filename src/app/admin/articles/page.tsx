@@ -5,7 +5,14 @@ import Link from 'next/link';
 import { Heading, Text, Card, Button, Container, Section } from '@/components/common';
 import { useUser } from '@/context/UserContext';
 import { useArticleManagement } from '@/context/ArticleManagementContext';
-import { Article, ArticleCategory, ArticleCategoryToSlug } from '@/types/article';
+import {
+  Article,
+  ArticleCategory,
+  ArticleCategoryToSlug,
+  ARTICLE_CATEGORIES,
+  articleCategoryOptionLabel,
+  ArticleCategoryToCardTitle,
+} from '@/types/article';
 import { DeleteConfirmationModal } from '@/components/modals/DeleteConfirmationModal';
 import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation';
 import { getRenderableImageUrl } from '@/lib/imageUtils';
@@ -25,14 +32,7 @@ export default function AdminArticlesPage() {
     handleClose 
   } = useDeleteConfirmation();
 
-  const categories: ArticleCategory[] = [
-    'Food Journey',
-    'The Western Corridor',
-    'Ancient Chinese Culture',
-    'Spiritual Retreat',
-    'Vibrant Nightscapes',
-    'Seasonal Highlights'
-  ];
+  const categories = ARTICLE_CATEGORIES;
 
   const handleDeleteArticle = (article: Article) => {
     confirmDelete({
@@ -179,8 +179,10 @@ ${localArticles.length > 0 ? '💾 localStorage 有备份数据' : '💾 localSt
                 onChange={(e) => setCategoryFilter(e.target.value)}
               >
                 <option value="all">全部分类</option>
-                {categories.map(c => (
-                  <option key={c} value={c}>{c}</option>
+                {categories.map((c) => (
+                  <option key={c} value={c}>
+                    {articleCategoryOptionLabel(c)}
+                  </option>
                 ))}
               </select>
               <select
@@ -202,7 +204,10 @@ ${localArticles.length > 0 ? '💾 localStorage 有备份数据' : '💾 localSt
                 <img src={getRenderableImageUrl(article.coverImage)} alt={article.title} className="w-full h-40 object-cover" />
                 <div className="p-4">
                   <div className="flex items-center justify-between mb-1">
-                    <Text className="text-xs text-gray-500">{article.category}</Text>
+                    <Text className="text-xs text-gray-500">
+                      {ArticleCategoryToCardTitle[article.category]}
+                      <span className="text-gray-400"> · {article.category}</span>
+                    </Text>
                     <select
                       className="text-xs border rounded px-2 py-1 bg-white"
                       value={article.status}

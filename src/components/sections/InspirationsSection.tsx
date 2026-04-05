@@ -3,46 +3,19 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Container, Section, Heading, Text } from '@/components/common';
+import {
+  ARTICLE_CATEGORIES,
+  ArticleCategoryToCardTitle,
+  ArticleCategoryToHeroImage,
+  ArticleCategoryToSlug,
+} from '@/types/article';
 
-// 灵感分类数据 - 所有6个分类
-const inspirations = [
-  {
-    id: 1,
-    title: "How to Plan a China Trip: A Logic-First Guide (2026)",
-    image: "/images/inspirations/food-journey.jpg",
-    href: "/inspirations/food-journey"
-  },
-  {
-    id: 2,
-    title: "The Western Corridor",
-    image: "/images/inspirations/great-outdoors.jpeg",
-    href: "/inspirations/the-western-corridor"
-  },
-  {
-    id: 3,
-    title: "Ancient Chinese Culture",
-    image: "/images/inspirations/traditional craft.png",
-    href: "/inspirations/ancient-chinese-culture"
-  },
-  {
-    id: 4,
-    title: "Spiritual Retreat",
-    image: "/images/inspirations/spiritual retreat.webp",
-    href: "/inspirations/spiritual-retreat"
-  },
-  {
-    id: 5,
-    title: "Vibrant Nightscapes",
-    image: "/images/inspirations/nightscapes.jpg",
-    href: "/inspirations/vibrant-nightscapes"
-  },
-  {
-    id: 6,
-    title: "Seasonal Highlights",
-    image: "/images/inspirations/seasonal-highlights.jpg",
-    href: "/inspirations/seasonal-highlights"
-  }
-];
+const inspirations = ARTICLE_CATEGORIES.map((category, index) => ({
+  id: index + 1,
+  title: ArticleCategoryToCardTitle[category],
+  image: ArticleCategoryToHeroImage[category],
+  href: `/inspirations/${ArticleCategoryToSlug[category]}`,
+}));
 
 export default function InspirationsSection() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -110,10 +83,9 @@ export default function InspirationsSection() {
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                 />
                 <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 flex flex-col justify-end p-8 transition-all duration-300">
-                  <Heading 
-                    level={3} 
-                    className="text-4xl font-subheading text-white text-center mb-8 group-hover:text-yellow-300 transition-colors duration-300" 
-                    style={{ color: '#FFFFFF' }}
+                  <Heading
+                    level={3}
+                    className="text-2xl md:text-3xl font-serif text-white text-center mb-8 group-hover:text-yellow-300 transition-colors duration-300 drop-shadow-md"
                   >
                     {inspiration.title}
                   </Heading>

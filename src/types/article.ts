@@ -8,6 +8,16 @@ export type ArticleCategory =
   | 'Vibrant Nightscapes'
   | 'Seasonal Highlights';
 
+/** 后台筛选、表单 value 等固定顺序 */
+export const ARTICLE_CATEGORIES: ArticleCategory[] = [
+  'Food Journey',
+  'The Western Corridor',
+  'Ancient Chinese Culture',
+  'Spiritual Retreat',
+  'Vibrant Nightscapes',
+  'Seasonal Highlights',
+];
+
 // Content Block Types
 export type ContentBlockType = 'heading' | 'paragraph' | 'image' | 'callout' | 'trip_cta';
 
@@ -83,10 +93,43 @@ export const ArticleCategoryToDisplayName: Record<ArticleCategory, string> = {
   'Food Journey': 'How to Plan a China Trip; A Logic-First Guide (2026)',
   'The Western Corridor': 'The Western Corridor',
   'Ancient Chinese Culture': 'Ancient Chinese Culture',
-  'Spiritual Retreat': 'Spiritual Retreat',
+  'Spiritual Retreat': 'Whispers of the Water Towns',
   'Vibrant Nightscapes': 'Vibrant Nightscapes',
-  'Seasonal Highlights': 'Seasonal Highlights'
+  'Seasonal Highlights': "The Alchemist's Kitchen",
 };
+
+/**
+ * 首页 / Inspirations 卡片标题（与库内 category 值可不同；Spiritual / Seasonal 为新版展示名）
+ */
+export const ArticleCategoryToCardTitle: Record<ArticleCategory, string> = {
+  'Food Journey': 'How to Plan a China Trip: A Logic-First Guide (2026)',
+  'The Western Corridor': 'The Western Corridor',
+  'Ancient Chinese Culture': 'Ancient Chinese Culture',
+  'Spiritual Retreat': 'Whispers of the Water Towns',
+  'Vibrant Nightscapes': 'Vibrant Nightscapes',
+  'Seasonal Highlights': "The Alchemist's Kitchen",
+};
+
+/** 首页 CategoryExplorer、Inspirations 落地页等使用的短描述 */
+export const ArticleCategoryToCardDescription: Record<ArticleCategory, string> = {
+  'Food Journey':
+    'Dissect the intricate geography of the Middle Kingdom with our proprietary frameworks. From balancing the high-altitude spiritual pulse of Tibet with the historic depth of the Central Plains, we map your journey with precision, revealing the optimal sequences for true immersion.',
+  'The Western Corridor':
+    'Ascend from the lush, mist-shrouded valleys of Sichuan to the spiritual heart of Tibet. Experience private encounters with giant pandas in Chengdu before tracing pilgrim trails to Lhasa\'s golden-roofed monasteries.',
+  'Ancient Chinese Culture':
+    'Go beyond the museum glass. Engage with national treasure artisans in their private ateliers, from the rhythmic strokes of ancient calligraphy to the intricate firing of Jingdezhen porcelain—preserving the soul of Chinese craftsmanship.',
+  'Spiritual Retreat':
+    'Drift through the timeless canals of Suzhou and Wuzhen. Discover a world of private Ming-style gardens and hidden silk heritage, where the gentle pace of life is dictated by the rhythmic oars of traditional wooden sculls.',
+  'Vibrant Nightscapes':
+    'Watch the horizon ignite from exclusive rooftop perspectives. From the historic Bund of Shanghai to the futuristic skyline of Shenzhen, witness the pulse of modern China as its ancient spirit meets a dazzling, high-tech future.',
+  'Seasonal Highlights':
+    "A sensory odyssey through China's diverse regional flavors. Savor the delicate, seasonal mastery of Cantonese dim sum and the bold, numbing spices of Sichuanese feasts, where ancient recipes are reimagined by master chefs.",
+};
+
+/** 后台下拉：展示名（存储值仍为 ArticleCategory） */
+export function articleCategoryOptionLabel(cat: ArticleCategory): string {
+  return `${ArticleCategoryToCardTitle[cat]} — ${cat}`;
+}
 
 export const ArticleSlugToCategory = (slug: string): ArticleCategory | null => {
   if (slug === 'great-outdoors') return 'The Western Corridor';

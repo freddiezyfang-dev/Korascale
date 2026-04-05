@@ -126,8 +126,8 @@ export default function ExploreTogetherLayout({ journey, onBookingClick }: Explo
             </h1>
             {subtitle && (
               <p
-                className="text-lg md:text-xl text-white/90 max-w-2xl leading-relaxed"
-                style={{ fontFamily: SERIF_FONT, fontWeight: 400 }}
+                className="text-[15px] md:text-[16px] text-white/90 max-w-2xl leading-[1.6]"
+                style={{ fontFamily: SERIF_FONT, fontWeight: 400, letterSpacing: '-0.01em' }}
               >
                 {subtitle}
               </p>
@@ -157,21 +157,21 @@ export default function ExploreTogetherLayout({ journey, onBookingClick }: Explo
 
       {/* 2. Overview & Highlights: 主题绿背景，衬线 Overview 加大行距，Sans 小字 Highlights + Check */}
       <section
-        className="w-full py-12 md:py-16"
+        className="w-full py-10 md:py-12"
         style={{ backgroundColor: THEME_GREEN }}
       >
         <div className={CONTENT_WRAPPER}>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
             <div>
               <h2
-                className="text-xl md:text-2xl text-white mb-4"
+                className="text-xl md:text-2xl text-white mb-3"
                 style={{ fontFamily: SERIF_FONT, fontWeight: 400 }}
               >
                 Overview
               </h2>
               <p
-                className="text-white/95 text-lg md:text-xl leading-[1.75] whitespace-pre-line"
-                style={{ fontFamily: SERIF_FONT, fontWeight: 400 }}
+                className="text-white/95 text-[15px] md:text-[16px] leading-[1.6] whitespace-pre-line"
+                style={{ fontFamily: SERIF_FONT, fontWeight: 400, letterSpacing: '-0.01em' }}
               >
                 {introText}
               </p>
@@ -179,12 +179,12 @@ export default function ExploreTogetherLayout({ journey, onBookingClick }: Explo
             {hasHighlights && (
               <div>
                 <h2
-                  className="text-xl md:text-2xl text-white mb-4"
+                  className="text-xl md:text-2xl text-white mb-3"
                   style={{ fontFamily: SERIF_FONT, fontWeight: 400 }}
                 >
                   Highlights
                 </h2>
-                <ul className="space-y-3 font-sans text-sm text-white/90">
+                <ul className="space-y-2.5 font-sans text-sm text-white/90">
                   {overviewHighlights.map((h, i) => (
                     <li key={`o-${i}`} className="flex items-start gap-3">
                       <span className="flex-shrink-0 w-5 h-5 rounded-full bg-white/20 flex items-center justify-center mt-0.5">
@@ -211,7 +211,7 @@ export default function ExploreTogetherLayout({ journey, onBookingClick }: Explo
 
           {/* 2b. Main Content 大图：固定比例容器，图片填满无留白 */}
           {mainContentImage && (
-            <div className="mt-12 md:mt-16 w-full">
+            <div className="mt-8 md:mt-10 w-full">
               <div className="relative w-full aspect-[21/9] overflow-hidden rounded-sm border border-white/10 shadow-xl">
                 <img
                   src={getRenderableImageUrl(mainContentImage)}
@@ -226,10 +226,10 @@ export default function ExploreTogetherLayout({ journey, onBookingClick }: Explo
 
       {/* 3. Destination Itinerary: 无 Day 标签，轴线 + 节点为目的地名称，左时间+目的地名、右描述+4:3 图 */}
       {itinerary.length > 0 && (
-        <section id="itinerary" className="w-full py-12 md:py-16 bg-[#FAF9F6]">
+        <section id="itinerary" className="w-full py-10 md:py-12 bg-[#FAF9F6]">
           <div className={CONTENT_WRAPPER}>
             <h2
-              className="text-2xl md:text-3xl text-gray-900 mb-12"
+              className="text-2xl md:text-3xl text-gray-900 mb-5"
               style={{ fontFamily: SERIF_FONT, fontWeight: 400 }}
             >
               Destination Itinerary
@@ -247,7 +247,7 @@ export default function ExploreTogetherLayout({ journey, onBookingClick }: Explo
               {itinerary.map((day, index) => (
                 <article
                   key={day.day ?? index}
-                  className="relative flex flex-col lg:flex-row items-start gap-x-6 gap-y-4 py-8 md:py-10 border-b border-gray-200 last:border-b-0"
+                  className="relative flex flex-col lg:flex-row items-start gap-x-6 gap-y-4 py-6 md:py-8 border-b border-gray-200 last:border-b-0"
                 >
                   <div
                     className="absolute w-6 h-6 rounded-full border-2 flex-shrink-0 z-10 top-8 md:top-8 mt-[6px]"
@@ -267,7 +267,10 @@ export default function ExploreTogetherLayout({ journey, onBookingClick }: Explo
                         {day.title}
                       </h3>
                       {day.description && (
-                        <p className="text-gray-600 leading-relaxed whitespace-pre-line text-sm md:text-base">
+                        <p
+                          className="text-gray-600 leading-[1.6] whitespace-pre-line text-[15px] md:text-[16px]"
+                          style={{ letterSpacing: '-0.01em' }}
+                        >
                           {day.description}
                         </p>
                       )}
@@ -294,19 +297,19 @@ export default function ExploreTogetherLayout({ journey, onBookingClick }: Explo
       )}
 
       {/* 4. Booking Section: Standard Inclusions (5/12) + Calendar (7/12)；本区不沿用 Itinerary 边距，使用更大内容宽度 */}
-      <section className="w-full py-12 md:py-16 bg-[#FAF9F6]">
+      <section className="w-full py-10 md:py-12 bg-[#FAF9F6]">
         <div className={BOOKING_SECTION_WRAPPER}>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-stretch">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch">
             {/* 与 Deep Discovery 共用同一套后台勾选数据 (journey.standardInclusions)，无独立录入 */}
             <div className="lg:col-span-5 flex flex-col">
               <h2
-                className="text-2xl md:text-3xl text-gray-900 mb-6"
+                className="text-2xl md:text-3xl text-gray-900 mb-4"
                 style={{ fontFamily: SERIF_FONT, fontWeight: 400 }}
               >
                 Standard Inclusions
               </h2>
               {standardInclusionsList.length > 0 ? (
-                <ul className="space-y-3 font-sans text-sm text-gray-700">
+                <ul className="space-y-2.5 font-sans text-sm text-gray-700">
                   {standardInclusionsList.map((item, idx) => (
                     <li key={idx} className="flex items-start gap-3">
                       <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#2D4033]/15 flex items-center justify-center mt-0.5">

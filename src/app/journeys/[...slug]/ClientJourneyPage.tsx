@@ -1214,23 +1214,23 @@ export default function ClientJourneyPage() {
         }}
         className="w-full bg-[#FAF9F6] overflow-hidden"
       >
-        <div className="w-full px-12 py-24 flex flex-col lg:flex-row items-start justify-between gap-12">
+        <div className="w-full px-12 py-14 lg:py-16 flex flex-col lg:flex-row items-start justify-between gap-8 lg:gap-10">
           <div className="lg:w-[60%] flex flex-col w-full">
-            <div className="space-y-8 prose-force-wrap">
+            <div className="space-y-5 prose-force-wrap">
               <h2
-                className="text-2xl lg:text-3xl text-gray-900 leading-relaxed"
+                className="text-[15px] md:text-[16px] text-gray-900 leading-[1.6] font-normal"
                 style={{
                   fontFamily: 'Playfair Display, serif',
                   fontWeight: 400,
-                  lineHeight: '1.6',
+                  letterSpacing: '-0.01em',
                 }}
               >
                 {currentPageConfig.overview.description}
               </h2>
               {currentJourney.shortDescription && (
                 <p
-                  className="text-xl text-gray-600 font-light leading-relaxed prose-force-wrap"
-                  style={{ lineHeight: '1.6' }}
+                  className="text-[15px] md:text-[16px] text-gray-600 font-light leading-[1.6] prose-force-wrap font-sans"
+                  style={{ letterSpacing: '-0.01em' }}
                 >
                   {currentJourney.shortDescription}
                 </p>
@@ -1242,7 +1242,7 @@ export default function ClientJourneyPage() {
 
               if (highlights.length === 0) {
                 return (
-                  <div className="text-gray-500 text-sm mt-16">
+                  <div className="text-gray-500 text-sm mt-8">
                     No highlights available. Please add highlights in the admin panel.
                   </div>
                 );
@@ -1268,7 +1268,7 @@ export default function ClientJourneyPage() {
               );
 
               return (
-                <div className="grid grid-cols-2 gap-x-12 gap-y-10 mt-16">
+                <div className="grid grid-cols-2 gap-x-10 gap-y-6 mt-8">
                   {highlights.map((highlight, index) => {
                     const title = highlight.title || `Highlight ${index + 1}`;
                     const description = highlight.description || '';
@@ -1283,7 +1283,10 @@ export default function ClientJourneyPage() {
                           {title}
                         </h4>
                         {description && (
-                          <p className="text-sm text-gray-600 leading-normal prose-force-wrap">
+                          <p
+                            className="text-sm text-gray-600 leading-[1.6] prose-force-wrap"
+                            style={{ letterSpacing: '-0.01em' }}
+                          >
                             {description}
                           </p>
                         )}
@@ -1348,16 +1351,16 @@ export default function ClientJourneyPage() {
           className="w-full lg:w-1/2 h-full overflow-y-auto bg-white p-10"
         >
           <div className="w-full">
-            <header className="mb-12">
+            <header className="mb-8">
               <h2
-                className="text-3xl text-stone-900 mb-8"
+                className="text-3xl text-stone-900 mb-4"
                 style={{ fontFamily: 'Montaga, serif', fontWeight: 400 }}
               >
                 Daily Itinerary
               </h2>
             </header>
 
-            <div className="space-y-12">
+            <div className="space-y-8">
               {currentPageConfig.itinerary.map((day, index) => (
                 <div
                   key={index}
@@ -1384,12 +1387,15 @@ export default function ClientJourneyPage() {
                   {day.image && (
                     <img
                       src={getRenderableImageUrl(day.image)}
-                      className="w-full h-64 object-cover rounded-xl mb-6"
+                      className="w-full h-64 object-cover rounded-xl mb-5"
                       alt={day.title || 'Itinerary image'}
                     />
                   )}
 
-                  <p className="text-stone-600 leading-relaxed whitespace-pre-line">
+                  <p
+                    className="text-stone-600 leading-[1.6] whitespace-pre-line text-[15px] md:text-[16px]"
+                    style={{ letterSpacing: '-0.01em' }}
+                  >
                     {day.description}
                   </p>
 

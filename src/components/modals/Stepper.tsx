@@ -9,47 +9,48 @@ interface StepperProps {
   stepLabels: string[];
 }
 
+const brandGreen = 'bg-[#1e3b32]';
+
 export const Stepper: React.FC<StepperProps> = ({
   currentStep,
   totalSteps,
   stepLabels,
 }) => {
   return (
-    <div className="flex items-center justify-center mb-8">
+    <div className="mb-8 flex w-full max-w-xl mx-auto items-center justify-center">
       {Array.from({ length: totalSteps }, (_, index) => {
         const stepNumber = index + 1;
         const isCompleted = stepNumber < currentStep;
         const isCurrent = stepNumber === currentStep;
-        const isUpcoming = stepNumber > currentStep;
 
         return (
           <React.Fragment key={stepNumber}>
-            {/* 步骤圆圈 */}
-            <div className="flex flex-col items-center">
+            {/* 步骤圆圈：relative + z-10，确保数字与连线重叠时在上层 */}
+            <div className="relative z-10 flex shrink-0 flex-col items-center">
               <div
                 className={`
-                  w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors duration-200
+                  relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-medium tabular-nums transition-colors duration-200
                   ${
                     isCompleted
-                      ? 'bg-accent text-white'
+                      ? `${brandGreen} text-white`
                       : isCurrent
-                      ? 'bg-primary text-white'
-                      : 'bg-gray-200 text-gray-500'
+                        ? 'bg-neutral-900 text-white'
+                        : 'bg-gray-200 text-gray-600'
                   }
                 `}
               >
                 {isCompleted ? (
-                  <Check className="w-5 h-5" />
+                  <Check className="h-5 w-5 stroke-[2.5]" aria-hidden />
                 ) : (
-                  stepNumber
+                  <span className="leading-none">{stepNumber}</span>
                 )}
               </div>
               <span
                 className={`
-                  mt-2 text-xs font-medium text-center max-w-20
+                  mt-2 max-w-[5.5rem] text-center text-xs font-medium
                   ${
                     isCompleted || isCurrent
-                      ? 'text-primary'
+                      ? 'text-[#1e3b32]'
                       : 'text-gray-400'
                   }
                 `}
@@ -58,16 +59,12 @@ export const Stepper: React.FC<StepperProps> = ({
               </span>
             </div>
 
-            {/* 连接线 */}
+            {/* 背景连接线：z-0，低于步骤圆 */}
             {stepNumber < totalSteps && (
               <div
                 className={`
-                  flex-1 h-0.5 mx-4 transition-colors duration-200
-                  ${
-                    isCompleted
-                      ? 'bg-accent'
-                      : 'bg-gray-200'
-                  }
+                  relative z-0 mx-2 h-0.5 min-h-[2px] min-w-[0.75rem] flex-1 self-center transition-colors duration-200 sm:mx-4
+                  ${isCompleted ? brandGreen : 'bg-gray-200'}
                 `}
               />
             )}

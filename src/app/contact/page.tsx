@@ -31,20 +31,27 @@ export default function ContactPage() {
 							<div className="space-y-6">
 								<div>
 									<Heading level={3} className="mb-2">Email</Heading>
-									<Text className="text-primary-600">info@korascale.com</Text>
+									<Text className="text-primary-600">
+										<a
+											href="mailto:customer-service@korascale.com"
+											className="underline decoration-primary-600/40 underline-offset-2 hover:opacity-80"
+										>
+											customer-service@korascale.com
+										</a>
+									</Text>
 								</div>
 								
 								<div>
-									<Heading level={3} className="mb-2">Phone</Heading>
-									<Text className="text-primary-600">+86 138 0000 0000</Text>
-								</div>
-								
-								<div>
-									<Heading level={3} className="mb-2">Address</Heading>
-									<Text>
-										Korascale Travel Co.<br />
-										Beijing, China<br />
-										100000
+									<Heading level={3} className="mb-2">WhatsApp</Heading>
+									<Text className="text-primary-600">
+										<a
+											href="https://wa.me/8615556486995"
+											target="_blank"
+											rel="noopener noreferrer"
+											className="underline decoration-primary-600/40 underline-offset-2 hover:opacity-80"
+										>
+											+86 155 5648 6995
+										</a>
 									</Text>
 								</div>
 								

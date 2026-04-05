@@ -4,7 +4,15 @@ import React, { useState } from "react";
 import { useRouter } from 'next/navigation';
 import { Heading, Text, Card, Button, Container, Section } from '@/components/common';
 import { useArticleManagement } from '@/context/ArticleManagementContext';
-import { Article, ArticleCategory, ContentBlock, ContentBlockType, RecommendedItem } from '@/types/article';
+import {
+  Article,
+  ArticleCategory,
+  ARTICLE_CATEGORIES,
+  articleCategoryOptionLabel,
+  ContentBlock,
+  ContentBlockType,
+  RecommendedItem,
+} from '@/types/article';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { uploadAPI } from '@/lib/databaseClient';
 import { Upload } from 'lucide-react';
@@ -16,9 +24,7 @@ export default function NewArticlePage() {
   const { addArticle, articles } = useArticleManagement();
   const { journeys } = useJourneyManagement();
 
-  const categories: ArticleCategory[] = [
-    'Food Journey','The Western Corridor','Ancient Chinese Culture','Spiritual Retreat','Vibrant Nightscapes','Seasonal Highlights'
-  ];
+  const categories = ARTICLE_CATEGORIES;
 
   const [form, setForm] = useState({
     title: '',
@@ -415,7 +421,11 @@ export default function NewArticlePage() {
               <div>
                 <label className="block text-sm text-gray-600 mb-1">分类</label>
                 <select className="w-full border rounded px-3 py-2" value={form.category} onChange={e=>setForm({...form,category:e.target.value as ArticleCategory})}>
-                  {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                  {categories.map((c) => (
+                    <option key={c} value={c}>
+                      {articleCategoryOptionLabel(c)}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>

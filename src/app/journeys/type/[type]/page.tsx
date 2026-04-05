@@ -7,7 +7,12 @@ import { Section, Container, Heading, Text, Breadcrumb, Card, Button } from '@/c
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { useUser } from '@/context/UserContext';
 import { JourneyType, Journey } from '@/types';
+import { JOURNEY_TYPE_CARD_IMAGE } from '@/lib/journeyTypeCardImages';
 import { PlanTripModal } from '@/components/modals/PlanTripModal';
+
+/** 与 RootLayout / globals 一致：衬线 Playfair、正文 Inter */
+const FONT_SERIF = 'var(--font-playfair), "Playfair Display", ui-serif, Georgia, serif';
+const FONT_SANS = 'var(--font-inter), Inter, ui-sans-serif, system-ui, sans-serif';
 
 // Journey Type 到 Slug 的映射
 const JourneyTypeToSlug: Record<JourneyType, string> = {
@@ -25,22 +30,14 @@ const SlugToJourneyType: Record<string, JourneyType> = {
   'group-tours': 'Group Tours'
 };
 
-// Journey Type 到 Hero 图片的映射
-const JourneyTypeToHeroImage: Record<JourneyType, string> = {
-  'Explore Together': '/images/journey-cards/chengdu-deep-dive.jpeg',
-  'Deep Discovery': '/images/journey-cards/jiuzhaigou-valley-multi-color-lake.jpeg',
-  'Signature Journeys': '/images/journey-cards/jiuzhaigou-huanglong-national-park-tour.jpg',
-  'Group Tours': '/images/journey-cards/chongqing-wulong-karst-national-park.jpg'
-};
-
 // Journey Type 的描述
 const JourneyTypeDescriptions: Record<JourneyType, string> = {
   'Explore Together':
-    'Join a curated group of fellow travelers on our 1-2 day highlight tours. Designed for maximum discovery with minimal planning, these journeys offer the perfect introduction to a city or region\'s iconic culture and landscapes. Led by expert guides, it\'s the most vibrant and social way to explore.',
+    'Traveling with KoraScale offers a rhythmic immersion into the soul of the Middle Kingdom, condensing centuries of heritage into transformative 1-2 day journeys. We whisk you beyond the city limits to storied frontiers—from the silent, mist-shrouded quietude of ancient water towns to the jagged, imperial battlements of the Great Wall\'s secret reaches—ensuring every hour is calibrated for profound discovery.\n\nThese are masterclasses in contrast, balancing the monumental scale of dynastic monuments with the intimate "Kora" of a private tea ceremony in a sequestered garden. While you travel in the refined comfort of premium vehicles and dine in hand-picked sanctuaries, the true distinction lies in our navigators—the local historians and cultural insiders who peel back the layers of the landscape to turn a brief escape into the voyage of a lifetime.',
   'Deep Discovery':
-    'Multi-day journeys that dive beneath the surface of local culture, nature, and cuisine.',
+    'To truly understand a destination, one must step beneath the surface. KoraScale\'s Deep Discovery is an immersive masterclass designed to unearth the hidden soul of a region. These are not merely itineraries; they are curated narratives where more time reveals profound truths. From a multi-day culinary pilgrimage into the secret kitchens of Chengdu to a spiritual "Kora" (circumambulation) of Tibet\'s most sacred peaks, every moment is calibrated to peel back the layers of local culture, nature, and ancient heritage. With intimate access and expert storytellers, Deep Discovery transforms observations into unforgettable wisdom.\n\nVenture beyond the landmarks with Deep Discovery. Explore the private archives of a master Naxi papermaker in Lijiang, or gain exclusive access to a team of paleontologists excavating a dinosaur site in the Yunnan badlands. With our navigators at your side, understanding the monumental scale of history and the intimate scale of tradition becomes a journey of transformative insight.',
   'Signature Journeys':
-    'Premium, curated expeditions with elevated service, exclusive access, and unforgettable moments.',
+    'A Signature Journey is KoraScale\'s definitive declaration of travel mastery. These are our most elevated, carefully orchestrated, and amenity-rich itineraries, serving as your flawless blueprint to the world\'s most sensational regions. These journeys are seamless and all-inclusive, featuring private jet connections, sequestered courtyards for dining, and sanctuaries of absolute quietude for rest. The true distinction, however, is the intellect of your navigator—eminent historians, marine biologists, or Egyptologists who do not merely present the facts, but reveal the profound scale of human achievement and natural wonders, ensuring every hour is a moment of unparalleled revelation.\n\nA Signature Journey unlocks the otherwise inaccessible. Travel privately on a traditional sailing boat to the dragon-dwelling shores of Indonesia, guided by a renowned marine biologist. Or, enjoy an after-hours tour of the Forbidden City with a lead curator before a private banquet. With Signature Journeys, KoraScale translates luxury into the definitive, once-in-a-lifetime voyage.',
   'Group Tours':
     'For schools, corporations, institutions, and large private gatherings, our dedicated Group Tours are designed to inspire, engage, and unite. We expertly manage every detail for parties of 30 or more, transforming complex logistics into seamless, impactful journeys—whether for educational discovery, team building, corporate off-sites, or special events. Share a moment of discovery and create lasting bonds.\n\nReady to inspire your group? Contact our Group Travel Specialists to begin crafting your journey.'
 };
@@ -266,8 +263,14 @@ export default function JourneyTypePage() {
     }).slice(0, 3);
   }, [journeys, journeyType]);
 
-  const heroImage = journeyType ? JourneyTypeToHeroImage[journeyType] : '';
+  const heroImage = journeyType ? JOURNEY_TYPE_CARD_IMAGE[journeyType] : '';
   const description = journeyType ? JourneyTypeDescriptions[journeyType] : '';
+  const splitHeroDescriptionParagraphs =
+    journeyType === 'Explore Together' ||
+    journeyType === 'Deep Discovery' ||
+    journeyType === 'Signature Journeys'
+      ? description.split('\n\n').filter(Boolean)
+      : null;
 
   // 早期返回必须在所有 Hooks 之后
   if (!journeyType) {
@@ -301,6 +304,24 @@ export default function JourneyTypePage() {
 
   return (
     <main className="bg-[#f5f1e6]">
+      {/* Explore Together / Deep Discovery / Signature：文案列首字下沉（与纸质杂志导流一致） */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            .journey-type-hero-lead { display: flow-root; }
+            .journey-type-hero-lead::first-letter {
+              font-family: "Playfair Display", ui-serif, Georgia, serif;
+              float: left;
+              font-size: 3.5rem;
+              line-height: 0.78;
+              margin-right: 0.45rem;
+              margin-top: 0.05em;
+              font-weight: 500;
+              color: #111111;
+            }
+          `,
+        }}
+      />
       {/* 1. Hero Banner Section */}
       <Section background="secondary" padding="none" className="relative overflow-hidden">
         {isGroupTours ? (
@@ -325,7 +346,7 @@ export default function JourneyTypePage() {
                 <Heading
                   level={1}
                   className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl leading-tight"
-                  style={{ fontFamily: 'Montaga, serif', color: '#000000', fontWeight: 400 }}
+                  style={{ fontFamily: FONT_SERIF, color: '#000000', fontWeight: 400 }}
                 >
                   The Korascale Partnership: A Clear Path to Extraordinary Groups
                 </Heading>
@@ -346,7 +367,7 @@ export default function JourneyTypePage() {
                   level={1}
                   className="text-8xl lg:text-8xl md:text-6xl text-4xl mb-6 font-heading text-white drop-shadow-lg"
                   style={{
-                    fontFamily: 'Montaga, serif',
+                    fontFamily: FONT_SERIF,
                     fontWeight: 400,
                     letterSpacing: '-0.025em',
                     lineHeight: '1.1',
@@ -363,8 +384,8 @@ export default function JourneyTypePage() {
               className="w-1/2 h-[800px] flex flex-col flex-shrink-0 md:w-1/2 w-full"
               style={{ backgroundColor: '#f5f1e6' }}
             >
-              {/* 面包屑导航 - 靠左置顶，文字不加粗 */}
-              <div className="px-6 py-2 lg:px-6 md:px-4 px-3">
+              {/* 面包屑 */}
+              <div className="shrink-0 px-6 pt-8 pb-3 md:px-8 md:pt-10 md:pb-3 lg:px-10">
                 <Breadcrumb
                   items={[
                     { label: 'Home', href: '/' },
@@ -377,21 +398,31 @@ export default function JourneyTypePage() {
                 />
               </div>
 
-              {/* 描述区域 - 左对齐 */}
-              <div className="px-6 pt-32 flex-1 lg:px-6 lg:pt-32 md:px-4 md:pt-24 px-3 pt-16">
-                <Text
-                  size="xl"
-                  className="text-black leading-relaxed font-body"
-                  style={{
-                    fontFamily: 'Monda, sans-serif',
-                    fontSize: '1.25rem',
-                    lineHeight: '1.625',
-                    letterSpacing: '0em',
-                    fontWeight: 400
-                  }}
-                >
-                  {description}
-                </Text>
+              {/* 文案列（图左文右）：max 850px、首段 xl + 首字下沉、正文 md 18px、行高 1.7、字重 450 */}
+              <div className="flex-1 min-h-0 overflow-y-auto w-full max-w-[850px] px-6 py-8 md:px-8 md:py-10 lg:px-10 lg:py-12">
+                {splitHeroDescriptionParagraphs && splitHeroDescriptionParagraphs.length >= 2 ? (
+                  <>
+                    <p
+                      className="journey-type-hero-lead mb-10 text-[#333] text-xl leading-[1.7] font-[450] font-serif"
+                      style={{ fontFamily: FONT_SERIF }}
+                    >
+                      {splitHeroDescriptionParagraphs[0]}
+                    </p>
+                    <p
+                      className="mb-8 text-[#333] text-[16px] md:text-[18px] leading-[1.7] font-[450] font-sans"
+                      style={{ fontFamily: FONT_SANS }}
+                    >
+                      {splitHeroDescriptionParagraphs[1]}
+                    </p>
+                  </>
+                ) : (
+                  <p
+                    className="text-[#333] text-[16px] md:text-[18px] leading-[1.7] font-[450] font-sans whitespace-pre-line"
+                    style={{ fontFamily: FONT_SANS }}
+                  >
+                    {description}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -412,14 +443,14 @@ export default function JourneyTypePage() {
                 <Heading
                   level={2}
                   className="text-2xl sm:text-3xl lg:text-4xl mb-4"
-                  style={{ fontFamily: 'Montaga, serif', color: '#000000', fontWeight: 400 }}
+                  style={{ fontFamily: FONT_SERIF, color: '#000000', fontWeight: 400 }}
                 >
                   How to travel with Korascale
                 </Heading>
                 <Text
                   className="text-base sm:text-lg"
                   style={{
-                    fontFamily: 'Monda, sans-serif',
+                    fontFamily: FONT_SANS,
                     color: '#000000',
                     fontWeight: 400
                   }}
@@ -470,7 +501,7 @@ export default function JourneyTypePage() {
                                     : 'text-white text-3xl'
                                   }
                                 `}
-                                style={{ fontFamily: 'Monda, sans-serif', fontWeight: 600 }}
+                                style={{ fontFamily: FONT_SANS, fontWeight: 600 }}
                               >
                                 {path.number}
                               </div>
@@ -484,13 +515,13 @@ export default function JourneyTypePage() {
                             <Heading
                               level={3}
                               className="text-lg mb-3"
-                              style={{ fontFamily: 'Montaga, serif', color: '#000000', fontWeight: 400 }}
+                              style={{ fontFamily: FONT_SERIF, color: '#000000', fontWeight: 400 }}
                             >
                               {path.title}
                             </Heading>
                             <Text
                               className="text-sm leading-relaxed"
-                              style={{ fontFamily: 'Monda, sans-serif', color: '#000000', fontWeight: 400 }}
+                              style={{ fontFamily: FONT_SANS, color: '#000000', fontWeight: 400 }}
                             >
                               {path.description}
                             </Text>
@@ -540,7 +571,7 @@ export default function JourneyTypePage() {
                     <div className="p-4 bg-white">
                       <Text
                         className="text-sm font-medium text-center"
-                        style={{ fontFamily: 'Monda, sans-serif', color: '#000000' }}
+                        style={{ fontFamily: FONT_SANS, color: '#000000' }}
                       >
                         {brochure.title}
                       </Text>
@@ -552,20 +583,20 @@ export default function JourneyTypePage() {
           ) : (
             // 其他类型: 显示 Recommended Journeys，有标题和副标题
             <>
-              <div className="text-center mb-10">
-                <Text className="text-sm uppercase tracking-wide mb-2" style={{ fontFamily: 'Monda, sans-serif' }}>
+              <div className="text-center mb-5">
+                <Text className="text-sm uppercase tracking-wide mb-1" style={{ fontFamily: FONT_SANS }}>
                   Recommended Journeys
                 </Text>
                 <Heading
                   level={2}
                   className="text-2xl sm:text-3xl lg:text-4xl"
-                  style={{ fontFamily: 'Montaga, serif' }}
+                  style={{ fontFamily: FONT_SERIF }}
                 >
                   Our Favorite Adventures in {journeyType} Right Now
                 </Heading>
               </div>
 
-              <div className="space-y-8">
+              <div className="space-y-5">
             {recommendedJourneys.map((journey: Journey) => {
               // 获取 overview 描述，优先使用 overview.description，否则使用 description
               const overviewText = ('overview' in journey && journey.overview && typeof journey.overview === 'object' && 'description' in journey.overview)
@@ -610,14 +641,14 @@ export default function JourneyTypePage() {
                       <Heading
                         level={3}
                         className="text-lg sm:text-xl mb-3 font-normal line-clamp-2"
-                        style={{ fontFamily: 'Montaga, serif', fontWeight: 400 }}
+                        style={{ fontFamily: FONT_SERIF, fontWeight: 400 }}
                       >
                         {journey.title}
                       </Heading>
                       {/* Overview 描述 - 超过内容用省略号 */}
                       <Text
                         className="text-sm sm:text-base leading-relaxed line-clamp-4"
-                        style={{ fontFamily: 'Monda, sans-serif', color: '#333333' }}
+                        style={{ fontFamily: FONT_SANS, color: '#333333' }}
                       >
                         {overviewText || ''}
                       </Text>
@@ -627,7 +658,7 @@ export default function JourneyTypePage() {
                       {/* 价格 */}
                       <Text
                         className="text-base sm:text-lg font-medium"
-                        style={{ fontFamily: 'Monda, sans-serif', color: '#000000' }}
+                        style={{ fontFamily: FONT_SANS, color: '#000000' }}
                       >
                         {price !== 'N/A' ? `Priced from ${price}` : ''}
                       </Text>
@@ -635,7 +666,7 @@ export default function JourneyTypePage() {
                       <Link
                         href={journeySlug}
                         className="bg-black text-white px-6 py-2 text-sm font-medium hover:bg-gray-800 transition-colors whitespace-nowrap"
-                        style={{ fontFamily: 'Monda, sans-serif', color: '#FFFFFF' }}
+                        style={{ fontFamily: FONT_SANS, color: '#FFFFFF' }}
                       >
                         View Journey
                       </Link>
@@ -653,20 +684,20 @@ export default function JourneyTypePage() {
       {/* 4. Journey Filter + Grid Section - Group Tours 不显示 */}
       {!isGroupTours && (
       <Section background="secondary" padding="none" className="pb-16 bg-[#f5f1e6]">
-        <Container size="full" padding="none" className="px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-16">
+        <Container size="full" padding="none" className="px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-12">
           <div className="flex gap-8">
             {/* Filter Sidebar - 左侧栏 */}
             <div className="w-80 flex-shrink-0">
               <div className="bg-white rounded-lg p-6 shadow-lg">
-                <h3 className="text-2xl font-['Monda'] font-bold mb-6">Filter</h3>
+                <h3 className="text-2xl font-sans font-bold mb-4">Filter</h3>
                 
                 {/* Journey Type Filter */}
-                <div className="mb-8">
+                <div className="mb-5">
                   <div 
-                    className="flex items-center justify-between cursor-pointer mb-4"
+                    className="flex items-center justify-between cursor-pointer mb-3"
                     onClick={() => setIsJourneyTypeOpen(v => !v)}
                   >
-                    <h4 className="text-base font-['Monda'] font-bold">JOURNEY TYPE</h4>
+                    <h4 className="text-base font-sans font-bold">JOURNEY TYPE</h4>
                     <span className="text-sm transition-transform duration-200">{isJourneyTypeOpen ? '▼' : '▶'}</span>
                   </div>
                   {isJourneyTypeOpen && (
@@ -674,7 +705,7 @@ export default function JourneyTypePage() {
                       {['All', 'Explore Together', 'Deep Discovery', 'Signature Journeys', 'Group Tours'].map((type) => (
                         <button
                           key={type}
-                          className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
+                          className={`px-3 py-2 border border-black rounded text-sm font-sans hover:bg-gray-100 ${
                             selectedJourneyType === type ? 'bg-gray-200' : 'bg-white'
                           }`}
                           style={{
@@ -691,12 +722,12 @@ export default function JourneyTypePage() {
                 </div>
                 
                 {/* Regions Filter */}
-                <div className="mb-8">
+                <div className="mb-5">
                   <div 
-                    className="flex items-center justify-between cursor-pointer mb-4"
+                    className="flex items-center justify-between cursor-pointer mb-3"
                     onClick={() => setIsRegionOpen(v => !v)}
                   >
-                    <h4 className="text-base font-['Monda'] font-bold">REGIONS</h4>
+                    <h4 className="text-base font-sans font-bold">REGIONS</h4>
                     <span className="text-sm transition-transform duration-200">{isRegionOpen ? '▼' : '▶'}</span>
                   </div>
                   {isRegionOpen && (
@@ -704,7 +735,7 @@ export default function JourneyTypePage() {
                       {regionOptions.map((region) => (
                         <button
                           key={region}
-                          className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
+                          className={`px-3 py-2 border border-black rounded text-sm font-sans hover:bg-gray-100 ${
                             selectedRegion === region ? 'bg-gray-200' : 'bg-white'
                           }`}
                           style={{
@@ -721,12 +752,12 @@ export default function JourneyTypePage() {
                 </div>
 
                 {/* Places Filter */}
-                <div className="mb-8">
+                <div className="mb-5">
                   <div 
-                    className="flex items-center justify-between cursor-pointer mb-4"
+                    className="flex items-center justify-between cursor-pointer mb-3"
                     onClick={() => setIsPlaceOpen(v => !v)}
                   >
-                    <h4 className="text-base font-['Monda'] font-bold">PLACES</h4>
+                    <h4 className="text-base font-sans font-bold">PLACES</h4>
                     <span className="text-sm transition-transform duration-200">{isPlaceOpen ? '▼' : '▶'}</span>
                   </div>
                   {isPlaceOpen && (
@@ -734,7 +765,7 @@ export default function JourneyTypePage() {
                       {placeOptions.map((place) => (
                         <button
                           key={place}
-                          className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
+                          className={`px-3 py-2 border border-black rounded text-sm font-sans hover:bg-gray-100 ${
                             selectedPlace === place ? 'bg-gray-200' : 'bg-white'
                           }`}
                           style={{
@@ -751,12 +782,12 @@ export default function JourneyTypePage() {
                 </div>
 
                 {/* Interests Filter - 对应 Journey.category */}
-                <div className="mb-8">
+                <div className="mb-5">
                   <div 
-                    className="flex items-center justify-between cursor-pointer mb-4"
+                    className="flex items-center justify-between cursor-pointer mb-3"
                     onClick={() => setIsInterestOpen(v => !v)}
                   >
-                    <h4 className="text-base font-['Monda'] font-bold">INTERESTS</h4>
+                    <h4 className="text-base font-sans font-bold">INTERESTS</h4>
                     <span className="text-sm transition-transform duration-200">{isInterestOpen ? '▼' : '▶'}</span>
                   </div>
                     {isInterestOpen && (
@@ -764,7 +795,7 @@ export default function JourneyTypePage() {
                       {['All', 'Nature', 'Culture', 'History', 'City', 'Cruises'].map((interest) => (
                         <button
                           key={interest}
-                          className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
+                          className={`px-3 py-2 border border-black rounded text-sm font-sans hover:bg-gray-100 ${
                             selectedInterest === interest ? 'bg-gray-200' : 'bg-white'
                           }`}
                           style={{
@@ -781,12 +812,12 @@ export default function JourneyTypePage() {
                 </div>
 
                 {/* Duration Filter */}
-                <div className="mb-8">
+                <div className="mb-5">
                   <div 
-                    className="flex items-center justify-between cursor-pointer mb-4"
+                    className="flex items-center justify-between cursor-pointer mb-3"
                     onClick={() => setIsDurationOpen(v => !v)}
                   >
-                    <h4 className="text-base font-['Monda'] font-bold">DURATION</h4>
+                    <h4 className="text-base font-sans font-bold">DURATION</h4>
                     <span className="text-sm transition-transform duration-200">{isDurationOpen ? '▼' : '▶'}</span>
                   </div>
                   {isDurationOpen && (
@@ -794,7 +825,7 @@ export default function JourneyTypePage() {
                       {['All', '1 Day', '2 Days', '3 Days', '4 Days'].map((duration) => (
                         <button
                           key={duration}
-                          className={`px-3 py-2 border border-black rounded text-sm font-['Monda'] hover:bg-gray-100 ${
+                          className={`px-3 py-2 border border-black rounded text-sm font-sans hover:bg-gray-100 ${
                             selectedDuration === duration ? 'bg-gray-200' : 'bg-white'
                           }`}
                           style={{
@@ -814,10 +845,10 @@ export default function JourneyTypePage() {
 
             {/* Results Section - 右侧结果区域 */}
             <div className="flex-1">
-              <h2 className="text-3xl font-['Montaga'] mb-8">See Where We Can Take You</h2>
+              <h2 className="text-3xl font-serif mb-4">See Where We Can Take You</h2>
               
               {/* Search Bar */}
-              <div className="mb-8">
+              <div className="mb-5">
                 <input
                   type="text"
                   placeholder="Search journeys..."
@@ -870,7 +901,7 @@ export default function JourneyTypePage() {
                     />
                           <div className="p-4 flex flex-col flex-1">
                             <h3 
-                              className="text-lg font-['Montaga'] mb-2 leading-tight flex-shrink-0 font-normal"
+                              className="text-lg font-serif mb-2 leading-tight flex-shrink-0 font-normal"
                               style={{ fontWeight: 400 }}
                             >
                         {journey.title}
@@ -884,14 +915,14 @@ export default function JourneyTypePage() {
                               {/* 第一行：Duration 和 Max Guests */}
                               <Text
                                 className="text-sm mb-1"
-                                style={{ fontFamily: 'Monda, sans-serif', color: '#000000', fontWeight: 400, fontSize: '0.875rem' }}
+                                style={{ fontFamily: FONT_SANS, color: '#000000', fontWeight: 400, fontSize: '0.875rem' }}
                               >
                                 {journey.duration || 'N/A'}{maxGuests ? ` • Limited to ${maxGuests} guests` : ''}
                       </Text>
                               {/* 第二行：价格 */}
                               <Text
                                 className="text-sm"
-                                style={{ fontFamily: 'Monda, sans-serif', color: '#000000', fontWeight: 400, fontSize: '0.875rem' }}
+                                style={{ fontFamily: FONT_SANS, color: '#000000', fontWeight: 400, fontSize: '0.875rem' }}
                               >
                                 {price !== 'N/A' ? `Priced from ${price}` : ''}
                               </Text>
@@ -920,13 +951,13 @@ export default function JourneyTypePage() {
             <Heading
               level={2}
               className="text-2xl sm:text-3xl mb-4"
-              style={{ color: '#FFFFFF', fontFamily: 'Montaga, serif' }}
+              style={{ color: '#FFFFFF', fontFamily: FONT_SERIF }}
             >
               Plan your journey in China with Korascale
             </Heading>
             <Text
               className="text-sm sm:text-base"
-              style={{ color: '#FFFFFF', fontFamily: 'Monda, sans-serif' }}
+              style={{ color: '#FFFFFF', fontFamily: FONT_SANS }}
             >
               Tell us what you are looking for and our team will craft a tailored itinerary that matches your
               interests, timing and budget.

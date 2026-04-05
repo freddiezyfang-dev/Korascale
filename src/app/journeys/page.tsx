@@ -6,6 +6,7 @@ import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/c
 import { PlanTripModal } from '@/components/modals/PlanTripModal';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import type { JourneyType } from '@/types';
+import { JOURNEY_TYPE_CARD_IMAGE } from '@/lib/journeyTypeCardImages';
 
 // 使用本地图片资源
 const imgHeroBanner = "/images/hero/slide5-chongqing.jpg";
@@ -316,7 +317,7 @@ export default function JourneysPage() {
 						>
 							<div className="relative h-[280px] md:h-[320px] lg:h-[357px] rounded-lg overflow-hidden mb-6">
 								<img
-									src={imgJourney1}
+									src={JOURNEY_TYPE_CARD_IMAGE['Explore Together']}
 									alt="Explore Together"
 									className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
 								/>
@@ -345,7 +346,7 @@ export default function JourneysPage() {
 						>
 							<div className="relative h-[280px] md:h-[320px] lg:h-[357px] rounded-lg overflow-hidden mb-6">
 								<img
-									src={imgJourney4}
+									src={JOURNEY_TYPE_CARD_IMAGE['Deep Discovery']}
 									alt="Deep Discovery"
 									className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
 								/>
@@ -374,7 +375,7 @@ export default function JourneysPage() {
 						>
 							<div className="relative h-[280px] md:h-[320px] lg:h-[357px] rounded-lg overflow-hidden mb-6">
 								<img
-									src={imgJourney5}
+									src={JOURNEY_TYPE_CARD_IMAGE['Signature Journeys']}
 									alt="Signature Journeys"
 									className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
 								/>
@@ -403,7 +404,7 @@ export default function JourneysPage() {
 						>
 							<div className="relative h-[280px] md:h-[320px] lg:h-[357px] rounded-lg overflow-hidden mb-6">
 								<img
-									src={imgJourney7 || imgJourney1}
+									src={JOURNEY_TYPE_CARD_IMAGE['Group Tours']}
 									alt="Group Tours"
 									className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
 								/>

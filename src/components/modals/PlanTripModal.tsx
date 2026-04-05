@@ -6,7 +6,7 @@ import { Button, Heading, Text } from '@/components/common';
 import { Stepper } from './Stepper';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { Calendar, MapPin, User, Mail, Phone, MessageSquare } from 'lucide-react';
+import { Calendar, Clock, MapPin, User, Mail, Phone, MessageSquare } from 'lucide-react';
 
 interface PlanTripModalProps {
   isOpen: boolean;
@@ -203,7 +203,7 @@ export const PlanTripModal: React.FC<PlanTripModalProps> = ({
       
       {/* 模态框内容 */}
       <div className="flex min-h-full items-center justify-center p-4 relative z-10">
-        <div className="relative w-full max-w-2xl bg-white/95 backdrop-blur-sm rounded-lg shadow-xl border border-white/20">
+        <div className="plan-trip-modal relative w-full max-w-2xl bg-white/95 backdrop-blur-sm rounded-lg shadow-xl border border-white/20">
           {/* 头部 */}
           {currentStep !== 'success' && (
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
@@ -258,10 +258,13 @@ export const PlanTripModal: React.FC<PlanTripModalProps> = ({
                         }}
                         minDate={new Date()}
                         dateFormat="yyyy-MM-dd"
-                        className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="relative z-0 w-full rounded-md border border-gray-200 py-2 pl-12 pr-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#1e3b32] focus:outline-none focus:ring-1 focus:ring-[#1e3b32]"
                         placeholderText="Select departure date"
                       />
-                      <Calendar className="absolute left-3 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
+                      <Calendar
+                        className="pointer-events-none absolute left-3 top-1/2 z-[2] h-4 w-4 -translate-y-1/2 text-gray-400"
+                        aria-hidden
+                      />
                     </div>
                     {errors.departureDate && (
                       <Text size="xs" className="text-red-500 mt-1">
@@ -284,8 +287,12 @@ export const PlanTripModal: React.FC<PlanTripModalProps> = ({
                           setPlanTripData(prev => ({ ...prev, tripDuration: value }));
                           setErrors(prev => ({ ...prev, tripDuration: undefined }));
                         }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="relative z-0 w-full rounded-md border border-gray-200 py-2 pl-12 pr-10 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#1e3b32] focus:outline-none focus:ring-1 focus:ring-[#1e3b32]"
                         placeholder="Enter days"
+                      />
+                      <Clock
+                        className="pointer-events-none absolute left-3 top-1/2 z-[2] h-4 w-4 -translate-y-1/2 text-gray-400"
+                        aria-hidden
                       />
                     </div>
                     {errors.tripDuration && (
@@ -325,7 +332,6 @@ export const PlanTripModal: React.FC<PlanTripModalProps> = ({
                     Desired Cities or Attractions *
                   </label>
                   <div className="relative">
-                    <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
                     <textarea
                       value={planTripData.destinations}
                       onChange={(e) => {
@@ -333,9 +339,10 @@ export const PlanTripModal: React.FC<PlanTripModalProps> = ({
                         setErrors(prev => ({ ...prev, destinations: undefined }));
                       }}
                       rows={6}
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                      className="relative z-0 w-full resize-none rounded-md border border-gray-200 py-2 pl-10 pr-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#1e3b32] focus:outline-none focus:ring-1 focus:ring-[#1e3b32]"
                       placeholder="e.g., Beijing, Shanghai, Xi'an, Jiuzhaigou, etc."
                     />
+                    <MapPin className="pointer-events-none absolute left-3 top-3 z-[2] h-4 w-4 text-gray-400" aria-hidden />
                   </div>
                   {errors.destinations && (
                     <Text size="xs" className="text-red-500 mt-1">
@@ -382,7 +389,6 @@ export const PlanTripModal: React.FC<PlanTripModalProps> = ({
                       Full Name *
                     </label>
                     <div className="relative">
-                      <User className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
                       <input
                         type="text"
                         value={planTripData.customerInfo.fullName}
@@ -396,11 +402,14 @@ export const PlanTripModal: React.FC<PlanTripModalProps> = ({
                             customerInfo: { ...prev.customerInfo, fullName: undefined }
                           }));
                         }}
-                        className={`w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
-                          errors.customerInfo?.fullName ? 'border-red-300' : 'border-gray-300'
+                        className={`relative z-0 w-full rounded-md py-2 pl-10 pr-3 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#1e3b32] ${
+                          errors.customerInfo?.fullName
+                            ? 'border border-red-300 focus:border-red-500 focus:ring-red-500'
+                            : 'border border-gray-200 focus:border-[#1e3b32]'
                         }`}
                         placeholder="Enter your full name"
                       />
+                      <User className="pointer-events-none absolute left-3 top-1/2 z-[2] h-4 w-4 -translate-y-1/2 text-gray-400" aria-hidden />
                     </div>
                     {errors.customerInfo?.fullName && (
                       <Text size="xs" className="text-red-500 mt-1">
@@ -415,7 +424,6 @@ export const PlanTripModal: React.FC<PlanTripModalProps> = ({
                       Email Address *
                     </label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
                       <input
                         type="email"
                         value={planTripData.customerInfo.email}
@@ -429,11 +437,14 @@ export const PlanTripModal: React.FC<PlanTripModalProps> = ({
                             customerInfo: { ...prev.customerInfo, email: undefined }
                           }));
                         }}
-                        className={`w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
-                          errors.customerInfo?.email ? 'border-red-300' : 'border-gray-300'
+                        className={`relative z-0 w-full rounded-md py-2 pl-10 pr-3 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#1e3b32] ${
+                          errors.customerInfo?.email
+                            ? 'border border-red-300 focus:border-red-500 focus:ring-red-500'
+                            : 'border border-gray-200 focus:border-[#1e3b32]'
                         }`}
                         placeholder="Enter your email address"
                       />
+                      <Mail className="pointer-events-none absolute left-3 top-1/2 z-[2] h-4 w-4 -translate-y-1/2 text-gray-400" aria-hidden />
                     </div>
                     {errors.customerInfo?.email && (
                       <Text size="xs" className="text-red-500 mt-1">
@@ -448,7 +459,6 @@ export const PlanTripModal: React.FC<PlanTripModalProps> = ({
                       Phone Number *
                     </label>
                     <div className="relative">
-                      <Phone className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
                       <input
                         type="tel"
                         value={planTripData.customerInfo.phoneNumber}
@@ -462,11 +472,14 @@ export const PlanTripModal: React.FC<PlanTripModalProps> = ({
                             customerInfo: { ...prev.customerInfo, phoneNumber: undefined }
                           }));
                         }}
-                        className={`w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
-                          errors.customerInfo?.phoneNumber ? 'border-red-300' : 'border-gray-300'
+                        className={`relative z-0 w-full rounded-md py-2 pl-10 pr-3 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#1e3b32] ${
+                          errors.customerInfo?.phoneNumber
+                            ? 'border border-red-300 focus:border-red-500 focus:ring-red-500'
+                            : 'border border-gray-200 focus:border-[#1e3b32]'
                         }`}
                         placeholder="Enter your phone number"
                       />
+                      <Phone className="pointer-events-none absolute left-3 top-1/2 z-[2] h-4 w-4 -translate-y-1/2 text-gray-400" aria-hidden />
                     </div>
                     {errors.customerInfo?.phoneNumber && (
                       <Text size="xs" className="text-red-500 mt-1">
@@ -482,7 +495,6 @@ export const PlanTripModal: React.FC<PlanTripModalProps> = ({
                       <span className="text-gray-400 font-normal">(Optional)</span>
                     </label>
                     <div className="relative">
-                      <MessageSquare className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
                       <textarea
                         value={planTripData.customerInfo.additionalNotes}
                         onChange={(e) => {
@@ -492,9 +504,10 @@ export const PlanTripModal: React.FC<PlanTripModalProps> = ({
                           }));
                         }}
                         rows={4}
-                        className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                        className="relative z-0 w-full resize-none rounded-md border border-gray-200 py-2 pl-10 pr-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#1e3b32] focus:outline-none focus:ring-1 focus:ring-[#1e3b32]"
                         placeholder="Tell us about any other requirements or special requests..."
                       />
+                      <MessageSquare className="pointer-events-none absolute left-3 top-3 z-[2] h-4 w-4 text-gray-400" aria-hidden />
                     </div>
                   </div>
                 </div>

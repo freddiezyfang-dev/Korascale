@@ -8,8 +8,30 @@ import OurPerspectiveSection from '@/components/sections/OurPerspectiveSection';
 import TheLensBehindKorascaleSection from '@/components/sections/TheLensBehindKorascaleSection';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { articleAPI } from '@/lib/databaseClient';
-import { Article } from '@/types/article';
-import { ArticleCategoryToSlug } from '@/types/article';
+import {
+  Article,
+  ArticleCategoryToSlug,
+  ArticleCategoryToHeroImage,
+  ArticleCategoryToCardTitle,
+  ArticleCategoryToCardDescription,
+  type ArticleCategory,
+} from '@/types/article';
+
+const HOME_INSPIRATION_CATEGORIES: ArticleCategory[] = [
+  'Food Journey',
+  'The Western Corridor',
+  'Ancient Chinese Culture',
+  'Spiritual Retreat',
+];
+
+const homeInspirationCards = HOME_INSPIRATION_CATEGORIES.map((cat, i) => ({
+  id: String(i + 1),
+  title: ArticleCategoryToCardTitle[cat],
+  shortDescription: ArticleCategoryToCardDescription[cat],
+  image: ArticleCategoryToHeroImage[cat],
+  slug: ArticleCategoryToSlug[cat],
+  href: `/inspirations/${ArticleCategoryToSlug[cat]}`,
+}));
 import hotelsData from '@/data/hotels.json';
 import { getRenderableImageUrl } from '@/lib/imageUtils';
 
@@ -123,7 +145,7 @@ export default function Home() {
             id: '2',
             title: 'Northwest & Northern Frontier',
             shortDescription: 'Discover the frontier regions with stunning natural beauty',
-            image: '/images/journey-cards/gansu-zhangye.jpg',
+            image: '/images/journey-cards/Northwest.jpg',
             slug: 'northwest',
             href: '/destinations/northwest'
           },
@@ -131,7 +153,7 @@ export default function Home() {
             id: '3',
             title: 'North China',
             shortDescription: 'Experience the historical heartland of ancient China',
-            image: '/images/journey-cards/shannxi-yejing.jpg',
+            image: '/images/journey-cards/North China.jpg',
             slug: 'north',
             href: '/destinations/north'
           },
@@ -161,40 +183,7 @@ export default function Home() {
           slug: hotel.id,
           href: '/accommodations'
         }))}
-        inspirations={[
-          {
-            id: '1',
-            title: 'How to Plan a China Trip: A Logic-First Guide (2026)',
-            shortDescription: 'Embark on a flavorful journey through Western China\'s soul',
-            image: '/images/inspirations/food-journey.jpg',
-            slug: 'food-journey',
-            href: '/inspirations/food-journey'
-          },
-          {
-            id: '2',
-            title: 'The Western Corridor',
-            shortDescription: 'Answer the call of the wild where China\'s epic landscapes unfold',
-            image: '/images/inspirations/great-outdoors.jpeg',
-            slug: 'the-western-corridor',
-            href: '/inspirations/the-western-corridor'
-          },
-          {
-            id: '3',
-            title: 'Ancient Chinese Culture',
-            shortDescription: 'Go beyond observation and step into the role of an apprentice',
-            image: '/images/inspirations/traditional%20craft.png',
-            slug: 'ancient-chinese-culture',
-            href: '/inspirations/ancient-chinese-culture'
-          },
-          {
-            id: '4',
-            title: 'Spiritual Retreat',
-            shortDescription: 'Approach with respect and an open heart',
-            image: '/images/inspirations/spiritual%20retreat.webp',
-            slug: 'spiritual-retreat',
-            href: '/inspirations/spiritual-retreat'
-          }
-        ]}
+        inspirations={homeInspirationCards}
       />
 
       {/* Content Section：后台精选 5 篇 (featured + display_order)，无则用占位；移动端单列，图片铺满无灰边 */}
@@ -205,9 +194,9 @@ export default function Home() {
             {/* Slot 1：大图 aspect-[4/5]，桌面端占整行或左半 */}
             <Link
               href={contentItems[0]?.href || '#'}
-              className="relative w-full overflow-hidden rounded-lg mb-6 md:mb-0 md:col-span-2 flex flex-col md:flex-row md:items-stretch group"
+              className="relative w-full overflow-hidden rounded-lg mb-6 md:mb-0 md:col-span-2 flex flex-col md:grid md:grid-cols-2 md:gap-0 group"
             >
-              <div className="relative w-full md:w-1/2 aspect-[4/5] overflow-hidden bg-gray-200 flex-shrink-0">
+              <div className="relative w-full aspect-[4/5] md:aspect-auto md:min-h-[300px] md:h-full overflow-hidden bg-gray-200 flex-shrink-0">
                 {contentItems[0]?.image ? (
                   <img
                     src={contentItems[0].image}
@@ -218,17 +207,19 @@ export default function Home() {
                   <div className="absolute inset-0 bg-[#1e3b32]" />
                 )}
                 <div className={`absolute inset-0 flex flex-col justify-end p-4 md:hidden ${CONTENT_GRADIENT}`}>
-                  <h3 className="text-xl font-serif text-white" style={{ fontFamily: SERIF_FONT }}>
+                  <h3 className="text-xl font-serif text-white line-clamp-3" style={{ fontFamily: SERIF_FONT }}>
                     {contentItems[0]?.title}
                   </h3>
                   <span className="text-white/90 text-sm mt-1">view more</span>
                 </div>
               </div>
-              <div className="w-full md:w-1/2 bg-[#1e3b32] p-4 md:p-6 lg:p-8 flex flex-col justify-center hidden md:flex">
-                <h3 className="text-2xl lg:text-4xl font-serif text-white mb-4" style={{ fontFamily: SERIF_FONT }}>
+              <div className="w-full bg-[#1e3b32] p-8 lg:p-10 flex flex-col justify-center min-h-[300px] hidden md:flex">
+                <h3 className="text-2xl font-serif text-white mb-4" style={{ fontFamily: SERIF_FONT }}>
                   {contentItems[0]?.title}
                 </h3>
-                <p className="text-white/90 font-body text-base lg:text-lg mb-4">{contentItems[0]?.excerpt}</p>
+                <p className="text-white/90 text-[17px] leading-relaxed font-body line-clamp-5 mb-4">
+                  {contentItems[0]?.excerpt}
+                </p>
                 <span className="text-white underline font-body text-base">view more</span>
               </div>
             </Link>
