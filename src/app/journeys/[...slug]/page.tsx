@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { journeyAPI } from '@/lib/databaseClient';
 import ClientJourneyPage from './ClientJourneyPage';
+import { JourneyDetailPageSkeleton } from '@/components/journeys/JourneyRouteSkeleton';
 
 export const dynamicParams = true;
 
@@ -28,7 +29,7 @@ export async function generateStaticParams() {
 
 export default function DynamicJourneyPage() {
   return (
-    <Suspense fallback={<div>Loading journey...</div>}>
+    <Suspense fallback={<JourneyDetailPageSkeleton />}>
       <ClientJourneyPage />
     </Suspense>
   );

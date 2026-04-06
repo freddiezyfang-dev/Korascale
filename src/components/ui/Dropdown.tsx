@@ -7,6 +7,7 @@ import {
   ArticleCategoryToSlug,
   ArticleCategoryToCardTitle,
 } from '@/types/article';
+import { solutionsNavItems } from '@/config/navigation';
 
 interface DropdownProps {
   trigger: React.ReactNode;
@@ -49,35 +50,35 @@ export function DestinationsDropdown() {
   return (
     <div className="bg-white p-[20px] min-w-[200px] shadow-lg border border-gray-300 border-t-0" data-name="Destinations Dropdown" data-node-id="236:90">
       <div className="flex flex-col gap-[8px]">
-        <Link href="/destinations/southwest-china" className="block">
+        <Link prefetch={true} href="/destinations/southwest-china" className="block">
           <div className="px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group">
             <p className="text-gray-700 text-[18px] font-subheading leading-normal capitalize group-hover:text-black transition-colors duration-200">
               Southwest China
             </p>
           </div>
         </Link>
-        <Link href="/destinations/northwest" className="block">
+        <Link prefetch={true} href="/destinations/northwest" className="block">
           <div className="px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group">
             <p className="text-gray-700 text-[18px] font-subheading leading-normal capitalize group-hover:text-black transition-colors duration-200">
               Northwest & Northern Frontier
             </p>
           </div>
         </Link>
-        <Link href="/destinations/north" className="block">
+        <Link prefetch={true} href="/destinations/north" className="block">
           <div className="px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group">
             <p className="text-gray-700 text-[18px] font-subheading leading-normal capitalize group-hover:text-black transition-colors duration-200">
               North China
             </p>
           </div>
         </Link>
-        <Link href="/destinations/south" className="block">
+        <Link prefetch={true} href="/destinations/south" className="block">
           <div className="px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group">
             <p className="text-gray-700 text-[18px] font-subheading leading-normal capitalize group-hover:text-black transition-colors duration-200">
               South China
             </p>
           </div>
         </Link>
-        <Link href="/destinations/east-central" className="block">
+        <Link prefetch={true} href="/destinations/east-central" className="block">
           <div className="px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group">
             <p className="text-gray-700 text-[18px] font-subheading leading-normal capitalize group-hover:text-black transition-colors duration-200">
               East & Central China
@@ -93,24 +94,31 @@ export function JourneysDropdown() {
   return (
     <div className="bg-white p-[20px] min-w-[220px] shadow-lg border border-gray-300 border-t-0" data-name="Journeys dropdowns" data-node-id="236:116">
       <div className="flex flex-col gap-[8px]">
-        <Link href="/journeys/type/explore-together" className="block">
+        <Link prefetch={true} href="/journeys/type/explore-together" className="block">
           <div className="px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group">
             <p className="text-gray-700 text-[18px] font-subheading leading-normal group-hover:text-black transition-colors duration-200">
               Explore Together
             </p>
           </div>
         </Link>
-        <Link href="/journeys/type/deep-discovery" className="block">
+        <Link prefetch={true} href="/journeys/type/deep-discovery" className="block">
           <div className="px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group">
             <p className="text-gray-700 text-[18px] font-subheading leading-normal group-hover:text-black transition-colors duration-200">
               Deep Discovery
             </p>
           </div>
         </Link>
-        <Link href="/journeys/type/signature-journeys" className="block">
+        <Link prefetch={true} href="/journeys/type/signature-journeys" className="block">
           <div className="px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group">
             <p className="text-gray-700 text-[18px] font-subheading leading-normal group-hover:text-black transition-colors duration-200">
               Signature Journeys
+            </p>
+          </div>
+        </Link>
+        <Link prefetch={true} href="/journeys/type/group-tours" className="block">
+          <div className="px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group">
+            <p className="text-gray-700 text-[18px] font-subheading leading-normal group-hover:text-black transition-colors duration-200">
+              Group Tours
             </p>
           </div>
         </Link>
@@ -125,6 +133,7 @@ export function InspirationsDropdown() {
       <div className="flex flex-col gap-[4px]">
         {ARTICLE_CATEGORIES.map((cat) => (
           <Link
+            prefetch={true}
             key={cat}
             href={`/inspirations/${ArticleCategoryToSlug[cat]}`}
             className="block px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group rounded-sm"
@@ -132,6 +141,24 @@ export function InspirationsDropdown() {
             <p className="text-gray-800 text-[17px] font-serif leading-snug group-hover:text-black transition-colors duration-200">
               {ArticleCategoryToCardTitle[cat]}
             </p>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function SolutionsDropdown() {
+  return (
+    <div className="bg-white p-[20px] min-w-[260px] shadow-lg border border-gray-300 border-t-0" data-name="Solutions dropdown">
+      <div className="flex flex-col gap-[8px]">
+        {solutionsNavItems.map((item) => (
+          <Link prefetch={true} key={item.href} href={item.href} className="block">
+            <div className="px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group">
+              <p className="text-gray-700 text-[18px] font-subheading leading-normal group-hover:text-black transition-colors duration-200">
+                {item.label}
+              </p>
+            </div>
           </Link>
         ))}
       </div>

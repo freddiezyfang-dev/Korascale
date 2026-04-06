@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import "react-quill-new/dist/quill.snow.css";
 import Header from "@/components/layout/Header";
 import NavMenu from "@/components/layout/NavMenu";
+import NavigationProgress from "@/components/layout/NavigationProgress";
 import Footer from "@/components/layout/Footer";
 import { WishlistProvider } from "@/context/WishlistContext";
 import { UserProvider } from "@/context/UserContext";
@@ -15,16 +15,6 @@ import { ExperienceManagementProvider } from "@/context/ExperienceManagementCont
 import { ArticleManagementProvider } from "@/context/ArticleManagementContext";
 import { CartProvider } from "@/context/CartContext";
 import { LoginModalProvider } from "@/context/LoginModalContext";
-
-const playfair = Playfair_Display({
-	subsets: ["latin"],
-	variable: "--font-playfair",
-});
-
-const inter = Inter({
-	subsets: ["latin"],
-	variable: "--font-inter",
-});
 
 export const metadata: Metadata = {
 	title: "Korascale - Craft Your Own Adventure",
@@ -63,7 +53,7 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en" className={`${playfair.variable} ${inter.variable}`}>
+		<html lang="en">
 			<head>
 				<link
 					href="https://api.mapbox.com/mapbox-gl-js/v3.17.0/mapbox-gl.css"
@@ -87,6 +77,7 @@ export default function RootLayout({
 				/>
 			</head>
 			<body className="font-sans antialiased text-gray-900 bg-white">
+				<NavigationProgress />
 				<UserProvider>
 					<OrderManagementProvider>
 						<HotelManagementProvider>

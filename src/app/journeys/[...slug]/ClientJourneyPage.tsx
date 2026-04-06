@@ -31,6 +31,7 @@ import { ExperienceDetailModal } from '@/components/journey/ExperienceDetailModa
 import { LoginModal } from '@/components/modals/LoginModal';
 import { PlanTripModal } from '@/components/modals/PlanTripModal';
 import { ChevronUp, ChevronDown } from 'lucide-react';
+import { JourneyDetailPageSkeleton } from '@/components/journeys/JourneyRouteSkeleton';
 
 const SITE_URL = 'https://www.korascale.com';
 const JOURNEY_TYPE_SLUGS = [
@@ -239,147 +240,6 @@ function getCleanDescription(journey?: Journey | null) {
   }
 
   return description;
-}
-
-function createMockJourney(): Journey {
-  const now = new Date();
-
-  return {
-    id: 'mock-shanghai-journey',
-    title: 'Shanghai Cultural Highlights',
-    pageTitle: 'Shanghai Cultural Highlights',
-    metaDescription: 'A fallback mock journey for debugging the Shanghai itinerary layout.',
-    slug: 'shanghai-cultural-highlights',
-    description:
-      'Explore Shanghai through Bund architecture, lilong neighborhoods, classical gardens, and contemporary art districts while the live journey data is unavailable.',
-    shortDescription:
-      'A Shanghai-based fallback itinerary used to keep the journey layout rendering during API or database issues.',
-    image: '/images/hero/slide1.jpg',
-    heroImage: '/images/hero/slide1.jpg',
-    images: ['/images/hero/slide1.jpg', getRenderableImageUrl('')],
-    duration: '4 Days',
-    price: 12800,
-    originalPrice: 14800,
-    category: 'City',
-    journeyType: 'Signature Journeys' as any,
-    region: 'East&Central China',
-    place: 'Shanghai Municipality',
-    city: 'Shanghai',
-    location: 'Shanghai, China',
-    difficulty: 'Easy',
-    destinationCount: 4,
-    maxGuests: 8,
-    maxParticipants: 8,
-    minParticipants: 2,
-    excluded: [],
-    highlights: [
-      'The Bund skyline at dusk',
-      'Hidden lilong neighborhoods',
-      'Private art district visits',
-      'Seasonal Jiangnan cuisine',
-    ],
-    itinerary: [
-      {
-        day: 1,
-        title: 'Arrival and The Bund',
-        description:
-          'Arrive in Shanghai, settle in near the historic waterfront, and spend the evening exploring The Bund and the former concession streets.',
-        activities: ['Bund promenade', 'Historic architecture walk'],
-        meals: ['Dinner'],
-        accommodation: 'Boutique hotel in central Shanghai',
-        image: '/images/hero/slide1.jpg',
-        city: 'Shanghai',
-        location: 'The Bund',
-        longitude: 121.4905,
-        latitude: 31.2417,
-      } as any,
-      {
-        day: 2,
-        title: 'French Concession and Museums',
-        description:
-          'Walk beneath plane trees in the French Concession, visit leading museums, and pause for coffee in heritage villas and lane houses.',
-        activities: ['French Concession walk', 'Museum visit'],
-        meals: ['Breakfast', 'Lunch'],
-        accommodation: 'Boutique hotel in central Shanghai',
-        image: getRenderableImageUrl(''),
-        city: 'Shanghai',
-        location: 'French Concession',
-        longitude: 121.4547,
-        latitude: 31.2142,
-      } as any,
-      {
-        day: 3,
-        title: 'Yu Garden and Old City',
-        description:
-          'Discover classical garden design, old city alleys, tea houses, and traditional craft shops with a slower-paced day in the historic core.',
-        activities: ['Yu Garden', 'Old City discovery'],
-        meals: ['Breakfast'],
-        accommodation: 'Boutique hotel in central Shanghai',
-        image: getRenderableImageUrl(''),
-        city: 'Shanghai',
-        location: 'Yu Garden',
-        longitude: 121.4924,
-        latitude: 31.2272,
-      } as any,
-      {
-        day: 4,
-        title: 'West Bund and Departure',
-        description:
-          'Spend your final morning in the West Bund arts district before a relaxed transfer to the airport or your next destination.',
-        activities: ['West Bund art district', 'Departure transfer'],
-        meals: ['Breakfast'],
-        accommodation: 'Day room on request',
-        image: '/images/hero/slide1.jpg',
-        city: 'Shanghai',
-        location: 'West Bund',
-        longitude: 121.4511,
-        latitude: 31.1796,
-      } as any,
-    ],
-    modules: [],
-    accommodations: [],
-    availableExperiences: [],
-    availableAccommodations: [],
-    requirements: [],
-    bestTimeToVisit: ['Spring', 'Autumn'],
-    rating: 4.8,
-    reviewCount: 18,
-    status: 'active' as any,
-    featured: false,
-    tags: ['Shanghai', 'Architecture', 'Art'],
-    overview: {
-      breadcrumb: ['Home', 'Journeys', 'Shanghai'],
-      description:
-        'This fallback Shanghai journey keeps the left-map/right-itinerary layout visible while live data is being debugged.',
-      highlights: [
-        {
-          icon: '⭐',
-          title: 'Bund Evenings',
-          description: 'A cinematic riverside promenade with heritage facades and skyline views.',
-        },
-        {
-          icon: '⭐',
-          title: 'Lilong Textures',
-          description: 'Daily life, hidden lanes, and local stories beneath shaded boulevards.',
-        },
-      ],
-      sideImage: getRenderableImageUrl(''),
-    },
-    included: [],
-    createdAt: now,
-    updatedAt: now,
-    availableDates: [
-      {
-        id: 'mock-date-1',
-        startDate: '2026-04-18',
-        endDate: '2026-04-21',
-        price: 12800,
-        originalPrice: 14800,
-        status: 'Available',
-        enabled: true,
-      },
-    ],
-  } as Journey;
 }
 
 function DetailsAccordion({
@@ -594,42 +454,10 @@ export default function ClientJourneyPage() {
     };
   }, []);
 
-  const mockJourney = useMemo(() => createMockJourney(), []);
-  const resolvedJourney = useMemo(() => contextJourney || journeyFromApi || mockJourney, [contextJourney, journeyFromApi, mockJourney]);
-  const isUsingMockJourney = !contextJourney && !journeyFromApi;
-
-  useEffect(() => {
-    if (!resolvedJourney?.itinerary?.length) return;
-
-    const itineraryDebug = resolvedJourney.itinerary.map((day: any, index: number) => ({
-      day: day?.day ?? index + 1,
-      title: day?.title,
-      city: day?.city,
-      location: day?.location,
-      coords: day?.coords,
-      coordinates: day?.coordinates,
-      mapCenter: day?.mapCenter,
-      longitude: day?.longitude,
-      latitude: day?.latitude,
-      extractedCoords: extractRawCoordsFromStep(day),
-      keys: Object.keys(day || {}),
-      raw: day,
-    }));
-
-    console.log('[ClientJourneyPage] Raw itinerary structure:', itineraryDebug);
-
-    const focusEntries = itineraryDebug.filter((entry) =>
-      [entry.title, entry.city, String(entry.location || '')]
-        .filter(Boolean)
-        .some((value) => /yunnan|guilin|lhasa|云南|桂林|拉萨/i.test(String(value)))
-    );
-
-    console.log('[ClientJourneyPage] Focus itinerary entries (Yunnan/Guilin/Lhasa):', focusEntries);
-    console.log(
-      '[ClientJourneyPage] Focus itinerary entries JSON:',
-      JSON.stringify(focusEntries, null, 2)
-    );
-  }, [resolvedJourney]);
+  const resolvedJourney = useMemo(
+    () => contextJourney ?? journeyFromApi ?? null,
+    [contextJourney, journeyFromApi]
+  );
 
   const displayDescription = useMemo(
     () => getCleanDescription(resolvedJourney),
@@ -1011,17 +839,27 @@ export default function ClientJourneyPage() {
     );
   };
 
-  if (journeysLoading && isLoadingFromApi && !safeJourney && !isUsingMockJourney) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <Text className="text-lg text-gray-600">Loading journey...</Text>
-      </div>
-    );
+  if (isJourneyTypeSlug || isTypeRoute) {
+    return <JourneyDetailPageSkeleton />;
   }
 
-  if ((!safeJourney || !pageConfig) && !isUsingMockJourney) {
+  const awaitingJourneyData =
+    !!normalizedSlug &&
+    (journeysLoading || isLoadingFromApi) &&
+    !contextJourney &&
+    !journeyFromApi;
+
+  if (awaitingJourneyData) {
+    return <JourneyDetailPageSkeleton />;
+  }
+
+  if (
+    (!safeJourney || !pageConfig) &&
+    !journeysLoading &&
+    !isLoadingFromApi
+  ) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white px-6">
+      <div className="min-h-screen flex items-center justify-center bg-[#f5f1e6] px-6">
         <div className="w-full text-center">
           <Heading level={1} className="text-3xl mb-4">Journey Not Found</Heading>
           <Text className="text-gray-600 mb-6">

@@ -18,7 +18,7 @@ const imgUser = "/icons/user.svg";
 
 function HeaderLeft() {
 	return (
-		<Link href="/" className="flex items-center gap-3 lg:gap-4 h-[85px] overflow-hidden px-px shrink-0 hover:opacity-80 transition-opacity" data-name="Logo" data-node-id="770:178">
+		<Link prefetch={true} href="/" className="flex items-center gap-3 lg:gap-4 h-[85px] overflow-hidden px-px shrink-0 hover:opacity-80 transition-opacity" data-name="Logo" data-node-id="770:178">
 			{/* Logo 图片 - 响应式尺寸，移动端较小 */}
 			<div className="shrink-0 h-6 w-6 sm:h-8 sm:w-8 lg:h-12 lg:w-12 flex items-center justify-center" data-name="Logo" data-node-id="770:179">
 				<img 
@@ -85,6 +85,7 @@ function UserSection() {
 					</Dropdown>
 					{user.email === 'admin@korascale.com' && (
 						<Link 
+							prefetch={true}
 							href="/admin"
 							className="text-white text-sm hover:text-gray-300 transition-colors bg-white bg-opacity-20 px-3 py-1 rounded"
 						>
@@ -152,6 +153,7 @@ function SocialAndSearch() {
 				</a>
 				{/* 语言图标 */}
 				<Link 
+					prefetch={true}
 					href="/language" 
 					className="shrink-0 size-6 hover:opacity-80 transition-opacity cursor-pointer" 
 					data-name="globe" 
@@ -162,6 +164,7 @@ function SocialAndSearch() {
 			</div>
 			{/* Search Section */}
 			<Link 
+				prefetch={true}
 				href="/journeys" 
 				className="bg-[#1e3b32] flex items-center justify-center gap-1 sm:gap-2 overflow-hidden px-2 sm:px-4 lg:px-[51px] py-2 sm:py-3 lg:py-[14px] shrink-0 hover:opacity-80 transition-opacity cursor-pointer rounded touch-manipulation" 
 				data-name="Language" 
