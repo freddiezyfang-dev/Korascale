@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
-const heroPoster = '/images/hero/slide2.jpg';
 const heroVideoUrl = process.env.NEXT_PUBLIC_SOLUTIONS_HERO_VIDEO_URL;
 const corporateImage = '/images/hero/wuyuan.jpg';
 const healthcareImage = '/images/healthcare.jpg';
@@ -25,15 +24,14 @@ export default function SolutionsPage() {
             muted
             loop
             playsInline
-            preload="metadata"
-            poster={heroPoster}
+            preload="auto"
           >
             <source src={heroVideoUrl} type="video/mp4" />
           </video>
         ) : (
           <div
             className="absolute inset-0 h-full w-full bg-cover bg-center"
-            style={{ backgroundImage: `url('${heroPoster}')` }}
+            style={{ backgroundImage: `url('/images/hero/slide2.jpg')` }}
           />
         )}
         <div className="absolute inset-0 bg-gray-900/20" />
