@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 
 const heroPoster = '/images/hero/slide2.jpg';
-const heroVideo = '/videos/solution-hero.mp4';
+const heroVideoUrl = process.env.NEXT_PUBLIC_SOLUTIONS_HERO_VIDEO_URL;
 const corporateImage = '/images/hero/wuyuan.jpg';
 const healthcareImage = '/images/healthcare.jpg';
 
@@ -18,17 +18,24 @@ export default function SolutionsPage() {
     <main className="min-h-screen bg-[#F5F2ED]">
       {/* Hero Banner */}
       <section className="relative h-[60vh] min-h-[520px] w-full overflow-hidden">
-        <video
-          className="absolute inset-0 h-full w-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          poster={heroPoster}
-        >
-          <source src={heroVideo} type="video/mp4" />
-        </video>
+        {heroVideoUrl ? (
+          <video
+            className="absolute inset-0 h-full w-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            poster={heroPoster}
+          >
+            <source src={heroVideoUrl} type="video/mp4" />
+          </video>
+        ) : (
+          <div
+            className="absolute inset-0 h-full w-full bg-cover bg-center"
+            style={{ backgroundImage: `url('${heroPoster}')` }}
+          />
+        )}
         <div className="absolute inset-0 bg-gray-900/20" />
         <div className="relative z-10 h-full">
           <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-center px-6 text-center lg:justify-start lg:text-left">
