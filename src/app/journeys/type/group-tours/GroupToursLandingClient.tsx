@@ -97,8 +97,8 @@ const WORK_STEPS: {
 		title: 'Execution',
 		detail:
 			'Field delivery with war-room monitoring during travel, then a structured debrief with metrics, incidents (if any), and renewal options.',
-		image: img('photo-1483728642387-6c3bdd6c93e5', 1200),
-		alt: 'Dense city skyline at dusk — field execution at metropolitan scale, no portraits',
+		image: '/images/hero/wuyuan.jpg',
+		alt: 'Wuyuan historic village — Huizhou-style rooftops and lanes, on-the-ground destination execution',
 	},
 ];
 
@@ -369,10 +369,26 @@ export default function GroupToursLandingClient() {
 						>
 							How we work
 						</h2>
-						<p className="mt-5 max-w-md text-base leading-relaxed text-[#333]/85 md:text-lg">
-							Five gated phases. Hover each row to reveal the operational detail—each step is paired with a vertical frame
-							in the A&K editorial tradition.
-						</p>
+						<div className="mt-5 max-w-prose space-y-4 text-base leading-relaxed text-[#333]/85 md:text-lg">
+							<p>
+								We operate group travel through a structured, step-by-step process designed to ensure clarity, control, and
+								execution reliability from the very beginning.
+							</p>
+							<p>
+								Rather than moving straight into detailed itinerary planning, we first define the right route framework,
+								service level, and operational structure based on your group profile. This allows us to align expectations
+								early, reduce revisions, and avoid execution risks later.
+							</p>
+							<p>
+								Each stage — from initial request to on-trip delivery — is managed through a centralized coordination
+								system, ensuring that all moving parts across destinations, suppliers, and timelines are aligned and
+								controlled.
+							</p>
+							<p>
+								The result is a predictable workflow that minimizes friction, improves communication efficiency, and ensures
+								consistent delivery on the ground.
+							</p>
+						</div>
 					</div>
 					<div className="flex flex-col gap-4">
 						{WORK_STEPS.map(({ step, title, detail, image, alt }) => {
