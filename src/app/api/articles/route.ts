@@ -34,66 +34,62 @@ export async function GET(request: NextRequest) {
     // 查询所有文章
     let rows;
     try {
-      // 首先检查表是否存在，如果不存在则返回空数组
-      const tableCheck = await query(`
-        SELECT EXISTS (
-          SELECT FROM information_schema.tables 
-          WHERE table_schema = 'public' 
-          AND table_name = 'articles'
-        );
-      `, []);
-      
-      if (!tableCheck.rows[0]?.exists) {
+      // 单次往返检查表与列（避免 4 次 information_schema 往返，降低 Neon 冷启动/读超时概率）
+      const schemaRow = (
+        await query<{
+          articles_exists: boolean;
+          has_recommended_items: boolean;
+          has_featured_columns: boolean;
+          has_faqs_column: boolean;
+        }>(
+          `
+        SELECT
+          EXISTS (
+            SELECT 1 FROM information_schema.tables
+            WHERE table_schema = 'public' AND table_name = 'articles'
+          ) AS articles_exists,
+          EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_schema = 'public' AND table_name = 'articles' AND column_name = 'recommended_items'
+          ) AS has_recommended_items,
+          EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_schema = 'public' AND table_name = 'articles' AND column_name = 'is_featured'
+          ) AS has_featured_columns,
+          EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_schema = 'public' AND table_name = 'articles' AND column_name = 'faqs'
+          ) AS has_faqs_column;
+        `,
+          []
+        )
+      ).rows[0];
+
+      if (!schemaRow?.articles_exists) {
         console.warn('[API /articles] Articles table does not exist');
         return NextResponse.json(
-          { 
+          {
             error: 'Articles table does not exist. Please run database migration.',
-            details: process.env.NODE_ENV === 'development' 
-              ? 'Execute the SQL in database/migrations/005_create_articles_table.sql' 
-              : undefined,
-            migrationFile: 'database/migrations/005_create_articles_table.sql'
+            details:
+              process.env.NODE_ENV === 'development'
+                ? 'Execute the SQL in database/migrations/005_create_articles_table.sql'
+                : undefined,
+            migrationFile: 'database/migrations/005_create_articles_table.sql',
           },
-          { 
+          {
             status: 500,
             headers: {
               'Content-Type': 'application/json',
-            }
+            },
           }
         );
       }
-      
-      // 检查 recommended_items 列是否存在
-      const columnCheck = await query(`
-        SELECT EXISTS (
-          SELECT FROM information_schema.columns 
-          WHERE table_schema = 'public' 
-          AND table_name = 'articles'
-          AND column_name = 'recommended_items'
-        );
-      `, []);
-      
-      const hasRecommendedItemsColumn = columnCheck.rows[0]?.exists;
 
-      const featuredColumnCheck = await query(`
-        SELECT EXISTS (
-          SELECT FROM information_schema.columns 
-          WHERE table_schema = 'public' AND table_name = 'articles' AND column_name = 'is_featured'
-        );
-      `, []);
-      const hasFeaturedColumns = featuredColumnCheck.rows[0]?.exists;
+      const hasRecommendedItemsColumn = schemaRow.has_recommended_items;
+      const hasFeaturedColumns = schemaRow.has_featured_columns;
       const featuredSelect = hasFeaturedColumns ? 'is_featured, display_order,' : '';
-      
       const recommendedItemsSelect = hasRecommendedItemsColumn ? 'recommended_items,' : '';
-
-      const faqsColumnCheck = await query(`
-        SELECT EXISTS (
-          SELECT FROM information_schema.columns 
-          WHERE table_schema = 'public' 
-          AND table_name = 'articles'
-          AND column_name = 'faqs'
-        );
-      `, []);
-      const hasFaqsColumn = faqsColumnCheck.rows[0]?.exists;
+      const hasFaqsColumn = schemaRow.has_faqs_column;
       const faqsSelect = hasFaqsColumn ? 'faqs,' : '';
       
       const result = await query(`

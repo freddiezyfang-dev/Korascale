@@ -453,7 +453,7 @@ export const articleAPI = {
   async getAll(retries: number = 2): Promise<Article[]> {
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
-        const timeoutMs = attempt === 0 ? 30000 : 45000;
+        const timeoutMs = attempt === 0 ? 45000 : 60000;
         const apiUrl = getApiUrl('/api/articles');
         
         // 调试：打印完整的请求 URL（简化日志）
@@ -513,7 +513,7 @@ export const articleAPI = {
         return articles;
       } catch (error) {
         if (error instanceof Error && error.name === 'AbortError') {
-          const timeoutMsg = `Request timeout: Failed to fetch articles within ${attempt === 0 ? 30 : 45} seconds`;
+          const timeoutMsg = `Request timeout: Failed to fetch articles within ${attempt === 0 ? 45 : 60} seconds`;
           console.warn(`[ArticleAPI] ${timeoutMsg} (attempt ${attempt + 1}/${retries + 1})`);
           
           if (attempt < retries) {
@@ -539,18 +539,18 @@ export const articleAPI = {
           }
         } else {
           console.error('[ArticleAPI] Error fetching articles:', error);
-          
-          if (attempt < retries && error instanceof Error && (
-            error.message.includes('fetch') || 
-            error.message.includes('network') ||
-            error.message.includes('Failed to fetch')
-          )) {
+
+          if (
+            attempt < retries &&
+            error instanceof Error &&
+            /timeout|timed\s*out|read timeout|fetch|network|Failed to fetch/i.test(error.message)
+          ) {
             console.warn(`[ArticleAPI] Network error on attempt ${attempt + 1}, retrying...`);
             await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
             continue;
           }
         }
-        
+
         if (attempt === retries) {
           // Fallback to localStorage on final failure
           try {
