@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Heading, Text, Card, Button, Container, Section } from '@/components/common';
 import { useArticleManagement } from '@/context/ArticleManagementContext';
@@ -14,7 +14,7 @@ import {
   RecommendedItem,
 } from '@/types/article';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
-import { uploadAPI } from '@/lib/databaseClient';
+import { articleAPI, uploadAPI } from '@/lib/databaseClient';
 import { Upload } from 'lucide-react';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { getRenderableImageUrl } from '@/lib/imageUtils';
@@ -26,7 +26,18 @@ export default function EditArticlePage() {
   const { journeys } = useJourneyManagement();
   const id = Array.isArray(params?.id) ? params?.id[0] : (params?.id as string);
 
-  const target = useMemo(() => articles.find(a => a.id === id), [articles, id]);
+  const [remote, setRemote] = useState<Article | null | undefined>(undefined);
+
+  useEffect(() => {
+    if (!id) return;
+    let cancelled = false;
+    articleAPI.getById(id).then((a) => {
+      if (!cancelled) setRemote(a);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
 
   const [form, setForm] = useState({
     title: '',
@@ -54,30 +65,37 @@ export default function EditArticlePage() {
   const [uploadingBlockId, setUploadingBlockId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (target) {
-      setForm({
-        title: target.title,
-        author: target.author,
-        coverImage: target.coverImage,
-        heroImage: target.heroImage || '',
-        readingTime: target.readingTime || '12 min read',
-        category: target.category,
-        content: target.content || '',
-        contentBlocks: target.contentBlocks || [],
-        excerpt: target.excerpt || '',
-        relatedJourneyIds: target.relatedJourneyIds,
-        recommendedItems: target.recommendedItems || [],
-        status: target.status,
-        slug: target.slug,
-        featured: target.featured ?? false,
-        displayOrder: target.displayOrder ?? undefined,
-        tags: target.tags ?? [],
-        faqs: target.faqs ?? [],
-      });
-    }
-  }, [target]);
+    if (!remote) return;
+    setForm({
+      title: remote.title,
+      author: remote.author,
+      coverImage: remote.coverImage,
+      heroImage: remote.heroImage || '',
+      readingTime: remote.readingTime || '12 min read',
+      category: remote.category,
+      content: remote.content || '',
+      contentBlocks: remote.contentBlocks || [],
+      excerpt: remote.excerpt || '',
+      relatedJourneyIds: remote.relatedJourneyIds,
+      recommendedItems: remote.recommendedItems || [],
+      status: remote.status,
+      slug: remote.slug,
+      featured: remote.featured ?? false,
+      displayOrder: remote.displayOrder ?? undefined,
+      tags: remote.tags ?? [],
+      faqs: remote.faqs ?? [],
+    });
+  }, [remote]);
 
-  if (!target) {
+  if (remote === undefined) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Text>加载中…</Text>
+      </div>
+    );
+  }
+
+  if (remote === null) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Text>文章不存在</Text>
@@ -131,7 +149,7 @@ export default function EditArticlePage() {
         question: (f.question || '').trim(),
         answer: (f.answer || '').trim(),
       })).filter(f => f.question && f.answer);
-      const { savedToDatabase, errorMessage } = await updateArticle(target.id, {
+      const { savedToDatabase, errorMessage } = await updateArticle(remote.id, {
         ...form,
         metaDescription,
         contentBlocks: form.contentBlocks.length > 0 ? form.contentBlocks : undefined,
@@ -877,7 +895,7 @@ export default function EditArticlePage() {
                 <div>
                   <label className="block text-sm text-gray-600 mb-2">Articles</label>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-48 overflow-y-auto border rounded p-2">
-                    {articles.filter(a => a.status === 'active' && a.id !== target?.id).map(a => (
+                    {articles.filter(a => a.status === 'active' && a.id !== remote.id).map(a => (
                       <label key={a.id} className="flex items-center gap-2 p-2 border rounded hover:bg-gray-50 cursor-pointer">
                         <input 
                           type="checkbox" 

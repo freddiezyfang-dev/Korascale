@@ -449,12 +449,13 @@ export const uploadAPI = {
 
 // Article API调用
 export const articleAPI = {
-  // 获取所有articles（带重试机制和fallback）
-  async getAll(retries: number = 2): Promise<Article[]> {
+  // 获取所有 articles。默认 fields=list 不拉取正文大字段，显著降低 Neon 读超时概率；编辑页请用 getById。
+  async getAll(retries: number = 4, fields: 'full' | 'list' = 'list'): Promise<Article[]> {
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
         const timeoutMs = attempt === 0 ? 45000 : 60000;
-        const apiUrl = getApiUrl('/api/articles');
+        const listQs = fields === 'list' ? '?fields=list' : '';
+        const apiUrl = getApiUrl(`/api/articles${listQs}`);
         
         // 调试：打印完整的请求 URL（简化日志）
         if (attempt === 0) {
@@ -501,9 +502,16 @@ export const articleAPI = {
             await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
             continue;
           }
+          if (response.status >= 500) {
+            console.warn(
+              '[ArticleAPI] Server error after retries, returning empty:',
+              sanitizeErrorMessage(errorMessage, response.status)
+            );
+            return [];
+          }
           throw new Error(sanitizeErrorMessage(errorMessage, response.status));
         }
-        
+
         const data = await response.json();
         const articles = (data.articles || []).map((a: any) => ({
           ...a,
@@ -577,10 +585,10 @@ export const articleAPI = {
   /** 首页 Content Section：获取精选文章，按 display_order 1–5 排序，最多 5 篇 */
   async getFeatured(): Promise<Article[]> {
     try {
-      const apiUrl = getApiUrl('/api/articles?featured=true');
+      const apiUrl = getApiUrl('/api/articles?featured=true&fields=list');
       const response = await fetch(apiUrl, {
         method: 'GET',
-        signal: createTimeoutSignal(15000),
+        signal: createTimeoutSignal(30000),
         cache: 'no-store',
         headers: { 'Accept': 'application/json', 'Cache-Control': 'no-cache' },
       });
@@ -593,6 +601,34 @@ export const articleAPI = {
       }));
     } catch {
       return [];
+    }
+  },
+
+  /** 单篇全文（管理后台编辑等） */
+  async getById(id: string): Promise<Article | null> {
+    try {
+      const response = await fetch(getApiUrl(`/api/articles/${encodeURIComponent(id)}`), {
+        method: 'GET',
+        signal: createTimeoutSignal(45000),
+        cache: 'no-store',
+        headers: { Accept: 'application/json', 'Cache-Control': 'no-cache' },
+      });
+      if (response.status === 404) return null;
+      if (!response.ok) {
+        console.warn('[ArticleAPI] getById failed:', response.status);
+        return null;
+      }
+      const data = await response.json();
+      const a = data.article;
+      if (!a) return null;
+      return {
+        ...a,
+        createdAt: new Date(a.createdAt),
+        updatedAt: new Date(a.updatedAt),
+      };
+    } catch (e) {
+      console.error('[ArticleAPI] getById error:', e);
+      return null;
     }
   },
 

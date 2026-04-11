@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -15,6 +15,7 @@ import {
   ContentBlock,
   RecommendedItem,
   ArticleCategory,
+  type Article,
 } from '@/types/article';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { getRenderableImageUrl } from '@/lib/imageUtils';
@@ -60,7 +61,36 @@ export default function ClientArticlePage() {
   const { getArticleBySlug, isLoading, articles } = useArticleManagement();
   const { journeys } = useJourneyManagement();
 
-  const article = getArticleBySlug(slug || '');
+  const [fullArticle, setFullArticle] = useState<Article | null>(null);
+
+  useEffect(() => {
+    if (!slug) return;
+    setFullArticle(null);
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/articles/slug/${encodeURIComponent(slug)}`, {
+          cache: 'no-store',
+          headers: { Accept: 'application/json' },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (cancelled || !data.article) return;
+        setFullArticle({
+          ...data.article,
+          createdAt: new Date(data.article.createdAt),
+          updatedAt: new Date(data.article.updatedAt),
+        });
+      } catch {
+        /* 保持用 Context 列表兜底 */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
+
+  const article = fullArticle || getArticleBySlug(slug || '');
 
   // 获取推荐项（支持混合 Journey 和 Article）
   const recommendedItems = useMemo(() => {

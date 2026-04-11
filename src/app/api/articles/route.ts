@@ -11,7 +11,12 @@ export const revalidate = 0;
 // GET: 获取所有articles；?featured=true 时仅返回首页精选，按 display_order 1–5 排序
 export async function GET(request: NextRequest) {
   const featuredOnly = request.nextUrl.searchParams.get('featured') === 'true';
-  console.log('[API /articles] GET request received', featuredOnly ? '(featured only)' : '');
+  const listOnly = request.nextUrl.searchParams.get('fields') === 'list';
+  console.log(
+    '[API /articles] GET request received',
+    featuredOnly ? '(featured only)' : '',
+    listOnly ? '(fields=list)' : ''
+  );
   
   try {
     // 检查数据库连接
@@ -32,7 +37,8 @@ export async function GET(request: NextRequest) {
     console.log('[API /articles] Fetching articles from database...');
     
     // 查询所有文章
-    let rows;
+    let rows: any[];
+    let usedOptimizedFeaturedQuery = false;
     try {
       // 单次往返检查表与列（避免 4 次 information_schema 往返，降低 Neon 冷启动/读超时概率）
       const schemaRow = (
@@ -91,9 +97,19 @@ export async function GET(request: NextRequest) {
       const recommendedItemsSelect = hasRecommendedItemsColumn ? 'recommended_items,' : '';
       const hasFaqsColumn = schemaRow.has_faqs_column;
       const faqsSelect = hasFaqsColumn ? 'faqs,' : '';
-      
-      const result = await query(`
-        SELECT 
+
+      const bodySelect = listOnly
+        ? `NULL::text AS content, NULL::jsonb AS content_blocks,`
+        : `content, content_blocks,`;
+
+      let result;
+
+      if (featuredOnly && hasFeaturedColumns) {
+        usedOptimizedFeaturedQuery = true;
+        // 首页精选：WHERE + LIMIT，且不读取正文大字段，避免全表扫描与读超时
+        result = await query(
+          `
+        SELECT
           id,
           title,
           slug,
@@ -102,8 +118,39 @@ export async function GET(request: NextRequest) {
           hero_image,
           reading_time,
           category,
-          content,
-          content_blocks,
+          NULL::text AS content,
+          NULL::jsonb AS content_blocks,
+          excerpt,
+          page_title,
+          meta_description,
+          related_journey_ids,
+          ${recommendedItemsSelect}
+          ${faqsSelect}
+          tags,
+          status,
+          ${featuredSelect}
+          created_at,
+          updated_at
+        FROM articles
+        WHERE is_featured = true
+        ORDER BY display_order NULLS LAST, updated_at DESC
+        LIMIT 5
+        `,
+          []
+        );
+      } else {
+        result = await query(
+          `
+        SELECT
+          id,
+          title,
+          slug,
+          author,
+          cover_image,
+          hero_image,
+          reading_time,
+          category,
+          ${bodySelect}
           excerpt,
           page_title,
           meta_description,
@@ -117,7 +164,10 @@ export async function GET(request: NextRequest) {
           updated_at
         FROM articles
         ORDER BY updated_at DESC
-      `, []);
+      `,
+          []
+        );
+      }
       rows = result.rows;
     } catch (dbError) {
       const errorMessage = dbError instanceof Error ? dbError.message : String(dbError);
@@ -175,11 +225,13 @@ export async function GET(request: NextRequest) {
       updatedAt: new Date(row.updated_at),
     }));
 
-    if (featuredOnly) {
+    if (featuredOnly && !usedOptimizedFeaturedQuery) {
       articles = articles
         .filter((a) => a.featured)
         .sort((a, b) => (a.displayOrder ?? 999) - (b.displayOrder ?? 999))
         .slice(0, 5);
+      console.log(`[API /articles] Featured articles (legacy filter): ${articles.length}`);
+    } else if (featuredOnly) {
       console.log(`[API /articles] Featured articles: ${articles.length}`);
     } else {
       console.log(`[API /articles] Found ${articles.length} articles`);
