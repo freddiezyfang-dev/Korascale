@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 
 const heroVideoUrl = process.env.NEXT_PUBLIC_SOLUTIONS_HERO_VIDEO_URL;
-const corporateImage = '/images/hero/wuyuan.jpg';
+const corporateImage = '/images/hero/shenzhen.jpg';
 const healthcareImage = '/images/healthcare.jpg';
 
 const fadeInUp = {
@@ -110,7 +110,7 @@ export default function SolutionsPage() {
               <div className="mt-8">
                 <Link
                   prefetch={true}
-                  href="/solutions/corporate-travel-experiences"
+                  href="/solutions/corporate-travel"
                   className="inline-flex items-center text-sm font-subheading font-semibold text-gray-900 underline underline-offset-4 hover:opacity-80"
                 >
                   Learn More

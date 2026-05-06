@@ -2,7 +2,7 @@
 export const solutionsNavItems = [
   {
     label: "Corporate Travel & Experiences",
-    href: "/solutions/corporate-travel-experiences",
+    href: "/solutions/corporate-travel",
   },
   {
     label: "Healthcare Access in China",
