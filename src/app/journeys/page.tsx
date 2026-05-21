@@ -15,15 +15,5 @@ export const metadata: Metadata = {
 
 export default async function JourneysPage() {
   const initialJourneys = await getActiveJourneysForList();
-
-  console.info('[journeys/page SSR]', {
-    count: initialJourneys.length,
-    sample: initialJourneys.slice(0, 3).map((j) => ({
-      title: j.title,
-      slug: j.slug,
-      status: j.status ?? null,
-    })),
-  });
-
   return <JourneysPageClient initialJourneys={initialJourneys} />;
 }

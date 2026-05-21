@@ -63,9 +63,6 @@ type JourneysPageClientProps = {
 	initialJourneys?: Journey[];
 };
 
-const showJourneysSsrDebug =
-	process.env.NODE_ENV !== 'production' || process.env.VERCEL_ENV === 'preview';
-
 // 使用本地图片资源
 const imgHeroBanner = "/images/hero/slide5-chongqing.jpg";
 const imgJourney1 = "/images/journey-cards/chengdu-deep-dive.jpeg";
@@ -332,16 +329,6 @@ export default function JourneysPageClient({ initialJourneys }: JourneysPageClie
 
 	return (
 		<div className="min-h-screen bg-white">
-			{showJourneysSsrDebug && (
-				<span
-					className="hidden"
-					aria-hidden="true"
-					suppressHydrationWarning
-					dangerouslySetInnerHTML={{
-						__html: `<!-- SSR-debug:initialJourneys=${initialJourneys?.length ?? 0};journeys=${journeys.length};filtered=${filteredJourneys.length};isLoading=${isLoading} -->`,
-					}}
-				/>
-			)}
 			{/* Plan Your Trip Hero Section - 与其他页面统一 */}
 			<Section background="primary" padding="none" className="relative h-[447px] overflow-hidden">
 				<div 
