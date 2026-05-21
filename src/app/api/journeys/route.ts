@@ -1,47 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import { pickFirstValidImagePath, sanitizeImageList, sanitizeImagePath } from '@/lib/imageUtils';
+import {
+  mapJourneyRowToJourney,
+  normalizeAvailableDates,
+  queryJourneyRows,
+} from '@/lib/journeyListQuery.server';
 import { Journey } from '@/types';
 
 // Route Segment Config - 确保路由被正确识别
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 export const fetchCache = 'force-no-store';
-
-/** 标准化 availableDates：每项含 enabled（缺省 true） */
-function normalizeAvailableDates(items: unknown[] | undefined): unknown[] {
-  if (!Array.isArray(items)) return [];
-  return items.map((item: any) => ({
-    ...item,
-    enabled: item && typeof item.enabled === 'boolean' ? item.enabled : true,
-  }));
-}
-
-function sanitizeJourneyBaseData(baseData: any) {
-  const safeImages = sanitizeImageList(baseData?.images);
-  const safeOverview = baseData?.overview
-    ? {
-        ...baseData.overview,
-        sideImage: sanitizeImagePath(baseData.overview.sideImage),
-      }
-    : undefined;
-  const safeItinerary = Array.isArray(baseData?.itinerary)
-    ? baseData.itinerary.map((item: any) => ({
-        ...item,
-        image: sanitizeImagePath(item?.image),
-      }))
-    : [];
-
-  return {
-    ...baseData,
-    images: safeImages,
-    overview: safeOverview,
-    itinerary: safeItinerary,
-    heroImage: sanitizeImagePath(baseData?.heroImage),
-    mainContentImage: sanitizeImagePath(baseData?.mainContentImage),
-    availableDates: normalizeAvailableDates(baseData?.availableDates),
-  };
-}
 
 // GET: 获取所有journeys
 export async function GET(request: NextRequest) {
@@ -96,66 +65,13 @@ export async function GET(request: NextRequest) {
     
     console.log('[API /journeys] Database connection info:', connectionInfo);
     
-    // 直接查询 journeys 表，如果表不存在会在查询时捕获错误
-    let rows;
+    let rows: Record<string, unknown>[];
     const queryStartTime = Date.now();
+    const fieldsMode = minimalFields ? 'minimal' : listFields ? 'list' : 'full';
     try {
-      // 根据 includeAll 参数决定是否过滤状态
-      // 如果 includeAll=true，返回所有状态的 journeys（用于后台管理）
-      // 否则只返回 active 状态的 journeys（用于前端展示）
-      const statusCondition = includeAll 
-        ? '' // 不添加 WHERE 条件，返回所有状态
-        : "WHERE status = 'active' OR status IS NULL";
-
-      const limit = listFields ? 500 : 1000;
-
-      const selectClause = minimalFields
-        ? `
-          SELECT id, slug, title
-          FROM journeys
-        `
-        : listFields
-          ? `
-          SELECT
-            id, title, slug, description, short_description,
-            price, original_price, category, journey_type, region, place, city, location,
-            duration, difficulty, max_participants, min_participants,
-            image, status, featured, rating, review_count,
-            (data - 'itinerary') as data, created_at, updated_at
-          FROM journeys
-        `
-          : `
-          SELECT
-            id, title, slug, description, short_description,
-            price, original_price, category, journey_type, region, place, city, location,
-            duration, difficulty, max_participants, min_participants,
-            image, status, featured, rating, review_count,
-            data, created_at, updated_at
-          FROM journeys
-        `;
-
       console.time('db-query');
-      try {
-        const queryPromise = query(`
-          ${selectClause}
-          ${statusCondition}
-          ORDER BY created_at DESC
-          LIMIT ${limit}
-        `);
-
-        const timeoutLimitMs = 30000;
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(
-            () => reject(new Error(`Database query timeout after ${timeoutLimitMs / 1000} seconds`)),
-            timeoutLimitMs
-          )
-        );
-
-        const result = await Promise.race([queryPromise, timeoutPromise]) as any;
-        rows = result.rows;
-      } finally {
-        console.timeEnd('db-query');
-      }
+      rows = await queryJourneyRows({ includeAll, fields: fieldsMode });
+      console.timeEnd('db-query');
 
       const queryDuration = Date.now() - queryStartTime;
       console.log(`[API /journeys] Found ${rows.length} journeys in ${queryDuration}ms`, {
@@ -221,63 +137,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 转换数据库格式到应用格式
-    const journeys = rows.map((row: any) => {
-      const baseData = sanitizeJourneyBaseData(row.data || {});
-      const safePrimaryImage = pickFirstValidImagePath(
-        row.image,
-        baseData.image,
-        baseData.heroImage,
-        baseData.mainContentImage,
-        baseData.images?.[0]
-      );
-      const resolvedTitle =
-        row.title ||
-        baseData.title ||
-        baseData.name ||
-        baseData.pageTitle ||
-        '';
-      const resolvedSlug = row.slug || baseData.slug || '';
-
-      return {
-        // JSONB数据先展开，再用结构化列覆盖，避免旧 data.image 等脏值反向污染主字段
-        ...baseData,
-        // 基础字段
-        id: row.id,
-        title: resolvedTitle,
-        slug: resolvedSlug,
-        pageTitle: baseData.pageTitle || resolvedTitle,
-        description: row.description,
-        shortDescription: row.short_description,
-        price: row.price,
-        originalPrice: row.original_price,
-        category: row.category,
-        journeyType: row.journey_type || undefined, // 版面分类
-        region: row.region,
-        place: row.place || undefined,
-        city: row.city,
-        location: row.location,
-        duration: row.duration,
-        difficulty: row.difficulty,
-        maxParticipants: row.max_participants,
-        minParticipants: row.min_participants,
-        image: safePrimaryImage,
-        status: row.status,
-        featured: row.featured,
-        rating: row.rating,
-        reviewCount: row.review_count,
-        // 确保这些字段存在（即使为空也要返回）
-        destinationCount: baseData.destinationCount,
-        maxGuests: baseData.maxGuests,
-        heroImage: pickFirstValidImagePath(baseData.heroImage, row.image, safePrimaryImage),
-        mainContentImage: sanitizeImagePath(baseData.mainContentImage),
-        images: sanitizeImageList(baseData.images),
-        availableDates: normalizeAvailableDates(baseData.availableDates),
-        // 时间戳
-        createdAt: new Date(row.created_at),
-        updatedAt: new Date(row.updated_at),
-      };
-    });
+    const journeys = rows.map((row) => mapJourneyRowToJourney(row));
     
     // 设置响应头，禁用缓存并添加 CORS
     return NextResponse.json(

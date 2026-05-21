@@ -1,4 +1,4 @@
-import { journeyAPI } from '@/lib/databaseClient';
+import { fetchActiveJourneysForListFromDb } from '@/lib/journeyListQuery.server';
 import type { Journey } from '@/types';
 
 type JourneyRecord = Journey & {
@@ -60,7 +60,7 @@ function resolveJourneyLink(journey: JourneyRecord, slug: string): string | unde
   return `/journeys/${slug}`;
 }
 
-/** Normalize list/card fields after API + Server → Client serialization. */
+/** Normalize list/card fields after Server → Client serialization. */
 export function normalizeJourneyForClient(journey: Journey): Journey {
   const raw = journey as JourneyRecord;
   const title = resolveJourneyTitle(raw);
@@ -83,7 +83,9 @@ export function normalizeJourneyForClient(journey: Journey): Journey {
     pageTitle: pickNonEmptyString(journey.pageTitle, title),
     description: pickNonEmptyString(journey.description) || '',
     shortDescription:
-      pickNonEmptyString(journey.shortDescription, journey.description) || journey.shortDescription || '',
+      pickNonEmptyString(journey.shortDescription, journey.description) ||
+      journey.shortDescription ||
+      '',
     ...(link ? { link } : {}),
     createdAt: Number.isNaN(createdAt.getTime()) ? new Date() : createdAt,
     updatedAt: Number.isNaN(updatedAt.getTime()) ? new Date() : updatedAt,
@@ -94,10 +96,10 @@ export function normalizeJourneysForClient(journeys: Journey[]): Journey[] {
   return journeys.map(normalizeJourneyForClient);
 }
 
-/** Active journeys for list/grid SSR (lightweight fields, no full itinerary). */
+/** Active journeys for list/grid SSR — direct DB, no HTTP self-call. */
 export async function getActiveJourneysForList(): Promise<Journey[]> {
   try {
-    const journeys = await journeyAPI.getAll(2, false, false, 'list');
+    const journeys = await fetchActiveJourneysForListFromDb();
     return normalizeJourneysForClient(journeys);
   } catch (error) {
     console.error('[journeyServer] getActiveJourneysForList failed:', error);
