@@ -41,6 +41,20 @@ const JOURNEY_TYPE_SLUGS = [
   'group-tours',
 ] as const;
 
+function journeyHasRenderableContent(journey?: Journey | null): boolean {
+  if (!journey?.id) return false;
+  return (
+    (journey.itinerary?.length ?? 0) > 0 ||
+    !!journey.description?.trim() ||
+    !!journey.shortDescription?.trim() ||
+    !!journey.title?.trim()
+  );
+}
+
+type ClientJourneyPageProps = {
+  initialJourney?: Journey;
+};
+
 const GEO_FALLBACKS: Array<
   [keyword: string, coords: { lng: number; lat: number; name: string }]
 > = [
@@ -295,7 +309,7 @@ function DetailsAccordion({
   );
 }
 
-export default function ClientJourneyPage() {
+export default function ClientJourneyPage({ initialJourney }: ClientJourneyPageProps) {
   const {
     journeys,
     error: journeysError,
@@ -378,14 +392,8 @@ export default function ClientJourneyPage() {
 
   useEffect(() => {
     if (!normalizedSlug || isJourneyTypeSlug || isTypeRoute) return;
-    if (
-      contextJourney?.id &&
-      ((contextJourney.itinerary?.length ?? 0) > 0 ||
-        !!contextJourney.description ||
-        !!contextJourney.shortDescription)
-    ) {
-      return;
-    }
+    if (journeyHasRenderableContent(initialJourney)) return;
+    if (journeyHasRenderableContent(contextJourney)) return;
 
     let cancelled = false;
     (async () => {
@@ -421,7 +429,7 @@ export default function ClientJourneyPage() {
     return () => {
       cancelled = true;
     };
-  }, [contextJourney, isJourneyTypeSlug, isTypeRoute, normalizedSlug, slugApiPath]);
+  }, [contextJourney, initialJourney, isJourneyTypeSlug, isTypeRoute, normalizedSlug, slugApiPath]);
 
   useEffect(() => {
     let cancelled = false;
@@ -455,8 +463,8 @@ export default function ClientJourneyPage() {
   }, []);
 
   const resolvedJourney = useMemo(
-    () => contextJourney ?? journeyFromApi ?? null,
-    [contextJourney, journeyFromApi]
+    () => contextJourney ?? journeyFromApi ?? initialJourney ?? null,
+    [contextJourney, journeyFromApi, initialJourney]
   );
 
   const displayDescription = useMemo(
@@ -847,7 +855,8 @@ export default function ClientJourneyPage() {
     !!normalizedSlug &&
     (journeysLoading || isLoadingFromApi) &&
     !contextJourney &&
-    !journeyFromApi;
+    !journeyFromApi &&
+    !journeyHasRenderableContent(initialJourney);
 
   if (awaitingJourneyData) {
     return <JourneyDetailPageSkeleton />;

@@ -1,3 +1,5 @@
+import { cache } from 'react';
+import { fetchJourneyBySlugFromDb } from '@/lib/journeyDetailQuery.server';
 import { fetchActiveJourneysForListFromDb } from '@/lib/journeyListQuery.server';
 import type { Journey } from '@/types';
 
@@ -106,3 +108,14 @@ export async function getActiveJourneysForList(): Promise<Journey[]> {
     return [];
   }
 }
+
+/** Journey detail for SSR + generateMetadata (deduped per request via cache). */
+export const getJourneyBySlugForPage = cache(async (slug: string): Promise<Journey | null> => {
+  try {
+    const journey = await fetchJourneyBySlugFromDb(slug);
+    return journey ? normalizeJourneyForClient(journey) : null;
+  } catch (error) {
+    console.error('[journeyServer] getJourneyBySlugForPage failed:', error);
+    return null;
+  }
+});
