@@ -94,3 +94,21 @@ export async function fetchActiveJourneySlugsForStaticParams(): Promise<
 
   return params;
 }
+
+/** Flat slugs for sitemap entries (active/null only). */
+export async function fetchActiveJourneySitemapSlugs(): Promise<string[]> {
+  const result = await query(`
+    SELECT slug
+    FROM journeys
+    WHERE status = 'active' OR status IS NULL
+    ORDER BY created_at DESC
+    LIMIT 500
+  `);
+
+  const slugs: string[] = [];
+  for (const row of result.rows) {
+    const slug = (row.slug as string)?.trim();
+    if (slug) slugs.push(slug);
+  }
+  return slugs;
+}

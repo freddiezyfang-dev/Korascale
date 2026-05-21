@@ -1,9 +1,0 @@
-# *
-User-agent: *
-Allow: /
-
-# Host
-Host: https://korascale.com
-
-# Sitemaps
-Sitemap: https://korascale.com/sitemap.xml
