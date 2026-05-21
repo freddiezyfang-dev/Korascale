@@ -231,13 +231,22 @@ export async function GET(request: NextRequest) {
         baseData.mainContentImage,
         baseData.images?.[0]
       );
+      const resolvedTitle =
+        row.title ||
+        baseData.title ||
+        baseData.name ||
+        baseData.pageTitle ||
+        '';
+      const resolvedSlug = row.slug || baseData.slug || '';
+
       return {
         // JSONB数据先展开，再用结构化列覆盖，避免旧 data.image 等脏值反向污染主字段
         ...baseData,
         // 基础字段
         id: row.id,
-        title: row.title,
-        slug: row.slug,
+        title: resolvedTitle,
+        slug: resolvedSlug,
+        pageTitle: baseData.pageTitle || resolvedTitle,
         description: row.description,
         shortDescription: row.short_description,
         price: row.price,

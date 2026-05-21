@@ -15,6 +15,28 @@ function getJourneyCardImageAlt(title: string | undefined | null): string {
 	return trimmed || JOURNEY_CARD_IMAGE_ALT_FALLBACK;
 }
 
+function resolveCardTitle(journey: Journey & { name?: string }): string {
+	const record = journey as Journey & { name?: string; pageTitle?: string };
+	return (
+		record.title?.trim() ||
+		record.name?.trim() ||
+		record.pageTitle?.trim() ||
+		''
+	);
+}
+
+function resolveCardHref(journey: Journey & { link?: string }): string {
+	const slug = journey.slug?.trim();
+	if (slug) {
+		const segment = slug.replace(/^journeys\//i, '').replace(/^\/+/, '');
+		return segment ? `/journeys/${segment}` : '/journeys';
+	}
+	const link = typeof journey.link === 'string' ? journey.link.trim() : '';
+	if (link.startsWith('/journeys/')) return link;
+	if (link) return link;
+	return '/journeys';
+}
+
 type JourneysPageClientProps = {
 	initialJourneys?: Journey[];
 };
@@ -238,8 +260,9 @@ export default function JourneysPageClient({ initialJourneys }: JourneysPageClie
 			const matchesDuration = selectedDuration === null || journey.duration === selectedDuration;
 			const matchesInterest = selectedInterest === null || journey.category === selectedInterest;
 			const matchesPlace = selectedPlace === null || ('place' in journey && journey.place && journey.place === selectedPlace);
+			const cardTitle = resolveCardTitle(journey);
 			const matchesSearch = searchTerm === '' || 
-				journey.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				cardTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				(journey.description && journey.description.toLowerCase().includes(searchTerm.toLowerCase()));
 			return isActive && matchesJourneyType && matchesRegion && matchesDuration && matchesInterest && matchesPlace && matchesSearch;
 		});
@@ -707,12 +730,8 @@ export default function JourneysPageClient({ initialJourneys }: JourneysPageClie
 									const price = ('price' in journey && typeof journey.price === 'number')
 										? `$${journey.price}`
 										: ('price' in journey ? journey.price : 'N/A');
-									const href =
-										'slug' in journey && journey.slug
-											? `/journeys/${journey.slug}`
-											: 'link' in journey && journey.link
-												? journey.link
-												: '/journeys';
+									const cardTitle = resolveCardTitle(journey);
+									const href = resolveCardHref(journey);
 									const imgSrc =
 										('heroImage' in journey && journey.heroImage) ||
 										('image' in journey && journey.image) ||
@@ -724,7 +743,7 @@ export default function JourneysPageClient({ initialJourneys }: JourneysPageClie
 										maxGuests ? `MAX ${maxGuests} GUESTS` : null,
 										price !== 'N/A' ? `FROM ${price}` : null,
 									].filter(Boolean);
-									const imageAlt = getJourneyCardImageAlt(journey.title);
+									const imageAlt = getJourneyCardImageAlt(cardTitle);
 									return (
 										<Link key={journey.id} href={href} className="block h-full">
 											<Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col h-full bg-[#f5f1e6] cursor-pointer">
@@ -745,7 +764,7 @@ export default function JourneysPageClient({ initialJourneys }: JourneysPageClie
 														className="text-lg sm:text-xl font-serif leading-snug font-normal mb-2"
 														style={{ fontFamily: 'var(--font-playfair), Playfair Display, serif' }}
 													>
-														{journey.title}
+														{cardTitle}
 													</h3>
 													<p className="text-xs uppercase tracking-widest text-gray-500 mb-1">
 														{metaParts.join(' · ')}
