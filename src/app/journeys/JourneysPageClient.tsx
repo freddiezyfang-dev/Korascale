@@ -227,7 +227,10 @@ export default function JourneysPageClient({ initialJourneys }: JourneysPageClie
 	const filteredJourneys = useMemo(() => {
 		const filtered = journeys.filter(journey => {
 			// 安全地检查 status 属性（默认 journeys 可能没有这个属性）
-			const isActive = 'status' in journey ? journey.status === 'active' : true;
+			const isActive =
+				!('status' in journey) ||
+				journey.status == null ||
+				journey.status === 'active';
 			const journeyType = resolveJourneyType(journey);
 			// 只有当 filter 有值时才应用过滤，null 表示不过滤
 			const matchesJourneyType = selectedJourneyType === null || journeyType === selectedJourneyType;
