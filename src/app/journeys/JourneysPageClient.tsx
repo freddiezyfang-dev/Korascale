@@ -10,22 +10,44 @@ import { JOURNEY_TYPE_CARD_IMAGE } from '@/lib/journeyTypeCardImages';
 
 const JOURNEY_CARD_IMAGE_ALT_FALLBACK = 'Korascale private journey in China';
 
+/** Union of full Journey rows and inline defaultJourneys card objects. */
+type JourneyCardLike = {
+	id?: string | number;
+	title?: string | null;
+	name?: string | null;
+	pageTitle?: string | null;
+	slug?: string | null;
+	link?: string | null;
+	description?: string | null;
+	image?: string | null;
+	images?: unknown;
+	heroImage?: string | null;
+	category?: string | null;
+	region?: string | null;
+	place?: string | null;
+	journeyType?: string | null;
+	status?: string | null;
+	duration?: string | null;
+	price?: string | number | null;
+	maxGuests?: number | null;
+	maxParticipants?: number | null;
+};
+
 function getJourneyCardImageAlt(title: string | undefined | null): string {
 	const trimmed = title?.trim();
 	return trimmed || JOURNEY_CARD_IMAGE_ALT_FALLBACK;
 }
 
-function resolveCardTitle(journey: Journey & { name?: string }): string {
-	const record = journey as Journey & { name?: string; pageTitle?: string };
+function resolveCardTitle(journey: JourneyCardLike): string {
 	return (
-		record.title?.trim() ||
-		record.name?.trim() ||
-		record.pageTitle?.trim() ||
+		journey.title?.trim() ||
+		journey.name?.trim() ||
+		journey.pageTitle?.trim() ||
 		''
 	);
 }
 
-function resolveCardHref(journey: Journey & { link?: string }): string {
+function resolveCardHref(journey: JourneyCardLike): string {
 	const slug = journey.slug?.trim();
 	if (slug) {
 		const segment = slug.replace(/^journeys\//i, '').replace(/^\/+/, '');
