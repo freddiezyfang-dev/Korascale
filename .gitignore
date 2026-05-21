@@ -17,6 +17,11 @@
 /.next/
 /out/
 
+# legacy next-sitemap artifacts (use src/app/sitemap.ts)
+/public/sitemap.xml
+/public/sitemap-*.xml
+/public/robots.txt
+
 # production
 /build
 
