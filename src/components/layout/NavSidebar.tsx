@@ -134,13 +134,6 @@ export default function NavSidebar({ isOpen, onClose }: NavSidebarProps) {
               <SolutionsDropdown />
             </div>
           </div>
-
-          {/* Accommodations */}
-          <div>
-            <Link prefetch={true} href="/accommodations" onClick={onClose} className="block py-2">
-              Accommodations
-            </Link>
-          </div>
         </nav>
       </aside>
     </>

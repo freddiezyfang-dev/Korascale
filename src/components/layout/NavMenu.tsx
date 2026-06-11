@@ -119,9 +119,6 @@ export default function NavMenu() {
 							>
 								<SolutionsDropdown />
 							</Dropdown>
-							<Link prefetch={true} href="/accommodations" className="hover:opacity-80 h-[34px] flex items-center">
-								Accommodations
-							</Link>
 						</div>
 					</div>
 
