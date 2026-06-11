@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from "next/link";
-import { Container, Section, Heading, Text, Button, Card } from '@/components/common';
-import { CategoryExplorer } from '@/components/sections';
+import { Container, Section } from '@/components/common';
+import { CategoryExplorer, EditorialMosaic } from '@/components/sections';
 import OurPerspectiveSection from '@/components/sections/OurPerspectiveSection';
 import TheLensBehindKorascaleSection from '@/components/sections/TheLensBehindKorascaleSection';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
@@ -32,13 +31,6 @@ const homeInspirationCards = HOME_INSPIRATION_CATEGORIES.map((cat, i) => ({
   slug: ArticleCategoryToSlug[cat],
   href: `/inspirations/${ArticleCategoryToSlug[cat]}`,
 }));
-import hotelsData from '@/data/hotels.json';
-import { getRenderableImageUrl } from '@/lib/imageUtils';
-
-const imgDestinationsButton = "/images/main-cards/destinations.jpeg";
-const imgJourneysButton = "/images/main-cards/journeys.jpeg";
-const imgInspirationsButton = "/images/main-cards/inspirations.png";
-const imgAccommodationsButton = "/images/main-cards/accommodations.jpg";
 
 const imgJourneyCard1 = "/images/journey-cards/chengdu-deep-dive.jpeg";
 const imgJourneyCard2 = "/images/journey-cards/chongqing-cyber-city.jpg";
@@ -48,15 +40,12 @@ const imgJourneyCard5 = "/images/journey-cards/chongqing-wulong-karst-national-p
 const imgJourneyCard6 = "/images/journey-cards/jiuzhaigou-huanglong-national-park-tour.jpg";
 
 const FALLBACK_CONTENT = [
-  { title: 'Adventures Custom Made For You', excerpt: 'Korascale offers fully tailored expeditions. Curate your own adventure by selecting from our unique experiences.', image: '/images/article-cards/adventures-custom-made.jpg', href: '/journeys' },
-  { title: 'Cyber-City Chongqing', excerpt: 'Where neon-drenched skyscrapers pierce the mist, rising from ancient hills.', image: '/images/article-cards/cyber-city-chongqing.jpg', href: '/destinations' },
-  { title: 'Chinese Food Tour', excerpt: 'Embark on the ultimate sensory adventure. Let your taste buds explode with flavors from China\'s diverse regions.', image: '/images/article-cards/chinese-food-tour.jpg', href: '/inspirations' },
-  { title: 'Sacred Horizons · A Tibetan Buddhist Journey', excerpt: 'Discover the serene beauty of snow-capped mountains, ancient monasteries, and timeless Tibetan traditions.', image: '/images/article-cards/tibet-buddhist-journey.jpg', href: '/journeys' },
-  { title: 'Sacred Horizons', excerpt: 'Discover the serene beauty of sacred landscapes and ancient traditions.', image: '/images/article-cards/sacred-horizons.jpg', href: '/inspirations' },
+  { title: 'Adventures Custom Made For You', image: '/images/article-cards/adventures-custom-made.jpg', href: '/journeys' },
+  { title: 'Cyber-City Chongqing', image: '/images/article-cards/cyber-city-chongqing.jpg', href: '/destinations' },
+  { title: 'Chinese Food Tour', image: '/images/article-cards/chinese-food-tour.jpg', href: '/inspirations' },
+  { title: 'Sacred Horizons · A Tibetan Buddhist Journey', image: '/images/article-cards/tibet-buddhist-journey.jpg', href: '/journeys' },
+  { title: 'Sacred Horizons', image: '/images/article-cards/sacred-horizons.jpg', href: '/inspirations' },
 ];
-
-const CONTENT_GRADIENT = 'bg-gradient-to-t from-black/60 to-transparent';
-const SERIF_FONT = 'var(--font-playfair), Playfair Display, serif';
 
 export default function Home() {
   const { journeys } = useJourneyManagement();
@@ -72,9 +61,9 @@ export default function Home() {
   const contentItems = featuredArticles.length > 0
     ? featuredArticles.map((a) => ({
         title: a.title,
-        excerpt: a.excerpt || '',
         image: a.heroImage || a.coverImage || '',
         href: `/inspirations/${ArticleCategoryToSlug[a.category]}/${a.slug}`,
+        category: a.category,
       }))
     : FALLBACK_CONTENT;
 
@@ -174,83 +163,13 @@ export default function Home() {
             href: '/destinations/east-central'
           }
         ]}
-        accommodations={hotelsData.hotels.slice(0, 3).map(hotel => ({
-          id: hotel.id,
-          title: hotel.name,
-          shortDescription: hotel.location,
-          description: hotel.description,
-          image: getRenderableImageUrl(hotel.images?.[0]),
-          slug: hotel.id,
-          href: '/accommodations'
-        }))}
         inspirations={homeInspirationCards}
       />
 
-      {/* Content Section：后台精选 5 篇 (featured + display_order)，无则用占位；移动端单列，图片铺满无灰边 */}
+      {/* Editorial mosaic — featured inspirations / SEO articles */}
       <Section background="tertiary" padding="xl">
         <Container size="xl">
-          {/* 移动端单列；桌面端保持 1 大 + 多小网格 */}
-          <div className="flex flex-col md:grid md:grid-cols-2 md:gap-6 lg:gap-8">
-            {/* Slot 1：大图 aspect-[4/5]，桌面端占整行或左半 */}
-            <Link
-              href={contentItems[0]?.href || '#'}
-              className="relative w-full overflow-hidden rounded-lg mb-6 md:mb-0 md:col-span-2 flex flex-col md:grid md:grid-cols-2 md:gap-0 group"
-            >
-              <div className="relative w-full aspect-[4/5] md:aspect-auto md:min-h-[300px] md:h-full overflow-hidden bg-gray-200 flex-shrink-0">
-                {contentItems[0]?.image ? (
-                  <img
-                    src={contentItems[0].image}
-                    alt=""
-                    className="absolute inset-0 w-full h-full object-cover object-center"
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-[#1e3b32]" />
-                )}
-                <div className={`absolute inset-0 flex flex-col justify-end p-4 md:hidden ${CONTENT_GRADIENT}`}>
-                  <h3 className="text-xl font-serif text-white line-clamp-3" style={{ fontFamily: SERIF_FONT }}>
-                    {contentItems[0]?.title}
-                  </h3>
-                  <span className="text-white/90 text-sm mt-1">view more</span>
-                </div>
-              </div>
-              <div className="w-full bg-[#1e3b32] p-8 lg:p-10 flex flex-col justify-center min-h-[300px] hidden md:flex">
-                <h3 className="text-2xl font-serif text-white mb-4" style={{ fontFamily: SERIF_FONT }}>
-                  {contentItems[0]?.title}
-                </h3>
-                <p className="text-white/90 text-[17px] leading-relaxed font-body line-clamp-5 mb-4">
-                  {contentItems[0]?.excerpt}
-                </p>
-                <span className="text-white underline font-body text-base">view more</span>
-              </div>
-            </Link>
-
-            {/* Slots 2+：小图 aspect-square，强制 relative overflow-hidden + img 填满 */}
-            {contentItems.slice(1).map((item, index) => (
-              <Link
-                key={item.href + index}
-                href={item.href || '#'}
-                className="relative w-full overflow-hidden rounded-lg group block mb-6 md:mb-0"
-              >
-                <div className="relative w-full aspect-square overflow-hidden bg-gray-200">
-                  {item.image ? (
-                    <img
-                      src={item.image}
-                      alt=""
-                      className="absolute inset-0 w-full h-full object-cover object-center"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-[#1e3b32]" />
-                  )}
-                  <div className={`absolute inset-0 flex flex-col justify-end p-4 ${CONTENT_GRADIENT}`}>
-                    <h3 className="text-lg sm:text-xl lg:text-2xl font-serif text-white" style={{ fontFamily: SERIF_FONT }}>
-                      {item.title}
-                    </h3>
-                    <span className="text-white/90 text-sm mt-1">view more</span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <EditorialMosaic items={contentItems} />
         </Container>
       </Section>
 

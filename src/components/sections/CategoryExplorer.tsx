@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Journey } from '@/types';
 import { Card, Text } from '@/components/common';
-import { AccommodationCard } from '@/components/cards/AccommodationCard';
 import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 interface CategoryItem {
@@ -20,16 +19,78 @@ interface CategoryItem {
 interface CategoryExplorerProps {
   journeys?: Journey[];
   destinations?: CategoryItem[];
-  accommodations?: CategoryItem[];
   inspirations?: CategoryItem[];
 }
 
-type CategoryType = 'destinations' | 'journeys' | 'accommodations' | 'inspirations';
+type CategoryType = 'destinations' | 'journeys' | 'businessVisits' | 'inspirations';
+
+/** Shared tab panel rhythm — keeps height stable when switching tabs */
+const TAB_PANEL_MIN_H = 'min-h-[420px] md:min-h-[460px]';
+const CARD_PANEL_H = 'h-[420px] md:h-[460px]';
+const CARD_IMAGE_H = 'h-[220px] shrink-0';
+const TAB_CONTENT_MB = 'mb-0';
+const TAB_CTA_MT = 'mt-12 md:mt-16';
+
+const BUSINESS_VISITS_CARDS = [
+	{
+		title: 'For overseas teams visiting China',
+		body: 'Trade shows, client visits, transportation, interpreters, and post-event experiences.',
+	},
+	{
+		title: 'For China-based companies receiving overseas clients',
+		body: 'Guest reception, factory visits, business dinners, and multilingual coordination.',
+	},
+] as const;
+
+function BusinessVisitsPanel() {
+	return (
+		<div
+			className={`flex min-h-[420px] flex-col overflow-hidden rounded-sm border border-black/[0.08] bg-[#FAF9F6] shadow-sm md:h-[460px]`}
+		>
+			<div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-5">
+				<div className="relative h-[120px] overflow-hidden sm:h-[140px] lg:col-span-2 lg:h-full">
+					<img
+						src="/images/hero/shenzhen.jpg"
+						alt="Business travel and client reception in China"
+						className="absolute inset-0 h-full w-full object-cover"
+					/>
+					<div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#1D302E]/20 to-transparent lg:from-[#1D302E]/25" />
+				</div>
+
+				<div className="flex flex-col justify-center px-5 py-4 sm:px-6 sm:py-5 lg:col-span-3 lg:px-8 lg:py-6">
+					<p className="text-[10px] font-body font-medium uppercase tracking-[0.22em] text-[#5C6A68] sm:text-xs">
+						For Business Visits
+					</p>
+					<h3 className="mt-2 line-clamp-2 font-heading text-xl leading-snug text-[#1E2725] sm:text-[1.35rem] lg:text-2xl">
+						Business Visits &amp; Client Reception in China
+					</h3>
+					<p className="mt-2 line-clamp-3 max-w-xl text-sm leading-relaxed text-[#4B5A58] sm:text-[15px] sm:leading-[1.6]">
+						Local coordination for overseas teams and China-based companies — transportation, interpreters,
+						client visits, trade shows, and post-event experiences.
+					</p>
+				</div>
+			</div>
+
+			<div className="grid shrink-0 grid-cols-1 border-t border-black/[0.08] md:grid-cols-2">
+				{BUSINESS_VISITS_CARDS.map((card, index) => (
+					<div
+						key={card.title}
+						className={`bg-[#F5F2ED] px-5 py-3.5 sm:px-6 sm:py-4 ${index === 0 ? 'md:border-r md:border-black/[0.08]' : ''}`}
+					>
+						<h4 className="line-clamp-2 font-heading text-sm text-[#1E2725] sm:text-base">{card.title}</h4>
+						<p className="mt-1 line-clamp-2 text-xs leading-relaxed text-[#4B5A58] sm:text-sm sm:leading-snug">
+							{card.body}
+						</p>
+					</div>
+				))}
+			</div>
+		</div>
+	);
+}
 
 export default function CategoryExplorer({
   journeys = [],
   destinations = [],
-  accommodations = [],
   inspirations = []
 }: CategoryExplorerProps) {
   const [activeCategory, setActiveCategory] = useState<CategoryType>('destinations');
@@ -54,8 +115,8 @@ export default function CategoryExplorer({
       case 'journeys':
         setDisplayedItems(journeysAsItems);
         break;
-      case 'accommodations':
-        setDisplayedItems(accommodations.slice(0, 3));
+      case 'businessVisits':
+        setDisplayedItems([]);
         break;
       case 'inspirations':
         setDisplayedItems(inspirations.slice(0, 3));
@@ -63,12 +124,12 @@ export default function CategoryExplorer({
       default:
         setDisplayedItems([]);
     }
-  }, [activeCategory, destinations, journeys, accommodations, inspirations]);
+  }, [activeCategory, destinations, journeys, inspirations]);
 
   const categories: { key: CategoryType; label: string; href: string }[] = [
     { key: 'destinations', label: 'Destinations', href: '/destinations' },
     { key: 'journeys', label: 'Journeys', href: '/journeys' },
-    { key: 'accommodations', label: 'Accommodations', href: '/accommodations' },
+    { key: 'businessVisits', label: 'Business Visits', href: '/solutions/corporate-travel' },
     { key: 'inspirations', label: 'Inspirations', href: '/inspirations' }
   ];
 
@@ -95,9 +156,13 @@ export default function CategoryExplorer({
           ))}
         </div>
 
-        {/* Cards Grid - 3张卡片并列显示 */}
+        {/* Content area — unified height rhythm across tabs */}
+        <div className={`${TAB_PANEL_MIN_H} ${TAB_CONTENT_MB}`}>
+        {activeCategory === 'businessVisits' ? (
+          <BusinessVisitsPanel />
+        ) : (
         <div 
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity duration-300"
+          className="grid h-full grid-cols-1 items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3 transition-opacity duration-300"
           key={activeCategory}
           style={{ opacity: displayedItems.length > 0 ? 1 : 0.5 }}
         >
@@ -106,7 +171,7 @@ export default function CategoryExplorer({
               ? (item.href || `/${activeCategory}/${item.slug}`)
               : `/${activeCategory}`;
 
-            // Destinations 使用特殊样式
+            // Destinations — image-led overlay cards, fixed panel height
             if (activeCategory === 'destinations') {
               return (
                 <Link
@@ -114,26 +179,20 @@ export default function CategoryExplorer({
                   href={href}
                   className="block h-full"
                 >
-                  <div className="relative aspect-[4/5] w-full overflow-hidden group cursor-pointer rounded-sm">
-                    {/* 1. 背景图片层 */}
+                  <div className={`relative ${CARD_PANEL_H} w-full overflow-hidden group cursor-pointer rounded-sm`}>
                     <img
                       src={getRenderableImageUrl(item.image)}
                       alt={item.title}
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
 
-                    {/* 2. A&K 风格渐变遮罩层 - 从底部向上变深 */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-80" />
 
-                    {/* 3. 文字内容层 - 位于底部并居中 */}
-                    <div className="absolute inset-0 flex flex-col justify-end items-center pb-12 px-8 text-white text-center">
-                      {/* 目的地标题 - 使用大字号衬线体 */}
-                      <h3 className="text-3xl md:text-4xl font-heading mb-3 tracking-wide drop-shadow-sm">
+                    <div className="absolute inset-0 flex flex-col justify-end items-center px-6 pb-10 text-center text-white md:px-8 md:pb-12">
+                      <h3 className="line-clamp-2 text-2xl font-heading tracking-wide drop-shadow-sm md:text-3xl">
                         {item.title}
                       </h3>
-                      
-                      {/* 描述文案 - 细体且行间距适中 */}
-                      <p className="text-sm md:text-base font-body font-light leading-relaxed opacity-90 max-w-[280px]">
+                      <p className="mt-2 line-clamp-2 max-w-[280px] text-sm font-body font-light leading-relaxed opacity-90 md:text-base">
                         {item.shortDescription || item.description || ''}
                       </p>
                     </div>
@@ -142,25 +201,7 @@ export default function CategoryExplorer({
               );
             }
 
-            // Accommodations 使用 AccommodationCard 组件
-            if (activeCategory === 'accommodations') {
-              return (
-                <div key={item.id}>
-                  <AccommodationCard
-                    id={item.id}
-                    title={item.title}
-                    location={item.shortDescription || item.description || ''}
-                    image={getRenderableImageUrl(item.image)}
-                    description={item.description}
-                    variant="light"
-                    showWishlist={false}
-                  />
-                </div>
-              );
-            }
-
-            // 其他类别使用原有格式
-            // 获取价格信息（如果是 journey）
+            // Journeys & Inspirations — product / editorial cards, shared height + image ratio
             const journeyItem = journeys.find(j => j.id === item.id);
             const maxGuests = journeyItem 
               ? (('maxGuests' in journeyItem && journeyItem.maxGuests) 
@@ -181,53 +222,45 @@ export default function CategoryExplorer({
                 href={href}
                 className="block h-full"
               >
-                <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col h-full bg-[#f5f1e6] cursor-pointer">
-                  {/* Image - 固定高度 h-48 */}
+                <Card className={`flex ${CARD_PANEL_H} flex-col overflow-hidden bg-[#f5f1e6] cursor-pointer shadow-lg transition-shadow hover:shadow-xl`}>
                   <div 
-                    className="h-48 bg-cover bg-center bg-no-repeat flex-shrink-0"
+                    className={`${CARD_IMAGE_H} bg-cover bg-center bg-no-repeat`}
                     style={{ backgroundImage: `url('${getRenderableImageUrl(item.image)}')` }}
                   />
                   
-                  {/* Content - Inspirations：更大衬线标题 + 18px 正文；Journeys 保持原样 */}
-                  <div className={`p-4 flex flex-col flex-1 ${isInspirationCard ? 'md:p-5' : ''}`}>
-                    {/* Title */}
+                  <div className="flex min-h-0 flex-1 flex-col p-4 md:p-5">
                     <h3 
                       className={
                         isInspirationCard
-                          ? 'text-2xl font-serif text-[#111] mb-3 leading-snug flex-shrink-0 font-normal'
-                          : 'text-lg font-heading mb-2 leading-tight flex-shrink-0 font-normal'
+                          ? 'mb-2 line-clamp-2 flex-shrink-0 font-serif text-xl leading-snug text-[#111] font-normal md:text-2xl'
+                          : 'mb-2 line-clamp-2 flex-shrink-0 font-heading text-lg leading-tight font-normal'
                       }
-                      style={!isInspirationCard ? { fontWeight: 400 } : undefined}
                     >
                       {item.title}
                     </h3>
                     
-                    {/* Description */}
                     <Text
                       className={
                         isInspirationCard
-                          ? 'text-[17px] md:text-[18px] text-gray-700 leading-[1.7] mb-3 flex-shrink-0 line-clamp-6 max-w-none lg:max-w-xl'
-                          : 'text-sm text-gray-600 mb-3 line-clamp-2 flex-shrink-0'
+                          ? 'mb-3 line-clamp-3 flex-shrink-0 text-[15px] leading-[1.65] text-gray-700 md:text-base md:leading-[1.7]'
+                          : 'mb-3 line-clamp-2 flex-shrink-0 text-sm text-gray-600'
                       }
                     >
                       {item.shortDescription || item.description || ''}
                     </Text>
                     
-                    {/* Meta Information - 底部 */}
-                    <div className="mt-auto flex flex-col flex-shrink-0">
-                      {/* 第一行：Duration 和 Max Guests */}
+                    <div className="mt-auto flex flex-shrink-0 flex-col">
                       {duration && (
                         <Text
-                          className="text-sm mb-1"
+                          className="mb-1 line-clamp-1 text-sm"
                           style={{ fontFamily: 'Monda, sans-serif', color: '#000000', fontWeight: 400, fontSize: '0.875rem' }}
                         >
                           {duration}{maxGuests ? ` • Limited to ${maxGuests} guests` : ''}
                         </Text>
                       )}
-                      {/* 第二行：价格 */}
                       {price && (
                         <Text
-                          className="text-sm"
+                          className="line-clamp-1 text-sm"
                           style={{ fontFamily: 'Monda, sans-serif', color: '#000000', fontWeight: 400, fontSize: '0.875rem' }}
                         >
                           {price !== 'N/A' ? `Priced from ${price}` : ''}
@@ -240,15 +273,19 @@ export default function CategoryExplorer({
             );
           })}
         </div>
+        )}
+        </div>
 
-        {/* Explore All Button */}
-        <div className="text-center mt-12 md:mt-16">
+        {/* Explore All — consistent placement for all tabs */}
+        <div className={`text-center ${TAB_CTA_MT}`}>
           <Link
             href={categories.find(c => c.key === activeCategory)?.href || '/journeys'}
-            className="inline-block px-8 py-3 bg-[#1e3b32] text-white font-body text-lg uppercase hover:bg-[#1a342c] transition-all duration-300 rounded-lg"
+            className="inline-block rounded-lg bg-[#1e3b32] px-8 py-3 font-body text-lg uppercase text-white transition-all duration-300 hover:bg-[#1a342c]"
             style={{ color: '#FFFFFF' }}
           >
-            EXPLORE ALL {categories.find(c => c.key === activeCategory)?.label.toUpperCase()}
+            {activeCategory === 'businessVisits'
+              ? 'EXPLORE CORPORATE TRAVEL SUPPORT'
+              : `EXPLORE ALL ${categories.find(c => c.key === activeCategory)?.label.toUpperCase()}`}
           </Link>
         </div>
       </div>
