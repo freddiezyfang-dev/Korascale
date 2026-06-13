@@ -3,7 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { Card, Heading, Text } from '@/components/common';
-import { Article, ArticleCategoryToSlug, ArticleCategoryToCardTitle } from '@/types/article';
+import { Article } from '@/types/article';
+import { getArticleCanonicalPath, getArticleCategoryLabel } from '@/lib/articleCategories';
 import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 interface ArticleCardProps {
@@ -11,7 +12,7 @@ interface ArticleCardProps {
 }
 
 export const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
-  const href = `/inspirations/${ArticleCategoryToSlug[article.category]}/${article.slug}`;
+  const href = getArticleCanonicalPath(article);
   const excerpt = article.excerpt || (article.content ? article.content.replace(/<[^>]+>/g, '').slice(0, 140) + '...' : '');
   const coverImageUrl = getRenderableImageUrl(article.coverImage);
   return (
@@ -22,7 +23,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
         </div>
         <div className="p-4">
           <Text className="text-xs text-gray-500 mb-1">
-            {ArticleCategoryToCardTitle[article.category]} • {article.author}
+            {getArticleCategoryLabel(article)} • {article.author}
           </Text>
           <Heading level={3} className="text-lg font-semibold mb-2">{article.title}</Heading>
           <Text className="text-sm text-gray-600">{excerpt}</Text>

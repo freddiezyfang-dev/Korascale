@@ -3,10 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  ARTICLE_CATEGORIES,
-  ArticleCategoryToSlug,
-  ArticleCategoryToCardTitle,
-} from '@/types/article';
+	CANONICAL_ARTICLE_CATEGORIES,
+	getCanonicalCategorySlug,
+} from '@/lib/articleCategories';
 import { solutionsNavItems } from '@/config/navigation';
 
 interface DropdownProps {
@@ -131,15 +130,15 @@ export function InspirationsDropdown() {
   return (
     <div className="bg-white p-[20px] min-w-[260px] shadow-lg border border-gray-300 border-t-0" data-name="Inspirations dropdowns" data-node-id="776:402">
       <div className="flex flex-col gap-[4px]">
-        {ARTICLE_CATEGORIES.map((cat) => (
+        {CANONICAL_ARTICLE_CATEGORIES.map((cat) => (
           <Link
             prefetch={true}
             key={cat}
-            href={`/inspirations/${ArticleCategoryToSlug[cat]}`}
+            href={`/inspirations/${getCanonicalCategorySlug(cat)}`}
             className="block px-3 py-3 hover:bg-gray-100 cursor-pointer transition-all duration-200 group rounded-sm"
           >
             <p className="text-gray-800 text-[17px] font-serif leading-snug group-hover:text-black transition-colors duration-200">
-              {ArticleCategoryToCardTitle[cat]}
+              {cat}
             </p>
           </Link>
         ))}

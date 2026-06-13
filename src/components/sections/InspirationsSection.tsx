@@ -4,17 +4,16 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Container, Section, Heading, Text } from '@/components/common';
 import {
-  ARTICLE_CATEGORIES,
-  ArticleCategoryToCardTitle,
-  ArticleCategoryToHeroImage,
-  ArticleCategoryToSlug,
-} from '@/types/article';
+  CANONICAL_ARTICLE_CATEGORIES,
+  CANONICAL_CATEGORY_TO_HERO_IMAGE,
+  getCanonicalCategorySlug,
+} from '@/lib/articleCategories';
 
-const inspirations = ARTICLE_CATEGORIES.map((category, index) => ({
+const inspirations = CANONICAL_ARTICLE_CATEGORIES.map((category, index) => ({
   id: index + 1,
-  title: ArticleCategoryToCardTitle[category],
-  image: ArticleCategoryToHeroImage[category],
-  href: `/inspirations/${ArticleCategoryToSlug[category]}`,
+  title: category,
+  image: CANONICAL_CATEGORY_TO_HERO_IMAGE[category],
+  href: `/inspirations/${getCanonicalCategorySlug(category)}`,
 }));
 
 export default function InspirationsSection() {

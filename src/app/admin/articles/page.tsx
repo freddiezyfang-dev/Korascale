@@ -8,11 +8,11 @@ import { useArticleManagement } from '@/context/ArticleManagementContext';
 import {
   Article,
   ArticleCategory,
-  ArticleCategoryToSlug,
-  ARTICLE_CATEGORIES,
+  ADMIN_ARTICLE_CATEGORY_OPTIONS,
   articleCategoryOptionLabel,
   ArticleCategoryToCardTitle,
 } from '@/types/article';
+import { getArticleCanonicalPath } from '@/lib/articleCategories';
 import { DeleteConfirmationModal } from '@/components/modals/DeleteConfirmationModal';
 import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation';
 import { getRenderableImageUrl } from '@/lib/imageUtils';
@@ -32,7 +32,7 @@ export default function AdminArticlesPage() {
     handleClose 
   } = useDeleteConfirmation();
 
-  const categories = ARTICLE_CATEGORIES;
+  const categories = ADMIN_ARTICLE_CATEGORY_OPTIONS;
 
   const handleDeleteArticle = (article: Article) => {
     confirmDelete({
@@ -230,7 +230,7 @@ ${localArticles.length > 0 ? '💾 localStorage 有备份数据' : '💾 localSt
                     <Button variant="secondary" size="sm" onClick={() => handleDeleteArticle(article)}>
                       <Trash2 className="w-4 h-4 mr-1" />删除
                     </Button>
-                    <Link href={`/inspirations/${ArticleCategoryToSlug[article.category]}/${article.slug}`} className="inline-flex ml-auto">
+                    <Link href={getArticleCanonicalPath(article)} className="inline-flex ml-auto">
                       <Button variant="secondary" size="sm"><Eye className="w-4 h-4 mr-1" />预览</Button>
                     </Link>
                   </div>

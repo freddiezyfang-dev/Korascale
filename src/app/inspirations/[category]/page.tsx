@@ -1,100 +1,124 @@
-'use client';
-
-import React, { useMemo } from 'react';
-import { useParams } from 'next/navigation';
+import type { Metadata } from 'next';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { Section, Container, Heading, Text } from '@/components/common';
-import { useArticleManagement } from '@/context/ArticleManagementContext';
-import { ArticleCategoryToHeroImage, ArticleSlugToCategory, ArticleCategoryToSlug, ArticleCategoryToDisplayName } from '@/types/article';
 import { ArticleCard } from '@/components/cards/ArticleCard';
+import {
+	articleListItemToCardArticle,
+	getPublishedArticlesByCategorySlug,
+} from '@/lib/articleQuery.server';
+import {
+	CANONICAL_ARTICLE_CATEGORIES,
+	CANONICAL_CATEGORY_TO_DESCRIPTION,
+	CANONICAL_CATEGORY_TO_HERO_IMAGE,
+	getCanonicalCategoryBySlug,
+	getCanonicalCategorySlug,
+} from '@/lib/articleCategories';
 
-export default function InspirationCategoryPage() {
-  const params = useParams();
-  const { articles, isLoading } = useArticleManagement();
-  const slug = Array.isArray(params?.category) ? params?.category[0] : (params?.category as string);
-  const category = ArticleSlugToCategory(slug || '');
-  const list = useMemo(() => {
-    if (!category) return [];
-    const filtered = articles.filter(a => a.category === category && a.status === 'active');
-    // 调试信息
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Category Page Debug:', {
-        categorySlug: slug,
-        category,
-        totalArticles: articles.length,
-        activeArticles: articles.filter(a => a.status === 'active').length,
-        categoryArticles: articles.filter(a => a.category === category).length,
-        filteredArticles: filtered.length,
-        allArticles: articles.map(a => ({ id: a.id, title: a.title, category: a.category, status: a.status, slug: a.slug }))
-      });
-    }
-    return filtered;
-  }, [articles, category, slug]);
-  const hero = category ? ArticleCategoryToHeroImage[category] : '';
-  const displayTitle = category ? ArticleCategoryToDisplayName[category] : 'Unknown Category';
-  const semicolonIndex = displayTitle.indexOf(';');
-  const titleLine1 = semicolonIndex >= 0 ? displayTitle.slice(0, semicolonIndex).trim() : displayTitle;
-  const titleLine2 = semicolonIndex >= 0 ? displayTitle.slice(semicolonIndex + 1).trim() : '';
+const SITE_URL = 'https://www.korascale.com';
 
-  return (
-    <main>
-      <Section background="primary" padding="none" className="relative h-[520px] overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${hero}')` }} />
-        <div className="absolute inset-0 bg-black/35" />
-        <div className="relative z-10 h-full flex flex-col items-center justify-center text-center">
-          <div className="flex flex-col items-center justify-center">
-            <Heading
-              level={1}
-              className="text-4xl md:text-6xl font-semibold tracking-tight text-white drop-shadow-lg"
-              style={{ fontFamily: 'Montserrat, sans-serif' }}
-            >
-              {titleLine1}
-            </Heading>
-            {titleLine2 && (
-              <span
-                className="mt-4 text-xl md:text-2xl font-normal tracking-tight text-white drop-shadow-lg block"
-                style={{ fontFamily: 'Montserrat, sans-serif' }}
-              >
-                {titleLine2}
-              </span>
-            )}
-          </div>
-        </div>
-      </Section>
+export const dynamic = 'force-dynamic';
 
-      <Section background="secondary" padding="xl">
-        <Container size="xl">
-          {isLoading ? (
-            <div className="text-center py-10">
-              <Text className="text-gray-600">加载中...</Text>
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {list.map(a => (
-                  <ArticleCard key={a.id} article={a} />
-                ))}
-              </div>
-              {list.length === 0 && (
-                <div className="col-span-full text-center py-10">
-                  <Text className="text-gray-600 mb-2">暂无文章</Text>
-                  {process.env.NODE_ENV === 'development' && (
-                    <div className="text-xs text-gray-500 mt-4 space-y-1">
-                      <p>调试信息：</p>
-                      <p>分类: {category || '未识别'}</p>
-                      <p>分类 Slug: {slug}</p>
-                      <p>总文章数: {articles.length}</p>
-                      <p>Active 文章数: {articles.filter(a => a.status === 'active').length}</p>
-                      <p>该分类文章数: {articles.filter(a => a.category === category).length}</p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </>
-          )}
-        </Container>
-      </Section>
-    </main>
-  );
+type PageProps = {
+	params: Promise<{ category: string }>;
+};
+
+export function generateStaticParams() {
+	return CANONICAL_ARTICLE_CATEGORIES.map((category) => ({
+		category: getCanonicalCategorySlug(category),
+	}));
 }
 
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+	const { category: categorySlug } = await params;
+	const canonicalCategory = getCanonicalCategoryBySlug(categorySlug);
 
+	if (!canonicalCategory) {
+		return { title: 'Category Not Found | KoraScale' };
+	}
+
+	const canonicalSlug = getCanonicalCategorySlug(canonicalCategory);
+	const title = `${canonicalCategory} | KoraScale Inspirations`;
+	const description =
+		CANONICAL_CATEGORY_TO_DESCRIPTION[canonicalCategory] ||
+		`Explore ${canonicalCategory} travel insights, guides, and inspiration from KoraScale.`;
+	const canonical = `${SITE_URL}/inspirations/${canonicalSlug}`;
+
+	return {
+		title,
+		description,
+		alternates: { canonical },
+		openGraph: {
+			title,
+			description,
+			url: canonical,
+			type: 'website',
+		},
+		twitter: {
+			card: 'summary_large_image',
+			title,
+			description,
+		},
+	};
+}
+
+export default async function InspirationCategoryPage({ params }: PageProps) {
+	const { category: categorySlug } = await params;
+	const canonicalCategory = getCanonicalCategoryBySlug(categorySlug);
+
+	if (!canonicalCategory) {
+		notFound();
+	}
+
+	const canonicalSlug = getCanonicalCategorySlug(canonicalCategory);
+
+	if (categorySlug !== canonicalSlug) {
+		permanentRedirect(`/inspirations/${canonicalSlug}`);
+	}
+
+	const articles = await getPublishedArticlesByCategorySlug(canonicalSlug);
+	const hero = CANONICAL_CATEGORY_TO_HERO_IMAGE[canonicalCategory];
+
+	return (
+		<main>
+			<Section background="primary" padding="none" className="relative h-[520px] overflow-hidden">
+				<div
+					className="absolute inset-0 bg-cover bg-center"
+					style={{ backgroundImage: `url('${hero}')` }}
+				/>
+				<div className="absolute inset-0 bg-black/35" />
+				<div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4">
+					<Heading
+						level={1}
+						className="text-4xl md:text-6xl font-semibold tracking-tight text-white drop-shadow-lg"
+						style={{ fontFamily: 'Montserrat, sans-serif' }}
+					>
+						{canonicalCategory}
+					</Heading>
+				</div>
+			</Section>
+
+			<Section background="secondary" padding="xl">
+				<Container size="xl">
+					<div className="max-w-4xl mx-auto text-center mb-12">
+						<Text className="text-lg md:text-xl text-gray-700 leading-relaxed font-sans">
+							{CANONICAL_CATEGORY_TO_DESCRIPTION[canonicalCategory]}
+						</Text>
+					</div>
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+						{articles.map((article) => (
+							<ArticleCard
+								key={article.id}
+								article={articleListItemToCardArticle(article)}
+							/>
+						))}
+					</div>
+					{articles.length === 0 && (
+						<div className="col-span-full text-center py-10">
+							<Text className="text-gray-600 mb-2">暂无文章</Text>
+						</div>
+					)}
+				</Container>
+			</Section>
+		</main>
+	);
+}

@@ -7,7 +7,7 @@ import { useArticleManagement } from '@/context/ArticleManagementContext';
 import {
   Article,
   ArticleCategory,
-  ARTICLE_CATEGORIES,
+  ADMIN_ARTICLE_CATEGORY_OPTIONS,
   articleCategoryOptionLabel,
   ContentBlock,
   ContentBlockType,
@@ -172,7 +172,7 @@ export default function EditArticlePage() {
     }
   };
 
-  const categories = ARTICLE_CATEGORIES;
+  const categories = ADMIN_ARTICLE_CATEGORY_OPTIONS;
 
   const toggleJourney = (jid: string) => {
     setForm(prev => ({

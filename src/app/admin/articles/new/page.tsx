@@ -7,7 +7,7 @@ import { useArticleManagement } from '@/context/ArticleManagementContext';
 import {
   Article,
   ArticleCategory,
-  ARTICLE_CATEGORIES,
+  ADMIN_ARTICLE_CATEGORY_OPTIONS,
   articleCategoryOptionLabel,
   ContentBlock,
   ContentBlockType,
@@ -24,7 +24,7 @@ export default function NewArticlePage() {
   const { addArticle, articles } = useArticleManagement();
   const { journeys } = useJourneyManagement();
 
-  const categories = ARTICLE_CATEGORIES;
+  const categories = ADMIN_ARTICLE_CATEGORY_OPTIONS;
 
   const [form, setForm] = useState({
     title: '',
@@ -32,7 +32,7 @@ export default function NewArticlePage() {
     coverImage: '',
     heroImage: '',
     readingTime: '12 min read',
-    category: categories[0] as ArticleCategory,
+    category: 'China Travel Planning' as ArticleCategory,
     content: '',
     contentBlocks: [] as ContentBlock[],
     excerpt: '',

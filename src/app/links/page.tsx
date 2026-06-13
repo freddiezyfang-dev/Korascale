@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { useArticleManagement } from '@/context/ArticleManagementContext';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
-import { ArticleCategoryToSlug } from '@/types/article';
+import { getArticleCanonicalPath } from '@/lib/articleCategories';
 import { Journey } from '@/types';
 import { getRenderableImageUrl } from '@/lib/imageUtils';
 
@@ -85,7 +85,7 @@ export default function LinksPage() {
           {/* SEO 文章：两小一大错位网格。前两篇 1:1，第三篇 col-span-2 大卡 */}
           {seoArticles[0] && (
             <Link
-              href={`/inspirations/${ArticleCategoryToSlug[seoArticles[0].category]}/${seoArticles[0].slug}`}
+              href={getArticleCanonicalPath(seoArticles[0])}
               className="block relative w-full min-w-0 min-h-0 aspect-square rounded-lg overflow-hidden bg-gray-200"
             >
               {seoArticles[0].coverImage ? (
@@ -107,7 +107,7 @@ export default function LinksPage() {
           )}
           {seoArticles[1] && (
             <Link
-              href={`/inspirations/${ArticleCategoryToSlug[seoArticles[1].category]}/${seoArticles[1].slug}`}
+              href={getArticleCanonicalPath(seoArticles[1])}
               className="block relative w-full min-w-0 min-h-0 aspect-square rounded-lg overflow-hidden bg-gray-200"
             >
               {seoArticles[1].coverImage ? (
@@ -129,7 +129,7 @@ export default function LinksPage() {
           )}
           {seoArticles[2] && (
             <Link
-              href={`/inspirations/${ArticleCategoryToSlug[seoArticles[2].category]}/${seoArticles[2].slug}`}
+              href={getArticleCanonicalPath(seoArticles[2])}
               className="col-span-2 block relative w-full min-w-0 min-h-0 aspect-[4/5] rounded-lg overflow-hidden bg-gray-200"
             >
               {seoArticles[2].coverImage ? (
