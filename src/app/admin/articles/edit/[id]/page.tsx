@@ -19,6 +19,7 @@ import { Upload } from 'lucide-react';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { getRenderableImageUrl } from '@/lib/imageUtils';
 import ArticleSeoChecklist from '@/components/admin/ArticleSeoChecklist';
+import ArticleSeoFields from '@/components/admin/ArticleSeoFields';
 
 export default function EditArticlePage() {
   const params = useParams();
@@ -58,6 +59,8 @@ export default function EditArticlePage() {
     displayOrder: undefined as number | undefined,
     tags: [] as string[],
     faqs: [] as { question: string; answer: string }[],
+    pageTitle: '',
+    metaDescription: '',
   });
 
   const [isUploadingCover, setIsUploadingCover] = useState(false);
@@ -85,13 +88,15 @@ export default function EditArticlePage() {
       displayOrder: remote.displayOrder ?? undefined,
       tags: remote.tags ?? [],
       faqs: remote.faqs ?? [],
+      pageTitle: remote.pageTitle ?? '',
+      metaDescription: remote.metaDescription ?? '',
     });
   }, [remote]);
 
   const seoAuditInput = useMemo(
     () => ({
-      pageTitle: remote?.pageTitle,
-      metaDescription: remote?.metaDescription,
+      pageTitle: form.pageTitle,
+      metaDescription: form.metaDescription,
       excerpt: form.excerpt,
       category: form.category,
       tags: form.tags,
@@ -104,8 +109,8 @@ export default function EditArticlePage() {
       content: form.content,
     }),
     [
-      remote?.pageTitle,
-      remote?.metaDescription,
+      form.pageTitle,
+      form.metaDescription,
       form.excerpt,
       form.category,
       form.tags,
@@ -176,14 +181,14 @@ export default function EditArticlePage() {
 
   const onSubmit = async () => {
     try {
-      const metaDescription = form.excerpt || (form.content ? form.content.replace(/<[^>]+>/g,'').slice(0, 150) : '');
       const cleanedFaqs = (form.faqs || []).map(f => ({
         question: (f.question || '').trim(),
         answer: (f.answer || '').trim(),
       })).filter(f => f.question && f.answer);
       const { savedToDatabase, errorMessage } = await updateArticle(remote.id, {
         ...form,
-        metaDescription,
+        pageTitle: form.pageTitle,
+        metaDescription: form.metaDescription,
         contentBlocks: form.contentBlocks.length > 0 ? form.contentBlocks : undefined,
         featured: form.featured,
         displayOrder: form.displayOrder,
@@ -666,6 +671,13 @@ export default function EditArticlePage() {
                 <input className="w-full border rounded px-3 py-2" value={form.slug} onChange={e=>setForm({...form,slug:e.target.value})} />
               </div>
             </div>
+
+            <ArticleSeoFields
+              pageTitle={form.pageTitle}
+              metaDescription={form.metaDescription}
+              onPageTitleChange={(value) => setForm((prev) => ({ ...prev, pageTitle: value }))}
+              onMetaDescriptionChange={(value) => setForm((prev) => ({ ...prev, metaDescription: value }))}
+            />
 
             <ArticleSeoChecklist article={seoAuditInput} />
 
