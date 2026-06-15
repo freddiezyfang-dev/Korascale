@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Heading, Text, Card, Button, Container, Section } from '@/components/common';
 import { useArticleManagement } from '@/context/ArticleManagementContext';
@@ -18,6 +18,7 @@ import { articleAPI, uploadAPI } from '@/lib/databaseClient';
 import { Upload } from 'lucide-react';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { getRenderableImageUrl } from '@/lib/imageUtils';
+import ArticleSeoChecklist from '@/components/admin/ArticleSeoChecklist';
 
 export default function EditArticlePage() {
   const params = useParams();
@@ -86,6 +87,37 @@ export default function EditArticlePage() {
       faqs: remote.faqs ?? [],
     });
   }, [remote]);
+
+  const seoAuditInput = useMemo(
+    () => ({
+      pageTitle: remote?.pageTitle,
+      metaDescription: remote?.metaDescription,
+      excerpt: form.excerpt,
+      category: form.category,
+      tags: form.tags,
+      faqs: form.faqs,
+      heroImage: form.heroImage,
+      coverImage: form.coverImage,
+      relatedJourneyIds: form.relatedJourneyIds,
+      recommendedItems: form.recommendedItems,
+      contentBlocks: form.contentBlocks,
+      content: form.content,
+    }),
+    [
+      remote?.pageTitle,
+      remote?.metaDescription,
+      form.excerpt,
+      form.category,
+      form.tags,
+      form.faqs,
+      form.heroImage,
+      form.coverImage,
+      form.relatedJourneyIds,
+      form.recommendedItems,
+      form.contentBlocks,
+      form.content,
+    ]
+  );
 
   if (remote === undefined) {
     return (
@@ -634,6 +666,8 @@ export default function EditArticlePage() {
                 <input className="w-full border rounded px-3 py-2" value={form.slug} onChange={e=>setForm({...form,slug:e.target.value})} />
               </div>
             </div>
+
+            <ArticleSeoChecklist article={seoAuditInput} />
 
             <div>
               <label className="block text-sm text-gray-600 mb-1">摘要（选填）</label>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useRouter } from 'next/navigation';
 import { Heading, Text, Card, Button, Container, Section } from '@/components/common';
 import { useArticleManagement } from '@/context/ArticleManagementContext';
@@ -18,6 +18,7 @@ import { uploadAPI } from '@/lib/databaseClient';
 import { Upload } from 'lucide-react';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { getRenderableImageUrl } from '@/lib/imageUtils';
+import ArticleSeoChecklist from '@/components/admin/ArticleSeoChecklist';
 
 export default function NewArticlePage() {
   const router = useRouter();
@@ -49,6 +50,35 @@ export default function NewArticlePage() {
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [isUploadingHero, setIsUploadingHero] = useState(false);
   const [tagInputValue, setTagInputValue] = useState('');
+
+  const seoAuditInput = useMemo(
+    () => ({
+      pageTitle: '',
+      metaDescription: '',
+      excerpt: form.excerpt,
+      category: form.category,
+      tags: form.tags,
+      faqs: form.faqs,
+      heroImage: form.heroImage,
+      coverImage: form.coverImage,
+      relatedJourneyIds: form.relatedJourneyIds,
+      recommendedItems: form.recommendedItems,
+      contentBlocks: form.contentBlocks,
+      content: form.content,
+    }),
+    [
+      form.excerpt,
+      form.category,
+      form.tags,
+      form.faqs,
+      form.heroImage,
+      form.coverImage,
+      form.relatedJourneyIds,
+      form.recommendedItems,
+      form.contentBlocks,
+      form.content,
+    ]
+  );
 
   const addContentBlock = (type: ContentBlockType) => {
     const newBlock: ContentBlock = {
@@ -592,6 +622,8 @@ export default function NewArticlePage() {
                 <input className="w-full border rounded px-3 py-2" value={form.slug} onChange={e=>setForm({...form,slug:e.target.value})} placeholder="自动根据标题生成" />
               </div>
             </div>
+
+            <ArticleSeoChecklist article={seoAuditInput} />
 
             <div>
               <label className="block text-sm text-gray-600 mb-1">摘要（选填）</label>

@@ -13,6 +13,8 @@ import {
   ArticleCategoryToCardTitle,
 } from '@/types/article';
 import { getArticleCanonicalPath } from '@/lib/articleCategories';
+import { getArticleSeoAudit } from '@/lib/articleSeoAudit';
+import ArticleSeoStatusBadges from '@/components/admin/ArticleSeoStatusBadges';
 import { DeleteConfirmationModal } from '@/components/modals/DeleteConfirmationModal';
 import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation';
 import { getRenderableImageUrl } from '@/lib/imageUtils';
@@ -23,6 +25,7 @@ export default function AdminArticlesPage() {
   const { articles, deleteArticle, updateArticleStatus } = useArticleManagement();
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [seoFilter, setSeoFilter] = useState<string>('all');
   const { 
     isModalOpen, 
     isDeleting, 
@@ -54,13 +57,31 @@ export default function AdminArticlesPage() {
   // Hooks must be called unconditionally; compute filtered before any early return
   const filtered = useMemo(() => {
     return articles
-      .filter(a => {
+      .filter((a) => {
         const categoryOk = categoryFilter === 'all' || a.category === categoryFilter;
         const statusOk = statusFilter === 'all' || a.status === statusFilter;
-        return categoryOk && statusOk;
+        if (!categoryOk || !statusOk) return false;
+
+        if (seoFilter === 'all') return true;
+
+        const audit = getArticleSeoAudit(a);
+        switch (seoFilter) {
+          case 'critical':
+            return audit.status === 'critical';
+          case 'needs-work':
+            return audit.status === 'needs-work';
+          case 'missing-meta':
+            return audit.flags.missingMetaDescription;
+          case 'legacy-category':
+            return audit.flags.legacyCategory;
+          case 'too-many-tags':
+            return audit.flags.tooManyTags;
+          default:
+            return true;
+        }
       })
       .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
-  }, [articles, categoryFilter, statusFilter]);
+  }, [articles, categoryFilter, statusFilter, seoFilter]);
 
   if (!user || user.email !== 'admin@korascale.com') {
     return (
@@ -195,11 +216,25 @@ ${localArticles.length > 0 ? '💾 localStorage 有备份数据' : '💾 localSt
                 <option value="draft">draft</option>
                 <option value="inactive">inactive</option>
               </select>
+              <select
+                className="border rounded px-2 py-1"
+                value={seoFilter}
+                onChange={(e) => setSeoFilter(e.target.value)}
+              >
+                <option value="all">全部 SEO</option>
+                <option value="critical">Critical</option>
+                <option value="needs-work">Needs work</option>
+                <option value="missing-meta">Missing meta</option>
+                <option value="legacy-category">Legacy category</option>
+                <option value="too-many-tags">Too many tags</option>
+              </select>
             </div>
           </Card>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map(article => (
+            {filtered.map((article) => {
+              const seoAudit = getArticleSeoAudit(article);
+              return (
               <Card key={article.id} className="overflow-hidden">
                 <img src={getRenderableImageUrl(article.coverImage)} alt={article.title} className="w-full h-40 object-cover" />
                 <div className="p-4">
@@ -223,6 +258,9 @@ ${localArticles.length > 0 ? '💾 localStorage 有备份数据' : '💾 localSt
                   </div>
                   <Heading level={3} className="text-lg font-semibold mb-1">{article.title}</Heading>
                   <Text className="text-sm text-gray-600 mb-3">作者：{article.author}</Text>
+                  <div className="mb-3">
+                    <ArticleSeoStatusBadges audit={seoAudit} />
+                  </div>
                   <div className="flex items-center gap-2">
                     <Link href={`/admin/articles/edit/${article.id}`} className="inline-flex">
                       <Button variant="secondary" size="sm"><Edit className="w-4 h-4 mr-1" />编辑</Button>
@@ -236,7 +274,8 @@ ${localArticles.length > 0 ? '💾 localStorage 有备份数据' : '💾 localSt
                   </div>
                 </div>
               </Card>
-            ))}
+            );
+            })}
           </div>
         </Container>
       </Section>
