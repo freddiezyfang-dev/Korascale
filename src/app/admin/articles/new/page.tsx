@@ -19,6 +19,7 @@ import { Upload } from 'lucide-react';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { getRenderableImageUrl } from '@/lib/imageUtils';
 import ArticleSeoChecklist from '@/components/admin/ArticleSeoChecklist';
+import ArticleSeoFields from '@/components/admin/ArticleSeoFields';
 
 export default function NewArticlePage() {
   const router = useRouter();
@@ -45,6 +46,8 @@ export default function NewArticlePage() {
     displayOrder: undefined as number | undefined,
     tags: [] as string[],
     faqs: [] as { question: string; answer: string }[],
+    pageTitle: '',
+    metaDescription: '',
   });
 
   const [isUploadingCover, setIsUploadingCover] = useState(false);
@@ -53,8 +56,8 @@ export default function NewArticlePage() {
 
   const seoAuditInput = useMemo(
     () => ({
-      pageTitle: '',
-      metaDescription: '',
+      pageTitle: form.pageTitle,
+      metaDescription: form.metaDescription,
       excerpt: form.excerpt,
       category: form.category,
       tags: form.tags,
@@ -67,6 +70,8 @@ export default function NewArticlePage() {
       content: form.content,
     }),
     [
+      form.pageTitle,
+      form.metaDescription,
       form.excerpt,
       form.category,
       form.tags,
@@ -122,8 +127,6 @@ export default function NewArticlePage() {
   const onSubmit = async () => {
     try {
       const slug = form.slug || form.title.trim().toLowerCase().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-');
-      const pageTitle = form.title;
-      const metaDescription = form.excerpt || (form.content ? form.content.replace(/<[^>]+>/g,'').slice(0, 150) : '');
       const cleanedFaqs = (form.faqs || []).map(f => ({
         question: (f.question || '').trim(),
         answer: (f.answer || '').trim(),
@@ -141,8 +144,8 @@ export default function NewArticlePage() {
       const { savedToDatabase, errorMessage } = await addArticle({
         ...form,
         slug,
-        pageTitle,
-        metaDescription,
+        pageTitle: form.pageTitle,
+        metaDescription: form.metaDescription,
         contentBlocks: form.contentBlocks.length > 0 ? form.contentBlocks : undefined,
         featured: form.featured,
         displayOrder: form.displayOrder,
@@ -622,6 +625,13 @@ export default function NewArticlePage() {
                 <input className="w-full border rounded px-3 py-2" value={form.slug} onChange={e=>setForm({...form,slug:e.target.value})} placeholder="自动根据标题生成" />
               </div>
             </div>
+
+            <ArticleSeoFields
+              pageTitle={form.pageTitle}
+              metaDescription={form.metaDescription}
+              onPageTitleChange={(value) => setForm((prev) => ({ ...prev, pageTitle: value }))}
+              onMetaDescriptionChange={(value) => setForm((prev) => ({ ...prev, metaDescription: value }))}
+            />
 
             <ArticleSeoChecklist article={seoAuditInput} />
 
