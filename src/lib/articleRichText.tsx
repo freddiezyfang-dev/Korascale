@@ -5,11 +5,10 @@ export const ARTICLE_BODY_TEXT_CLASS =
 
 export const ARTICLE_BODY_TEXT_STYLE: React.CSSProperties = {
   textAlign: 'left',
-  wordBreak: 'keep-all',
-  overflowWrap: 'anywhere',
+  wordBreak: 'normal',
+  overflowWrap: 'break-word',
   hyphens: 'none',
   textRendering: 'optimizeLegibility',
-  lineBreak: 'anywhere',
   fontFeatureSettings: '"liga" 0, "clig" 0',
 };
 

@@ -74,49 +74,47 @@ export default function ArticleDetailServerSections({
 				/>
 			)}
 			<style>{`
-          .article-body,
-          .article-body * {
-            word-break: normal !important;
-            overflow-wrap: break-word !important;
-            hyphens: none !important;
-          }
           .article-body h1,
           .article-body h2,
           .article-body h3,
           .article-body h4,
           .article-body h5,
-          .article-body h6,
-          .article-body p {
+          .article-body h6 {
             word-break: normal !important;
             overflow-wrap: break-word !important;
-            hyphens: none !important;
-          }
-          .article-body p,
-          .article-body div,
-          .article-body span {
-            word-break: normal !important;
-            overflow-wrap: break-word !important;
-            hyphens: none !important;
-            line-break: strict;
-          }
-          .article-body .prose p,
-          .article-body p {
-            word-break: keep-all !important;
-            word-wrap: normal !important;
-            overflow-wrap: break-word !important;
+            word-wrap: break-word !important;
             hyphens: none !important;
             -webkit-hyphens: none !important;
+          }
+          .article-body .prose p,
+          .article-body .prose li,
+          .article-body .prose blockquote,
+          .article-body p {
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            word-wrap: break-word !important;
+            hyphens: none !important;
+            -webkit-hyphens: none !important;
+            line-break: auto;
             font-feature-settings: "liga" 0, "clig" 0 !important;
           }
-          .article-body p {
-            line-break: anywhere;
-          }
+          .article-body .prose a,
           .article-body a,
           .article-internal-link {
+            overflow-wrap: anywhere;
+            word-break: break-word;
             color: #24332d !important;
             font-weight: 700 !important;
             text-decoration: none !important;
             transition: color 0.2s ease, text-decoration-color 0.2s ease;
+          }
+          .article-body .prose code {
+            overflow-wrap: anywhere;
+            word-break: break-word;
+          }
+          .article-body .prose pre {
+            max-width: 100%;
+            overflow-x: auto;
           }
           .article-body a:hover,
           .article-internal-link:hover {
