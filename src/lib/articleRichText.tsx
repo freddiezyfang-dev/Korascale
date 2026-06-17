@@ -1,4 +1,5 @@
 import React from 'react';
+import { normalizeArticleWhitespace } from './normalizeArticleWhitespace';
 
 export const ARTICLE_BODY_TEXT_CLASS =
   'font-sans text-gray-800 leading-[1.8] text-[16px] md:text-[17.5px] antialiased';
@@ -32,7 +33,9 @@ export function hasHtmlTags(input: string): boolean {
 }
 
 export function processArticleHtml(html: string): string {
-  return cleanContent(html).replace(
+  return normalizeArticleWhitespace(
+    cleanContent(html)
+  ).replace(
     /<a\s+([^>]*href=["']([^"']+)["'][^>]*)>/gi,
     (match, attrs, href) => {
       if (href.startsWith('/journeys/') || href.startsWith('/inspirations/')) {
