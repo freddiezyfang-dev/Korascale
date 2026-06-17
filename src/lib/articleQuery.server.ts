@@ -15,6 +15,7 @@ import {
 	ContentBlock,
 	RecommendedItem,
 } from '@/types/article';
+import { parseArticleCtaConfig } from '@/lib/articleCta';
 
 export type ArticleListItem = {
 	id: string;
@@ -126,6 +127,7 @@ function mapRowToArticle(row: Record<string, unknown>): Article {
 	const recommendedItems = parseJsonArray<RecommendedItem>(row.recommended_items);
 	const tags = parseJsonArray<string>(row.tags);
 	const faqs = parseJsonArray<{ question: string; answer: string }>(row.faqs);
+	const ctaConfig = parseArticleCtaConfig(row.cta_config);
 
 	return {
 		id: String(row.id ?? ''),
@@ -141,6 +143,7 @@ function mapRowToArticle(row: Record<string, unknown>): Article {
 		excerpt: row.excerpt ? String(row.excerpt) : undefined,
 		relatedJourneyIds: relatedJourneyIds ?? [],
 		recommendedItems,
+		ctaConfig,
 		faqs,
 		tags,
 		status: 'active',

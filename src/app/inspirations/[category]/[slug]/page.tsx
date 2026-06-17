@@ -11,6 +11,8 @@ import {
 	getPublishedArticlesForStaticParams,
 	getSidebarRelatedArticles,
 } from '@/lib/articleQuery.server';
+import { getArticleBodyContentBlocks, resolveArticleCta } from '@/lib/articleCta';
+import ArticlePrimaryCta from '@/components/articles/ArticlePrimaryCta';
 import {
 	getArticleCanonicalCategorySlug,
 	getArticleCanonicalPath,
@@ -150,6 +152,8 @@ export default async function ArticleDetailPage({ params }: PageProps) {
 
 	const sidebarArticles = await getSidebarRelatedArticles(article, 3);
 	const serializedSidebarArticles = sidebarArticles.map(serializeArticle);
+	const resolvedCta = resolveArticleCta(article);
+	const bodyContentBlocks = getArticleBodyContentBlocks(article, resolvedCta != null);
 
 	const articleJsonLd = buildArticleJsonLd(article, categorySlug);
 
@@ -162,10 +166,12 @@ export default async function ArticleDetailPage({ params }: PageProps) {
 			<ArticleDetailServerSections
 				article={article}
 				categorySlug={categorySlug}
+				contentBlocks={bodyContentBlocks}
 				shareSlot={<ArticleShareButtons />}
 				sidebarSlot={
 					<ArticleDesktopSidebar relatedArticles={serializedSidebarArticles} />
 				}
+				ctaSlot={resolvedCta ? <ArticlePrimaryCta cta={resolvedCta} /> : null}
 				mobileSidebarSlot={
 					<ArticleMobileSidebar relatedArticles={serializedSidebarArticles} />
 				}

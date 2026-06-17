@@ -10,8 +10,10 @@ import { ArticleCategoryToHeroImage, type Article, type ArticleCategory } from '
 interface ArticleDetailServerSectionsProps {
 	article: Article;
 	categorySlug: string;
+	contentBlocks?: Article['contentBlocks'];
 	shareSlot: ReactNode;
 	sidebarSlot: ReactNode;
+	ctaSlot?: ReactNode;
 	mobileSidebarSlot: ReactNode;
 }
 
@@ -29,8 +31,10 @@ function buildToc(article: Article) {
 export default function ArticleDetailServerSections({
 	article,
 	categorySlug,
+	contentBlocks,
 	shareSlot,
 	sidebarSlot,
+	ctaSlot,
 	mobileSidebarSlot,
 }: ArticleDetailServerSectionsProps) {
 	const category = article.category as ArticleCategory;
@@ -74,12 +78,12 @@ export default function ArticleDetailServerSections({
 				/>
 			)}
 			<style>{`
-          .article-body h1,
-          .article-body h2,
-          .article-body h3,
-          .article-body h4,
-          .article-body h5,
-          .article-body h6 {
+          .article-body .prose h1,
+          .article-body .prose h2,
+          .article-body .prose h3,
+          .article-body .prose h4,
+          .article-body .prose h5,
+          .article-body .prose h6 {
             word-break: normal !important;
             overflow-wrap: break-word !important;
             word-wrap: break-word !important;
@@ -88,8 +92,7 @@ export default function ArticleDetailServerSections({
           }
           .article-body .prose p,
           .article-body .prose li,
-          .article-body .prose blockquote,
-          .article-body p {
+          .article-body .prose blockquote {
             word-break: normal !important;
             overflow-wrap: break-word !important;
             word-wrap: break-word !important;
@@ -99,7 +102,6 @@ export default function ArticleDetailServerSections({
             font-feature-settings: "liga" 0, "clig" 0 !important;
           }
           .article-body .prose a,
-          .article-body a,
           .article-internal-link {
             overflow-wrap: anywhere;
             word-break: break-word;
@@ -116,7 +118,7 @@ export default function ArticleDetailServerSections({
             max-width: 100%;
             overflow-x: auto;
           }
-          .article-body a:hover,
+          .article-body .prose a:hover,
           .article-internal-link:hover {
             text-decoration: underline !important;
             text-underline-offset: 2px;
@@ -217,11 +219,13 @@ export default function ArticleDetailServerSections({
 			<Section background="secondary" padding="xl" className="w-full overflow-hidden">
 				<div className="w-full max-w-screen-xl mx-auto">
 					<div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-						<ArticleBodyContent article={article} />
+						<ArticleBodyContent article={article} contentBlocks={contentBlocks} />
 						{sidebarSlot}
 					</div>
 				</div>
 			</Section>
+
+			{ctaSlot}
 
 			{mobileSidebarSlot}
 		</main>

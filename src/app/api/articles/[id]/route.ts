@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import { Article, ContentBlock, RecommendedItem } from '@/types/article';
+import { ensureArticleCtaConfigColumn, mapArticleRowFromDb } from '@/lib/mapArticleApiRow';
+import { Article } from '@/types/article';
 
 // Route Segment Config
 export const dynamic = 'force-dynamic';
@@ -24,30 +25,7 @@ export async function GET(
     }
     
     const row = rows[0];
-    const article: Article = {
-      id: row.id,
-      slug: row.slug,
-      title: row.title,
-      author: row.author,
-      coverImage: row.cover_image || '',
-      heroImage: row.hero_image || undefined,
-      readingTime: row.reading_time || undefined,
-      category: row.category as Article['category'],
-      content: row.content || undefined,
-      contentBlocks: row.content_blocks ? (row.content_blocks as ContentBlock[]) : undefined,
-      excerpt: row.excerpt || undefined,
-      relatedJourneyIds: row.related_journey_ids ? (row.related_journey_ids as string[]) : [],
-      recommendedItems: row.recommended_items ? (row.recommended_items as RecommendedItem[]) : undefined,
-      faqs: row.faqs ? (row.faqs as { question: string; answer: string }[]) : undefined,
-      tags: row.tags ? (row.tags as string[]) : undefined,
-      status: row.status as Article['status'],
-      featured: row.is_featured === true,
-      displayOrder: row.display_order != null ? Number(row.display_order) : undefined,
-      pageTitle: row.page_title || undefined,
-      metaDescription: row.meta_description || undefined,
-      createdAt: new Date(row.created_at),
-      updatedAt: new Date(row.updated_at),
-    };
+    const article = mapArticleRowFromDb(row as Record<string, unknown>);
     
     return NextResponse.json({ article });
   } catch (error) {
@@ -77,6 +55,7 @@ export async function PUT(
     }
 
     console.log('[API /articles/[id]] Updating article:', id);
+    await ensureArticleCtaConfigColumn(query);
     
     // 构建更新查询
     const updateFields: string[] = [];
@@ -151,6 +130,10 @@ export async function PUT(
     if (updates.faqs !== undefined) {
       updateFields.push(`faqs = $${paramIndex++}`);
       values.push(JSON.stringify(updates.faqs));
+    }
+    if (updates.ctaConfig !== undefined) {
+      updateFields.push(`cta_config = $${paramIndex++}`);
+      values.push(JSON.stringify(updates.ctaConfig ?? {}));
     }
     if (updates.status !== undefined) {
       updateFields.push(`status = $${paramIndex++}`);
@@ -286,30 +269,7 @@ export async function PUT(
     }
     
     const row = rows[0];
-    const updatedArticle: Article = {
-      id: row.id,
-      slug: row.slug,
-      title: row.title,
-      author: row.author,
-      coverImage: row.cover_image || '',
-      heroImage: row.hero_image || undefined,
-      readingTime: row.reading_time || undefined,
-      category: row.category as Article['category'],
-      content: row.content || undefined,
-      contentBlocks: row.content_blocks ? (row.content_blocks as ContentBlock[]) : undefined,
-      excerpt: row.excerpt || undefined,
-      relatedJourneyIds: row.related_journey_ids ? (row.related_journey_ids as string[]) : [],
-      recommendedItems: row.recommended_items ? (row.recommended_items as RecommendedItem[]) : (row.recommended_items === null ? undefined : []),
-      faqs: row.faqs ? (row.faqs as { question: string; answer: string }[]) : undefined,
-      tags: row.tags ? (row.tags as string[]) : undefined,
-      status: row.status as Article['status'],
-      featured: row.is_featured === true,
-      displayOrder: row.display_order != null ? Number(row.display_order) : undefined,
-      pageTitle: row.page_title || undefined,
-      metaDescription: row.meta_description || undefined,
-      createdAt: new Date(row.created_at),
-      updatedAt: new Date(row.updated_at),
-    };
+    const updatedArticle = mapArticleRowFromDb(row as Record<string, unknown>);
     
     return NextResponse.json({ article: updatedArticle });
   } catch (error) {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import { Article, ContentBlock, RecommendedItem } from '@/types/article';
+import { ensureArticleCtaConfigColumn, mapArticleRowFromDb } from '@/lib/mapArticleApiRow';
+import { Article } from '@/types/article';
 
 // Route Segment Config - 确保路由被正确识别（Next.js 15 必需）
 export const dynamic = 'force-dynamic';
@@ -200,30 +201,9 @@ export async function GET(request: NextRequest) {
     }
     
     // 转换数据库行到 Article 类型
-    let articles: Article[] = rows.map((row: any) => ({
-      id: row.id,
-      slug: row.slug,
-      title: row.title,
-      author: row.author,
-      coverImage: row.cover_image || '',
-      heroImage: row.hero_image || undefined,
-      readingTime: row.reading_time || undefined,
-      category: row.category as Article['category'],
-      content: row.content || undefined,
-      contentBlocks: row.content_blocks ? (row.content_blocks as ContentBlock[]) : undefined,
-      excerpt: row.excerpt || undefined,
-      relatedJourneyIds: row.related_journey_ids ? (row.related_journey_ids as string[]) : [],
-      recommendedItems: row.recommended_items ? (row.recommended_items as RecommendedItem[]) : undefined,
-      faqs: row.faqs ? (row.faqs as { question: string; answer: string }[]) : undefined,
-      tags: row.tags ? (row.tags as string[]) : undefined,
-      status: row.status as Article['status'],
-      featured: row.is_featured === true,
-      displayOrder: row.display_order != null ? Number(row.display_order) : undefined,
-      pageTitle: row.page_title || undefined,
-      metaDescription: row.meta_description || undefined,
-      createdAt: new Date(row.created_at),
-      updatedAt: new Date(row.updated_at),
-    }));
+    let articles: Article[] = rows.map((row: Record<string, unknown>) =>
+      mapArticleRowFromDb(row)
+    );
 
     if (featuredOnly && !usedOptimizedFeaturedQuery) {
       articles = articles
@@ -328,6 +308,8 @@ export async function POST(request: NextRequest) {
       console.warn('[API /articles] Could not add faqs column:', alterFaqsErr);
     }
 
+    await ensureArticleCtaConfigColumn(query);
+
     // 插入文章
     const { rows } = await query(`
       INSERT INTO articles (
@@ -346,11 +328,12 @@ export async function POST(request: NextRequest) {
         related_journey_ids,
         recommended_items,
         faqs,
+        cta_config,
         tags,
         status,
         is_featured,
         display_order
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
       RETURNING *
     `, [
       article.title,
@@ -368,36 +351,15 @@ export async function POST(request: NextRequest) {
       JSON.stringify(article.relatedJourneyIds || []),
       JSON.stringify(article.recommendedItems || []),
       JSON.stringify(article.faqs || []),
+      JSON.stringify(article.ctaConfig || {}),
       JSON.stringify(article.tags || []),
       article.status || 'draft',
-      (article as any).featured === true,
-      (article as any).displayOrder != null ? Number((article as any).displayOrder) : null,
+      (article as Article).featured === true,
+      (article as Article).displayOrder != null ? Number((article as Article).displayOrder) : null,
     ]);
     
     const row = rows[0];
-    const newArticle: Article = {
-      id: row.id,
-      slug: row.slug,
-      title: row.title,
-      author: row.author,
-      coverImage: row.cover_image || '',
-      heroImage: row.hero_image || undefined,
-      readingTime: row.reading_time || undefined,
-      category: row.category as Article['category'],
-      content: row.content || undefined,
-      contentBlocks: row.content_blocks ? (row.content_blocks as ContentBlock[]) : undefined,
-      excerpt: row.excerpt || undefined,
-      relatedJourneyIds: row.related_journey_ids ? (row.related_journey_ids as string[]) : [],
-      recommendedItems: row.recommended_items ? (row.recommended_items as RecommendedItem[]) : undefined,
-      tags: row.tags ? (row.tags as string[]) : undefined,
-      status: row.status as Article['status'],
-      featured: row.is_featured === true,
-      displayOrder: row.display_order != null ? Number(row.display_order) : undefined,
-      pageTitle: row.page_title || undefined,
-      metaDescription: row.meta_description || undefined,
-      createdAt: new Date(row.created_at),
-      updatedAt: new Date(row.updated_at),
-    };
+    const newArticle = mapArticleRowFromDb(row as Record<string, unknown>);
     
     console.log('[API /articles] Article created successfully:', newArticle.id);
     

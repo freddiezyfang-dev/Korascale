@@ -5,10 +5,11 @@ import { renderArticleContentBlock } from './renderArticleContentBlock';
 
 interface ArticleBodyContentProps {
   article: Article;
+  contentBlocks?: Article['contentBlocks'];
 }
 
-export default function ArticleBodyContent({ article }: ArticleBodyContentProps) {
-  const contentBlocks = article.contentBlocks ?? [];
+export default function ArticleBodyContent({ article, contentBlocks }: ArticleBodyContentProps) {
+  const blocks = contentBlocks ?? article.contentBlocks ?? [];
   const tagList = article.tags ?? [];
   const faqList = (article.faqs || [])
     .map((f) => ({
@@ -21,8 +22,8 @@ export default function ArticleBodyContent({ article }: ArticleBodyContentProps)
     <article className="flex-1 min-w-0 w-full article-body">
       <div className="max-w-4xl mx-auto px-6 md:px-12 py-16">
         <div className="prose prose-slate w-full max-w-none prose-headings:font-serif prose-headings:text-[#111] prose-h2:text-2xl md:prose-h2:text-3xl prose-h3:text-xl md:prose-h3:text-2xl prose-p:font-sans prose-p:text-gray-800 prose-p:leading-relaxed prose-p:text-base md:prose-p:text-[17px] prose-img:max-w-md prose-img:mx-auto prose-img:rounded-lg prose-img:shadow-md prose-img:mt-10 prose-img:mb-16">
-          {contentBlocks.length > 0
-            ? contentBlocks.map((block, index) => renderArticleContentBlock(block, index))
+          {blocks.length > 0
+            ? blocks.map((block, index) => renderArticleContentBlock(block, index))
             : article.content &&
               renderRichTextContent(
                 article.content,

@@ -20,6 +20,11 @@ import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { getRenderableImageUrl } from '@/lib/imageUtils';
 import ArticleSeoChecklist from '@/components/admin/ArticleSeoChecklist';
 import ArticleSeoFields from '@/components/admin/ArticleSeoFields';
+import ArticleCtaAdminSection, {
+  createDefaultArticleCtaConfig,
+  validateArticleCtaForSubmit,
+} from '@/components/admin/ArticleCtaAdminSection';
+import type { ArticleCtaConfig } from '@/types/article';
 
 export default function NewArticlePage() {
   const router = useRouter();
@@ -48,11 +53,13 @@ export default function NewArticlePage() {
     faqs: [] as { question: string; answer: string }[],
     pageTitle: '',
     metaDescription: '',
+    ctaConfig: createDefaultArticleCtaConfig() as ArticleCtaConfig,
   });
 
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [isUploadingHero, setIsUploadingHero] = useState(false);
   const [tagInputValue, setTagInputValue] = useState('');
+  const [ctaFieldErrors, setCtaFieldErrors] = useState<ReturnType<typeof validateArticleCtaForSubmit>['errors']>({});
 
   const seoAuditInput = useMemo(
     () => ({
@@ -126,6 +133,14 @@ export default function NewArticlePage() {
 
   const onSubmit = async () => {
     try {
+      const ctaValidation = validateArticleCtaForSubmit(form.ctaConfig);
+      if (!ctaValidation.valid) {
+        setCtaFieldErrors(ctaValidation.errors);
+        alert('Please fix the Article CTA fields before saving.');
+        return;
+      }
+      setCtaFieldErrors({});
+
       const slug = form.slug || form.title.trim().toLowerCase().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-');
       const cleanedFaqs = (form.faqs || []).map(f => ({
         question: (f.question || '').trim(),
@@ -150,6 +165,7 @@ export default function NewArticlePage() {
         featured: form.featured,
         displayOrder: form.displayOrder,
         faqs: cleanedFaqs.length > 0 ? cleanedFaqs : undefined,
+        ctaConfig: form.ctaConfig,
       } as Omit<Article, 'id'|'createdAt'|'updatedAt'>);
 
       if (savedToDatabase) {
@@ -660,7 +676,6 @@ export default function NewArticlePage() {
                   <Button size="sm" variant="outline" onClick={() => addContentBlock('paragraph')}>添加段落</Button>
                   <Button size="sm" variant="outline" onClick={() => addContentBlock('image')}>添加图片</Button>
                   <Button size="sm" variant="outline" onClick={() => addContentBlock('callout')}>添加高亮框</Button>
-                  <Button size="sm" variant="outline" onClick={() => addContentBlock('trip_cta')}>添加行程 CTA</Button>
                 </div>
               </div>
 
@@ -831,29 +846,15 @@ export default function NewArticlePage() {
                       )}
 
                       {block.type === 'trip_cta' && (
-                        <div className="space-y-2">
-                          <div>
-                            <label className="block text-xs text-gray-600 mb-1">关联行程</label>
-                            <select
-                              className="w-full border rounded px-2 py-1 text-sm"
-                              value={block.journeyId || ''}
-                              onChange={e => updateContentBlock(block.id, { journeyId: e.target.value })}
-                            >
-                              <option value="">选择行程</option>
-                              {journeys.map(j => (
-                                <option key={j.id} value={j.id}>{j.title}</option>
-                              ))}
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-xs text-gray-600 mb-1">CTA 文本（可选）</label>
-                            <input
-                              className="w-full border rounded px-2 py-1 text-sm"
-                              value={block.ctaText || ''}
-                              onChange={e => updateContentBlock(block.id, { ctaText: e.target.value })}
-                              placeholder="Trip Inspiration"
-                            />
-                          </div>
+                        <div className="space-y-2 p-3 bg-amber-50 border border-amber-200 rounded">
+                          <Text size="sm" className="text-amber-900">
+                            Legacy trip CTA block preserved in content. Configure the page-level Article CTA below instead. This block will not render when a primary CTA is active.
+                          </Text>
+                          {block.ctaText ? (
+                            <Text size="sm" className="text-amber-800">
+                              Legacy heading: {block.ctaText}
+                            </Text>
+                          ) : null}
                         </div>
                       )}
                     </div>
@@ -879,6 +880,13 @@ export default function NewArticlePage() {
                 ))}
               </div>
             </div>
+
+            <ArticleCtaAdminSection
+              category={form.category}
+              ctaConfig={form.ctaConfig}
+              onChange={(ctaConfig) => setForm((prev) => ({ ...prev, ctaConfig }))}
+              fieldErrors={ctaFieldErrors}
+            />
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Related Articles</label>
@@ -937,7 +945,7 @@ export default function NewArticlePage() {
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Related Journeys</label>
               <Text size="sm" className="text-gray-500 mb-4">
-                Saved for the future article CTA and Related Journeys module. These journeys are not currently displayed on the article page.
+                Saved for the future Related Journeys module below the article CTA. These journeys are not currently displayed on the article page.
               </Text>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-48 overflow-y-auto border rounded p-2">
                 {journeys.map(j => (

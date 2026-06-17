@@ -1,5 +1,24 @@
 export type ArticleStatus = 'draft' | 'active' | 'inactive';
 
+export type ArticleCtaMode =
+	| 'auto'
+	| 'private_journey'
+	| 'corporate_travel'
+	| 'custom'
+	| 'hidden';
+
+export type ArticleCtaConfig = {
+	mode?: ArticleCtaMode;
+	eyebrow?: string;
+	heading?: string;
+	body?: string;
+	supportingText?: string;
+	primaryLabel?: string;
+	primaryHref?: string;
+	secondaryLabel?: string;
+	secondaryHref?: string;
+};
+
 import {
 	ADMIN_ARTICLE_CATEGORIES,
 	CANONICAL_ARTICLE_CATEGORIES,
@@ -59,6 +78,7 @@ export interface Article {
 	recommendedItems?: RecommendedItem[];
 	tags?: string[];
 	faqs?: { question: string; answer: string }[];
+	ctaConfig?: ArticleCtaConfig;
 	status: ArticleStatus;
 	featured?: boolean;
 	displayOrder?: number;
