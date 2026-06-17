@@ -403,3 +403,161 @@ export async function getRelatedPublishedArticles(
 		return [];
 	}
 }
+
+const SIDEBAR_RELATED_LIMIT = 3;
+
+async function getPublishedArticlesByIds(
+	ids: string[],
+	excludeSlug: string
+): Promise<Article[]> {
+	if (ids.length === 0) return [];
+
+	try {
+		const { rows } = await query(
+			`
+      SELECT *
+      FROM articles
+      WHERE status = 'active'
+        AND id = ANY($1::uuid[])
+        AND slug <> $2
+    `,
+			[ids, excludeSlug]
+		);
+
+		const byId = new Map(
+			rows.map((row) => {
+				const article = mapRowToArticle(row as Record<string, unknown>);
+				return [article.id, article] as const;
+			})
+		);
+
+		return ids
+			.map((id) => byId.get(id))
+			.filter((article): article is Article => article != null);
+	} catch (error) {
+		console.error('[articleQuery.server] getPublishedArticlesByIds failed:', error);
+		return [];
+	}
+}
+
+async function getRelatedPublishedArticlesByTags(
+	article: Article,
+	excludeIds: Set<string>,
+	limit: number
+): Promise<Article[]> {
+	const tags = (article.tags ?? []).map((tag) => tag.trim()).filter(Boolean);
+	if (tags.length === 0 || limit <= 0) return [];
+
+	try {
+		const { rows } = await query(
+			`
+      SELECT *
+      FROM articles
+      WHERE status = 'active'
+        AND slug <> $1
+        AND EXISTS (
+          SELECT 1
+          FROM jsonb_array_elements_text(COALESCE(tags, '[]'::jsonb)) AS tag(value)
+          WHERE tag.value = ANY($2::text[])
+        )
+      ORDER BY updated_at DESC
+      LIMIT $3
+    `,
+			[article.slug.trim(), tags, limit + excludeIds.size]
+		);
+
+		return rows
+			.map((row) => mapRowToArticle(row as Record<string, unknown>))
+			.filter((candidate) => !excludeIds.has(candidate.id))
+			.slice(0, limit);
+	} catch (error) {
+		console.error('[articleQuery.server] getRelatedPublishedArticlesByTags failed:', error);
+		return [];
+	}
+}
+
+async function getFeaturedOrLatestPublishedArticles(
+	excludeSlug: string,
+	excludeIds: Set<string>,
+	limit: number
+): Promise<Article[]> {
+	if (limit <= 0) return [];
+
+	try {
+		const { rows } = await query(
+			`
+      SELECT *
+      FROM articles
+      WHERE status = 'active'
+        AND slug <> $1
+      ORDER BY is_featured DESC NULLS LAST, display_order ASC NULLS LAST, updated_at DESC
+      LIMIT $2
+    `,
+			[excludeSlug, limit + excludeIds.size]
+		);
+
+		return rows
+			.map((row) => mapRowToArticle(row as Record<string, unknown>))
+			.filter((candidate) => !excludeIds.has(candidate.id))
+			.slice(0, limit);
+	} catch (error) {
+		console.error('[articleQuery.server] getFeaturedOrLatestPublishedArticles failed:', error);
+		return [];
+	}
+}
+
+/**
+ * Sidebar related articles: manual article picks first (order preserved), then auto-fill to 3.
+ * Journeys in recommended_items are ignored here (reserved for future bottom module).
+ */
+export async function getSidebarRelatedArticles(
+	article: Article,
+	limit = SIDEBAR_RELATED_LIMIT
+): Promise<Article[]> {
+	const excludeSlug = decodeURIComponent(article.slug).trim();
+	if (!excludeSlug) return [];
+
+	const excludeIds = new Set<string>([article.id]);
+	const result: Article[] = [];
+
+	const manualIds = (article.recommendedItems ?? [])
+		.filter((item) => item.type === 'article')
+		.map((item) => item.id)
+		.slice(0, limit);
+
+	if (manualIds.length > 0) {
+		const manualArticles = await getPublishedArticlesByIds(manualIds, excludeSlug);
+		for (const manualArticle of manualArticles) {
+			if (result.length >= limit) break;
+			if (excludeIds.has(manualArticle.id)) continue;
+			result.push(manualArticle);
+			excludeIds.add(manualArticle.id);
+		}
+	}
+
+	const appendUnique = (candidates: Article[]) => {
+		for (const candidate of candidates) {
+			if (result.length >= limit) break;
+			if (excludeIds.has(candidate.id)) continue;
+			result.push(candidate);
+			excludeIds.add(candidate.id);
+		}
+	};
+
+	let need = limit - result.length;
+	if (need > 0) {
+		appendUnique(await getRelatedPublishedArticles(article, need + excludeIds.size));
+	}
+
+	need = limit - result.length;
+	if (need > 0) {
+		appendUnique(await getRelatedPublishedArticlesByTags(article, excludeIds, need));
+	}
+
+	need = limit - result.length;
+	if (need > 0) {
+		appendUnique(await getFeaturedOrLatestPublishedArticles(excludeSlug, excludeIds, need));
+	}
+
+	return result.slice(0, limit);
+}

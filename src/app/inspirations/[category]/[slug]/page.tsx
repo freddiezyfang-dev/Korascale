@@ -9,7 +9,7 @@ import {
 import {
 	getPublishedArticleBySlug,
 	getPublishedArticlesForStaticParams,
-	getRelatedPublishedArticles,
+	getSidebarRelatedArticles,
 } from '@/lib/articleQuery.server';
 import {
 	getArticleCanonicalCategorySlug,
@@ -148,9 +148,8 @@ export default async function ArticleDetailPage({ params }: PageProps) {
 		permanentRedirect(getArticleCanonicalPath(article));
 	}
 
-	const serializedArticle = serializeArticle(article);
-	const relatedArticles = await getRelatedPublishedArticles(article, 4);
-	const serializedRelated = relatedArticles.map(serializeArticle);
+	const sidebarArticles = await getSidebarRelatedArticles(article, 3);
+	const serializedSidebarArticles = sidebarArticles.map(serializeArticle);
 
 	const articleJsonLd = buildArticleJsonLd(article, categorySlug);
 
@@ -165,16 +164,10 @@ export default async function ArticleDetailPage({ params }: PageProps) {
 				categorySlug={categorySlug}
 				shareSlot={<ArticleShareButtons />}
 				sidebarSlot={
-					<ArticleDesktopSidebar
-						article={serializedArticle}
-						relatedArticles={serializedRelated}
-					/>
+					<ArticleDesktopSidebar relatedArticles={serializedSidebarArticles} />
 				}
 				mobileSidebarSlot={
-					<ArticleMobileSidebar
-						article={serializedArticle}
-						relatedArticles={serializedRelated}
-					/>
+					<ArticleMobileSidebar relatedArticles={serializedSidebarArticles} />
 				}
 			/>
 		</>

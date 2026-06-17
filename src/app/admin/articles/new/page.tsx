@@ -186,14 +186,25 @@ export default function NewArticlePage() {
           ...prev,
           recommendedItems: currentItems.filter((_, index) => index !== existingIndex)
         };
-      } else {
-        return {
-          ...prev,
-          recommendedItems: [...currentItems, { type, id }]
-        };
       }
+
+      if (type === 'article') {
+        const articleCount = currentItems.filter((item) => item.type === 'article').length;
+        if (articleCount >= 3) {
+          alert('Related Articles supports up to 3 articles.');
+          return prev;
+        }
+      }
+
+      return {
+        ...prev,
+        recommendedItems: [...currentItems, { type, id }]
+      };
     });
   };
+
+  const selectedSidebarArticles = (form.recommendedItems || []).filter((item) => item.type === 'article');
+  const selectedSidebarJourneys = (form.recommendedItems || []).filter((item) => item.type === 'journey');
 
   const isRecommendedItemSelected = (type: 'journey' | 'article', id: string): boolean => {
     return (form.recommendedItems || []).some(item => item.type === type && item.id === id);
@@ -870,37 +881,32 @@ export default function NewArticlePage() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">推荐项（Recommend For You）</label>
-              <Text size="sm" className="text-gray-500 mb-4">
-                支持混合选择 Journey 和 Article，将显示在文章页面的推荐模块中
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Related Articles</label>
+              <Text size="sm" className="text-gray-500 mb-2">
+                Select up to 3 related articles for the article sidebar. Manual selections appear first; remaining slots are filled automatically.
               </Text>
-              
+              <Text size="sm" className="text-gray-600 mb-2 font-medium">
+                {selectedSidebarArticles.length} / 3 selected
+              </Text>
+              {selectedSidebarArticles.length > 3 && (
+                <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded">
+                  <Text size="sm" className="text-amber-900">
+                    This article has more than 3 saved related articles. Only the first 3 are displayed in the sidebar. Existing selections will be preserved until you remove them manually.
+                  </Text>
+                </div>
+              )}
+
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm text-gray-600 mb-2">Journeys</label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-48 overflow-y-auto border rounded p-2">
-                    {journeys.map(j => (
-                      <label key={j.id} className="flex items-center gap-2 p-2 border rounded hover:bg-gray-50 cursor-pointer">
-                        <input 
-                          type="checkbox" 
-                          checked={isRecommendedItemSelected('journey', j.id)} 
-                          onChange={() => toggleRecommendedItem('journey', j.id)} 
-                        />
-                        <span className="text-sm">{j.title}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm text-gray-600 mb-2">Articles</label>
+                  <label className="block text-sm text-gray-600 mb-2">Published articles</label>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-48 overflow-y-auto border rounded p-2">
                     {articles.filter(a => a.status === 'active').map(a => (
                       <label key={a.id} className="flex items-center gap-2 p-2 border rounded hover:bg-gray-50 cursor-pointer">
                         <input 
                           type="checkbox" 
                           checked={isRecommendedItemSelected('article', a.id)} 
-                          onChange={() => toggleRecommendedItem('article', a.id)} 
+                          onChange={() => toggleRecommendedItem('article', a.id)}
+                          disabled={!isRecommendedItemSelected('article', a.id) && selectedSidebarArticles.length >= 3}
                         />
                         <span className="text-sm">{a.title}</span>
                       </label>
@@ -908,19 +914,17 @@ export default function NewArticlePage() {
                   </div>
                 </div>
 
-                {(form.recommendedItems || []).length > 0 && (
-                  <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
+                {selectedSidebarArticles.length > 0 && (
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded">
                     <Text size="sm" className="font-semibold text-blue-900 mb-2">
-                      已选择 {form.recommendedItems.length} 个推荐项：
+                      Selected related articles:
                     </Text>
                     <div className="flex flex-wrap gap-2">
-                      {form.recommendedItems.map((item, index) => {
-                        const data = item.type === 'journey' 
-                          ? journeys.find(j => j.id === item.id)
-                          : articles.find(a => a.id === item.id);
+                      {selectedSidebarArticles.map((item, index) => {
+                        const data = articles.find(a => a.id === item.id);
                         return data ? (
-                          <span key={index} className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
-                            {item.type === 'journey' ? '🚗' : '📄'} {data.title}
+                          <span key={`${item.id}-${index}`} className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                            {data.title}
                           </span>
                         ) : null;
                       })}
@@ -928,6 +932,30 @@ export default function NewArticlePage() {
                   </div>
                 )}
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Related Journeys</label>
+              <Text size="sm" className="text-gray-500 mb-4">
+                Saved for the future article CTA and Related Journeys module. These journeys are not currently displayed on the article page.
+              </Text>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-48 overflow-y-auto border rounded p-2">
+                {journeys.map(j => (
+                  <label key={j.id} className="flex items-center gap-2 p-2 border rounded hover:bg-gray-50 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      checked={isRecommendedItemSelected('journey', j.id)} 
+                      onChange={() => toggleRecommendedItem('journey', j.id)} 
+                    />
+                    <span className="text-sm">{j.title}</span>
+                  </label>
+                ))}
+              </div>
+              {selectedSidebarJourneys.length > 0 && (
+                <Text size="sm" className="text-gray-600 mt-3">
+                  {selectedSidebarJourneys.length} journey recommendation(s) saved.
+                </Text>
+              )}
             </div>
 
             <div className="flex items-center gap-3">
