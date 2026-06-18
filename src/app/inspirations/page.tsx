@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 };
 
 export default async function InspirationsPage() {
-	const featuredArticles = await getPublishedFeaturedArticles(4);
+	const featuredArticles = await getPublishedFeaturedArticles(10);
 
 	return <InspirationsPageView featuredArticles={featuredArticles} />;
 }

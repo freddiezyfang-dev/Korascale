@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Container, Section, Heading, Text, Breadcrumb } from '@/components/common';
+import FeaturedArticlesCarousel from '@/components/articles/FeaturedArticlesCarousel';
 import { PlanningSectionNew } from '@/components/sections';
 import { getRenderableImageUrl } from '@/lib/imageUtils';
 import type { ArticleListItem } from '@/lib/articleQuery.server';
@@ -31,6 +32,13 @@ interface InspirationsPageViewProps {
 export default function InspirationsPageView({ featuredArticles }: InspirationsPageViewProps) {
 	const inspHeadingClass = 'text-2xl font-serif text-[#111] mb-4';
 	const inspBodyClass = 'text-[17px] md:text-[18px] text-gray-700 leading-[1.7] font-sans';
+	const featuredCarouselArticles = featuredArticles.map((article) => ({
+		id: article.id,
+		href: getArticleCanonicalPath(article),
+		title: article.title,
+		category: getArticleCategoryLabel(article),
+		image: getRenderableImageUrl(article.heroImage || article.coverImage),
+	}));
 
 	return (
 		<main>
@@ -91,45 +99,28 @@ export default function InspirationsPageView({ featuredArticles }: InspirationsP
 			</Section>
 
 			{featuredArticles.length > 0 && (
-				<Section background="secondary" padding="xl" className="py-20">
-					<Container size="xl">
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-							{featuredArticles.map((article) => {
-								const articleHref = getArticleCanonicalPath(article);
+				<section
+					aria-labelledby="featured-articles-title"
+					className="w-full bg-[#f5f1e6] py-14 md:py-20 lg:py-24"
+				>
+					<div className="mx-auto w-full max-w-screen-2xl">
+						<header className="mx-auto mb-10 max-w-2xl px-4 text-center md:mb-12">
+							<h2
+								id="featured-articles-title"
+								className="mb-3 text-3xl md:text-4xl font-heading text-[#111] leading-tight"
+								style={{ fontFamily: 'Playfair Display, serif' }}
+							>
+								Featured Articles
+							</h2>
+							<Text className="text-[17px] leading-relaxed text-gray-600 font-sans">
+								Handpicked insights on China travel planning, routes, culture, and business
+								travel — curated for readers who want depth before they go.
+							</Text>
+						</header>
 
-								return (
-									<Link
-										key={article.id}
-										href={articleHref}
-										className="group cursor-pointer transition-all duration-300 hover:scale-[1.02]"
-									>
-										<div className="relative w-full overflow-hidden rounded-lg mb-4">
-											<div className="relative w-full aspect-[4/3] overflow-hidden">
-												<img
-													src={getRenderableImageUrl(article.coverImage)}
-													alt={article.title}
-													className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-												/>
-											</div>
-										</div>
-										<div className="px-2">
-											<p className="text-xs uppercase tracking-widest text-gray-600 mb-2 font-sans">
-												{getArticleCategoryLabel(article)}
-											</p>
-											<Heading
-												level={3}
-												className="text-2xl md:text-3xl font-heading text-[#111] leading-tight"
-												style={{ fontFamily: 'Montaga, serif' }}
-											>
-												{article.title}
-											</Heading>
-										</div>
-									</Link>
-								);
-							})}
-						</div>
-					</Container>
-				</Section>
+						<FeaturedArticlesCarousel articles={featuredCarouselArticles} />
+					</div>
+				</section>
 			)}
 
 			<Section background="secondary" padding="xl" className="py-24">

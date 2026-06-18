@@ -1,0 +1,129 @@
+.cardShell {
+	flex: 0 0 auto;
+	scroll-snap-align: start;
+}
+
+.track {
+	display: flex;
+	gap: 1.25rem;
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+	scroll-behavior: smooth;
+	padding-bottom: 0.5rem;
+	padding-inline: 1rem;
+	-webkit-overflow-scrolling: touch;
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+	min-height: 360px;
+}
+
+.track::-webkit-scrollbar {
+	display: none;
+}
+
+@media (min-width: 640px) {
+	.track {
+		gap: 1.5rem;
+		padding-inline: 2rem;
+		min-height: 420px;
+	}
+}
+
+@media (min-width: 768px) {
+	.track {
+		padding-inline: 3rem;
+	}
+}
+
+@media (min-width: 1024px) {
+	.track {
+		padding-inline: 3.5rem;
+		min-height: 480px;
+	}
+}
+
+.wrapper {
+	position: relative;
+}
+
+.navButton {
+	position: absolute;
+	top: 50%;
+	z-index: 20;
+	display: none;
+	height: 3.25rem;
+	width: 3.25rem;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid rgb(30 59 50 / 0.15);
+	border-radius: 9999px;
+	background: #f5f1e6;
+	color: #1e3b32;
+	box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
+	transform: translateY(-50%);
+	transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.navButton:hover:not(:disabled) {
+	background: #ffffff;
+}
+
+.navButton:disabled {
+	opacity: 0.35;
+	pointer-events: none;
+}
+
+.navButton:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 2px #1e3b32, 0 0 0 4px #f5f1e6;
+}
+
+@media (min-width: 768px) {
+	.navButton {
+		display: inline-flex;
+	}
+}
+
+.navPrev {
+	left: 0;
+}
+
+.navNext {
+	right: 0;
+}
+
+.dots {
+	margin-top: 2rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.625rem;
+}
+
+.dot {
+	height: 0.625rem;
+	width: 0.625rem;
+	border-radius: 9999px;
+	background: rgb(30 59 50 / 0.2);
+	transition: all 0.3s ease;
+}
+
+.dot:hover {
+	background: rgb(30 59 50 / 0.35);
+}
+
+.dotActive {
+	width: 1.75rem;
+	background: #1e3b32;
+}
+
+.dot:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 2px #1e3b32, 0 0 0 4px #f5f1e6;
+}
+
+.singleCardWrap {
+	display: flex;
+	justify-content: center;
+	padding-inline: 1rem;
+}

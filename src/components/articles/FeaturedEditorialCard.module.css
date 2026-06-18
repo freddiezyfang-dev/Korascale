@@ -1,0 +1,167 @@
+.card {
+	position: relative;
+	flex-shrink: 0;
+	width: clamp(280px, 82vw, 400px);
+	aspect-ratio: 3 / 4;
+	min-height: 360px;
+	overflow: hidden;
+	border-radius: 12px;
+	background-color: rgb(30 59 50 / 0.12);
+}
+
+@media (min-width: 640px) {
+	.card {
+		width: 340px;
+		min-height: 420px;
+	}
+}
+
+@media (min-width: 768px) {
+	.card {
+		width: 360px;
+	}
+}
+
+@media (min-width: 1024px) {
+	.card {
+		width: 380px;
+		min-height: 460px;
+	}
+}
+
+@media (min-width: 1280px) {
+	.card {
+		width: 400px;
+		min-height: 480px;
+	}
+}
+
+.imageLayer {
+	position: absolute;
+	inset: 0;
+	overflow: hidden;
+}
+
+.image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	transition: transform 0.3s ease-out;
+}
+
+.link:hover .image,
+.link:focus-visible .image {
+	transform: scale(1.03);
+}
+
+.overlay {
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(to top, rgb(0 0 0 / 0.75), rgb(0 0 0 / 0.25), transparent);
+	transition: background 0.3s ease;
+}
+
+.link:hover .overlay,
+.link:focus-visible .overlay {
+	background: linear-gradient(to top, rgb(0 0 0 / 0.82), rgb(0 0 0 / 0.3), transparent);
+}
+
+.frame {
+	pointer-events: none;
+	position: absolute;
+	inset: 12px;
+	border: 1px solid rgb(255 255 255 / 0.55);
+	border-radius: 8px;
+}
+
+@media (min-width: 640px) {
+	.frame {
+		inset: 16px;
+	}
+}
+
+@media (min-width: 768px) {
+	.frame {
+		inset: 20px;
+	}
+}
+
+.content {
+	position: absolute;
+	inset-inline: 0;
+	bottom: 0;
+	z-index: 1;
+	padding: 4rem 1.25rem 1.5rem;
+	text-align: center;
+}
+
+@media (min-width: 640px) {
+	.content {
+		padding-inline: 1.5rem;
+		padding-bottom: 1.75rem;
+	}
+}
+
+.category {
+	margin-bottom: 0.5rem;
+	font-family: var(--font-sans);
+	font-size: 11px;
+	font-weight: 500;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	color: rgb(255 255 255 / 0.7);
+}
+
+.title {
+	margin-bottom: 0.75rem;
+	font-family: var(--font-serif);
+	font-size: 25px;
+	line-height: 1.1;
+	color: #f5f1e6;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+@media (min-width: 640px) {
+	.title {
+		font-size: 28px;
+	}
+}
+
+@media (min-width: 1024px) {
+	.title {
+		font-size: 32px;
+	}
+}
+
+.action {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	font-family: var(--font-sans);
+	font-size: 14px;
+	font-weight: 500;
+	color: rgb(255 255 255 / 0.9);
+	text-decoration: underline;
+	text-decoration-color: rgb(255 255 255 / 0.35);
+	text-underline-offset: 5px;
+}
+
+@media (min-width: 768px) {
+	.action {
+		font-size: 15px;
+	}
+}
+
+.link {
+	display: block;
+	flex-shrink: 0;
+	border-radius: 12px;
+}
+
+.link:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 2px #1e3b32, 0 0 0 4px #f5f1e6;
+}
