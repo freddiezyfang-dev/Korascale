@@ -49,13 +49,6 @@ export default function Footer() {
 							<div className="mt-1 text-sm font-body" style={{ color: '#F5F2E9' }}>craft your own Adventure</div>
 						</div>
 					</div>
-					<div className="mt-6 sm:mt-8 grid grid-cols-2 gap-4 rounded-lg bg-transparent w-full max-w-md lg:max-w-[394px] px-4 sm:px-6 lg:px-[34px] py-5 lg:py-[25px]">
-						<input className="min-h-[44px] rounded-[5px] bg-white px-3 text-black text-sm" placeholder="First Name" />
-						<input className="min-h-[44px] rounded-[5px] bg-white px-3 text-black text-sm" placeholder="Last Name" />
-						<input className="col-span-2 min-h-[44px] rounded-[5px] bg-white px-3 text-black text-sm" placeholder="E-mail Address" />
-						<p className="col-span-2 text-[10px] opacity-80">By entering your email, you agree to our Terms of Use and Privacy Policy, including receipt of emails and promotions</p>
-						<button className="justify-self-end min-h-[44px] px-6 rounded-[5px] border border-white text-[10px] touch-manipulation">SUBSCRIBE</button>
-					</div>
 					<div className="mt-6 sm:pl-6 lg:pl-[60px] flex items-center gap-6">
 						{/* 邮件图标 */}
 						<a 

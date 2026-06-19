@@ -92,7 +92,16 @@ export default function BookingCartPage() {
                       <span>¥{totals.subtotal}</span>
                     </div>
                   </div>
-                  <Button className="w-full mt-4" onClick={() => router.push('/booking/review')}>Continue</Button>
+                  <Text className="text-sm text-gray-600 mb-4">
+                    This cart is for reference only. To request a journey, use Request to Book on a journey
+                    detail page or contact our team.
+                  </Text>
+                  <Button className="w-full mt-4" onClick={() => router.push('/journeys')}>
+                    Browse Journeys
+                  </Button>
+                  <Button className="w-full mt-2" variant="outline" onClick={() => router.push('/contact')}>
+                    Contact Us
+                  </Button>
                   <Button className="w-full mt-2" variant="outline" onClick={clearCart}>Clear</Button>
                 </Card>
               </div>

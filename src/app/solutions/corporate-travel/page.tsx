@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { CorporateTravelInquiryButton } from '@/components/solutions/CorporateTravelInquiryButton';
 import {
 	Building2,
 	Car,
@@ -256,9 +257,9 @@ export default function CorporateTravelPage() {
 							hotels, dinners, and post-event cultural experiences.
 						</p>
 						<div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-							<Link href="/contact" className={ctaPrimaryDark}>
+							<CorporateTravelInquiryButton className={ctaPrimaryDark}>
 								Tell Us About Your Upcoming Visit
-							</Link>
+							</CorporateTravelInquiryButton>
 							<Link href="#business-scenarios" className={ctaSecondaryDark}>
 								Explore Use Cases
 							</Link>
@@ -475,9 +476,9 @@ export default function CorporateTravelPage() {
 						Share your city, dates, group size, and business purpose. We&apos;ll shape a practical support plan.
 					</p>
 					<div className="mt-8">
-						<Link href="/contact" className={ctaPrimaryLight}>
+						<CorporateTravelInquiryButton className={ctaPrimaryLight}>
 							Submit a Visit Request
-						</Link>
+						</CorporateTravelInquiryButton>
 					</div>
 					<p className="mx-auto mt-5 max-w-md text-sm text-white/65">
 						Not sure about the full schedule yet? Send us the basics and we can help shape the visit plan.

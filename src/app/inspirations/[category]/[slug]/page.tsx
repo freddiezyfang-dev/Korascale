@@ -171,7 +171,15 @@ export default async function ArticleDetailPage({ params }: PageProps) {
 				sidebarSlot={
 					<ArticleDesktopSidebar relatedArticles={serializedSidebarArticles} />
 				}
-				ctaSlot={resolvedCta ? <ArticlePrimaryCta cta={resolvedCta} /> : null}
+				ctaSlot={
+					resolvedCta ? (
+						<ArticlePrimaryCta
+							cta={resolvedCta}
+							articleSlug={article.slug}
+							sourcePage={`/inspirations/${categorySlug}/${article.slug}`}
+						/>
+					) : null
+				}
 				mobileSidebarSlot={
 					<ArticleMobileSidebar relatedArticles={serializedSidebarArticles} />
 				}

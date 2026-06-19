@@ -1,4 +1,11 @@
-import { Container, Section, Heading, Text, Button } from '@/components/common';
+import Link from 'next/link';
+
+import { Container, Section, Heading, Text } from '@/components/common';
+import {
+	CUSTOMER_SERVICE_EMAIL,
+	WHATSAPP_NUMBER_DISPLAY,
+	WHATSAPP_URL,
+} from '@/lib/contactChannels';
 
 export const metadata = {
 	title: "Contact Us - Korascale",
@@ -22,39 +29,38 @@ export default function ContactPage() {
 			<Section background="secondary" padding="xl">
 				<Container size="xl">
 					<div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-						{/* Contact Information */}
 						<div>
 							<Heading level={2} className="mb-8">
 								Get in Touch
 							</Heading>
-							
+
 							<div className="space-y-6">
 								<div>
 									<Heading level={3} className="mb-2">Email</Heading>
 									<Text className="text-primary-600">
 										<a
-											href="mailto:customer-service@korascale.com"
+											href={`mailto:${CUSTOMER_SERVICE_EMAIL}`}
 											className="underline decoration-primary-600/40 underline-offset-2 hover:opacity-80"
 										>
-											customer-service@korascale.com
+											{CUSTOMER_SERVICE_EMAIL}
 										</a>
 									</Text>
 								</div>
-								
+
 								<div>
 									<Heading level={3} className="mb-2">WhatsApp</Heading>
 									<Text className="text-primary-600">
 										<a
-											href="https://wa.me/8615556486995"
+											href={WHATSAPP_URL}
 											target="_blank"
 											rel="noopener noreferrer"
 											className="underline decoration-primary-600/40 underline-offset-2 hover:opacity-80"
 										>
-											+86 155 5648 6995
+											{WHATSAPP_NUMBER_DISPLAY}
 										</a>
 									</Text>
 								</div>
-								
+
 								<div>
 									<Heading level={3} className="mb-2">Business Hours</Heading>
 									<Text>
@@ -66,73 +72,40 @@ export default function ContactPage() {
 							</div>
 						</div>
 
-						{/* Contact Form */}
 						<div>
 							<Heading level={2} className="mb-8">
-								Send us a Message
+								How We Can Help
 							</Heading>
-							
-							<form className="space-y-6">
-								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-									<div>
-										<label className="block text-sm font-medium text-gray-700 mb-2">
-											First Name
-										</label>
-										<input
-											type="text"
-											className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-											placeholder="Your first name"
-										/>
-									</div>
-									<div>
-										<label className="block text-sm font-medium text-gray-700 mb-2">
-											Last Name
-										</label>
-										<input
-											type="text"
-											className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-											placeholder="Your last name"
-										/>
-									</div>
-								</div>
-								
-								<div>
-									<label className="block text-sm font-medium text-gray-700 mb-2">
-										Email
-									</label>
-									<input
-										type="email"
-										className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-										placeholder="your.email@example.com"
-									/>
-								</div>
-								
-								<div>
-									<label className="block text-sm font-medium text-gray-700 mb-2">
-										Subject
-									</label>
-									<input
-										type="text"
-										className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-										placeholder="What can we help you with?"
-									/>
-								</div>
-								
-								<div>
-									<label className="block text-sm font-medium text-gray-700 mb-2">
-										Message
-									</label>
-									<textarea
-										rows={5}
-										className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-										placeholder="Tell us about your travel plans or questions..."
-									></textarea>
-								</div>
-								
-								<Button variant="primary" className="w-full">
-									Send Message
-								</Button>
-							</form>
+							<Text className="mb-6">
+								Reach us by email or WhatsApp during business hours. For trip ideas and journey
+								requests, you can also explore our curated routes below.
+							</Text>
+							<ul className="space-y-3 text-primary-600">
+								<li>
+									<Link
+										href="/journeys"
+										className="underline decoration-primary-600/40 underline-offset-2 hover:opacity-80"
+									>
+										Browse Journeys
+									</Link>
+								</li>
+								<li>
+									<Link
+										href="/inspirations"
+										className="underline decoration-primary-600/40 underline-offset-2 hover:opacity-80"
+									>
+										Read Inspirations
+									</Link>
+								</li>
+								<li>
+									<Link
+										href="/solutions/corporate-travel"
+										className="underline decoration-primary-600/40 underline-offset-2 hover:opacity-80"
+									>
+										Corporate Travel Solutions
+									</Link>
+								</li>
+							</ul>
 						</div>
 					</div>
 				</Container>
@@ -140,4 +113,3 @@ export default function ContactPage() {
 		</main>
 	);
 }
-

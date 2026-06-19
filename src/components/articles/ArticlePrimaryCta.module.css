@@ -110,6 +110,7 @@
 	height: 52px;
 	padding: 0 28px;
 	width: min(100%, 320px);
+	border: none;
 	border-radius: 0.5rem;
 	background-color: #f5f1e6;
 	color: #1e3b32;
@@ -119,6 +120,7 @@
 	line-height: 1.5;
 	white-space: nowrap;
 	text-decoration: none;
+	cursor: pointer;
 	transition: background-color 0.2s ease, color 0.2s ease;
 }
 

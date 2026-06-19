@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useState, useCallback, useEffect, CSSProperties } from 'react';
-import { Button, Card, Heading, Text } from '@/components/common';
-import { Calendar, Star, MapPin, Wifi, Car, Coffee } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, CSSProperties } from 'react';
+import { Card, Heading, Text } from '@/components/common';
+import { Star, MapPin, Wifi, Car, Coffee } from 'lucide-react';
 
 export interface AccommodationCardProps {
   id: string;
@@ -38,18 +37,12 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
 }) => {
   const [imageError, setImageError] = useState(false);
   const [imageSrc, setImageSrc] = useState(image);
-  const router = useRouter();
   
   // 当 image prop 改变时，重置错误状态
   useEffect(() => {
     setImageSrc(image);
     setImageError(false);
   }, [image]);
-  
-  const handleBookNow = useCallback(() => {
-    // 跳转到 accommodation 预订页面
-    router.push(`/booking/accommodation?hotelId=${id}&adults=2&children=0`);
-  }, [router, id]);
 
   const handleCardClick = () => {
     if (onClick) {
@@ -128,23 +121,7 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
           </div>
         )}
 
-        {/* 按钮组 */}
-        <div className="mt-auto">
-          {/* 预订按钮 */}
-          <Button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleBookNow();
-            }}
-            className="w-full flex items-center justify-center gap-2 bg-white hover:bg-gray-100 text-black font-semibold py-3 px-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
-            style={{ color: '#000000' }}
-          >
-            <Calendar className="w-5 h-5" />
-            REQUEST TO BOOK
-          </Button>
-        </div>
       </div>
-
     </Card>
   );
 };
