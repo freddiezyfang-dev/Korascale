@@ -1,4 +1,11 @@
+import Link from 'next/link';
+
 import { Container, Section, Heading, Text } from '@/components/common';
+import {
+	CUSTOMER_SERVICE_EMAIL,
+	WHATSAPP_NUMBER_DISPLAY,
+	WHATSAPP_URL,
+} from '@/lib/contactChannels';
 
 export const metadata = {
 	title: "Support - Korascale Travel",
@@ -14,7 +21,7 @@ export default function SupportPage() {
 						Support
 					</Heading>
 					<Text align="center" size="lg" className="mb-12 max-w-2xl mx-auto">
-						We're here to help you with any questions or concerns about your travel experience.
+						We&apos;re here to help you with any questions or concerns about your travel experience.
 					</Text>
 				</Container>
 			</Section>
@@ -27,7 +34,8 @@ export default function SupportPage() {
 								Need Help?
 							</Heading>
 							<Text>
-								Our support team is available to assist you with booking inquiries, travel planning, and any issues you may encounter during your journey.
+								Our team is available to assist you with booking inquiries, travel planning, and any
+								issues you may encounter during your journey.
 							</Text>
 						</div>
 
@@ -36,10 +44,29 @@ export default function SupportPage() {
 								Contact Support
 							</Heading>
 							<Text className="mb-4">
-								Email: <a href="mailto:support@korascale.com" className="text-primary-600 hover:underline">support@korascale.com</a>
+								Email:{' '}
+								<a
+									href={`mailto:${CUSTOMER_SERVICE_EMAIL}`}
+									className="text-primary-600 hover:underline"
+								>
+									{CUSTOMER_SERVICE_EMAIL}
+								</a>
 							</Text>
 							<Text className="mb-4">
-								Phone: <a href="tel:+8613800000000" className="text-primary-600 hover:underline">+86 138 0000 0000</a>
+								WhatsApp:{' '}
+								<a
+									href={WHATSAPP_URL}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="text-primary-600 hover:underline"
+								>
+									{WHATSAPP_NUMBER_DISPLAY}
+								</a>
+							</Text>
+							<Text className="mb-4">
+								<Link href="/contact" className="text-primary-600 hover:underline">
+									View all contact options
+								</Link>
 							</Text>
 							<Text>
 								Business Hours: Monday - Friday, 9:00 AM - 6:00 PM (CST)
@@ -51,5 +78,3 @@ export default function SupportPage() {
 		</main>
 	);
 }
-
-

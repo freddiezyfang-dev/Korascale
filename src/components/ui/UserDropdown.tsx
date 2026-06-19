@@ -114,15 +114,7 @@ export function UserDropdown() {
                       </Link>
                     </div>
                   </div>
-                  {/* 预订按钮 */}
                   <div className="flex gap-2 mt-2">
-                    <Link
-                      href="/checkout"
-                      className="flex-1 bg-primary-500 text-white text-xs py-2 px-3 rounded-lg hover:bg-primary-600 transition-colors text-center flex items-center justify-center gap-1"
-                    >
-                      <Calendar className="w-3 h-3" />
-                      REQUEST TO BOOK
-                    </Link>
                     <Link
                       href={`/${item.type}s`}
                       className="flex-1 bg-gray-200 text-gray-700 text-xs py-2 px-3 rounded-lg hover:bg-gray-300 transition-colors text-center"
@@ -140,18 +132,9 @@ export function UserDropdown() {
       {/* 操作按钮 */}
       <div className="border-t border-gray-200 pt-4">
         <div className="flex gap-2">
-          {items.length > 0 && (
-            <Link
-              href="/checkout"
-              className="flex-1 bg-primary-500 text-white text-sm py-2 px-4 rounded-lg hover:bg-primary-600 transition-colors text-center flex items-center justify-center gap-2"
-            >
-              <Calendar className="w-4 h-4" />
-              Book All ({items.length})
-            </Link>
-          )}
           <button
             onClick={handleLogout}
-            className={`${items.length > 0 ? 'flex-1' : 'w-full'} bg-gray-100 text-gray-700 text-sm py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors`}
+            className="w-full bg-gray-100 text-gray-700 text-sm py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors"
           >
             Logout
           </button>

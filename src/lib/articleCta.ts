@@ -2,7 +2,10 @@ import {
 	getArticleCanonicalCategorySlug,
 	getCanonicalCategoryForArticle,
 } from '@/lib/articleCategories';
+import { PLAN_TRIP_CTA_HREF } from '@/lib/planTripCta';
 import type { Article, ArticleCategory, ArticleCtaConfig, ArticleCtaMode, ContentBlock } from '@/types/article';
+
+export { PLAN_TRIP_CTA_HREF, isPlanTripCtaHref } from '@/lib/planTripCta';
 
 export type { ArticleCtaConfig, ArticleCtaMode } from '@/types/article';
 
@@ -24,7 +27,7 @@ const PRIVATE_JOURNEY_TEMPLATE: Omit<ResolvedArticleCta, 'mode'> = {
 	body: 'Tell us your dates, group size, and what matters most to you. We’ll shape the route, pace, and local experiences around you.',
 	supportingText: '',
 	primaryLabel: 'Start Planning',
-	primaryHref: '/contact',
+	primaryHref: PLAN_TRIP_CTA_HREF,
 	secondaryLabel: 'Explore Journeys',
 	secondaryHref: '/journeys',
 };
@@ -35,7 +38,7 @@ const CORPORATE_TRAVEL_TEMPLATE: Omit<ResolvedArticleCta, 'mode'> = {
 	body: 'Share your dates, cities, group size, and business schedule. We’ll coordinate the local details around your priorities.',
 	supportingText: '',
 	primaryLabel: 'Discuss Your Visit',
-	primaryHref: '/contact',
+	primaryHref: PLAN_TRIP_CTA_HREF,
 	secondaryLabel: 'View Corporate Travel Solutions',
 	secondaryHref: '/solutions/corporate-travel',
 };

@@ -4,7 +4,6 @@ import React, { useEffect } from 'react';
 import { useWishlist } from '@/context/WishlistContext';
 import { Button, Card, Heading, Text } from '@/components/common';
 import { X, Trash2, Heart, Calendar, Users } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
 export const WishlistSidebar: React.FC = () => {
   const { 
@@ -14,7 +13,6 @@ export const WishlistSidebar: React.FC = () => {
     removeFromWishlist, 
     clearWishlist 
   } = useWishlist();
-  const router = useRouter();
 
   // 防止背景滚动
   useEffect(() => {
@@ -163,22 +161,10 @@ export const WishlistSidebar: React.FC = () => {
                 <Button
                   variant="outline"
                   onClick={clearWishlist}
-                  className="flex-1 flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                  className="w-full flex items-center justify-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
                 >
                   <Trash2 className="w-4 h-4" />
-                  <span className="hidden sm:inline">Clear All</span>
-                  <span className="sm:hidden">Clear</span>
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={() => {
-                    closeWishlist();
-                    router.push('/booking/cart');
-                  }}
-                  className="flex-1"
-                >
-                  <span className="hidden sm:inline">Add to Booking</span>
-                  <span className="sm:hidden">Book</span>
+                  Clear All
                 </Button>
               </div>
             </div>

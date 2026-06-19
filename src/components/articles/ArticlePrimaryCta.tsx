@@ -1,21 +1,40 @@
-import Link from 'next/link';
+'use client';
 
-import { getCtaDisplayBody, type ResolvedArticleCta } from '@/lib/articleCta';
+import Link from 'next/link';
+import { useState } from 'react';
+
+import { PlanTripModal } from '@/components/modals/PlanTripModal';
+import { getCtaDisplayBody, isPlanTripCtaHref, type ResolvedArticleCta } from '@/lib/articleCta';
 
 import styles from './ArticlePrimaryCta.module.css';
 
 interface ArticlePrimaryCtaProps {
 	cta: ResolvedArticleCta;
+	/** Reserved for future inquiry source tracking (PR-C1). */
+	articleSlug?: string;
+	/** Reserved for future inquiry source tracking (PR-C1). */
+	sourcePage?: string;
 }
 
 function isExternalHref(href: string): boolean {
 	return /^https?:\/\//i.test(href);
 }
 
-export default function ArticlePrimaryCta({ cta }: ArticlePrimaryCtaProps) {
+export default function ArticlePrimaryCta({
+	cta,
+	articleSlug,
+	sourcePage,
+}: ArticlePrimaryCtaProps) {
+	const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
 	const headingId = 'article-primary-cta-title';
 	const hasSecondary = Boolean(cta.secondaryLabel?.trim() && cta.secondaryHref?.trim());
 	const bodyCopy = getCtaDisplayBody(cta);
+	const usePlanTripModal = isPlanTripCtaHref(cta.primaryHref);
+
+	const trackingProps = {
+		...(articleSlug ? { 'data-article-slug': articleSlug } : {}),
+		...(sourcePage ? { 'data-source-page': sourcePage } : {}),
+	};
 
 	return (
 		<section
@@ -31,19 +50,32 @@ export default function ArticlePrimaryCta({ cta }: ArticlePrimaryCtaProps) {
 					{bodyCopy ? <p className={styles.body}>{bodyCopy}</p> : null}
 
 					<div className={styles.actions}>
-						<Link
-							href={cta.primaryHref}
-							target={isExternalHref(cta.primaryHref) ? '_blank' : undefined}
-							rel={
-								isExternalHref(cta.primaryHref)
-									? 'noopener noreferrer'
-									: undefined
-							}
-							className={styles.primaryLink}
-							data-cta-primary
-						>
-							{cta.primaryLabel}
-						</Link>
+						{usePlanTripModal ? (
+							<button
+								type="button"
+								className={styles.primaryLink}
+								data-cta-primary
+								{...trackingProps}
+								onClick={() => setIsPlanModalOpen(true)}
+							>
+								{cta.primaryLabel}
+							</button>
+						) : (
+							<Link
+								href={cta.primaryHref}
+								target={isExternalHref(cta.primaryHref) ? '_blank' : undefined}
+								rel={
+									isExternalHref(cta.primaryHref)
+										? 'noopener noreferrer'
+										: undefined
+								}
+								className={styles.primaryLink}
+								data-cta-primary
+								{...trackingProps}
+							>
+								{cta.primaryLabel}
+							</Link>
+						)}
 
 						{hasSecondary ? (
 							<Link
@@ -66,6 +98,10 @@ export default function ArticlePrimaryCta({ cta }: ArticlePrimaryCtaProps) {
 					</div>
 				</div>
 			</div>
+
+			{usePlanTripModal ? (
+				<PlanTripModal isOpen={isPlanModalOpen} onClose={() => setIsPlanModalOpen(false)} />
+			) : null}
 		</section>
 	);
 }

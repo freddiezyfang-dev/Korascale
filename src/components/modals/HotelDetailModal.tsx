@@ -4,10 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { Button, Card, Heading, Text } from '@/components/common';
 import { useWishlist } from '@/context/WishlistContext';
 import { useUser } from '@/context/UserContext';
-import { BookingModal } from './BookingModal';
 import { LoginModal } from './LoginModal';
 import { BookingDetailsModal, BookingDetails } from './BookingDetailsModal';
-import { useRouter } from 'next/navigation';
+import { buildMailtoHref } from '@/lib/contactChannels';
 
 interface RoomType {
   name: string;
@@ -37,12 +36,10 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
   onClose,
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isBookingDetailsModalOpen, setIsBookingDetailsModalOpen] = useState(false);
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { user } = useUser();
-  const router = useRouter();
 
   // 管理浏览器历史，确保返回按钮返回到 accommodation 页面
   useEffect(() => {
@@ -270,22 +267,12 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
             <Button variant="outline" className="flex-1">
               View Details
             </Button>
-            <Button 
-              variant="primary" 
-              className="flex-1"
-              onClick={() => {
-                // 检查用户是否已登录
-                if (user) {
-                  // 用户已登录，直接打开预订详情弹窗
-                  setIsBookingDetailsModalOpen(true);
-                } else {
-                  // 用户未登录，打开登录弹窗
-                  setIsLoginModalOpen(true);
-                }
-              }}
+            <a
+              href={buildMailtoHref(`Accommodation inquiry: ${hotel.name}`)}
+              className="inline-flex flex-1 items-center justify-center rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 transition-colors"
             >
-              REQUEST TO BOOK
-            </Button>
+              ENQUIRE BY EMAIL
+            </a>
           </div>
         </div>
       </div>
@@ -303,19 +290,6 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
         onClose={() => setIsBookingDetailsModalOpen(false)}
         onAddToWishlist={handleBookingDetailsAddToWishlist}
         hotel={hotel}
-      />
-
-      {/* 预订弹窗 */}
-      <BookingModal
-        isOpen={isBookingModalOpen}
-        onClose={() => setIsBookingModalOpen(false)}
-        accommodation={{
-          id: hotel.id,
-          title: hotel.name,
-          location: hotel.location,
-          image: hotel.images[0],
-          price: '$120/night', // 默认价格
-        }}
       />
     </div>
   );

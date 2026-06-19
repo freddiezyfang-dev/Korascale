@@ -127,24 +127,10 @@ export const BookingModal: React.FC<BookingModalProps> = ({
     setIsSubmitting(true);
     
     try {
-      // 生成预订ID
-      const bookingId = 'BNR-' + Math.random().toString(36).substr(2, 8).toUpperCase();
-      
-      // 更新预订数据
-      setBookingData(prev => ({ ...prev, bookingId }));
-      
-      // 模拟API调用延迟
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // 输出到控制台（模拟发送到后端）
-      console.log('预订数据已提交:', {
-        ...bookingData,
-        bookingId,
-        submittedAt: new Date().toISOString(),
-      });
-      
-      // 进入成功页面
-      setCurrentStep('success');
+      alert(
+        'Online accommodation booking is not available through this form. Please contact us by email to enquire.'
+      );
+      onClose();
     } catch (error) {
       console.error('预订提交失败:', error);
     } finally {

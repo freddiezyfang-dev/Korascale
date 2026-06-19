@@ -4,14 +4,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Container, Section, Heading, Text, Card, Button } from '@/components/common';
 import { useOrderManagement } from '@/context/OrderManagementContext';
-import { CheckCircle, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 export default function BookingConfirmationPage() {
   const router = useRouter();
-  const { orders, updateOrderStatus } = useOrderManagement();
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [isConfirming, setIsConfirming] = useState(false);
+  const { orders } = useOrderManagement();
 
   // 从浏览器地址栏解析 orderId，避免在 SSR 阶段使用 useSearchParams
   const [orderId, setOrderId] = useState<string>('');
@@ -33,36 +31,15 @@ export default function BookingConfirmationPage() {
     );
   }
 
-  const handleConfirm = async () => {
-    setIsConfirming(true);
-    try {
-      // 用户确认产品 => 更新为 confirmed
-      await new Promise(resolve => setTimeout(resolve, 1000)); // 模拟处理时间
-      updateOrderStatus(order.id, 'confirmed');
-      setShowConfirmModal(true);
-    } catch (error) {
-      console.error('Confirmation error:', error);
-      alert('Confirmation failed. Please try again.');
-    } finally {
-      setIsConfirming(false);
-    }
-  };
-
-  const handleContinueToPayment = () => {
-    router.push(`/checkout?orderId=${order.id}`);
-  };
-
-  const handleCloseModal = () => {
-    setShowConfirmModal(false);
-  };
-
   return (
     <main className="min-h-screen bg-white">
       <Section background="primary" padding="xl">
         <Container size="lg">
           <div className="mb-8">
             <Heading level={1} className="text-3xl font-bold mb-2">Confirm Your Booking</Heading>
-            <Text size="lg" className="text-gray-600">Please review all details carefully before payment</Text>
+            <Text size="lg" className="text-gray-600">
+              This legacy booking flow is no longer active. Browse journeys or contact our team to plan your trip.
+            </Text>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -243,14 +220,20 @@ export default function BookingConfirmationPage() {
               <div className="space-y-3">
                 <Button 
                   variant="primary" 
-                  onClick={handleConfirm}
-                  disabled={isConfirming}
+                  onClick={() => router.push('/journeys')}
                   className="w-full"
                 >
-                  {isConfirming ? 'Confirming...' : 'Confirm Booking'}
+                  Browse Journeys
                 </Button>
                 <Button 
                   variant="secondary" 
+                  onClick={() => router.push('/contact')}
+                  className="w-full"
+                >
+                  Contact Us
+                </Button>
+                <Button
+                  variant="outline"
                   onClick={() => router.back()}
                   className="w-full"
                 >
@@ -261,41 +244,6 @@ export default function BookingConfirmationPage() {
           </div>
         </Container>
       </Section>
-
-      {/* Confirmation Modal */}
-      {showConfirmModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
-            <div className="text-center">
-              <div className="flex justify-center mb-4">
-                <CheckCircle className="w-16 h-16 text-green-500" />
-              </div>
-              <Heading level={2} className="text-2xl font-bold mb-2 text-gray-900">
-                Booking Confirmed!
-              </Heading>
-              <Text className="text-gray-600 mb-6">
-                Your booking has been successfully confirmed. You can now proceed to payment to complete your reservation.
-              </Text>
-              <div className="space-y-3">
-                <Button 
-                  variant="primary" 
-                  onClick={handleContinueToPayment}
-                  className="w-full"
-                >
-                  Continue to Payment
-                </Button>
-                <Button 
-                  variant="secondary" 
-                  onClick={handleCloseModal}
-                  className="w-full"
-                >
-                  Stay on This Page
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </main>
   );
 }

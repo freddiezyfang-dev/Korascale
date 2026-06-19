@@ -5,6 +5,7 @@ import {
 	getCtaDisplayBody,
 	getPrimaryLegacyTripCtaBlock,
 	isValidCtaUrl,
+	PLAN_TRIP_CTA_HREF,
 	resolveArticleCta,
 	resolveArticleCtaPreview,
 	resolveTemplateModeForCategory,
@@ -77,13 +78,14 @@ describe('resolveArticleCta', () => {
 		);
 		expect(result?.mode).toBe('corporate_travel');
 		expect(result?.eyebrow).toBe('CORPORATE TRAVEL IN CHINA');
-		expect(result?.primaryHref).toBe('/contact');
+		expect(result?.primaryHref).toBe(PLAN_TRIP_CTA_HREF);
 	});
 
 	it('returns private template for empty config + travel category', () => {
 		const result = resolveArticleCta(baseArticle());
 		expect(result?.heading).toBe('Plan a China Journey of Your Own');
 		expect(result?.primaryLabel).toBe('Start Planning');
+		expect(result?.primaryHref).toBe(PLAN_TRIP_CTA_HREF);
 		expect(result?.secondaryLabel).toBe('Explore Journeys');
 	});
 
