@@ -5,7 +5,6 @@ import Header from "@/components/layout/Header";
 import NavMenu from "@/components/layout/NavMenu";
 import NavigationProgress from "@/components/layout/NavigationProgress";
 import Footer from "@/components/layout/Footer";
-import { WishlistProvider } from "@/context/WishlistContext";
 import { UserProvider } from "@/context/UserContext";
 import { OrderProvider } from "@/context/OrderContext";
 import { OrderManagementProvider } from "@/context/OrderManagementContext";
@@ -14,7 +13,6 @@ import { JourneyManagementProvider } from "@/context/JourneyManagementContext";
 import { ExperienceManagementProvider } from "@/context/ExperienceManagementContext";
 import { ArticleManagementProvider } from "@/context/ArticleManagementContext";
 import { CartProvider } from "@/context/CartContext";
-import { LoginModalProvider } from "@/context/LoginModalContext";
 
 export const metadata: Metadata = {
 	title: "Korascale - Craft Your Own Adventure",
@@ -84,18 +82,14 @@ export default function RootLayout({
 							<JourneyManagementProvider>
 								<ExperienceManagementProvider>
 									<ArticleManagementProvider>
-										<WishlistProvider>
-											<CartProvider>
-												<LoginModalProvider>
-													<OrderProvider>
-														<Header />
-														<NavMenu />
-														{children}
-														<Footer />
-													</OrderProvider>
-												</LoginModalProvider>
-											</CartProvider>
-										</WishlistProvider>
+										<CartProvider>
+											<OrderProvider>
+												<Header />
+												<NavMenu />
+												{children}
+												<Footer />
+											</OrderProvider>
+										</CartProvider>
 									</ArticleManagementProvider>
 								</ExperienceManagementProvider>
 							</JourneyManagementProvider>

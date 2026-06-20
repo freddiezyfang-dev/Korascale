@@ -15,7 +15,6 @@ export interface AccommodationCardProps {
   featured?: boolean;
   onClick?: () => void;
   variant?: 'default' | 'light';
-  showWishlist?: boolean;
   titleStyle?: CSSProperties;
   descriptionStyle?: CSSProperties;
 }
@@ -31,7 +30,6 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
   featured = false,
   onClick,
   variant = 'default',
-  showWishlist = true,
   titleStyle,
   descriptionStyle,
 }) => {

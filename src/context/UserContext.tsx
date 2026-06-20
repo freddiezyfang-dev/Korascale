@@ -70,47 +70,43 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
   const register = async (userData: { firstName: string; lastName: string; email: string; password: string }): Promise<boolean> => {
     setIsLoading(true);
-    
+
     try {
-      // 模拟 API 调用
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // 模拟注册验证（实际项目中这里会调用真实的 API）
-      if (userData.email && userData.password) {
-        const now = new Date();
-        const userId = `user_${userData.email.replace('@', '_').replace('.', '_')}`;
-        const fullName = `${userData.firstName} ${userData.lastName}`;
-        
-        const newUser: User = {
-          id: userId,
-          email: userData.email,
-          name: fullName,
-          isLoggedIn: true,
-          lastLoginAt: now,
-          loginCount: 1,
-        };
-        
-        setUser(newUser);
-        setLoginCount(1);
-        saveUserToStorage(newUser);
-        
-        // 记录注册时的登录信息
-        const loginRecord = {
-          userId,
-          userEmail: userData.email,
-          loginAt: now,
-          ipAddress: '127.0.0.1',
-          userAgent: navigator.userAgent,
-        };
-        
-        // 这里可以调用 OrderManagementContext 的 addLoginRecord
-        // 但由于循环依赖，我们将在组件中处理
-        
-        console.log('User registered successfully:', newUser);
-        return true;
+      if (!userData.email || !userData.password) {
+        return false;
       }
-      
-      return false;
+
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: userData.email,
+          name: `${userData.firstName} ${userData.lastName}`.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        return false;
+      }
+
+      const now = new Date();
+      const payload = await response.json();
+      const userId = payload.user?.id || `user_${userData.email.replace('@', '_').replace('.', '_')}`;
+      const fullName = `${userData.firstName} ${userData.lastName}`.trim();
+
+      const newUser: User = {
+        id: userId,
+        email: userData.email,
+        name: fullName,
+        isLoggedIn: true,
+        lastLoginAt: now,
+        loginCount: 1,
+      };
+
+      setUser(newUser);
+      setLoginCount(1);
+      saveUserToStorage(newUser);
+      return true;
     } catch (error) {
       console.error('Registration error:', error);
       return false;
