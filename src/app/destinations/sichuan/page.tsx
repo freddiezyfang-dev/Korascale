@@ -4,7 +4,6 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import Link from "next/link";
 import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/components/common';
 import { AccommodationCard } from '@/components/cards/AccommodationCard';
-import { PlanTripModal } from '@/components/modals/PlanTripModal';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { useHotelManagement } from '@/context/HotelManagementContext';
 import PlanningSectionNew from '@/components/sections/PlanningSectionNew';
@@ -25,7 +24,6 @@ export default function SichuanChongqingPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedDuration, setSelectedDuration] = useState<string>('All');
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [isPlanTripModalOpen, setIsPlanTripModalOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
 
   // 筛选 Sichuan 和 Chongqing 地区的 journeys

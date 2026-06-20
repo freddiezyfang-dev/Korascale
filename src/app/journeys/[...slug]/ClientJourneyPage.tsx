@@ -29,7 +29,6 @@ import JourneyMap from '@/components/map/JourneyMap';
 import { JourneyHotelDetailModal } from '@/components/journey/JourneyHotelDetailModal';
 import { ExperienceDetailModal } from '@/components/journey/ExperienceDetailModal';
 import { LoginModal } from '@/components/modals/LoginModal';
-import { PlanTripModal } from '@/components/modals/PlanTripModal';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { JourneyDetailPageSkeleton } from '@/components/journeys/JourneyRouteSkeleton';
 
@@ -333,7 +332,6 @@ export default function ClientJourneyPage({ initialJourney }: ClientJourneyPageP
   const [activeDay, setActiveDay] = useState<number | undefined>(undefined);
   const [currentDay, setCurrentDay] = useState<number | undefined>(undefined);
   const [activeNav, setActiveNav] = useState<string>('overview');
-  const [isPlanTripModalOpen, setIsPlanTripModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [pendingBooking, setPendingBooking] = useState<{
     slug: string;
@@ -1292,11 +1290,6 @@ export default function ClientJourneyPage({ initialJourney }: ClientJourneyPageP
       >
           <InclusionsAndOffers journey={currentJourney} onBookingClick={handleBookNow} />
       </section>
-
-      <PlanTripModal
-        isOpen={isPlanTripModalOpen}
-        onClose={() => setIsPlanTripModalOpen(false)}
-      />
 
       <LoginModal
         isOpen={isLoginModalOpen}

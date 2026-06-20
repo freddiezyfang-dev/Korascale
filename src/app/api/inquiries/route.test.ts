@@ -142,4 +142,24 @@ describe('POST /api/inquiries', () => {
     expect(body.success).toBe(false);
     expect(body.errors._form).toMatch(/invalid json/i);
   });
+
+  it('returns 201 without persisting when honeypot is filled', async () => {
+    const response = await POST(
+      createPostRequest({
+        intent: 'general_contact',
+        sourceType: 'contact',
+        channel: 'form',
+        name: 'Bot',
+        email: 'bot@example.com',
+        _companyWebsite: 'https://spam.example',
+      })
+    );
+
+    expect(response.status).toBe(201);
+    const body = await response.json();
+    expect(body.success).toBe(true);
+    expect(body.notificationStatus).toBe('skipped');
+    expect(body.submissionId).toMatch(/^KS-/);
+    expect(submitInquiry).not.toHaveBeenCalled();
+  });
 });

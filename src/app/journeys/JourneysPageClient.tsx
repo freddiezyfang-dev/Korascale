@@ -493,9 +493,14 @@ export default function JourneysPageClient({ initialJourneys }: JourneysPageClie
 			</Section>
 
 			{/* Plan Trip Modal */}
-			<PlanTripModal 
+			<PlanTripModal
 				isOpen={isPlanTripModalOpen}
 				onClose={() => setIsPlanTripModalOpen(false)}
+				inquiry={{
+					intent: 'custom_journey',
+					sourceType: 'homepage',
+					sourcePage: '/journeys',
+				}}
 			/>
 
 			{/* Filter and Results Section */}
@@ -834,8 +839,6 @@ export default function JourneysPageClient({ initialJourneys }: JourneysPageClie
 						PLAN YOUR JOURNEY
 					</Button>
 				</Container>
-
-				<PlanTripModal isOpen={isPlanTripModalOpen} onClose={() => setIsPlanTripModalOpen(false)} />
 			</Section>
 		</div>
 	);

@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import {
+  buildHoneypotSuccessResponse,
+  isHoneypotTriggered,
+  stripHoneypotField,
+} from '@/lib/inquiries/honeypot';
+import {
   InquiryPersistenceError,
   InquiryValidationError,
   submitInquiry,
@@ -10,7 +15,18 @@ export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const rawBody = await request.json();
+
+    if (isHoneypotTriggered(rawBody)) {
+      console.log('[API inquiries POST] honeypot triggered — request discarded');
+      return NextResponse.json(buildHoneypotSuccessResponse(), { status: 201 });
+    }
+
+    const body =
+      typeof rawBody === 'object' && rawBody !== null && !Array.isArray(rawBody)
+        ? stripHoneypotField(rawBody as Record<string, unknown>)
+        : rawBody;
+
     const result = await submitInquiry(body);
 
     return NextResponse.json(

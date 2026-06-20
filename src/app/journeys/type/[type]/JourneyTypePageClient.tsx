@@ -940,7 +940,15 @@ export default function JourneyTypePageClient({ typeSlug }: JourneyTypePageClien
           </Button>
         </Container>
 
-        <PlanTripModal isOpen={isPlanTripModalOpen} onClose={() => setIsPlanTripModalOpen(false)} />
+        <PlanTripModal
+          isOpen={isPlanTripModalOpen}
+          onClose={() => setIsPlanTripModalOpen(false)}
+          inquiry={{
+            intent: 'custom_journey',
+            sourceType: 'journey',
+            sourcePage: `/journeys/type/${typeSlug}`,
+          }}
+        />
       </Section>
     </main>
   );

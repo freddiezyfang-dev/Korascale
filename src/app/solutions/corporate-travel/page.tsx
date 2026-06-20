@@ -257,7 +257,7 @@ export default function CorporateTravelPage() {
 							hotels, dinners, and post-event cultural experiences.
 						</p>
 						<div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-							<CorporateTravelInquiryButton className={ctaPrimaryDark}>
+							<CorporateTravelInquiryButton className={ctaPrimaryDark} sourceCta="corporate_hero">
 								Tell Us About Your Upcoming Visit
 							</CorporateTravelInquiryButton>
 							<Link href="#business-scenarios" className={ctaSecondaryDark}>
@@ -476,7 +476,7 @@ export default function CorporateTravelPage() {
 						Share your city, dates, group size, and business purpose. We&apos;ll shape a practical support plan.
 					</p>
 					<div className="mt-8">
-						<CorporateTravelInquiryButton className={ctaPrimaryLight}>
+						<CorporateTravelInquiryButton className={ctaPrimaryLight} sourceCta="corporate_bottom">
 							Submit a Visit Request
 						</CorporateTravelInquiryButton>
 					</div>
