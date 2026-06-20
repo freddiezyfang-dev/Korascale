@@ -8,8 +8,8 @@ export const metadata = {
 export default function FAQPage() {
 	const faqs = [
 		{
-			question: "How do I book a journey?",
-			answer: "You can browse our journeys on the Journeys page, select your preferred trip, and click 'Book Now' to start the booking process."
+			question: "How do I request a journey?",
+			answer: "Browse our journeys, open a trip that interests you, and click Request This Journey. Share your travel dates and group size in the form. Our team will confirm availability and pricing with you by email before any booking is finalized."
 		},
 		{
 			question: "What payment methods do you accept?",

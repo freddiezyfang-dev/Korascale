@@ -1,4 +1,6 @@
 import { resolveInquiryNotificationRouting } from './environment';
+import { InquiryPersistenceError, InquiryValidationError } from './errors';
+import { enrichJourneyRequestInput } from './journeyRequestEnrichment';
 import { sendInquiryNotificationEmail, type InquiryEmailSender } from './notificationEmail';
 import {
   defaultInquiryRepository,
@@ -12,22 +14,7 @@ import type {
   SubmitInquiryResult,
 } from './types';
 
-export class InquiryValidationError extends Error {
-  errors: Record<string, string>;
-
-  constructor(errors: Record<string, string>) {
-    super('Inquiry validation failed');
-    this.name = 'InquiryValidationError';
-    this.errors = errors;
-  }
-}
-
-export class InquiryPersistenceError extends Error {
-  constructor(message = 'Failed to persist inquiry') {
-    super(message);
-    this.name = 'InquiryPersistenceError';
-  }
-}
+export { InquiryPersistenceError, InquiryValidationError } from './errors';
 
 function toPublicNotificationStatus(
   status: InquiryNotificationStatus
@@ -87,7 +74,12 @@ export async function submitInquiry(
     throw new InquiryValidationError(validation.errors);
   }
 
-  const input: CreateInquiryInput = validation.data;
+  const inputBase: CreateInquiryInput = validation.data;
+
+  let input: CreateInquiryInput = inputBase;
+  if (inputBase.intent === 'journey_request') {
+    input = await enrichJourneyRequestInput(inputBase);
+  }
 
   let record;
   let submissionId = '';

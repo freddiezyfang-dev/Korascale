@@ -70,4 +70,38 @@ describe('notificationEmail sanitization', () => {
     expect(text).not.toContain('\u0000');
     expect(sanitizePlainTextEmailContent('a\u0007b')).toBe('ab');
   });
+
+  it('marks journey request prices as estimates in notification email', () => {
+    const { subject, text } = buildInquiryNotificationEmail(
+      buildInquiry({
+        intent: 'journey_request',
+        sourceType: 'journey',
+        sourcePage: '/journeys/tibetan-plateau-discovery',
+        sourceSlug: 'tibetan-plateau-discovery',
+        sourceContext: {
+          sourceCta: 'journey_detail_request',
+          journeyTitle: 'Tibetan Plateau Discovery',
+          journeySlug: 'tibetan-plateau-discovery',
+          journeyUrl: '/journeys/tibetan-plateau-discovery',
+          journeyType: 'Deep Discovery',
+        },
+        details: {
+          adults: 2,
+          children: 0,
+          departureLabel: 'Sep 1, 2026 – Sep 12, 2026',
+          estimatedPricePerPerson: 4800,
+          estimatedTotal: 9600,
+          currency: 'USD',
+          priceVerification: 'estimated',
+        },
+      })
+    );
+
+    expect(subject).toContain('Journey Request');
+    expect(subject).toContain('Tibetan Plateau Discovery');
+    expect(text).toContain('Estimated price:');
+    expect(text).toContain('NOT a confirmed total');
+    expect(text).toContain('Selected departure:');
+    expect(text).not.toContain('Booking confirmed');
+  });
 });

@@ -8,6 +8,13 @@ import {
 } from './submitInquiry';
 import type { InquiryRecord } from './types';
 
+vi.mock('./journeyRequestEnrichment', () => ({
+  enrichJourneyRequestInput: vi.fn(async (input: CreateInquiryInput) => input),
+}));
+
+import type { CreateInquiryInput } from './types';
+import { enrichJourneyRequestInput } from './journeyRequestEnrichment';
+
 const baseInput = {
   intent: 'general_contact',
   sourceType: 'contact',
@@ -219,5 +226,45 @@ describe('submitInquiry service', () => {
     expect(deps.repository.updateInquiryNotificationStatus).toHaveBeenCalledWith(
       expect.objectContaining({ notificationStatus: 'FAILED' })
     );
+  });
+
+  it('runs journey_request enrichment before persistence', async () => {
+    const enrichedInput: CreateInquiryInput = {
+      intent: 'journey_request',
+      sourceType: 'journey',
+      sourcePage: '/journeys/sample-journey',
+      sourceSlug: 'sample-journey',
+      channel: 'form',
+      name: 'Jane Doe',
+      email: 'jane@example.com',
+      sourceContext: {
+        sourceCta: 'journey_detail_request',
+        journeyTitle: 'Sample Journey',
+      },
+      details: { adults: 2, children: 0 },
+    };
+
+    vi.mocked(enrichJourneyRequestInput).mockResolvedValueOnce(enrichedInput);
+
+    const deps = createDeps();
+    const rawInput = {
+      intent: 'journey_request',
+      sourceType: 'journey',
+      sourcePage: '/journeys/sample-journey',
+      sourceSlug: 'sample-journey',
+      channel: 'form',
+      name: 'Jane Doe',
+      email: 'jane@example.com',
+      details: { adults: 2, children: 0 },
+    };
+
+    const result = await submitInquiry(rawInput, deps);
+
+    expect(enrichJourneyRequestInput).toHaveBeenCalledOnce();
+    expect(deps.repository.insertInquiry).toHaveBeenCalledWith(
+      'KS-20260619-TEST01',
+      enrichedInput
+    );
+    expect(result.submissionId).toBe('KS-20260619-TEST01');
   });
 });

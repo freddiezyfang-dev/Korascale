@@ -18,9 +18,11 @@ const ThinLineIcon = () => (
   </svg>
 );
 
+import type { JourneyInquiryClickPayload } from '@/components/inquiries/journeyInquiryTypes';
+
 interface InclusionsAndOffersProps {
   journey: Journey;
-  onBookingClick?: (date: Date, pricePerPerson: number) => void;
+  onBookingClick?: (payload: JourneyInquiryClickPayload) => void;
   /** 仅渲染右侧日历栏（用于 Explore Together 的 7/12 栏） */
   rightColumnOnly?: boolean;
 }
@@ -247,10 +249,21 @@ export default function InclusionsAndOffers({ journey, onBookingClick, rightColu
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allDatesList.length]); // 只在日期列表变化时执行一次
 
-  const handleDateClick = (date: Date, pricePerPerson: number) => {
-    if (onBookingClick) {
-      onBookingClick(date, pricePerPerson);
-    }
+  const handleDateClick = (item: {
+    id: string;
+    startDate: Date;
+    endDate: Date;
+    price: number;
+  }) => {
+    if (!onBookingClick) return;
+    const isRealDeparture = !item.id.startsWith('auto-');
+    const departureLabel = `${formatDate(item.startDate.toISOString())} – ${formatDate(item.endDate.toISOString())}`;
+    onBookingClick({
+      date: item.startDate,
+      pricePerPerson: item.price,
+      selectedDepartureId: isRealDeparture ? item.id : undefined,
+      departureLabel: isRealDeparture ? departureLabel : undefined,
+    });
   };
 
   // 获取 inclusions 列表（从 standardInclusions 生成）
@@ -359,11 +372,16 @@ export default function InclusionsAndOffers({ journey, onBookingClick, rightColu
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDateClick(item.startDate, item.price);
+                      handleDateClick({
+                        id: item.id,
+                        startDate: item.startDate,
+                        endDate: item.endDate,
+                        price: item.price,
+                      });
                     }}
                     className="px-6 py-2 bg-black text-white text-xs tracking-widest uppercase hover:bg-gray-800 transition-colors whitespace-nowrap"
                   >
-                    REQUEST TO BOOK
+                    REQUEST THIS JOURNEY
                   </button>
                   <button
                     onClick={(e) => {

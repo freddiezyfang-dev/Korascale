@@ -33,6 +33,9 @@ export const EMPTY_INQUIRY_FORM_VALUES: InquiryFormValues = {
   visitPurpose: '',
   requiredServices: [],
   subject: '',
+  adults: '2',
+  children: '0',
+  preferredDate: '',
 };
 
 const CUSTOM_JOURNEY_VISIBLE: InquiryFormFieldKey[] = [
@@ -58,6 +61,16 @@ const CORPORATE_VISIBLE: InquiryFormFieldKey[] = [
 ];
 
 const GENERAL_CONTACT_VISIBLE: InquiryFormFieldKey[] = ['name', 'email', 'subject', 'message'];
+
+const JOURNEY_REQUEST_VISIBLE: InquiryFormFieldKey[] = [
+  'name',
+  'email',
+  'phone',
+  'preferredDate',
+  'adults',
+  'children',
+  'message',
+];
 
 const BASE_CONFIG: Record<
   InquiryFormVariant,
@@ -88,6 +101,15 @@ const BASE_CONFIG: Record<
     successTitle: 'Message Received',
     successMessage: 'Thank you for reaching out. Our team will respond by email shortly.',
   },
+  journey_request: {
+    title: 'Request This Journey',
+    description:
+      'Share your travel dates and group size. Our team will confirm availability and pricing by email.',
+    submitLabel: 'Submit Journey Request',
+    successTitle: 'Journey Request Received',
+    successMessage:
+      'Thank you. We have received your journey request. Our team will confirm availability and pricing with you by email.',
+  },
 };
 
 function buildConfig(
@@ -108,7 +130,9 @@ function buildConfig(
       ? CUSTOM_JOURNEY_VISIBLE
       : variant === 'corporate_visit'
         ? CORPORATE_VISIBLE
-        : GENERAL_CONTACT_VISIBLE);
+        : variant === 'journey_request'
+          ? JOURNEY_REQUEST_VISIBLE
+          : GENERAL_CONTACT_VISIBLE);
 
   const requiredFields =
     options?.requiredFields ??
@@ -116,7 +140,9 @@ function buildConfig(
       ? (['name', 'email'] as InquiryFormFieldKey[])
       : variant === 'corporate_visit'
         ? (['name', 'email', 'company'] as InquiryFormFieldKey[])
-        : (['name', 'email', 'subject', 'message'] as InquiryFormFieldKey[]));
+        : variant === 'journey_request'
+          ? (['name', 'email', 'adults'] as InquiryFormFieldKey[])
+          : (['name', 'email', 'subject', 'message'] as InquiryFormFieldKey[]));
 
   return {
     variant,
@@ -129,6 +155,9 @@ function buildConfig(
     fieldLabels: {
       ...(variant === 'corporate_visit'
         ? { name: 'Contact name', email: 'Work email', message: 'Additional details' }
+        : {}),
+      ...(variant === 'journey_request'
+        ? { message: 'Special requests', preferredDate: 'Preferred travel date' }
         : {}),
       ...options?.fieldLabels,
     },
@@ -195,6 +224,22 @@ export function buildGeneralContactContext(): InquirySubmissionContext {
     sourceType: 'contact',
     sourcePage: '/contact',
     sourceContext: {},
+  };
+}
+
+export function buildJourneyRequestContext(params: {
+  sourcePage: string;
+  sourceSlug: string;
+  sourceCta: string;
+}): InquirySubmissionContext {
+  return {
+    intent: 'journey_request',
+    sourceType: 'journey',
+    sourcePage: params.sourcePage,
+    sourceSlug: params.sourceSlug,
+    sourceContext: {
+      sourceCta: params.sourceCta,
+    },
   };
 }
 

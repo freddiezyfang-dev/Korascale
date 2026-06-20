@@ -21,9 +21,11 @@ interface DateSlot {
   price: number;
 }
 
+import type { JourneyInquiryClickPayload } from '@/components/inquiries/journeyInquiryTypes';
+
 interface BookingCalendarGridProps {
   journey: Journey;
-  onBookingClick?: (date: Date, pricePerPerson: number) => void;
+  onBookingClick?: (payload: JourneyInquiryClickPayload) => void;
 }
 
 export default function BookingCalendarGrid({ journey, onBookingClick }: BookingCalendarGridProps) {
@@ -216,7 +218,13 @@ export default function BookingCalendarGrid({ journey, onBookingClick }: Booking
             <button
               type="button"
               disabled={!selectedSlot}
-              onClick={() => selectedSlot && onBookingClick(selectedSlot.startDate, selectedSlot.price)}
+              onClick={() =>
+                selectedSlot &&
+                onBookingClick?.({
+                  date: selectedSlot.startDate,
+                  pricePerPerson: selectedSlot.price,
+                })
+              }
               className={`
                 px-6 py-2.5 text-xs tracking-widest uppercase transition-colors
                 ${selectedSlot
@@ -226,7 +234,7 @@ export default function BookingCalendarGrid({ journey, onBookingClick }: Booking
               `}
               style={selectedSlot ? { backgroundColor: THEME_GREEN } : undefined}
             >
-              REQUEST TO BOOK
+              REQUEST THIS JOURNEY
             </button>
           )}
         </div>

@@ -5,6 +5,7 @@ import {
   buildCorporateVisitContext,
   buildCustomJourneyContext,
   buildGeneralContactContext,
+  buildJourneyRequestContext,
   EMPTY_INQUIRY_FORM_VALUES,
   getInquiryFormConfig,
   resolveArticleInquiryIntent,
@@ -168,6 +169,59 @@ describe('inquiryFormLogic payloads', () => {
     expect(shouldBlockDuplicateSubmit(payload, null, true)).toBe(true);
     expect(shouldBlockDuplicateSubmit(payload, JSON.stringify(payload), false)).toBe(true);
     expect(shouldBlockDuplicateSubmit(payload, null, false)).toBe(false);
+  });
+
+  it('maps journey request fields and omits empty optional details', () => {
+    const config = getInquiryFormConfig('journey_request');
+    const payload = buildInquiryPayload({
+      config,
+      context: buildJourneyRequestContext({
+        sourcePage: '/journeys/sample-journey',
+        sourceSlug: 'sample-journey',
+        sourceCta: 'journey_detail_request',
+      }),
+      journeyRequestMeta: {
+        selectedDepartureId: 'dep-abc',
+        preferredDate: '2026-09-01',
+      },
+      values: {
+        ...EMPTY_INQUIRY_FORM_VALUES,
+        name: 'Jane Doe',
+        email: 'jane@example.com',
+        phone: '',
+        adults: '2',
+        children: '0',
+        message: '',
+      },
+    });
+
+    expect(payload.intent).toBe('journey_request');
+    expect(payload.sourceType).toBe('journey');
+    expect(payload.sourcePage).toBe('/journeys/sample-journey');
+    expect(payload.sourceSlug).toBe('sample-journey');
+    expect(payload.sourceContext).toEqual({ sourceCta: 'journey_detail_request' });
+    expect(payload.details).toEqual({
+      preferredDate: '2026-09-01',
+      selectedDepartureId: 'dep-abc',
+      adults: 2,
+      children: 0,
+    });
+    expect(payload.message).toBeNull();
+    expect(payload.phone).toBeNull();
+  });
+
+  it('validates journey request adults and children ranges', () => {
+    const config = getInquiryFormConfig('journey_request');
+    const errors = validateInquiryFormValues(
+      {
+        ...EMPTY_INQUIRY_FORM_VALUES,
+        adults: '0',
+        children: '-1',
+      },
+      config.requiredFields
+    );
+    expect(errors.adults).toBeTruthy();
+    expect(errors.children).toBeTruthy();
   });
 
   it('treats failed or skipped notifications as customer-visible success', () => {

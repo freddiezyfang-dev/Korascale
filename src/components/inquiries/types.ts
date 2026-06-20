@@ -1,10 +1,18 @@
 import type {
+  JourneyInquiryFormMeta,
+  JourneyInquirySummaryData,
+} from './journeyInquiryTypes';
+import type {
   CreateInquiryInput,
   InquiryIntent,
   InquirySourceType,
 } from '@/lib/inquiries/types';
 
-export type InquiryFormVariant = 'custom_journey' | 'corporate_visit' | 'general_contact';
+export type InquiryFormVariant =
+  | 'custom_journey'
+  | 'corporate_visit'
+  | 'general_contact'
+  | 'journey_request';
 
 export type InquiryFormFieldKey =
   | 'name'
@@ -21,7 +29,10 @@ export type InquiryFormFieldKey =
   | 'cities'
   | 'visitPurpose'
   | 'requiredServices'
-  | 'subject';
+  | 'subject'
+  | 'adults'
+  | 'children'
+  | 'preferredDate';
 
 export type InquiryFormValues = {
   name: string;
@@ -39,6 +50,9 @@ export type InquiryFormValues = {
   visitPurpose: string;
   requiredServices: string[];
   subject: string;
+  adults: string;
+  children: string;
+  preferredDate: string;
 };
 
 export type InquirySubmissionContext = {
@@ -77,6 +91,9 @@ export type BuildInquiryPayloadInput = {
   config: InquiryFormConfig;
   context: InquirySubmissionContext;
   values: InquiryFormValues;
+  journeyRequestMeta?: JourneyInquiryFormMeta;
 };
+
+export type { JourneyInquiryFormMeta, JourneyInquirySummaryData };
 
 export type { CreateInquiryInput };
