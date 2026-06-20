@@ -32,9 +32,11 @@ const STANDARD_INCLUSIONS_PHRASES: Record<string, string> = {
   personalExpenses: 'Personal expenses during leisure time',
 };
 
+import type { JourneyInquiryClickPayload } from '@/components/inquiries/journeyInquiryTypes';
+
 interface ExploreTogetherLayoutProps {
   journey: Journey;
-  onBookingClick?: (date: Date, pricePerPerson: number) => void;
+  onBookingClick?: (payload: JourneyInquiryClickPayload) => void;
 }
 
 function getPriceDisplay(price: number | undefined | null, originalPrice?: number | null) {

@@ -20,6 +20,7 @@ import type {
   InquiryFormFieldKey,
   InquiryFormValues,
   InquirySubmissionContext,
+  JourneyInquiryFormMeta,
 } from './types';
 
 type InquiryFormProps = {
@@ -27,6 +28,9 @@ type InquiryFormProps = {
   context: InquirySubmissionContext;
   /** Increment or change when the form should fully reset (e.g. modal reopened). */
   resetKey?: string | number;
+  journeyRequestMeta?: JourneyInquiryFormMeta;
+  initialValues?: Partial<Pick<InquiryFormValues, 'name' | 'email' | 'phone'>>;
+  hidePreferredDate?: boolean;
   onSuccess?: (submissionId: string) => void;
   className?: string;
   /** Show a Close button on success (modal usage). */
@@ -57,6 +61,9 @@ function fieldLabel(config: InquiryFormConfig, field: InquiryFormFieldKey): stri
     visitPurpose: 'Visit purpose',
     requiredServices: 'Required services',
     subject: 'Subject',
+    adults: 'Adults',
+    children: 'Children',
+    preferredDate: 'Preferred travel date',
   };
   return config.fieldLabels[field] ?? defaults[field];
 }
@@ -69,6 +76,9 @@ export function InquiryForm({
   config,
   context,
   resetKey = 0,
+  journeyRequestMeta,
+  initialValues,
+  hidePreferredDate = false,
   onSuccess,
   className,
   showCloseOnSuccess = false,
@@ -84,14 +94,20 @@ export function InquiryForm({
   const [honeypot, setHoneypot] = useState('');
 
   useEffect(() => {
-    setValues(EMPTY_INQUIRY_FORM_VALUES);
+    setValues({
+      ...EMPTY_INQUIRY_FORM_VALUES,
+      name: initialValues?.name ?? '',
+      email: initialValues?.email ?? '',
+      phone: initialValues?.phone ?? '',
+      preferredDate: journeyRequestMeta?.preferredDate ?? '',
+    });
     setFieldErrors({});
     setGlobalError(null);
     setIsSubmitting(false);
     setSubmissionId(null);
     setLastSuccessfulPayload(null);
     setHoneypot('');
-  }, [resetKey, config.variant]);
+  }, [resetKey, config.variant, initialValues?.name, initialValues?.email, initialValues?.phone, journeyRequestMeta?.preferredDate]);
 
   const updateField = useCallback((field: InquiryFormFieldKey, value: string | string[]) => {
     setValues((prev) => ({ ...prev, [field]: value }));
@@ -123,7 +139,7 @@ export function InquiryForm({
       return;
     }
 
-    const payload = buildInquiryPayload({ config, context, values });
+    const payload = buildInquiryPayload({ config, context, values, journeyRequestMeta });
 
     if (shouldBlockDuplicateSubmit(payload, lastSuccessfulPayload, isSubmitting)) {
       return;
@@ -254,6 +270,84 @@ export function InquiryForm({
             {...fieldInputProps('email')}
           />
           {renderFieldError('email')}
+        </div>
+      ) : null}
+
+      {config.visibleFields.includes('phone') ? (
+        <div>
+          <label htmlFor={`${formId}-phone`} className="block text-sm font-medium text-gray-700 mb-2">
+            {fieldLabel(config, 'phone')}
+          </label>
+          <input
+            type="tel"
+            autoComplete="tel"
+            value={values.phone}
+            onChange={(e) => updateField('phone', e.target.value)}
+            {...fieldInputProps('phone')}
+          />
+          {renderFieldError('phone')}
+        </div>
+      ) : null}
+
+      {config.visibleFields.includes('preferredDate') && !hidePreferredDate ? (
+        <div>
+          <label
+            htmlFor={`${formId}-preferredDate`}
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            {fieldLabel(config, 'preferredDate')}
+          </label>
+          <input
+            type="date"
+            value={values.preferredDate}
+            onChange={(e) => updateField('preferredDate', e.target.value)}
+            {...fieldInputProps('preferredDate')}
+          />
+          {renderFieldError('preferredDate')}
+        </div>
+      ) : null}
+
+      {config.visibleFields.includes('adults') || config.visibleFields.includes('children') ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {config.visibleFields.includes('adults') ? (
+            <div>
+              <label
+                htmlFor={`${formId}-adults`}
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                {fieldLabel(config, 'adults')} *
+              </label>
+              <input
+                type="number"
+                min={1}
+                max={20}
+                required
+                value={values.adults}
+                onChange={(e) => updateField('adults', e.target.value)}
+                {...fieldInputProps('adults')}
+              />
+              {renderFieldError('adults')}
+            </div>
+          ) : null}
+          {config.visibleFields.includes('children') ? (
+            <div>
+              <label
+                htmlFor={`${formId}-children`}
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                {fieldLabel(config, 'children')}
+              </label>
+              <input
+                type="number"
+                min={0}
+                max={20}
+                value={values.children}
+                onChange={(e) => updateField('children', e.target.value)}
+                {...fieldInputProps('children')}
+              />
+              {renderFieldError('children')}
+            </div>
+          ) : null}
         </div>
       ) : null}
 

@@ -8,6 +8,26 @@ import type {
 } from './types';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_ADULTS = 20;
+const MAX_CHILDREN = 20;
+
+function validatePartyField(
+  value: string,
+  field: 'adults' | 'children',
+  min: number,
+  max: number,
+  required: boolean
+): string | null {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return required ? 'This field is required' : null;
+  }
+  const parsed = Number.parseInt(trimmed, 10);
+  if (!Number.isInteger(parsed) || parsed < min || parsed > max) {
+    return `Enter a whole number between ${min} and ${max}`;
+  }
+  return null;
+}
 
 export function omitEmptyRecord(
   obj: Record<string, unknown>
@@ -42,11 +62,19 @@ export function validateInquiryFormValues(
     errors.email = 'Please enter a valid email address';
   }
 
+  if (requiredFields.includes('adults')) {
+    const adultsError = validatePartyField(values.adults, 'adults', 1, MAX_ADULTS, true);
+    if (adultsError) errors.adults = adultsError;
+  }
+
+  const childrenError = validatePartyField(values.children, 'children', 0, MAX_CHILDREN, false);
+  if (childrenError) errors.children = childrenError;
+
   return errors;
 }
 
 export function buildInquiryPayload(input: BuildInquiryPayloadInput): CreateInquiryInput {
-  const { config, context, values } = input;
+  const { config, context, values, journeyRequestMeta } = input;
   const trimmedMessage = values.message.trim() || null;
 
   const sourceContext = omitEmptyRecord({
@@ -70,6 +98,15 @@ export function buildInquiryPayload(input: BuildInquiryPayloadInput): CreateInqu
       cities: values.cities.trim(),
       visitPurpose: values.visitPurpose.trim(),
       requiredServices: values.requiredServices,
+    });
+  } else if (config.variant === 'journey_request') {
+    const preferredDate =
+      values.preferredDate.trim() || journeyRequestMeta?.preferredDate?.trim() || '';
+    details = omitEmptyRecord({
+      preferredDate,
+      selectedDepartureId: journeyRequestMeta?.selectedDepartureId,
+      adults: Number.parseInt(values.adults.trim(), 10),
+      children: Number.parseInt(values.children.trim() || '0', 10),
     });
   } else {
     details = omitEmptyRecord({
@@ -108,6 +145,9 @@ export function mapApiErrorsToFormFields(
     cities: 'cities',
     visitPurpose: 'visitPurpose',
     requiredServices: 'requiredServices',
+    adults: 'adults',
+    children: 'children',
+    preferredDate: 'preferredDate',
   };
 
   for (const [key, message] of Object.entries(apiErrors)) {

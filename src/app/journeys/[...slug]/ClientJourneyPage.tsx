@@ -10,7 +10,6 @@ import {
   Text,
 } from '@/components/common';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
-import { useUser } from '@/context/UserContext';
 import { Extension, Journey, JourneyExperience, JourneyHotel } from '@/types';
 import {
   getRenderableImageUrl,
@@ -24,11 +23,12 @@ import InclusionsAndOffers from '@/components/journey/InclusionsAndOffers';
 import Extensions from '@/components/journey/Extensions';
 import Hotels from '@/components/journey/Hotels';
 import Experiences from '@/components/journey/Experiences';
+import { JourneyInquiryModal } from '@/components/inquiries/JourneyInquiryModal';
+import type { JourneyInquiryClickPayload } from '@/components/inquiries/journeyInquiryTypes';
 import ExploreTogetherLayout from '@/components/journey/ExploreTogetherLayout';
 import JourneyMap from '@/components/map/JourneyMap';
 import { JourneyHotelDetailModal } from '@/components/journey/JourneyHotelDetailModal';
 import { ExperienceDetailModal } from '@/components/journey/ExperienceDetailModal';
-import { LoginModal } from '@/components/modals/LoginModal';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { JourneyDetailPageSkeleton } from '@/components/journeys/JourneyRouteSkeleton';
 
@@ -315,7 +315,6 @@ export default function ClientJourneyPage({ initialJourney }: ClientJourneyPageP
     isLoading: journeysLoading,
     clearStorageAndReload,
   } = useJourneyManagement();
-  const { user } = useUser();
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -332,13 +331,9 @@ export default function ClientJourneyPage({ initialJourney }: ClientJourneyPageP
   const [activeDay, setActiveDay] = useState<number | undefined>(undefined);
   const [currentDay, setCurrentDay] = useState<number | undefined>(undefined);
   const [activeNav, setActiveNav] = useState<string>('overview');
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [pendingBooking, setPendingBooking] = useState<{
-    slug: string;
-    journeyId: string;
-    date: Date;
-    price: number;
-  } | null>(null);
+  const [journeyInquiryOpen, setJourneyInquiryOpen] = useState(false);
+  const [journeyInquirySelection, setJourneyInquirySelection] =
+    useState<JourneyInquiryClickPayload | null>(null);
 
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
   const dayRefs = useRef<Map<number, HTMLDivElement>>(new Map());
@@ -812,37 +807,10 @@ export default function ClientJourneyPage({ initialJourney }: ClientJourneyPageP
     [displayDescription, durationDays, heroImage, normalizedSlug, safeJourney]
   );
 
-  const formatLocalYmd = (date: Date) => {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
-    return `${y}-${m}-${dd}`;
-  };
-
-  const handleBookNow = (date: Date, price: number) => {
+  const handleRequestJourney = (payload: JourneyInquiryClickPayload) => {
     if (!safeJourney) return;
-
-    const payload = {
-      slug: safeJourney.slug,
-      journeyId: safeJourney.id,
-      date,
-      price,
-    };
-
-    setPendingBooking(payload);
-
-    if (!user || user.isLoggedIn !== true) {
-      setIsLoginModalOpen(true);
-      return;
-    }
-
-    const dateStr = formatLocalYmd(date);
-    router.prefetch(
-      `/booking/review/${safeJourney.slug}?date=${encodeURIComponent(dateStr)}&price=${price}`
-    );
-    router.push(
-      `/booking/review/${safeJourney.slug}?date=${encodeURIComponent(dateStr)}&price=${price}`
-    );
+    setJourneyInquirySelection(payload);
+    setJourneyInquiryOpen(true);
   };
 
   if (isJourneyTypeSlug || isTypeRoute) {
@@ -890,24 +858,16 @@ export default function ClientJourneyPage({ initialJourney }: ClientJourneyPageP
         />
         <ExploreTogetherLayout
           journey={currentJourney}
-          onBookingClick={handleBookNow}
+          onBookingClick={handleRequestJourney}
         />
-        <LoginModal
-          isOpen={isLoginModalOpen}
+        <JourneyInquiryModal
+          journey={currentJourney}
+          isOpen={journeyInquiryOpen}
           onClose={() => {
-            setIsLoginModalOpen(false);
-            setPendingBooking(null);
+            setJourneyInquiryOpen(false);
+            setJourneyInquirySelection(null);
           }}
-          onLoginSuccess={() => {
-            setIsLoginModalOpen(false);
-            if (pendingBooking) {
-              const dateStr = formatLocalYmd(pendingBooking.date);
-              router.push(
-                `/booking/review/${currentJourney.slug}?date=${encodeURIComponent(dateStr)}&price=${pendingBooking.price}`
-              );
-              setPendingBooking(null);
-            }
-          }}
+          selection={journeyInquirySelection}
         />
       </>
     );
@@ -1288,25 +1248,17 @@ export default function ClientJourneyPage({ initialJourney }: ClientJourneyPageP
         }}
         className="w-full bg-stone-50 py-20 px-12 border-t border-stone-200"
       >
-          <InclusionsAndOffers journey={currentJourney} onBookingClick={handleBookNow} />
+          <InclusionsAndOffers journey={currentJourney} onBookingClick={handleRequestJourney} />
       </section>
 
-      <LoginModal
-        isOpen={isLoginModalOpen}
+      <JourneyInquiryModal
+        journey={currentJourney}
+        isOpen={journeyInquiryOpen}
         onClose={() => {
-          setIsLoginModalOpen(false);
-          setPendingBooking(null);
+          setJourneyInquiryOpen(false);
+          setJourneyInquirySelection(null);
         }}
-        onLoginSuccess={() => {
-          setIsLoginModalOpen(false);
-          if (pendingBooking) {
-            const dateStr = formatLocalYmd(pendingBooking.date);
-            router.push(
-                `/booking/review/${currentJourney.slug}?date=${encodeURIComponent(dateStr)}&price=${pendingBooking.price}`
-            );
-            setPendingBooking(null);
-          }
-        }}
+        selection={journeyInquirySelection}
       />
 
       {selectedExtensions.length > 0 && (
