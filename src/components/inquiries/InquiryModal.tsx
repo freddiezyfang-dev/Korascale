@@ -73,27 +73,27 @@ export function InquiryModal({
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}
-          className="inquiry-modal relative w-full max-w-2xl bg-white/95 backdrop-blur-sm rounded-lg shadow-xl border border-white/20 max-h-[calc(100dvh-2rem)] flex flex-col"
+          className="inquiry-modal relative w-full max-w-2xl bg-white/95 backdrop-blur-sm rounded-lg shadow-xl border border-white/20 max-h-[calc(100dvh-2rem)] flex flex-col text-left text-[#1e3b32]"
         >
           {!hideHeader ? (
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 shrink-0">
-              <div id={titleId}>
-                <Heading level={2} className="text-xl font-semibold">
+            <div className="inquiry-modal__header flex items-center justify-between gap-4 p-6 border-b border-gray-200 shrink-0 text-left">
+              <div id={titleId} className="min-w-0 flex-1 pr-2">
+                <Heading level={2} align="left" className="text-xl font-semibold text-[#1e3b32]">
                   {title}
                 </Heading>
               </div>
               <button
                 type="button"
                 onClick={onClose}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className="inquiry-modal__close relative z-10 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#1e3b32] transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1e3b32] focus-visible:ring-offset-2"
                 aria-label="Close dialog"
               >
-                <X className="w-5 h-5" aria-hidden />
+                <X className="h-5 w-5 stroke-current" strokeWidth={2} aria-hidden />
               </button>
             </div>
           ) : null}
 
-          <div className="p-6 overflow-y-auto">{children}</div>
+          <div className="inquiry-modal__body p-6 overflow-y-auto">{children}</div>
         </div>
       </div>
     </div>

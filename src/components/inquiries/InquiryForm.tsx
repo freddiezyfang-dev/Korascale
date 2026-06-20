@@ -205,14 +205,18 @@ export function InquiryForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className={`relative space-y-5 ${className ?? ''}`} noValidate>
-      <div>
+    <form
+      onSubmit={handleSubmit}
+      className={`inquiry-form relative space-y-5 text-left ${className ?? ''}`}
+      noValidate
+    >
+      <div className="text-left">
         {!showCloseOnSuccess ? (
-          <Heading level={2} className="text-2xl font-semibold mb-2">
+          <Heading level={2} align="left" className="text-2xl font-semibold mb-2 text-[#1e3b32]">
             {config.title}
           </Heading>
         ) : null}
-        <Text size="sm" className="text-gray-600">
+        <Text size="sm" align="left" className="text-gray-600">
           {config.description}
         </Text>
       </div>
@@ -447,11 +451,11 @@ export function InquiryForm({
       ) : null}
 
       {config.visibleFields.includes('requiredServices') ? (
-        <fieldset>
-          <legend className="block text-sm font-medium text-gray-700 mb-3">
+        <fieldset className="min-w-0 text-left">
+          <legend className="block w-full text-left text-sm font-medium text-gray-700 mb-3">
             {fieldLabel(config, 'requiredServices')}
           </legend>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-left">
             {CORPORATE_REQUIRED_SERVICES.map((service) => (
               <label
                 key={service.value}
@@ -519,7 +523,7 @@ export function InquiryForm({
         </div>
       ) : null}
 
-      <div className="pt-2">
+      <div className="inquiry-form__actions pt-2 text-center">
         <Button type="submit" disabled={isSubmitting} className="px-8 py-2 w-full sm:w-auto">
           {isSubmitting ? 'Submitting…' : config.submitLabel}
           {isSubmitting ? <span className="sr-only">Submitting inquiry</span> : null}

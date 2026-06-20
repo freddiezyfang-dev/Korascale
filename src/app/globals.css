@@ -171,6 +171,28 @@ body.inquiry-modal-open {
   overflow: hidden;
 }
 
+/* Inquiry modal — isolate from page/CTA color and text-align inheritance */
+.inquiry-modal {
+  color: #1e3b32;
+  text-align: left;
+}
+
+.inquiry-modal .inquiry-form,
+.inquiry-modal .inquiry-form label,
+.inquiry-modal .inquiry-form legend,
+.inquiry-modal .inquiry-form fieldset,
+.inquiry-modal .inquiry-form [role='alert'] {
+  text-align: left;
+}
+
+.inquiry-modal .inquiry-form__actions {
+  text-align: center;
+}
+
+.inquiry-modal__close {
+  color: #1e3b32;
+}
+
 /* 全局标题样式 - 统一使用衬线字体 */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-serif);  /* 标题使用衬线体 */
