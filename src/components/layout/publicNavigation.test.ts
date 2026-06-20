@@ -16,16 +16,17 @@ describe('public navigation (PR-C5)', () => {
     expect(source).not.toMatch(/Sign In|Sign in|Register|UserDropdown|openLoginModal|useLoginModal|Wishlist|wishlist/i);
   });
 
-  it('does not expose login, register, account, or wishlist in NavMenu', () => {
+  it('does not expose login, register, account, or wishlist in desktop NavMenu', () => {
     const source = readSrc('components/layout/NavMenu.tsx');
     expect(source).not.toMatch(/Sign in|Log in|Register|openLoginModal|useLoginModal|Wishlist|wishlist/i);
-    expect(source).toContain('Plan Your Journey');
+    expect(source).not.toMatch(/Plan Your Journey|\/plan-your-journey/i);
   });
 
   it('keeps Contact and Plan Your Journey in mobile sidebar', () => {
     const source = readSrc('components/layout/NavSidebar.tsx');
     expect(source).toContain('/contact');
     expect(source).toContain('/plan-your-journey');
+    expect(source).toContain('Plan Your Journey');
     expect(source).not.toMatch(/Wishlist|wishlist|Sign in|Register/i);
   });
 });

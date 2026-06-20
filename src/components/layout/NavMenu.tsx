@@ -106,9 +106,6 @@ export default function NavMenu() {
 							>
 								<SolutionsDropdown />
 							</Dropdown>
-							<Link prefetch={true} href="/plan-your-journey" className="hover:opacity-80 h-[34px] flex items-center whitespace-nowrap">
-								Plan Your Journey
-							</Link>
 						</div>
 					</div>
 				</div>
