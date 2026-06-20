@@ -28,6 +28,7 @@ export async function sendTransactionalEmail(
     process.env.SMTP_USER ||
     'noreply@korascale.com';
   const replyTo = input.replyTo || from;
+  let providerError: string | null = null;
 
   if (process.env.RESEND_API_KEY) {
     const result = await trySendWithResend(
@@ -44,6 +45,9 @@ export async function sendTransactionalEmail(
         messageId: result.messageId || 'sent',
         provider: 'resend',
       };
+    }
+    if (result && !result.success) {
+      providerError = result.error;
     }
   }
 
@@ -69,11 +73,17 @@ export async function sendTransactionalEmail(
         provider: 'smtp',
       };
     }
+    if (result && !result.success) {
+      providerError = result.error;
+    }
   }
 
   const allowDevFallback = input.allowDevFallback !== false;
   if (!allowDevFallback) {
-    return { status: 'failed', error: 'Email provider is not configured' };
+    return {
+      status: 'failed',
+      error: providerError || 'Email provider is not configured',
+    };
   }
 
   console.log('[Email] Dev/unconfigured send fallback', {
