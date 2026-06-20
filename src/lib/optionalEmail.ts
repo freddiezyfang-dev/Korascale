@@ -1,5 +1,9 @@
-// 可选邮件服务辅助函数
-// 这些依赖是可选的，可能未安装
+import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
+
+export type EmailSendAttemptResult =
+  | { success: true; messageId: string }
+  | { success: false; error: string };
 
 export async function trySendWithResend(
   apiKey: string,
@@ -8,17 +12,14 @@ export async function trySendWithResend(
   replyTo: string,
   subject: string,
   text: string
-): Promise<{ success: boolean; messageId?: string } | null> {
+): Promise<EmailSendAttemptResult | null> {
+  if (!apiKey.trim()) {
+    return null;
+  }
+
   try {
-    // 使用字符串拼接避免静态分析
-    const moduleName = 're' + 'send';
-    const resendModule = await import(moduleName).catch(() => null);
-    if (!resendModule) return null;
-    
-    const { Resend } = resendModule as any;
-    const resendClient = new Resend(apiKey);
-    
-    const result = await resendClient.emails.send({
+    const resend = new Resend(apiKey);
+    const { data, error } = await resend.emails.send({
       from,
       to,
       replyTo,
@@ -26,10 +27,23 @@ export async function trySendWithResend(
       text,
     });
 
-    return { success: true, messageId: result.id || 'sent' };
+    if (error) {
+      console.error('[Resend] send failed', {
+        name: error.name,
+        message: error.message,
+      });
+      return { success: false, error: error.message || 'Resend send failed' };
+    }
+
+    if (!data?.id) {
+      return { success: false, error: 'Resend returned no message id' };
+    }
+
+    return { success: true, messageId: data.id };
   } catch (error) {
-    console.error('Resend 邮件发送失败:', error);
-    return null;
+    const message = error instanceof Error ? error.message : 'Resend send failed';
+    console.error('[Resend] send failed', { message });
+    return { success: false, error: message };
   }
 }
 
@@ -46,15 +60,8 @@ export async function trySendWithNodemailer(
   replyTo: string,
   subject: string,
   text: string
-): Promise<{ success: boolean; messageId?: string } | null> {
+): Promise<EmailSendAttemptResult | null> {
   try {
-    // 使用字符串拼接避免静态分析
-    const moduleName = 'node' + 'mailer';
-    const nodemailerModule = await import(moduleName).catch(() => null);
-    if (!nodemailerModule) return null;
-    
-    const nodemailer = (nodemailerModule as any).default;
-    
     const transporter = nodemailer.createTransport({
       host: smtpConfig.host,
       port: smtpConfig.port,
@@ -75,8 +82,8 @@ export async function trySendWithNodemailer(
 
     return { success: true, messageId: info.messageId || 'sent' };
   } catch (error) {
-    console.error('SMTP 邮件发送失败:', error);
-    return null;
+    const message = error instanceof Error ? error.message : 'SMTP send failed';
+    console.error('[SMTP] send failed', { message });
+    return { success: false, error: message };
   }
 }
-
