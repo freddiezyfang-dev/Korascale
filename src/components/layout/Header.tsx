@@ -1,11 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { useUser } from '@/context/UserContext';
-import { useOrderManagement } from '@/context/OrderManagementContext';
-import { useLoginModal } from '@/context/LoginModalContext';
-import Dropdown from '@/components/ui/Dropdown';
-import { UserDropdown } from '@/components/ui/UserDropdown';
 
 // 使用本地图片资源 - 你的logo图片
 const imgLogo = "/logo.png"; // 使用logo文件
@@ -14,7 +9,6 @@ const imgInstagram = "/icons/instagram.svg";
 const imgTiktok = "/icons/tiktok.svg";
 const imgGlobe = "/globe.svg";
 const imgSearchOutlined = "/icons/search.svg";
-const imgUser = "/icons/user.svg";
 
 function HeaderLeft() {
 	return (
@@ -47,70 +41,6 @@ function HeaderLeft() {
 				</p>
 			</div>
 		</Link>
-	);
-}
-
-function UserSection() {
-  const { user, logout } = useUser();
-  const { addLoginRecord, updateLogoutRecord } = useOrderManagement();
-  const { openLoginModal } = useLoginModal();
-
-  const handleLogout = () => {
-    if (user) {
-      updateLogoutRecord(user.id);
-    }
-    logout();
-  };
-
-	return (
-		<div className="flex items-center gap-4">
-			{user ? (
-				<div className="flex items-center gap-3">
-					<Dropdown
-						trigger={
-							<div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
-								<img 
-									src={imgUser} 
-									alt="User" 
-									className="w-5 h-5"
-								/>
-								<span className="text-white text-sm hidden lg:block">
-									{user.name}
-								</span>
-							</div>
-						}
-						className="right-0"
-					>
-						<UserDropdown />
-					</Dropdown>
-					{user.email === 'admin@korascale.com' && (
-						<Link 
-							prefetch={true}
-							href="/admin"
-							className="text-white text-sm hover:text-gray-300 transition-colors bg-white bg-opacity-20 px-3 py-1 rounded"
-						>
-							Admin
-						</Link>
-					)}
-				</div>
-			) : (
-				<button
-					type="button"
-					onClick={openLoginModal}
-					className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity bg-transparent border-0 p-0 text-inherit"
-					aria-label="Sign in"
-				>
-					<img 
-						src={imgUser} 
-						alt="Login" 
-						className="w-5 h-5"
-					/>
-					<span className="text-white text-sm hidden lg:block">
-						Sign In
-					</span>
-				</button>
-			)}
-		</div>
 	);
 }
 
@@ -184,10 +114,7 @@ export default function Header() {
 		<header className="w-full bg-[#1e3b32] text-white relative z-50" data-name="Header/Main" data-node-id="771:249">
 			<div className="flex items-center justify-between gap-2 sm:gap-4 px-3 sm:px-4 md:px-6 lg:px-[50px] py-0">
 				<HeaderLeft />
-				<div className="flex items-center gap-2 sm:gap-4">
-					<SocialAndSearch />
-					<UserSection />
-				</div>
+				<SocialAndSearch />
 			</div>
 		</header>
 	);

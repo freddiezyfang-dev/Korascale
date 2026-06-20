@@ -135,6 +135,13 @@ export default function NavSidebar({ isOpen, onClose }: NavSidebarProps) {
             </div>
           </div>
 
+          {/* Plan Your Journey */}
+          <div>
+            <Link prefetch={true} href="/plan-your-journey" onClick={onClose} className="block py-2">
+              Plan Your Journey
+            </Link>
+          </div>
+
           {/* Contact */}
           <div>
             <Link prefetch={true} href="/contact" onClick={onClose} className="block py-2">

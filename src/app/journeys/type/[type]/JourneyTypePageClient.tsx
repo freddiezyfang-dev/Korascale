@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Section, Container, Heading, Text, Breadcrumb, Card, Button } from '@/components/common';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
-import { useUser } from '@/context/UserContext';
 import { JourneyType, Journey } from '@/types';
 import { JOURNEY_TYPE_CARD_IMAGE } from '@/lib/journeyTypeCardImages';
 import { PlanTripModal } from '@/components/modals/PlanTripModal';
@@ -127,7 +126,6 @@ type JourneyTypePageClientProps = {
 export default function JourneyTypePageClient({ typeSlug }: JourneyTypePageClientProps) {
   const router = useRouter();
   const { journeys, isLoading } = useJourneyManagement();
-  const { user } = useUser();
   const [isPlanTripModalOpen, setIsPlanTripModalOpen] = useState(false);
   const [hoveredPath, setHoveredPath] = useState<number | null>(null);
 
@@ -498,13 +496,7 @@ export default function JourneyTypePageClient({ typeSlug }: JourneyTypePageClien
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {brochures.map((brochure) => {
                 const handleBrochureClick = () => {
-                  if (user) {
-                    // 已登录，直接打开 PDF
-                    window.open(brochure.pdfUrl, '_blank');
-                  } else {
-                    // 未登录，跳转到登录页面，登录后返回当前页面
-                    router.push(`/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`);
-                  }
+                  window.open(brochure.pdfUrl, '_blank', 'noopener,noreferrer');
                 };
 
                 return (

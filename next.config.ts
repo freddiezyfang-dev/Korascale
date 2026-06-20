@@ -19,6 +19,51 @@ const nextConfig: NextConfig = {
         destination: '/inspirations/ancient-chinese-culture/:slug*',
         permanent: true,
       },
+      {
+        source: '/wishlist',
+        destination: '/journeys',
+        permanent: true,
+      },
+      {
+        source: '/wishlist/:path*',
+        destination: '/journeys',
+        permanent: true,
+      },
+      {
+        source: '/wishlist-demo',
+        destination: '/journeys',
+        permanent: true,
+      },
+      {
+        source: '/booking/cart',
+        destination: '/journeys',
+        permanent: true,
+      },
+      {
+        source: '/booking/review',
+        destination: '/journeys',
+        permanent: true,
+      },
+      {
+        source: '/booking/confirm',
+        destination: '/journeys',
+        permanent: true,
+      },
+      {
+        source: '/booking/success',
+        destination: '/journeys',
+        permanent: true,
+      },
+      {
+        source: '/booking/accommodation',
+        destination: '/accommodations',
+        permanent: true,
+      },
+      {
+        source: '/booking/chengdu-deep-dive',
+        destination: '/journeys/chengdu-city-one-day-deep-dive',
+        permanent: true,
+      },
     ];
   },
   // 明确指定项目根目录，避免 Turbopack 误用上级 lockfile 导致 404

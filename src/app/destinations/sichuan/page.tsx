@@ -365,7 +365,6 @@ export default function SichuanChongqingPage() {
                     price={`$${100 + (hotel.id.charCodeAt(6) % 100)}/night`}
                     description={hotel.description}
                     variant="light"
-                    showWishlist={false}
                     titleStyle={{ fontFamily: 'Montaga, serif' }}
                     descriptionStyle={{ fontFamily: 'Monda, sans-serif' }}
                   />

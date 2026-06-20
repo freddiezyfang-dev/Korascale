@@ -398,7 +398,6 @@ export default function Accommodations() {
                     description={hotel.description}
                     
                     variant="light"
-                    showWishlist={false}
                   />
                 ))}
               </div>
