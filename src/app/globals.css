@@ -166,7 +166,8 @@ body {
 }
 
 /* LoginModal 打开时锁定 body 滚动，仅此一类，避免多处 overflow 导致布局跳动 */
-body.login-modal-open {
+body.login-modal-open,
+body.inquiry-modal-open {
   overflow: hidden;
 }
 

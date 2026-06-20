@@ -176,6 +176,8 @@ export default async function ArticleDetailPage({ params }: PageProps) {
 						<ArticlePrimaryCta
 							cta={resolvedCta}
 							articleSlug={article.slug}
+							articleTitle={article.title}
+							categorySlug={categorySlug}
 							sourcePage={`/inspirations/${categorySlug}/${article.slug}`}
 						/>
 					) : null
