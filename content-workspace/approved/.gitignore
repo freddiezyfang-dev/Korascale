@@ -1,0 +1,4 @@
+# Ignore approved revision copies
+*
+!.gitkeep
+!.gitignore

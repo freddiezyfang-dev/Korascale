@@ -15,7 +15,10 @@
     "db:init": "node scripts/init-database.js",
     "db:migrate": "node scripts/init-database.js",
     "db:create-articles": "node scripts/create-articles-table.js",
-    "auth:bootstrap-admin": "npx tsx --tsconfig tsconfig.json scripts/auth/bootstrap-admin.ts"
+    "auth:bootstrap-admin": "npx tsx --tsconfig tsconfig.json scripts/auth/bootstrap-admin.ts",
+    "seo:export": "tsx scripts/seo/export-article.ts",
+    "seo:export-catalog": "tsx scripts/seo/export-catalog.ts",
+    "seo:submit-revision": "tsx scripts/seo/submit-revision.ts"
   },
   "dependencies": {
     "@turf/turf": "^6.5.0",
@@ -62,6 +65,7 @@
     "playwright": "^1.55.0",
     "storybook": "^9.1.7",
     "tailwindcss": "^4",
+    "tsx": "^4.20.5",
     "typescript": "^5",
     "tsx": "^4.20.5",
     "vitest": "^3.2.4"
