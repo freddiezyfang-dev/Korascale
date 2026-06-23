@@ -476,3 +476,108 @@ export function toReviewMetadata(
 		factCheckItems: input.factCheckItems,
 	};
 }
+
+export function validateSeoEditableFields(
+	input: unknown
+): { success: true; data: SeoEditableArticleFields } | { success: false; errors: Record<string, string> } {
+	const errors: Record<string, string> = {};
+	if (!isRecord(input)) {
+		return { success: false, errors: { _root: 'Proposed content must be a JSON object.' } };
+	}
+
+	const title = trimString(input.title, SEO_FIELD_LIMITS.title, 'title', errors);
+	const pageTitle = trimString(input.pageTitle, SEO_FIELD_LIMITS.pageTitle, 'pageTitle', errors);
+	const metaDescription = trimString(
+		input.metaDescription,
+		SEO_FIELD_LIMITS.metaDescription,
+		'metaDescription',
+		errors
+	);
+	const excerpt = trimString(input.excerpt, SEO_FIELD_LIMITS.excerpt, 'excerpt', errors);
+
+	let category = '';
+	if (typeof input.category !== 'string' || !input.category.trim()) {
+		errors.category = 'category is required.';
+	} else {
+		category = input.category.trim();
+		if (!(CANONICAL_ARTICLE_CATEGORIES as string[]).includes(category)) {
+			errors.category = `category must be one of: ${CANONICAL_ARTICLE_CATEGORIES.join(', ')}.`;
+		}
+	}
+
+	const tags = parseTags(input.tags, errors);
+	const content =
+		input.content == null
+			? null
+			: typeof input.content === 'string'
+				? input.content.length > SEO_FIELD_LIMITS.content
+					? (errors.content = `content must be at most ${SEO_FIELD_LIMITS.content} characters.`, input.content)
+					: input.content
+				: (errors.content = 'content must be a string or null.', null);
+
+	const contentBlocks = parseContentBlocks(input.contentBlocks, errors);
+	const faqs = parseFaqs(input.faqs, errors);
+	const ctaConfig = parseCtaConfig(input.ctaConfig ?? {}, errors);
+	const relatedArticles = parseUuidArray(input.relatedArticles, 'relatedArticles', errors);
+	const relatedJourneys = parseUuidArray(input.relatedJourneys, 'relatedJourneys', errors);
+	const recommendedSlug = optionalTrimString(
+		input.recommendedSlug,
+		SEO_FIELD_LIMITS.recommendedSlug,
+		'recommendedSlug',
+		errors
+	);
+
+	if (!content?.trim() && contentBlocks.length === 0) {
+		errors.content = 'Either content or contentBlocks must be provided.';
+	}
+
+	if (Object.keys(errors).length > 0) {
+		return { success: false, errors };
+	}
+
+	return {
+		success: true,
+		data: {
+			title,
+			pageTitle,
+			metaDescription,
+			excerpt,
+			category,
+			tags,
+			content,
+			contentBlocks,
+			faqs,
+			ctaConfig,
+			relatedArticles,
+			relatedJourneys,
+			recommendedSlug,
+		},
+	};
+}
+
+export function validateReviewMetadataUpdate(
+	input: unknown
+): { success: true; data: SeoRevisionReviewMetadata } | { success: false; errors: Record<string, string> } {
+	const errors: Record<string, string> = {};
+	if (!isRecord(input)) {
+		return { success: false, errors: { _root: 'Review metadata must be a JSON object.' } };
+	}
+
+	const changeSummary =
+		input.changeSummary == null
+			? ''
+			: trimString(input.changeSummary, SEO_FIELD_LIMITS.changeSummary, 'changeSummary', errors);
+	const factCheckItems = parseFactCheckItems(input.factCheckItems ?? [], errors);
+
+	if (Object.keys(errors).length > 0) {
+		return { success: false, errors };
+	}
+
+	return {
+		success: true,
+		data: {
+			changeSummary,
+			factCheckItems,
+		},
+	};
+}

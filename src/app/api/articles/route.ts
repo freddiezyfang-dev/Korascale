@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { enforceAdminWrite } from '@/lib/auth/requireAdmin.server';
 import { filterArticlesForPublicRead, isAuthenticatedAdmin } from '@/lib/auth/articleAccess.server';
 import { query } from '@/lib/db';
-import { ensureArticleCtaConfigColumn, mapArticleRowFromDb } from '@/lib/mapArticleApiRow';
+import { mapArticleRowFromDb } from '@/lib/mapArticleApiRow';
 import { Article } from '@/types/article';
 
 // Route Segment Config - 确保路由被正确识别（Next.js 15 必需）
@@ -287,36 +287,6 @@ export async function POST(request: NextRequest) {
       category: article.category,
       status: article.status
     });
-
-    // 确保 recommended_items 列存在（Neon 若只跑过 005 未跑 016 会缺此列）
-    try {
-      await query(`
-        ALTER TABLE articles
-        ADD COLUMN IF NOT EXISTS recommended_items JSONB DEFAULT '[]'::jsonb;
-      `, []);
-    } catch (alterError) {
-      console.warn('[API /articles] Could not add recommended_items column:', alterError);
-    }
-    
-    // 确保 is_featured / display_order 列存在
-    try {
-      await query(`ALTER TABLE articles ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT false`, []);
-      await query(`ALTER TABLE articles ADD COLUMN IF NOT EXISTS display_order INTEGER`, []);
-    } catch (alterErr) {
-      console.warn('[API /articles] Could not add featured columns:', alterErr);
-    }
-
-    // 确保 faqs 列存在
-    try {
-      await query(`
-        ALTER TABLE articles
-        ADD COLUMN IF NOT EXISTS faqs JSONB DEFAULT '[]'::jsonb;
-      `, []);
-    } catch (alterFaqsErr) {
-      console.warn('[API /articles] Could not add faqs column:', alterFaqsErr);
-    }
-
-    await ensureArticleCtaConfigColumn(query);
 
     // 插入文章
     const { rows } = await query(`

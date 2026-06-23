@@ -25,6 +25,8 @@ import ArticleCtaAdminSection, {
   validateArticleCtaForSubmit,
 } from '@/components/admin/ArticleCtaAdminSection';
 import type { ArticleCtaConfig } from '@/types/article';
+import { mapArticleToEditableFields } from '@/lib/seo/mapArticle';
+import ArticleRevisionPanel from '@/components/admin/ArticleRevisionPanel';
 
 export default function EditArticlePage() {
   const params = useParams();
@@ -400,6 +402,16 @@ export default function EditArticlePage() {
       <Section background="primary" padding="xl">
         <Container size="xl">
           <Heading level={1} className="text-2xl font-bold mb-4">编辑文章</Heading>
+          {remote ? (
+            <ArticleRevisionPanel
+              articleId={remote.id}
+              publishedSnapshot={mapArticleToEditableFields(remote)}
+              onPublishedRefresh={() => {
+                if (!id) return;
+                articleAPI.getById(id).then((article) => setRemote(article));
+              }}
+            />
+          ) : null}
           <Card className="p-6 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>

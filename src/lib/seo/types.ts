@@ -73,6 +73,8 @@ export type ArticleRevisionRecord = {
 	sourceSnapshot: Record<string, unknown>;
 	proposedContent: Record<string, unknown>;
 	reviewMetadata: SeoRevisionReviewMetadata;
+	/** articles.updated_at at submit time (DB column source_updated_at). */
+	sourceUpdatedAt: Date | null;
 	status: ArticleRevisionStatus;
 	createdBy: string;
 	createdAt: Date;

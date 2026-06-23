@@ -176,6 +176,7 @@ describe('submitSeoRevision', () => {
 				{ item: 'Check route names', resolved: true },
 			],
 		});
+		expect(insertArgs.sourceUpdatedAt).toBe(UPDATED_AT);
 		expect(insertArgs.proposedContent).not.toHaveProperty('changeSummary');
 		expect(insertArgs.proposedContent).not.toHaveProperty('factCheckItems');
 		expect(insertArgs.sourceSnapshot).not.toHaveProperty('changeSummary');
@@ -196,6 +197,7 @@ describe('submitSeoRevision', () => {
 					changeSummary: 'Updated title, body, and metadata.',
 					factCheckItems: [],
 				},
+				sourceUpdatedAt: UPDATED_AT,
 			})
 		);
 	});

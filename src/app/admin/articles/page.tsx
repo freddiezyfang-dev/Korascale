@@ -1,13 +1,12 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Heading, Text, Card, Button, Container, Section } from '@/components/common';
 import { useUser } from '@/context/UserContext';
 import { useArticleManagement } from '@/context/ArticleManagementContext';
 import {
   Article,
-  ArticleCategory,
   ADMIN_ARTICLE_CATEGORY_OPTIONS,
   articleCategoryOptionLabel,
   ArticleCategoryToCardTitle,
@@ -26,6 +25,7 @@ export default function AdminArticlesPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [seoFilter, setSeoFilter] = useState<string>('all');
+  const [pendingCounts, setPendingCounts] = useState<Record<string, number>>({});
   const { 
     isModalOpen, 
     isDeleting, 
@@ -83,6 +83,25 @@ export default function AdminArticlesPage() {
       .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
   }, [articles, categoryFilter, statusFilter, seoFilter]);
 
+  useEffect(() => {
+    if (!user?.isAdmin) return;
+    fetch('/api/admin/article-revisions?status=pending&includeCounts=1', {
+      credentials: 'include',
+    })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        if (data?.pendingCountsByArticle) {
+          setPendingCounts(data.pendingCountsByArticle);
+        }
+      })
+      .catch(() => undefined);
+  }, [user?.isAdmin]);
+
+  const totalPendingRevisions = useMemo(
+    () => Object.values(pendingCounts).reduce((sum, count) => sum + count, 0),
+    [pendingCounts]
+  );
+
   if (!user?.isAdmin) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -103,6 +122,11 @@ export default function AdminArticlesPage() {
             <div>
               <Heading level={1} className="text-3xl font-bold mb-2">Article Management</Heading>
               <Text className="text-gray-600">管理灵感文章，支持分类、SEO 与关联行程</Text>
+              {totalPendingRevisions > 0 ? (
+                <Text className="text-sm text-amber-700 mt-2 font-medium">
+                  {totalPendingRevisions} pending AI revision(s) awaiting review
+                </Text>
+              ) : null}
               <Text className="text-sm text-amber-600 mt-2">
                 💡 提示：只有状态为 <strong>active</strong> 的文章才会在前端显示。新文章默认为 <strong>draft</strong>，请在列表中切换状态。
               </Text>
@@ -257,6 +281,11 @@ ${localArticles.length > 0 ? '💾 localStorage 有备份数据' : '💾 localSt
                     </select>
                   </div>
                   <Heading level={3} className="text-lg font-semibold mb-1">{article.title}</Heading>
+                  {pendingCounts[article.id] ? (
+                    <Text className="text-xs font-semibold text-amber-700 mb-2">
+                      Pending AI Revision ({pendingCounts[article.id]})
+                    </Text>
+                  ) : null}
                   <Text className="text-sm text-gray-600 mb-3">作者：{article.author}</Text>
                   <div className="mb-3">
                     <ArticleSeoStatusBadges audit={seoAudit} />

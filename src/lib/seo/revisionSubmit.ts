@@ -80,6 +80,7 @@ export async function submitSeoRevision(
 		sourceSnapshot: currentEditable,
 		proposedContent,
 		reviewMetadata,
+		sourceUpdatedAt: submission.sourceUpdatedAt,
 		createdBy: options.createdBy,
 	});
 
