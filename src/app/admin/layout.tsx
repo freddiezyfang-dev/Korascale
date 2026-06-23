@@ -10,12 +10,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { user, logout } = useUser();
   const router = useRouter();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     router.replace('/auth/login');
   };
 
-  const showLogout = user?.email === 'admin@korascale.com';
+  const showLogout = user?.isAdmin;
 
   return (
     <>

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { enforceAdminWrite } from '@/lib/auth/requireAdmin.server';
 
 // 简单的内存存储（生产环境应该使用数据库）
 let dataStore: any = {
@@ -17,6 +18,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const guard = await enforceAdminWrite(request);
+  if (!guard.ok) return guard.response;
+
   try {
     const data = await request.json();
     
@@ -36,6 +40,9 @@ export async function POST(request: NextRequest) {
 
 // 备份端点
 export async function PUT(request: NextRequest) {
+  const guard = await enforceAdminWrite(request);
+  if (!guard.ok) return guard.response;
+
   try {
     const data = await request.json();
     
@@ -60,7 +67,10 @@ export async function PUT(request: NextRequest) {
 }
 
 // 恢复端点
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
+  const guard = await enforceAdminWrite(request);
+  if (!guard.ok) return guard.response;
+
   try {
     if (dataStore.backups.length > 0) {
       const latestBackup = dataStore.backups[dataStore.backups.length - 1];

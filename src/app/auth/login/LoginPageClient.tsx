@@ -20,7 +20,7 @@ function LoginForm() {
 		if (user) {
 			if (redirect) {
 				router.push(redirect);
-			} else if (user.email === 'admin@korascale.com') {
+			} else if (user.isAdmin) {
 				router.push('/admin');
 			} else {
 				router.push('/');
@@ -38,10 +38,8 @@ function LoginForm() {
 			if (success) {
 				if (redirect) {
 					router.push(redirect);
-				} else if (email === 'admin@korascale.com') {
-					router.push('/admin');
 				} else {
-					router.push('/');
+					router.push('/admin');
 				}
 			} else {
 				setError('Invalid email or password');

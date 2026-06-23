@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { enforceAdminWrite } from '@/lib/auth/requireAdmin.server';
 import { query } from '@/lib/db';
 
 export async function PATCH(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const guard = await enforceAdminWrite(request);
+  if (!guard.ok) return guard.response;
+
   try {
     const { id } = await context.params;
     const body = await request.json();

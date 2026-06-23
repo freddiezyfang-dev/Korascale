@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { enforceAdminWrite } from '@/lib/auth/requireAdmin.server';
+import { isAuthenticatedAdmin } from '@/lib/auth/articleAccess.server';
 import { query } from '@/lib/db';
 import {
   mapJourneyRowToJourney,
@@ -28,6 +30,12 @@ export async function GET(request: NextRequest) {
     // 解析查询参数：支持 includeAll 参数来获取所有状态的 journeys（用于后台管理）
     const searchParams = request.nextUrl.searchParams;
     const includeAll = searchParams.get('includeAll') === 'true';
+    if (includeAll) {
+      const isAdmin = await isAuthenticatedAdmin();
+      if (!isAdmin) {
+        return NextResponse.json({ ok: false, error: 'FORBIDDEN' }, { status: 403 });
+      }
+    }
     const fieldsParam = searchParams.get('fields') || 'full';
     const minimalFields = fieldsParam === 'minimal';
     const listFields = fieldsParam === 'list';
@@ -174,6 +182,9 @@ export async function GET(request: NextRequest) {
 
 // POST: 创建新journey
 export async function POST(request: NextRequest) {
+  const guard = await enforceAdminWrite(request);
+  if (!guard.ok) return guard.response;
+
   try {
     const journey: Omit<Journey, 'id' | 'createdAt' | 'updatedAt'> = await request.json();
     

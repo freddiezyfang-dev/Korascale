@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { enforceAdminWrite } from '@/lib/auth/requireAdmin.server';
 import { query } from '@/lib/db';
 import { pickFirstValidImagePath, sanitizeImageList, sanitizeImagePath } from '@/lib/imageUtils';
 import { Journey } from '@/types';
@@ -140,6 +141,9 @@ export async function PUT(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const guard = await enforceAdminWrite(request);
+  if (!guard.ok) return guard.response;
+
   try {
     const updates: Partial<Journey> = await request.json();
     
@@ -395,6 +399,9 @@ export async function DELETE(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const guard = await enforceAdminWrite(request);
+  if (!guard.ok) return guard.response;
+
   try {
     const { id } = await context.params;
     await query('DELETE FROM journeys WHERE id = $1', [id]);

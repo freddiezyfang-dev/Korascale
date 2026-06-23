@@ -25,7 +25,7 @@ export default function AddJourneyHotelPage() {
   });
 
   useEffect(() => {
-    if (!user || user.email !== 'admin@korascale.com') {
+    if (!user?.isAdmin) {
       router.push('/');
     }
   }, [user, router]);

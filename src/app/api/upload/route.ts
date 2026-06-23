@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { put } from '@vercel/blob';
+import { enforceAdminWrite } from '@/lib/auth/requireAdmin.server';
 
 // 图片上传到Vercel Blob
 export async function POST(request: NextRequest) {
+  const guard = await enforceAdminWrite(request);
+  if (!guard.ok) return guard.response;
+
   try {
     // 检查环境变量
     const blobToken = process.env.BLOB_READ_WRITE_TOKEN;

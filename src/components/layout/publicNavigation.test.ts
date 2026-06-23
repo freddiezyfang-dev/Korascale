@@ -68,17 +68,17 @@ describe('registration API guard wiring (PR-C5)', () => {
     expect(source).not.toMatch(/UPDATE users/);
   });
 
-  it('routes UserContext.register through POST /api/users', () => {
+  it('routes UserContext login through POST /api/auth/login', () => {
     const source = readSrc('context/UserContext.tsx');
-    expect(source).toContain("fetch('/api/users'");
-    expect(source).not.toMatch(/User registered successfully/i);
+    expect(source).toContain("fetch('/api/auth/login'");
+    expect(source).toContain("fetch('/api/auth/session'");
+    expect(source).not.toMatch(/localStorage\.setItem\('user'/);
   });
 
-  it('keeps client login flow available for admin access', () => {
+  it('keeps server session flow available for admin access', () => {
     const source = readSrc('context/UserContext.tsx');
-    expect(source).toContain('const login = async');
-    expect(source).toContain('admin@korascale.com');
-    expect(source).not.toMatch(/register.*login|login.*register/i);
+    expect(source).toContain('credentials: \'include\'');
+    expect(source).toContain('isAdmin');
   });
 });
 
@@ -121,9 +121,9 @@ describe('admin auth regression (PR-C5)', () => {
     expect(source).toContain('logout()');
   });
 
-  it('redirects admin login to /admin for admin email', () => {
+  it('redirects admin login to /admin when session is admin', () => {
     const source = readSrc('app/auth/login/LoginPageClient.tsx');
-    expect(source).toContain("user.email === 'admin@korascale.com'");
+    expect(source).toContain('user.isAdmin');
     expect(source).toContain("router.push('/admin')");
     expect(source).not.toMatch(/Sign up|Register|\/auth\/register/i);
   });
@@ -131,7 +131,7 @@ describe('admin auth regression (PR-C5)', () => {
   it('guards admin dashboard behind login', () => {
     const source = readSrc('app/admin/page.tsx');
     expect(source).toContain("router.push('/auth/login')");
-    expect(source).toContain('admin@korascale.com');
+    expect(source).toContain('isAdmin');
   });
 });
 

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { enforceAdminRead } from '@/lib/auth/requireAdmin.server';
 import { query } from '@/lib/db';
 import { Article, ContentBlock, RecommendedItem } from '@/types/article';
 
@@ -49,6 +50,11 @@ export async function GET(
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
     };
+
+    if (article.status !== 'active') {
+      const guard = await enforceAdminRead();
+      if (!guard.ok) return guard.response;
+    }
     
     return NextResponse.json({ article });
   } catch (error) {

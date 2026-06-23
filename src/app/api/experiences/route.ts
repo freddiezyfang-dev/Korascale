@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { enforceAdminWrite } from '@/lib/auth/requireAdmin.server';
 import { query } from '@/lib/db';
 
 function slugify(text: string): string {
@@ -44,6 +45,9 @@ export async function GET() {
 
 // POST: 创建新 experience
 export async function POST(request: NextRequest) {
+  const guard = await enforceAdminWrite(request);
+  if (!guard.ok) return guard.response;
+
   try {
     const data = await request.json();
     const {

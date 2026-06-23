@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { enforceAdminRead, enforceAdminWrite } from '@/lib/auth/requireAdmin.server';
 import { query } from '@/lib/db';
 import { ensureArticleCtaConfigColumn, mapArticleRowFromDb } from '@/lib/mapArticleApiRow';
 import { Article } from '@/types/article';
@@ -26,6 +27,11 @@ export async function GET(
     
     const row = rows[0];
     const article = mapArticleRowFromDb(row as Record<string, unknown>);
+
+    if (article.status !== 'active') {
+      const guard = await enforceAdminRead();
+      if (!guard.ok) return guard.response;
+    }
     
     return NextResponse.json({ article });
   } catch (error) {
@@ -42,6 +48,9 @@ export async function PUT(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const guard = await enforceAdminWrite(request);
+  if (!guard.ok) return guard.response;
+
   try {
     const { id } = await context.params;
     const updates: Partial<Article> = await request.json();
@@ -286,6 +295,9 @@ export async function DELETE(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const guard = await enforceAdminWrite(request);
+  if (!guard.ok) return guard.response;
+
   try {
     const { id } = await context.params;
     

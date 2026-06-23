@@ -1,9 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { enforceAdminRead, enforceAdminWrite } from '@/lib/auth/requireAdmin.server';
 import { query } from '@/lib/db';
 
 const BROKEN_DESCRIPTION_PREFIX = '🏞️';
 
 export async function GET() {
+  const guard = await enforceAdminRead();
+  if (!guard.ok) return guard.response;
+
   try {
     const { rows } = await query<{
       id: string;
@@ -36,7 +40,10 @@ export async function GET() {
   }
 }
 
-export async function POST() {
+export async function POST(request: NextRequest) {
+  const guard = await enforceAdminWrite(request);
+  if (!guard.ok) return guard.response;
+
   try {
     const preview = await query<{
       id: string;

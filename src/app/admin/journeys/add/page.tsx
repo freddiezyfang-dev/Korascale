@@ -326,7 +326,7 @@ export default function AddJourneyPage() {
   };
 
   // 检查用户权限
-  if (!user || user.email !== 'admin@korascale.com') {
+  if (!user?.isAdmin) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
