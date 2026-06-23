@@ -25,6 +25,7 @@ describe('mapArticleRevisionRow', () => {
 			changeSummary: '',
 			factCheckItems: [],
 		});
+		expect(record.sourceUpdatedAt).toBeNull();
 		expect(record.proposedContent).toEqual({ title: 'After' });
 	});
 

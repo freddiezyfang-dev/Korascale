@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { enforceAdminRead, enforceAdminWrite } from '@/lib/auth/requireAdmin.server';
 import { query } from '@/lib/db';
-import { ensureArticleCtaConfigColumn, mapArticleRowFromDb } from '@/lib/mapArticleApiRow';
+import { mapArticleRowFromDb } from '@/lib/mapArticleApiRow';
 import { Article } from '@/types/article';
 
 // Route Segment Config
@@ -55,16 +55,7 @@ export async function PUT(
     const { id } = await context.params;
     const updates: Partial<Article> = await request.json();
 
-    // 确保首页展示位列存在，避免未执行迁移时更新报错
-    try {
-      await query(`ALTER TABLE articles ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT false`, []);
-      await query(`ALTER TABLE articles ADD COLUMN IF NOT EXISTS display_order INTEGER`, []);
-    } catch (alterErr) {
-      console.warn('[API /articles/[id]] Could not ensure featured columns:', alterErr);
-    }
-
     console.log('[API /articles/[id]] Updating article:', id);
-    await ensureArticleCtaConfigColumn(query);
     
     // 构建更新查询
     const updateFields: string[] = [];

@@ -32,16 +32,3 @@ export function mapArticleRowFromDb(row: Record<string, unknown>): Article {
 		updatedAt: row.updated_at ? new Date(String(row.updated_at)) : new Date(),
 	};
 }
-
-export async function ensureArticleCtaConfigColumn(
-	queryFn: (text: string, params?: unknown[]) => Promise<unknown>
-) {
-	try {
-		await queryFn(`
-      ALTER TABLE articles
-      ADD COLUMN IF NOT EXISTS cta_config JSONB DEFAULT '{}'::jsonb;
-    `);
-	} catch (error) {
-		console.warn('[articles] Could not ensure cta_config column:', error);
-	}
-}

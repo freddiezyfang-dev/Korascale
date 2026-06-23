@@ -4,6 +4,7 @@
 import { query } from '@/lib/db';
 
 import { mapDbRowToArticle } from './mapArticle';
+import { serializeArticleUpdatedAt } from './sourceTimestamp';
 import { assertProposedContentIsPublishableOnly, normalizeReviewMetadata } from './reviewMetadata';
 import type { ArticleRevisionRecord, ArticleRevisionStatus } from './types';
 
@@ -14,6 +15,7 @@ export type ArticleRevisionRow = {
 	source_snapshot: Record<string, unknown>;
 	proposed_content: Record<string, unknown>;
 	review_metadata?: Record<string, unknown> | null;
+	source_updated_at?: Date | string | null;
 	status: ArticleRevisionStatus;
 	created_by: string;
 	created_at: Date;
@@ -29,6 +31,9 @@ export function mapArticleRevisionRow(row: ArticleRevisionRow): ArticleRevisionR
 		sourceSnapshot: row.source_snapshot ?? {},
 		proposedContent: row.proposed_content ?? {},
 		reviewMetadata: normalizeReviewMetadata(row.review_metadata),
+		sourceUpdatedAt: row.source_updated_at
+			? new Date(serializeArticleUpdatedAt(row.source_updated_at))
+			: null,
 		status: row.status,
 		createdBy: String(row.created_by),
 		createdAt: new Date(String(row.created_at)),
@@ -128,6 +133,7 @@ export async function insertArticleRevision(params: {
 	sourceSnapshot: Record<string, unknown>;
 	proposedContent: Record<string, unknown>;
 	reviewMetadata: Record<string, unknown>;
+	sourceUpdatedAt: string;
 	createdBy: string;
 }): Promise<string> {
 	assertProposedContentIsPublishableOnly(params.proposedContent);
@@ -140,9 +146,10 @@ export async function insertArticleRevision(params: {
       source_snapshot,
       proposed_content,
       review_metadata,
+      source_updated_at,
       status,
       created_by
-    ) VALUES ($1, $2, $3::jsonb, $4::jsonb, $5::jsonb, 'pending', $6)
+    ) VALUES ($1, $2, $3::jsonb, $4::jsonb, $5::jsonb, $6::timestamp, 'pending', $7)
     RETURNING id
   `,
 		[
@@ -151,6 +158,7 @@ export async function insertArticleRevision(params: {
 			JSON.stringify(params.sourceSnapshot),
 			JSON.stringify(params.proposedContent),
 			JSON.stringify(params.reviewMetadata),
+			new Date(params.sourceUpdatedAt),
 			params.createdBy,
 		]
 	);
