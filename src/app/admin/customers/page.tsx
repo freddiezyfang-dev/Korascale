@@ -51,7 +51,7 @@ export default function AdminCustomersPage() {
       return;
     }
     
-    if (user.email !== 'admin@korascale.com') {
+    if (!user?.isAdmin) {
       router.push('/');
       return;
     }
@@ -121,7 +121,7 @@ export default function AdminCustomersPage() {
     totalOrders: customers.reduce((sum, c) => sum + c.totalOrders, 0),
   };
 
-  if (!user || user.email !== 'admin@korascale.com') {
+  if (!user?.isAdmin) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">

@@ -167,25 +167,3 @@ describe('POST /api/users validation (PR-C5)', () => {
     expect(body.error).not.toMatch(/not found|already exists/i);
   });
 });
-
-describe('GET /api/users read path (PR-C5)', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    process.env.NEON_POSTGRES_URL = 'postgres://test';
-  });
-
-  it('is unaffected by POST write guard', async () => {
-    const { GET } = await import('./route');
-    vi.mocked(query).mockResolvedValueOnce({
-      rows: [{ id: '1', email: 'admin@korascale.com', name: 'Admin', role: 'admin' }],
-    } as never);
-
-    const response = await GET(
-      new Request('http://localhost/api/users?email=admin@korascale.com') as never
-    );
-
-    expect(response.status).toBe(200);
-    const body = await response.json();
-    expect(body.user.email).toBe('admin@korascale.com');
-  });
-});

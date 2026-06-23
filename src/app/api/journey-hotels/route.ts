@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { enforceAdminWrite } from '@/lib/auth/requireAdmin.server';
 import { query } from '@/lib/db';
 
 // GET: 获取所有 journey hotels
@@ -26,6 +27,9 @@ export async function GET() {
 
 // POST: 创建新 journey hotel
 export async function POST(request: NextRequest) {
+  const guard = await enforceAdminWrite(request);
+  if (!guard.ok) return guard.response;
+
   try {
     const data = await request.json();
     

@@ -8,11 +8,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run --project unit",
+    "typecheck": "tsc --noEmit",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "db:init": "node scripts/init-database.js",
     "db:migrate": "node scripts/init-database.js",
-    "db:create-articles": "node scripts/create-articles-table.js"
+    "db:create-articles": "node scripts/create-articles-table.js",
+    "auth:bootstrap-admin": "npx tsx --tsconfig tsconfig.json scripts/auth/bootstrap-admin.ts"
   },
   "dependencies": {
     "@turf/turf": "^6.5.0",
@@ -60,6 +63,7 @@
     "storybook": "^9.1.7",
     "tailwindcss": "^4",
     "typescript": "^5",
+    "tsx": "^4.20.5",
     "vitest": "^3.2.4"
   }
 }

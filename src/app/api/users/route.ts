@@ -3,6 +3,7 @@ import {
   isPublicRegistrationEnabled,
   publicRegistrationForbiddenResponse,
 } from '@/lib/auth/publicRegistration';
+import { enforceAdminRead } from '@/lib/auth/requireAdmin.server';
 import { query } from '@/lib/db';
 
 // Route Segment Config - 确保路由被正确识别
@@ -86,8 +87,11 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET: 获取用户信息（可选，用于调试）
+// GET: 管理员查询用户（不对外暴露敏感字段）
 export async function GET(request: NextRequest) {
+  const guard = await enforceAdminRead();
+  if (!guard.ok) return guard.response;
+
   try {
     const { searchParams } = new URL(request.url);
     const email = searchParams.get('email');
@@ -100,7 +104,7 @@ export async function GET(request: NextRequest) {
     }
 
     const result = await query(
-      'SELECT id, email, name, role, created_at, updated_at FROM users WHERE email = $1',
+      'SELECT id, email, name, role, created_at, updated_at FROM users WHERE LOWER(email) = LOWER($1)',
       [email]
     );
 
@@ -111,8 +115,24 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const row = result.rows[0] as {
+      id: string;
+      email: string;
+      name: string | null;
+      role: string | null;
+      created_at: string;
+      updated_at: string;
+    };
+
     return NextResponse.json({
-      user: result.rows[0],
+      user: {
+        id: row.id,
+        email: row.email,
+        name: row.name,
+        role: row.role,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+      },
     });
   } catch (error) {
     console.error('[API /users] Error fetching user:', error);

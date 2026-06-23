@@ -1,13 +1,20 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { User } from '@/types';
+
+interface SessionUser {
+  id: string;
+  email: string;
+  name: string;
+  isAdmin: boolean;
+}
 
 interface UserContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
   register: (userData: { firstName: string; lastName: string; email: string; password: string }) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => void;
   isLoading: boolean;
   loginCount: number;
@@ -23,6 +30,18 @@ export const useUser = () => {
   return context;
 };
 
+function sessionUserToUser(sessionUser: SessionUser): User {
+  return {
+    id: sessionUser.id,
+    email: sessionUser.email,
+    name: sessionUser.name,
+    isLoggedIn: true,
+    isAdmin: sessionUser.isAdmin,
+    lastLoginAt: new Date(),
+    loginCount: 1,
+  };
+}
+
 interface UserProviderProps {
   children: ReactNode;
 }
@@ -32,41 +51,35 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [loginCount, setLoginCount] = useState(0);
 
-  // 从 localStorage 加载用户信息
-  useEffect(() => {
-    const loadUserFromStorage = () => {
-      try {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-          const userData = JSON.parse(storedUser);
-          setUser({
-            ...userData,
-            lastLoginAt: userData.lastLoginAt ? new Date(userData.lastLoginAt) : undefined,
-          });
-          setLoginCount(userData.loginCount || 0);
-        }
-      } catch (error) {
-        console.error('Error loading user from storage:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadUserFromStorage();
-  }, []);
-
-  // 保存用户信息到 localStorage
-  const saveUserToStorage = (userData: User | null) => {
+  const refreshSession = useCallback(async () => {
     try {
-      if (userData) {
-        localStorage.setItem('user', JSON.stringify(userData));
+      const response = await fetch('/api/auth/session', { credentials: 'include' });
+      if (!response.ok) {
+        setUser(null);
+        return;
+      }
+      const payload = await response.json();
+      if (payload.authenticated && payload.user) {
+        const sessionUser = payload.user as SessionUser;
+        setUser(sessionUserToUser(sessionUser));
+        setLoginCount((prev) => prev + (prev === 0 ? 1 : 0));
       } else {
-        localStorage.removeItem('user');
+        setUser(null);
       }
     } catch (error) {
-      console.error('Error saving user to storage:', error);
+      console.error('Error loading session:', error);
+      setUser(null);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const loadSession = async () => {
+      setIsLoading(true);
+      await refreshSession();
+      setIsLoading(false);
+    };
+    void loadSession();
+  }, [refreshSession]);
 
   const register = async (userData: { firstName: string; lastName: string; email: string; password: string }): Promise<boolean> => {
     setIsLoading(true);
@@ -89,7 +102,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         return false;
       }
 
-      const now = new Date();
       const payload = await response.json();
       const userId = payload.user?.id || `user_${userData.email.replace('@', '_').replace('.', '_')}`;
       const fullName = `${userData.firstName} ${userData.lastName}`.trim();
@@ -99,13 +111,13 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         email: userData.email,
         name: fullName,
         isLoggedIn: true,
-        lastLoginAt: now,
+        isAdmin: false,
+        lastLoginAt: new Date(),
         loginCount: 1,
       };
 
       setUser(newUser);
       setLoginCount(1);
-      saveUserToStorage(newUser);
       return true;
     } catch (error) {
       console.error('Registration error:', error);
@@ -117,54 +129,29 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
-    
+
     try {
-      // 模拟 API 调用
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // 模拟登录验证（实际项目中这里会调用真实的 API）
-      if (email && password) {
-        // 检查是否为管理员账户
-        const isAdmin = email === 'admin@korascale.com';
-        const now = new Date();
-        
-        // 获取或创建用户ID（基于邮箱生成固定ID）
-        const userId = `user_${email.replace('@', '_').replace('.', '_')}`;
-        
-        // 检查是否已存在用户
-        const existingUser = user?.email === email ? user : null;
-        const newLoginCount = (existingUser?.loginCount || 0) + 1;
-        
-        const userData: User = {
-          id: userId,
-          email,
-          name: isAdmin ? 'Admin' : email.split('@')[0],
-          isLoggedIn: true,
-          lastLoginAt: now,
-          loginCount: newLoginCount,
-        };
-        
-        setUser(userData);
-        setLoginCount(newLoginCount);
-        saveUserToStorage(userData);
-        
-        // 记录登录信息
-        const loginRecord = {
-          userId,
-          userEmail: email,
-          loginAt: now,
-          ipAddress: '127.0.0.1', // 实际项目中从请求中获取
-          userAgent: navigator.userAgent,
-        };
-        
-        // 这里可以调用 OrderManagementContext 的 addLoginRecord
-        // 但由于循环依赖，我们将在组件中处理
-        
-        console.log('User logged in successfully:', userData);
-        return true;
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        return false;
       }
-      
-      return false;
+
+      const payload = await response.json();
+      if (!payload.authenticated || !payload.user) {
+        return false;
+      }
+
+      const sessionUser = payload.user as SessionUser;
+      const userData = sessionUserToUser(sessionUser);
+      setUser(userData);
+      setLoginCount((prev) => prev + 1);
+      return true;
     } catch (error) {
       console.error('Login error:', error);
       return false;
@@ -173,17 +160,25 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    saveUserToStorage(null);
-    console.log('User logged out');
+  const logout = async () => {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { Origin: window.location.origin },
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setUser(null);
+      setLoginCount(0);
+    }
   };
 
   const updateUser = (userData: Partial<User>) => {
     if (user) {
       const updatedUser = { ...user, ...userData };
       setUser(updatedUser);
-      saveUserToStorage(updatedUser);
     }
   };
 

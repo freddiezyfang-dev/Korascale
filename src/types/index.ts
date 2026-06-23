@@ -104,6 +104,7 @@ export interface User {
   phone?: string;
   avatar?: string;
   isLoggedIn: boolean;
+  isAdmin?: boolean;
   lastLoginAt?: Date;
   loginCount: number;
 }

@@ -21,7 +21,7 @@ export default function AdminExtensionsPage() {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    if (!user || user.email !== 'admin@korascale.com') {
+    if (!user?.isAdmin) {
       router.push('/');
       return;
     }

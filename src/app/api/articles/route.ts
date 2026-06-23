@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { enforceAdminWrite } from '@/lib/auth/requireAdmin.server';
+import { filterArticlesForPublicRead, isAuthenticatedAdmin } from '@/lib/auth/articleAccess.server';
 import { query } from '@/lib/db';
 import { ensureArticleCtaConfigColumn, mapArticleRowFromDb } from '@/lib/mapArticleApiRow';
 import { Article } from '@/types/article';
@@ -216,6 +218,9 @@ export async function GET(request: NextRequest) {
     } else {
       console.log(`[API /articles] Found ${articles.length} articles`);
     }
+
+    const allowAllStatuses = await isAuthenticatedAdmin();
+    articles = filterArticlesForPublicRead(articles, allowAllStatuses);
     
     return NextResponse.json(
       { articles },
@@ -256,7 +261,7 @@ export async function GET(request: NextRequest) {
 }
 
 // OPTIONS: 处理 CORS 预检请求
-export async function OPTIONS(request: NextRequest) {
+export async function OPTIONS(_request: NextRequest) {
   return new NextResponse(null, {
     status: 200,
     headers: {
@@ -270,6 +275,9 @@ export async function OPTIONS(request: NextRequest) {
 
 // POST: 创建新article
 export async function POST(request: NextRequest) {
+  const guard = await enforceAdminWrite(request);
+  if (!guard.ok) return guard.response;
+
   try {
     const article: Omit<Article, 'id' | 'createdAt' | 'updatedAt'> = await request.json();
     

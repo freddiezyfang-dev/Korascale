@@ -397,7 +397,7 @@ export default function EditJourneyPage() {
   };
 
   useEffect(() => {
-    if (!user || user.email !== 'admin@korascale.com') {
+    if (!user?.isAdmin) {
       router.push('/');
       return;
     }

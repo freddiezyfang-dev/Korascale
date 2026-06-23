@@ -26,7 +26,7 @@ export default function AddExtensionPage() {
   });
 
   useEffect(() => {
-    if (!user || user.email !== 'admin@korascale.com') {
+    if (!user?.isAdmin) {
       router.push('/');
     }
   }, [user, router]);
