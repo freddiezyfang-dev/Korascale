@@ -1,0 +1,41 @@
+{
+  "sourceArticleId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+  "sourceSlug": "fact-check-fixture-article",
+  "sourceUpdatedAt": "2026-06-17T08:20:28.796Z",
+  "title": "Fixture Article With Fact Checks",
+  "pageTitle": "Fixture Article With Fact Checks | KoraScale",
+  "metaDescription": "Fixture meta description for review metadata persistence tests.",
+  "excerpt": "Fixture excerpt for review metadata persistence tests.",
+  "category": "China Travel Planning",
+  "tags": ["fixture", "fact-check"],
+  "content": null,
+  "contentBlocks": [
+    {
+      "id": "p1",
+      "type": "paragraph",
+      "text": "Fixture body copy for controlled review metadata tests."
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Is this a real article?",
+      "answer": "No. This JSON exists only for automated tests."
+    }
+  ],
+  "ctaConfig": { "mode": "auto" },
+  "relatedArticles": [],
+  "relatedJourneys": [],
+  "changeSummary": "Fixture revision used to verify review_metadata persistence without touching live Chengdu content.",
+  "factCheckItems": [
+    {
+      "item": "Verify embassy visa guidance cited in FAQ",
+      "resolved": false,
+      "note": "Requires current official source"
+    },
+    {
+      "item": "Confirm internal journey ID still active",
+      "resolved": true,
+      "note": "Checked against content catalog fixture"
+    }
+  ]
+}

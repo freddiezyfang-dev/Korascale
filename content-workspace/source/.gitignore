@@ -1,0 +1,4 @@
+# Ignore exported source files and revision drafts
+*
+!.gitkeep
+!.gitignore

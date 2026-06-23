@@ -1,0 +1,4 @@
+# Ignore revision drafts pending submit
+*
+!.gitkeep
+!.gitignore

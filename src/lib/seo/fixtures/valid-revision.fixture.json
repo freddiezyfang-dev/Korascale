@@ -1,0 +1,49 @@
+{
+  "sourceArticleId": "11111111-1111-4111-8111-111111111111",
+  "sourceSlug": "sample-article",
+  "sourceUpdatedAt": "2026-06-01T12:00:00.796Z",
+  "title": "How to Plan Train Travel in China",
+  "pageTitle": "China Train Travel Planning Guide | KoraScale",
+  "metaDescription": "Practical guidance on choosing routes, booking high-speed rail, and balancing cities for a first China trip.",
+  "excerpt": "A logic-first guide to China rail: when trains beat flights, how to read routes, and what to book first.",
+  "category": "China Travel Planning",
+  "tags": ["china", "train travel", "route planning"],
+  "content": null,
+  "contentBlocks": [
+    {
+      "id": "intro-1",
+      "type": "paragraph",
+      "text": "High-speed rail is often the most efficient way to move between major Chinese cities if your dates are fixed and stations are central to your plans."
+    },
+    {
+      "id": "section-h2-1",
+      "type": "heading",
+      "text": "When rail beats flying",
+      "level": 2
+    },
+    {
+      "id": "body-2",
+      "type": "paragraph",
+      "text": "Compare total door-to-door time, not just flight duration. Security, airport transfers, and weather delays often narrow the gap on routes under six hours by train."
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Do I need to book China train tickets far in advance?",
+      "answer": "For peak holidays, book as early as the release window allows. For regular weeks, many routes still have availability closer to departure, but seat class choice narrows."
+    }
+  ],
+  "ctaConfig": {
+    "mode": "auto"
+  },
+  "relatedArticles": [],
+  "relatedJourneys": [],
+  "changeSummary": "Tightened title and meta for search intent; rewrote intro blocks; added FAQ on booking window.",
+  "factCheckItems": [
+    {
+      "item": "Confirm current 12306 foreign passport booking rules",
+      "resolved": false,
+      "note": "Requires official rail source before admin publish"
+    }
+  ]
+}

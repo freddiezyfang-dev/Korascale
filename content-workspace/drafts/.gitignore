@@ -1,0 +1,4 @@
+# Ignore draft article files
+*
+!.gitkeep
+!.gitignore
