@@ -121,11 +121,15 @@ const partnershipPaths: PartnershipPath[] = [
 
 type JourneyTypePageClientProps = {
   typeSlug: string;
+  initialJourneys?: Journey[];
 };
 
-export default function JourneyTypePageClient({ typeSlug }: JourneyTypePageClientProps) {
+export default function JourneyTypePageClient({
+  typeSlug,
+  initialJourneys,
+}: JourneyTypePageClientProps) {
   const router = useRouter();
-  const { journeys, isLoading } = useJourneyManagement();
+  const { journeys: contextJourneys, isLoading } = useJourneyManagement();
   const [isPlanTripModalOpen, setIsPlanTripModalOpen] = useState(false);
   const [hoveredPath, setHoveredPath] = useState<number | null>(null);
 
@@ -180,6 +184,11 @@ export default function JourneyTypePageClient({ typeSlug }: JourneyTypePageClien
   ];
   
   const journeyType = journeyTypeFromSlug(typeSlug);
+
+  const journeys =
+    initialJourneys && initialJourneys.length > 0
+      ? initialJourneys
+      : contextJourneys;
   
   // Journey Type 筛选：自动选择当前类型，但允许用户更改
   const [selectedJourneyType, setSelectedJourneyType] = useState<JourneyType | 'All'>(journeyType || 'All');
@@ -245,7 +254,7 @@ export default function JourneyTypePageClient({ typeSlug }: JourneyTypePageClien
 
   // 列表数据加载中：Hero/文案可由本地常量立即渲染，仅在有列表依赖区块前统一用骨架更稳；
   // 首屏仍以完整类型页呈现，网格区在 journeys 为空且加载中时显示内联骨架即可。
-  const showListSkeleton = isLoading && journeys.length === 0;
+  const showListSkeleton = isLoading && journeys.length === 0 && !(initialJourneys && initialJourneys.length > 0);
 
   const isGroupTours = journeyType === 'Group Tours';
 
@@ -849,9 +858,15 @@ export default function JourneyTypePageClient({ typeSlug }: JourneyTypePageClien
                         ? `$${journey.price}`
                         : ('price' in journey ? journey.price : 'N/A');
                       
+                      const journeySlug = ('slug' in journey && journey.slug)
+                        ? `/journeys/${String(journey.slug).replace(/^journeys\//i, '').replace(/^\/+/, '')}`
+                        : ('link' in journey && journey.link)
+                          ? String(journey.link)
+                          : '#';
+
                       return (
+                        <Link key={journey.id} href={journeySlug} className="block h-full">
                         <Card
-                          key={journey.id}
                           className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col h-full bg-[#f5f1e6]"
                         >
                     <div 
@@ -888,6 +903,7 @@ export default function JourneyTypePageClient({ typeSlug }: JourneyTypePageClien
                       </div>
                     </div>
                   </Card>
+                        </Link>
                       );
                     })}
               </div>

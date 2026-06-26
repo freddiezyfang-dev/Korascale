@@ -71,7 +71,10 @@ function PriceInfoTooltip({ text, themeGreen }: { text: string; themeGreen: stri
   );
 }
 
-export default function ExploreTogetherLayout({ journey, onBookingClick }: ExploreTogetherLayoutProps) {
+export default function ExploreTogetherLayout({
+  journey,
+  onBookingClick,
+}: ExploreTogetherLayoutProps) {
   const title = journey.pageTitle || journey.title;
   const subtitle = journey.shortDescription || journey.description;
   const introText = journey.overview?.description || journey.description || '';

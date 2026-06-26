@@ -1,16 +1,21 @@
 import type { Metadata } from 'next';
-import { notFound, redirect } from 'next/navigation';
+import { Suspense } from 'react';
+import { notFound, permanentRedirect } from 'next/navigation';
 import ClientJourneyPage from './ClientJourneyPage';
+import JourneyDetailClearCacheEffect from './JourneyDetailClearCacheEffect';
+import JourneyDetailServerSections from './JourneyDetailServerSections';
 import {
   fetchActiveJourneySlugsForStaticParams,
   normalizeSlugFromParams,
 } from '@/lib/journeyDetailQuery.server';
 import { getJourneyBySlugForPage } from '@/lib/journeyServer';
 import { pickFirstValidImagePath } from '@/lib/imageUtils';
+import { buildJourneyDetailUrl, getJourneyDisplayTitle, getJourneyExcerpt } from '@/lib/journeySeo.server';
 import type { Journey } from '@/types';
 
 const SITE_URL = 'https://www.korascale.com';
 
+export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 type PageProps = {
@@ -61,14 +66,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Journey Not Found | Korascale' };
   }
 
-  const displayTitle = journey.pageTitle || journey.title || slugParts.normalizedSlug;
-  const canonicalSlug = journey.slug || slugParts.normalizedSlug;
-  const canonical = `${SITE_URL}/journeys/${canonicalSlug}`;
-  const rawDescription =
-    (journey as Journey & { metaDescription?: string }).metaDescription ||
-    journey.shortDescription ||
-    journey.description ||
-    '';
+  const displayTitle = getJourneyDisplayTitle(journey);
+  const canonical = buildJourneyDetailUrl(journey.slug || slugParts.normalizedSlug);
+  const rawDescription = getJourneyExcerpt(journey);
   const description = rawDescription
     ? truncateMetaDescription(rawDescription)
     : `Discover ${displayTitle} with Korascale.`;
@@ -102,7 +102,7 @@ export default async function DynamicJourneyPage({ params }: PageProps) {
   const typeRedirect = resolveTypeRedirectPath(slugParts);
 
   if (typeRedirect) {
-    redirect(typeRedirect);
+    permanentRedirect(typeRedirect);
   }
 
   const journey = await getJourneyBySlugForPage(slugParts.normalizedSlug);
@@ -110,5 +110,18 @@ export default async function DynamicJourneyPage({ params }: PageProps) {
     notFound();
   }
 
-  return <ClientJourneyPage initialJourney={journey} />;
+  const normalizedSlug =
+    slugParts.normalizedSlug ||
+    journey.slug?.replace(/^journeys\//i, '').replace(/^\/+/, '').trim() ||
+    '';
+
+  return (
+    <>
+      <JourneyDetailServerSections journey={journey} />
+      <Suspense fallback={null}>
+        <JourneyDetailClearCacheEffect normalizedSlug={normalizedSlug} />
+      </Suspense>
+      <ClientJourneyPage initialJourney={journey} />
+    </>
+  );
 }

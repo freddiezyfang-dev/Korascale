@@ -1,6 +1,6 @@
 import { cache } from 'react';
 import { fetchJourneyBySlugFromDb } from '@/lib/journeyDetailQuery.server';
-import { fetchActiveJourneysForListFromDb } from '@/lib/journeyListQuery.server';
+import { fetchActiveJourneysForListFromDb, fetchActiveJourneysByTypeFromDb } from '@/lib/journeyListQuery.server';
 import type { Journey } from '@/types';
 
 type JourneyRecord = Journey & {
@@ -105,6 +105,17 @@ export async function getActiveJourneysForList(): Promise<Journey[]> {
     return normalizeJourneysForClient(journeys);
   } catch (error) {
     console.error('[journeyServer] getActiveJourneysForList failed:', error);
+    return [];
+  }
+}
+
+/** Active journeys filtered by journey type label — SSR type pages. */
+export async function getActiveJourneysByType(journeyTypeLabel: string): Promise<Journey[]> {
+  try {
+    const journeys = await fetchActiveJourneysByTypeFromDb(journeyTypeLabel);
+    return normalizeJourneysForClient(journeys);
+  } catch (error) {
+    console.error('[journeyServer] getActiveJourneysByType failed:', error);
     return [];
   }
 }

@@ -64,6 +64,26 @@ const nextConfig: NextConfig = {
         destination: '/journeys/chengdu-city-one-day-deep-dive',
         permanent: true,
       },
+      {
+        source: '/journeys/explore-together',
+        destination: '/journeys/type/explore-together',
+        permanent: true,
+      },
+      {
+        source: '/journeys/deep-discovery',
+        destination: '/journeys/type/deep-discovery',
+        permanent: true,
+      },
+      {
+        source: '/journeys/signature-journeys',
+        destination: '/journeys/type/signature-journeys',
+        permanent: true,
+      },
+      {
+        source: '/journeys/group-tours',
+        destination: '/journeys/type/group-tours',
+        permanent: true,
+      },
     ];
   },
   // 明确指定项目根目录，避免 Turbopack 误用上级 lockfile 导致 404

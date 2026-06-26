@@ -375,7 +375,7 @@ export default function JourneysPageClient({ initialJourneys }: JourneysPageClie
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
 						{/* Explore Together */}
 						<Link
-							href="/journeys/explore-together"
+							href="/journeys/type/explore-together"
 							className="group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl block"
 						>
 							<div className="relative h-[280px] md:h-[320px] lg:h-[357px] rounded-lg overflow-hidden mb-6">
@@ -404,7 +404,7 @@ export default function JourneysPageClient({ initialJourneys }: JourneysPageClie
 
 						{/* Deep Discovery */}
 						<Link
-							href="/journeys/deep-discovery"
+							href="/journeys/type/deep-discovery"
 							className="group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl block"
 						>
 							<div className="relative h-[280px] md:h-[320px] lg:h-[357px] rounded-lg overflow-hidden mb-6">
@@ -433,7 +433,7 @@ export default function JourneysPageClient({ initialJourneys }: JourneysPageClie
 
 						{/* Signature Journeys */}
 						<Link
-							href="/journeys/signature-journeys"
+							href="/journeys/type/signature-journeys"
 							className="group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl block"
 						>
 							<div className="relative h-[280px] md:h-[320px] lg:h-[357px] rounded-lg overflow-hidden mb-6">
@@ -462,7 +462,7 @@ export default function JourneysPageClient({ initialJourneys }: JourneysPageClie
 
 						{/* Group Tours */}
 						<Link
-							href="/journeys/group-tours"
+							href="/journeys/type/group-tours"
 							className="group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl block"
 						>
 							<div className="relative h-[280px] md:h-[320px] lg:h-[357px] rounded-lg overflow-hidden mb-6">

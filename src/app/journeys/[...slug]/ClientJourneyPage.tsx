@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import {
   Button,
   Container,
@@ -32,7 +32,6 @@ import { ExperienceDetailModal } from '@/components/journey/ExperienceDetailModa
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { JourneyDetailPageSkeleton } from '@/components/journeys/JourneyRouteSkeleton';
 
-const SITE_URL = 'https://www.korascale.com';
 const JOURNEY_TYPE_SLUGS = [
   'explore-together',
   'deep-discovery',
@@ -308,16 +307,16 @@ function DetailsAccordion({
   );
 }
 
-export default function ClientJourneyPage({ initialJourney }: ClientJourneyPageProps) {
+export default function ClientJourneyPage({
+  initialJourney,
+}: ClientJourneyPageProps) {
   const {
     journeys,
     error: journeysError,
     isLoading: journeysLoading,
-    clearStorageAndReload,
   } = useJourneyManagement();
   const router = useRouter();
   const params = useParams();
-  const searchParams = useSearchParams();
 
   const [journeyFromApi, setJourneyFromApi] = useState<Journey | null>(null);
   const [isLoadingFromApi, setIsLoadingFromApi] = useState(false);
@@ -374,14 +373,6 @@ export default function ClientJourneyPage({ initialJourney }: ClientJourneyPageP
       router.replace(`/journeys/type/${slug}`);
     }
   }, [isJourneyTypeSlug, isTypeRoute, router, slug]);
-
-  useEffect(() => {
-    if (searchParams.get('clearCache') !== '1') return;
-    (async () => {
-      await clearStorageAndReload();
-      router.replace(`/journeys/${normalizedSlug}`, { scroll: true });
-    })();
-  }, [clearStorageAndReload, normalizedSlug, router, searchParams]);
 
   useEffect(() => {
     if (!normalizedSlug || isJourneyTypeSlug || isTypeRoute) return;
@@ -456,8 +447,8 @@ export default function ClientJourneyPage({ initialJourney }: ClientJourneyPageP
   }, []);
 
   const resolvedJourney = useMemo(
-    () => contextJourney ?? journeyFromApi ?? initialJourney ?? null,
-    [contextJourney, journeyFromApi, initialJourney]
+    () => initialJourney ?? contextJourney ?? journeyFromApi ?? null,
+    [initialJourney, contextJourney, journeyFromApi]
   );
 
   const displayDescription = useMemo(
@@ -772,41 +763,6 @@ export default function ClientJourneyPage({ initialJourney }: ClientJourneyPageP
     }
   };
 
-  const durationDays = useMemo(() => {
-    const raw = safeJourney?.duration || '';
-    const match = raw.match(/\d+/);
-    return match ? parseInt(match[0], 10) : 1;
-  }, [safeJourney?.duration]);
-
-  const tripJsonLd = useMemo(
-    () => ({
-      '@context': 'https://schema.org',
-      '@type': 'Trip',
-      name: safeJourney?.pageTitle || safeJourney?.title || normalizedSlug,
-      description: displayDescription || safeJourney?.shortDescription || '',
-      image: heroImage ? [`${SITE_URL}${heroImage}`] : undefined,
-      itinerary: safeJourney?.itinerary?.length
-        ? {
-            '@type': 'ItemList',
-            numberOfItems: safeJourney.itinerary.length,
-            itemListElement: safeJourney.itinerary.slice(0, 8).map((day, index) => ({
-              '@type': 'ListItem',
-              position: index + 1,
-              name: day.title || `Day ${day.day || index + 1}`,
-            })),
-          }
-        : undefined,
-      duration: `P${durationDays}D`,
-      offers: {
-        '@type': 'Offer',
-        price: safeJourney?.price ?? 0,
-        priceCurrency: 'CNY',
-      },
-      url: `${SITE_URL}/journeys/${safeJourney?.slug || normalizedSlug}`,
-    }),
-    [displayDescription, durationDays, heroImage, normalizedSlug, safeJourney]
-  );
-
   const handleRequestJourney = (payload: JourneyInquiryClickPayload) => {
     if (!safeJourney) return;
     setJourneyInquirySelection(payload);
@@ -819,10 +775,10 @@ export default function ClientJourneyPage({ initialJourney }: ClientJourneyPageP
 
   const awaitingJourneyData =
     !!normalizedSlug &&
-    (journeysLoading || isLoadingFromApi) &&
-    !contextJourney &&
-    !journeyFromApi &&
-    !journeyHasRenderableContent(initialJourney);
+    !journeyHasRenderableContent(initialJourney) &&
+    !journeyHasRenderableContent(contextJourney) &&
+    !journeyHasRenderableContent(journeyFromApi) &&
+    (journeysLoading || isLoadingFromApi);
 
   if (awaitingJourneyData) {
     return <JourneyDetailPageSkeleton />;
@@ -852,10 +808,6 @@ export default function ClientJourneyPage({ initialJourney }: ClientJourneyPageP
   if (currentJourney.journeyType === 'Explore Together') {
     return (
       <>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(tripJsonLd) }}
-        />
         <ExploreTogetherLayout
           journey={currentJourney}
           onBookingClick={handleRequestJourney}
@@ -875,11 +827,6 @@ export default function ClientJourneyPage({ initialJourney }: ClientJourneyPageP
 
   return (
     <div className="min-h-screen bg-white">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(tripJsonLd) }}
-      />
-
       <section className={`relative ${JOURNEY_PAGE_TEMPLATE.hero.height} overflow-hidden`}>
         <div
           className="absolute inset-0 bg-center bg-cover bg-no-repeat"
@@ -1032,14 +979,6 @@ export default function ClientJourneyPage({ initialJourney }: ClientJourneyPageP
               >
                 {currentPageConfig.overview.description}
               </h2>
-              {currentJourney.shortDescription && (
-                <p
-                  className="text-[15px] md:text-[16px] text-gray-600 font-light leading-[1.6] prose-force-wrap font-sans"
-                  style={{ letterSpacing: '-0.01em' }}
-                >
-                  {currentJourney.shortDescription}
-                </p>
-              )}
             </div>
 
             {(() => {

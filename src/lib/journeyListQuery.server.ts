@@ -162,3 +162,13 @@ export async function fetchActiveJourneysForListFromDb(): Promise<Journey[]> {
   const rows = await queryJourneyRows({ includeAll: false, fields: 'list' });
   return rows.map(mapJourneyRowToJourney);
 }
+
+/** Active journeys for a journey type label (SSR type pages). */
+export async function fetchActiveJourneysByTypeFromDb(
+  journeyTypeLabel: string
+): Promise<Journey[]> {
+  const rows = await queryJourneyRows({ includeAll: false, fields: 'list' });
+  return rows
+    .map(mapJourneyRowToJourney)
+    .filter((journey) => journey.journeyType === journeyTypeLabel);
+}
