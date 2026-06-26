@@ -1,7 +1,11 @@
 import Link from 'next/link';
 import { Container, Section, Heading, Text, Breadcrumb } from '@/components/common';
 import FeaturedArticlesCarousel from '@/components/articles/FeaturedArticlesCarousel';
-import { PlanningSectionNew } from '@/components/sections';
+import { TourismPageCta } from '@/components/cta/TourismPageCta';
+import {
+	INSPIRATIONS_LIST_CTA,
+	TOURISM_CTA_FALLBACK_IMAGE,
+} from '@/lib/tourismPageCtaContent';
 import { getRenderableImageUrl } from '@/lib/imageUtils';
 import type { ArticleListItem } from '@/lib/articleQuery.server';
 import {
@@ -180,7 +184,21 @@ export default function InspirationsPageView({ featuredArticles }: InspirationsP
 				</Container>
 			</Section>
 
-			<PlanningSectionNew />
+			<TourismPageCta
+				title={INSPIRATIONS_LIST_CTA.title}
+				description={INSPIRATIONS_LIST_CTA.description}
+				buttonLabel={INSPIRATIONS_LIST_CTA.buttonLabel}
+				image={{
+					src: TOURISM_CTA_FALLBACK_IMAGE,
+					alt: 'Travel inspiration in China',
+				}}
+				sourcePage="/inspirations"
+				inquiry={{
+					intent: 'custom_journey',
+					sourceType: 'direct',
+					sourcePage: '/inspirations',
+				}}
+			/>
 		</main>
 	);
 }

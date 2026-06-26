@@ -6,8 +6,9 @@ import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/c
 import { AccommodationCard } from '@/components/cards/AccommodationCard';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { useHotelManagement } from '@/context/HotelManagementContext';
-import PlanningSectionNew from '@/components/sections/PlanningSectionNew';
 import { getRenderableImageUrl } from '@/lib/imageUtils';
+import { TourismPageCta } from '@/components/cta/TourismPageCta';
+import { DESTINATION_DETAIL_CTA } from '@/lib/tourismPageCtaContent';
 
 // 图片资源
 const imgHeroBanner = "/images/journey-cards/chengdu-deep-dive.jpeg";
@@ -672,8 +673,27 @@ export default function SichuanChongqingPage() {
         </Container>
       </div>
 
-      {/* Plan Your Trip Section */}
-      <PlanningSectionNew />
+      <TourismPageCta
+        title={DESTINATION_DETAIL_CTA.title}
+        description={DESTINATION_DETAIL_CTA.description}
+        buttonLabel={DESTINATION_DETAIL_CTA.buttonLabel}
+        image={{
+          src: imgHeroBanner,
+          alt: 'Sichuan and Chongqing destination in China',
+        }}
+        sourcePage="/destinations/sichuan"
+        destinationId="sichuan"
+        inquiry={{
+          intent: 'custom_journey',
+          sourceType: 'direct',
+          sourcePage: '/destinations/sichuan',
+          sourceSlug: 'sichuan',
+          sourceContext: {
+            destinationName: 'Sichuan & Chongqing',
+            destinationSlug: 'sichuan',
+          },
+        }}
+      />
     </main>
   );
 }

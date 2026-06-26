@@ -6,6 +6,7 @@ import {
 	articleListItemToCardArticle,
 	getPublishedArticlesByCategorySlug,
 } from '@/lib/articleQuery.server';
+import { InspirationCategoryCta } from '@/components/cta/InspirationCategoryCta';
 import {
 	CANONICAL_ARTICLE_CATEGORIES,
 	CANONICAL_CATEGORY_TO_DESCRIPTION,
@@ -119,6 +120,8 @@ export default async function InspirationCategoryPage({ params }: PageProps) {
 					)}
 				</Container>
 			</Section>
+
+			<InspirationCategoryCta categorySlug={canonicalSlug} categoryName={canonicalCategory} />
 		</main>
 	);
 }
