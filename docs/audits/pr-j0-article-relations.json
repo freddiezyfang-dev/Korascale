@@ -1,0 +1,522 @@
+{
+  "activeJourneyCount": 24,
+  "activeWithoutRelatedArticles": 24,
+  "activeWithOneArticle": 0,
+  "articlesActiveNoJourneyLink": 18,
+  "journeyRelationSummary": [
+    {
+      "journey": "badaling-great-wall-day-tour",
+      "title": "Badaling Great Wall Day Tour",
+      "relatedArticleCount": 0,
+      "uuidBased": true,
+      "relatedTripsCount": 0
+    },
+    {
+      "journey": "beijing-city-imperial-grandeur-urban-chic-1-day-tour",
+      "title": "Beijing City Imperial Grandeur & Urban Chic One-Day Tour",
+      "relatedArticleCount": 0,
+      "uuidBased": true,
+      "relatedTripsCount": 0
+    },
+    {
+      "journey": "beijing-cultural-highlights-and-iconic-sights-5-multi-days-tour",
+      "title": "Beijing Cultural Highlights, and Iconic Sights  5 Multi-Days Tour",
+      "relatedArticleCount": 0,
+      "uuidBased": true,
+      "relatedTripsCount": 0
+    },
+    {
+      "journey": "beijing-to-mutianyu-great-wall-day-tour",
+      "title": "Beijing to Mutianyu Great Wall Day Tour",
+      "relatedArticleCount": 0,
+      "uuidBased": true,
+      "relatedTripsCount": 0
+    },
+    {
+      "journey": "beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour-",
+      "title": "Beijing to Shanxi Ancient Architecture with Black Myth: Wukong Inspirations  6-Day Tour ",
+      "relatedArticleCount": 0,
+      "uuidBased": true,
+      "relatedTripsCount": 0
+    },
+    {
+      "journey": "chaoshan-region-cultural-heritage-6-day-tour",
+      "title": "Chaoshan Region Cultural Heritage 6-Day  Tour",
+      "relatedArticleCount": 0,
+      "uuidBased": true,
+      "relatedTripsCount": 0
+    },
+    {
+      "journey": "chengdu-chongqing-double-cities-6-day-tour",
+      "title": "Chengdu & Chongqing Double Cities 6-Day  Tour",
+      "relatedArticleCount": 0,
+      "uuidBased": true,
+      "relatedTripsCount": 0
+    },
+    {
+      "journey": "jiuzhaigou-cultural-adventure-4-day-tour",
+      "title": "Chengdu to Jiuzhaigou & Huanglong 6-Day Nature & Culture Tour",
+      "relatedArticleCount": 0,
+      "uuidBased": true,
+      "relatedTripsCount": 0
+    },
+    {
+      "journey": "chongqing-highlights-magic-cityscape-day-tour",
+      "title": "Chongqing Highlights & Magic Cityscape Day Tour",
+      "relatedArticleCount": 0,
+      "uuidBased": true,
+      "relatedTripsCount": 4
+    },
+    {
+      "journey": "grand-china-highlands-nature-18-day-journey",
+      "title": "Grand China Highlands & Nature 18-Day Journey",
+      "relatedArticleCount": 0,
+      "uuidBased": true,
+      "relatedTripsCount": 0
+    },
+    {
+      "journey": "grand-china-highlights-16-day-multi-city-journey",
+      "title": "Grand China Highlights 16-Day Multi-City Journey",
+      "relatedArticleCount": 0,
+      "uuidBased": true,
+      "relatedTripsCount": 0
+    },
+    {
+      "journey": "guangzhou-chaoshan-xiamen-cultural-loop-8-day-tour",
+      "title": "Guangzhou, Chaoshan & Xiamen  Cultural Loop 8-Day Tour",
+      "relatedArticleCount": 0,
+      "uuidBased": true,
+      "relatedTripsCount": 0
+    },
+    {
+      "journey": "guilin-to-yangshuo-classic-7-day-tour",
+      "title": "Guilin to Yangshuo  Classic 7-Day Tour",
+      "relatedArticleCount": 0,
+      "uuidBased": true,
+      "relatedTripsCount": 0
+    },
+    {
+      "journey": "huangshan-to-huizhou-ancient-villages-6-day-tour",
+      "title": "Huangshan to Huizhou Ancient Villages 6-Day Tour",
+      "relatedArticleCount": 0,
+      "uuidBased": true,
+      "relatedTripsCount": 0
+    },
+    {
+      "journey": "jiuzhaigou-huanglong-by-high-speed-rail-3-day-tour",
+      "title": "Jiuzhaigou & Huanglong by High-Speed Rail 3-Day Tour",
+      "relatedArticleCount": 0,
+      "uuidBased": true,
+      "relatedTripsCount": 4
+    },
+    {
+      "journey": "leshan-buddha-emei-mountain-2-day-tour",
+      "title": "Leshan Buddha & Emei Mountain 2-Day Tour",
+      "relatedArticleCount": 0,
+      "uuidBased": true,
+      "relatedTripsCount": 4
+    },
+    {
+      "journey": "lhasa-holy-lakes-classic-tibet-8-day-tour",
+      "title": "Lhasa & Holy Lakes  Classic Tibet 8-Day Tour",
+      "relatedArticleCount": 0,
+      "uuidBased": true,
+      "relatedTripsCount": 0
+    },
+    {
+      "journey": "shanghai-suzhou-classic-dual-city-7-day-tour",
+      "title": "Shanghai & Suzhou Classic Dual-City 7-Day  Tour",
+      "relatedArticleCount": 0,
+      "uuidBased": true,
+      "relatedTripsCount": 0
+    },
+    {
+      "journey": "siguniang-mountain-2-day-tour",
+      "title": "Siguniang Mountain 2-Day Tour",
+      "relatedArticleCount": 0,
+      "uuidBased": true,
+      "relatedTripsCount": 4
+    },
+    {
+      "journey": "xian-culture-mount-hua-in-depth-4-day-tour",
+      "title": "Xi'an Culture & Mount Hua  In-Depth 6-Day Tour",
+      "relatedArticleCount": 0,
+      "uuidBased": true,
+      "relatedTripsCount": 0
+    },
+    {
+      "journey": "xining-to-lhasa-mount-everest-tibet-grand-10-day-tour",
+      "title": "Xining to Lhasa & Mount Everest  Tibet Grand 10-Day Tour",
+      "relatedArticleCount": 0,
+      "uuidBased": true,
+      "relatedTripsCount": 0
+    },
+    {
+      "journey": "xian-terracotta-warriors-tang-paradise-night-tour",
+      "title": "Xi’an: Monumental Guardians & Neon Reveries",
+      "relatedArticleCount": 0,
+      "uuidBased": true,
+      "relatedTripsCount": 0
+    },
+    {
+      "journey": "yunnan-kunming-dali-lijiang-shangri-la-9-day-tour",
+      "title": "Yunnan Kunming, Dali, Lijiang & Shangri-La 9-Day  Tour",
+      "relatedArticleCount": 0,
+      "uuidBased": true,
+      "relatedTripsCount": 0
+    },
+    {
+      "journey": "zhangjiajie-fenghuang-classic-7-day-dual-destination-tour",
+      "title": "Zhangjiajie & Fenghuang Classic 7-Day Dual-Destination Tour",
+      "relatedArticleCount": 0,
+      "uuidBased": true,
+      "relatedTripsCount": 0
+    }
+  ],
+  "articleRelationSummary": [
+    {
+      "slug": "biological-calibration-why-jiuzhaigou-is-the-perfect-high-altitude-landing-pad",
+      "category": "Destinations & Route Strategy",
+      "status": "active",
+      "relatedJourneyIds": 2,
+      "recommendedJourneyItems": 0,
+      "orphanJourneyRefs": [],
+      "legacyCategory": false
+    },
+    {
+      "slug": "points-vs-lines-the-engineering-logic-of-entering-tibet-train-vs-plane",
+      "category": "Destinations & Route Strategy",
+      "status": "active",
+      "relatedJourneyIds": 2,
+      "recommendedJourneyItems": 0,
+      "orphanJourneyRefs": [],
+      "legacyCategory": false
+    },
+    {
+      "slug": "badaling-vs-mutianyu-how-to-choose-your-great-wall-and-why-the-answer-isnt-what-you-think",
+      "category": "Culture, Dining & Local Experiences",
+      "status": "active",
+      "relatedJourneyIds": 2,
+      "recommendedJourneyItems": 0,
+      "orphanJourneyRefs": [],
+      "legacyCategory": false
+    },
+    {
+      "slug": "dissolution-vs-stimulation-why-the-world-needs-chengdus-teahouse-logic",
+      "category": "Culture, Dining & Local Experiences",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 0,
+      "orphanJourneyRefs": [],
+      "legacyCategory": false
+    },
+    {
+      "slug": "beijing-hutongshow-to-read-the-living-manuscript-of-old-beijing",
+      "category": "Ancient Chinese Culture",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 2,
+      "orphanJourneyRefs": [],
+      "legacyCategory": false
+    },
+    {
+      "slug": "how-to-explore-china-starting-from-shanghai",
+      "category": "Food Journey",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 3,
+      "orphanJourneyRefs": [],
+      "legacyCategory": true
+    },
+    {
+      "slug": "why-shanghai-is-the-perfect-first-stop-in-china",
+      "category": "Food Journey",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 1,
+      "orphanJourneyRefs": [],
+      "legacyCategory": true
+    },
+    {
+      "slug": "pingyao-ancient-city-the-living-ming-dynasty-county-that-survived",
+      "category": "Ancient Chinese Culture",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 1,
+      "orphanJourneyRefs": [],
+      "legacyCategory": false
+    },
+    {
+      "slug": "shanxi-the-forgotten-museum-of-ancient-china",
+      "category": "Ancient Chinese Culture",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 1,
+      "orphanJourneyRefs": [],
+      "legacyCategory": false
+    },
+    {
+      "slug": "why-every-region-in-china-feels-different-and-how-to-plan-accordingly",
+      "category": "Food Journey",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 2,
+      "orphanJourneyRefs": [],
+      "legacyCategory": true
+    },
+    {
+      "slug": "why-china-feels-overwhelming-and-how-to-find-your-center",
+      "category": "Food Journey",
+      "status": "draft",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 0,
+      "orphanJourneyRefs": [],
+      "legacyCategory": true
+    },
+    {
+      "slug": "what-authentic-china-travel-actually-means",
+      "category": "Food Journey",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 5,
+      "orphanJourneyRefs": [],
+      "legacyCategory": true
+    },
+    {
+      "slug": "the-geometry-of-absolute-power-a-strategic-guide-to-the-forbidden-city",
+      "category": "Ancient Chinese Culture",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 2,
+      "orphanJourneyRefs": [],
+      "legacyCategory": false
+    },
+    {
+      "slug": "how-your-first-city-in-china-shapes-your-entire-journey",
+      "category": "Food Journey",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 5,
+      "orphanJourneyRefs": [],
+      "legacyCategory": true
+    },
+    {
+      "slug": "why-your-china-journey-must-begin-in-chengdu-the-art-of-the-decompression-phase",
+      "category": "The Western Corridor",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 3,
+      "orphanJourneyRefs": [],
+      "legacyCategory": false
+    },
+    {
+      "slug": "dujiangyan-leshan-why-establishing-a-sense-of-order-is-crucial-before-the-plateau",
+      "category": "The Western Corridor",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 1,
+      "orphanJourneyRefs": [],
+      "legacyCategory": false
+    },
+    {
+      "slug": "midnight-geometry-the-vertical-ambition-of-chongqing-vs-the-horizontal-flow-of-bangkok",
+      "category": "The Western Corridor",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 2,
+      "orphanJourneyRefs": [],
+      "legacyCategory": false
+    },
+    {
+      "slug": "the-pulse-of-the-southwest-decoding-the-rhythms-of-chengdu-and-chongqing",
+      "category": "The Western Corridor",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 2,
+      "orphanJourneyRefs": [],
+      "legacyCategory": false
+    },
+    {
+      "slug": "the-invisible-spine-a-hard-core-guide-to-beijings-central-axis",
+      "category": "Ancient Chinese Culture",
+      "status": "active",
+      "relatedJourneyIds": 3,
+      "recommendedJourneyItems": 0,
+      "orphanJourneyRefs": [],
+      "legacyCategory": false
+    },
+    {
+      "slug": "beyond-the-paddock-lewis-hamiltons-zen-retreat-and-the-f1-grids-dual-life-in-china",
+      "category": "The Western Corridor",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 2,
+      "orphanJourneyRefs": [],
+      "legacyCategory": false
+    },
+    {
+      "slug": "why-copying-itineraries-fails-and-the-case-for-personalized-logic",
+      "category": "Food Journey",
+      "status": "draft",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 0,
+      "orphanJourneyRefs": [],
+      "legacyCategory": true
+    },
+    {
+      "slug": "why-rushing-ruins-a-china-trip-and-the-luxury-of-slowness",
+      "category": "Food Journey",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 0,
+      "orphanJourneyRefs": [],
+      "legacyCategory": true
+    },
+    {
+      "slug": "why-high-speed-trains-dont-mean-fast-travel",
+      "category": "Food Journey",
+      "status": "draft",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 0,
+      "orphanJourneyRefs": [],
+      "legacyCategory": true
+    },
+    {
+      "slug": "how-experienced-travelers-plan-china-the-logic-of-cultural-curation",
+      "category": "Food Journey",
+      "status": "draft",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 0,
+      "orphanJourneyRefs": [],
+      "legacyCategory": true
+    },
+    {
+      "slug": "why-checklist-travel-doesnt-work-in-china-and-the-art-of-cultural-immersion",
+      "category": "Food Journey",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 0,
+      "orphanJourneyRefs": [],
+      "legacyCategory": true
+    },
+    {
+      "slug": "test",
+      "category": "Food Journey",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 0,
+      "orphanJourneyRefs": [],
+      "legacyCategory": true
+    }
+  ],
+  "legacyCategoryArticles": [
+    {
+      "slug": "how-to-explore-china-starting-from-shanghai",
+      "category": "Food Journey",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 3,
+      "orphanJourneyRefs": [],
+      "legacyCategory": true
+    },
+    {
+      "slug": "why-shanghai-is-the-perfect-first-stop-in-china",
+      "category": "Food Journey",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 1,
+      "orphanJourneyRefs": [],
+      "legacyCategory": true
+    },
+    {
+      "slug": "why-every-region-in-china-feels-different-and-how-to-plan-accordingly",
+      "category": "Food Journey",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 2,
+      "orphanJourneyRefs": [],
+      "legacyCategory": true
+    },
+    {
+      "slug": "why-china-feels-overwhelming-and-how-to-find-your-center",
+      "category": "Food Journey",
+      "status": "draft",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 0,
+      "orphanJourneyRefs": [],
+      "legacyCategory": true
+    },
+    {
+      "slug": "what-authentic-china-travel-actually-means",
+      "category": "Food Journey",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 5,
+      "orphanJourneyRefs": [],
+      "legacyCategory": true
+    },
+    {
+      "slug": "how-your-first-city-in-china-shapes-your-entire-journey",
+      "category": "Food Journey",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 5,
+      "orphanJourneyRefs": [],
+      "legacyCategory": true
+    },
+    {
+      "slug": "why-copying-itineraries-fails-and-the-case-for-personalized-logic",
+      "category": "Food Journey",
+      "status": "draft",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 0,
+      "orphanJourneyRefs": [],
+      "legacyCategory": true
+    },
+    {
+      "slug": "why-rushing-ruins-a-china-trip-and-the-luxury-of-slowness",
+      "category": "Food Journey",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 0,
+      "orphanJourneyRefs": [],
+      "legacyCategory": true
+    },
+    {
+      "slug": "why-high-speed-trains-dont-mean-fast-travel",
+      "category": "Food Journey",
+      "status": "draft",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 0,
+      "orphanJourneyRefs": [],
+      "legacyCategory": true
+    },
+    {
+      "slug": "how-experienced-travelers-plan-china-the-logic-of-cultural-curation",
+      "category": "Food Journey",
+      "status": "draft",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 0,
+      "orphanJourneyRefs": [],
+      "legacyCategory": true
+    },
+    {
+      "slug": "why-checklist-travel-doesnt-work-in-china-and-the-art-of-cultural-immersion",
+      "category": "Food Journey",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 0,
+      "orphanJourneyRefs": [],
+      "legacyCategory": true
+    },
+    {
+      "slug": "test",
+      "category": "Food Journey",
+      "status": "active",
+      "relatedJourneyIds": 0,
+      "recommendedJourneyItems": 0,
+      "orphanJourneyRefs": [],
+      "legacyCategory": true
+    }
+  ]
+}

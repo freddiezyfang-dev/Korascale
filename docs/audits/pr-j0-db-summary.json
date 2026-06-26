@@ -1,0 +1,68 @@
+{
+  "generatedAt": "2026-06-26T04:05:57.952Z",
+  "journeyTotal": 83,
+  "activeCount": 24,
+  "sitemapEligible": 24,
+  "articleTotal": 26,
+  "activeArticles": 22,
+  "anomalies": {
+    "slugNull": 0,
+    "slugEmpty": 0,
+    "slugTrim": 0,
+    "slugUpper": 0,
+    "slugNonAscii": 0,
+    "slugDoubleHyphen": 0,
+    "slugTrailingHyphen": 4,
+    "slugLeadingHyphen": 0,
+    "slugDuplicate": 0,
+    "slugReserved": 0,
+    "statusNull": 0,
+    "statusActive": 24,
+    "statusDraft": 0,
+    "statusInactive": 59,
+    "statusOther": 0,
+    "typeNull": 1,
+    "typeInvalid": 0,
+    "typeCounts": {
+      "Explore Together": 48,
+      "Deep Discovery": 34
+    },
+    "activeTypeCounts": {
+      "Explore Together": 8,
+      "Deep Discovery": 16
+    }
+  },
+  "activeSlugs": [
+    "beijing-city-imperial-grandeur-urban-chic-1-day-tour",
+    "grand-china-highlands-nature-18-day-journey",
+    "grand-china-highlights-16-day-multi-city-journey",
+    "yunnan-kunming-dali-lijiang-shangri-la-9-day-tour",
+    "lhasa-holy-lakes-classic-tibet-8-day-tour",
+    "xining-to-lhasa-mount-everest-tibet-grand-10-day-tour",
+    "chengdu-chongqing-double-cities-6-day-tour",
+    "zhangjiajie-fenghuang-classic-7-day-dual-destination-tour",
+    "shanghai-suzhou-classic-dual-city-7-day-tour",
+    "huangshan-to-huizhou-ancient-villages-6-day-tour",
+    "guangzhou-chaoshan-xiamen-cultural-loop-8-day-tour",
+    "chaoshan-region-cultural-heritage-6-day-tour",
+    "guilin-to-yangshuo-classic-7-day-tour",
+    "xian-culture-mount-hua-in-depth-4-day-tour",
+    "beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour-",
+    "beijing-cultural-highlights-and-iconic-sights-5-multi-days-tour",
+    "jiuzhaigou-cultural-adventure-4-day-tour",
+    "xian-terracotta-warriors-tang-paradise-night-tour",
+    "beijing-to-mutianyu-great-wall-day-tour",
+    "badaling-great-wall-day-tour",
+    "siguniang-mountain-2-day-tour",
+    "chongqing-highlights-magic-cityscape-day-tour",
+    "jiuzhaigou-huanglong-by-high-speed-rail-3-day-tour",
+    "leshan-buddha-emei-mountain-2-day-tour"
+  ],
+  "typeLabelToSlug": {
+    "Explore Together": "explore-together",
+    "Deep Discovery": "deep-discovery",
+    "Signature Journeys": "signature-journeys",
+    "Group Tours": "group-tours"
+  },
+  "siteUrl": "https://www.korascale.com"
+}

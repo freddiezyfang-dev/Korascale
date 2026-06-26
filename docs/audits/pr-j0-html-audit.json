@@ -1,0 +1,999 @@
+{
+  "generatedAt": "2026-06-26T04:06:34.506Z",
+  "listing": {
+    "page": "listing",
+    "url": "https://www.korascale.com/journeys",
+    "http": 200,
+    "title": "Journeys | Korascale",
+    "metaDescription": "Explore private journeys across China, from day trips and cultural discoveries to multi-day routes designed with local insight and seamless coordination.",
+    "canonical": "https://www.korascale.com/journeys",
+    "robots": "",
+    "h1Count": 1,
+    "h1Texts": [
+      "See Where We Can Take You"
+    ],
+    "journeyLinkCount": 32,
+    "journeyLinksSample": [
+      "/journeys/type/explore-together",
+      "/journeys/type/deep-discovery",
+      "/journeys/type/signature-journeys",
+      "/journeys/type/group-tours",
+      "/journeys/explore-together"
+    ],
+    "jsonLd": [
+      {
+        "raw": "{\"@context\":\"https://schema.org\",\"@type\":\"Organization\",\"name\":\"Korascale\",\"url\":\"https://www.korascale.com\",\"description\":\"Craft your own adventure in China. Discover authentic travel experiences, cu",
+        "types": [
+          "Organization"
+        ],
+        "valid": true
+      },
+      {
+        "raw": "{\"@context\":\"https://schema.org\",\"@type\":\"TravelAgency\",\"name\":\"Korascale\",\"url\":\"https://www.korascale.com\",\"description\":\"Korascale designs journeys through a China that is still in motion. Tailored",
+        "types": [
+          "TravelAgency"
+        ],
+        "valid": true
+      }
+    ],
+    "visibleTextLength": 4176,
+    "hasFilterQueryInCanonical": false
+  },
+  "typePages": [
+    {
+      "page": "type:explore-together",
+      "url": "https://www.korascale.com/journeys/type/explore-together",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Explore Together | Korascale Journeys",
+      "metaDescription": "Discover Explore Together journeys across China with Korascale.",
+      "canonical": "",
+      "h1Count": 1,
+      "h1Texts": [
+        "Explore Together"
+      ],
+      "journeyLinkCount": 4,
+      "visibleTextLength": 2582,
+      "jsonLd": [
+        {
+          "raw": "{\"@context\":\"https://schema.org\",\"@type\":\"Organization\",\"name\":\"Korascale\",\"url\":\"https://www.korascale.com\",\"description\":\"Craft your own adventure in China. Discover authentic travel experiences, cu",
+          "types": [
+            "Organization"
+          ],
+          "valid": true
+        },
+        {
+          "raw": "{\"@context\":\"https://schema.org\",\"@type\":\"TravelAgency\",\"name\":\"Korascale\",\"url\":\"https://www.korascale.com\",\"description\":\"Korascale designs journeys through a China that is still in motion. Tailored",
+          "types": [
+            "TravelAgency"
+          ],
+          "valid": true
+        }
+      ],
+      "cardLikeAnchors": 4
+    },
+    {
+      "page": "type:deep-discovery",
+      "url": "https://www.korascale.com/journeys/type/deep-discovery",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Deep Discovery | Korascale Journeys",
+      "metaDescription": "Discover Deep Discovery journeys across China with Korascale.",
+      "canonical": "",
+      "h1Count": 1,
+      "h1Texts": [
+        "Deep Discovery"
+      ],
+      "journeyLinkCount": 4,
+      "visibleTextLength": 2740,
+      "jsonLd": [
+        {
+          "raw": "{\"@context\":\"https://schema.org\",\"@type\":\"Organization\",\"name\":\"Korascale\",\"url\":\"https://www.korascale.com\",\"description\":\"Craft your own adventure in China. Discover authentic travel experiences, cu",
+          "types": [
+            "Organization"
+          ],
+          "valid": true
+        },
+        {
+          "raw": "{\"@context\":\"https://schema.org\",\"@type\":\"TravelAgency\",\"name\":\"Korascale\",\"url\":\"https://www.korascale.com\",\"description\":\"Korascale designs journeys through a China that is still in motion. Tailored",
+          "types": [
+            "TravelAgency"
+          ],
+          "valid": true
+        }
+      ],
+      "cardLikeAnchors": 4
+    },
+    {
+      "page": "type:signature-journeys",
+      "url": "https://www.korascale.com/journeys/type/signature-journeys",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Signature Journeys | Korascale Journeys",
+      "metaDescription": "Discover Signature Journeys journeys across China with Korascale.",
+      "canonical": "",
+      "h1Count": 1,
+      "h1Texts": [
+        "Signature Journeys"
+      ],
+      "journeyLinkCount": 4,
+      "visibleTextLength": 2805,
+      "jsonLd": [
+        {
+          "raw": "{\"@context\":\"https://schema.org\",\"@type\":\"Organization\",\"name\":\"Korascale\",\"url\":\"https://www.korascale.com\",\"description\":\"Craft your own adventure in China. Discover authentic travel experiences, cu",
+          "types": [
+            "Organization"
+          ],
+          "valid": true
+        },
+        {
+          "raw": "{\"@context\":\"https://schema.org\",\"@type\":\"TravelAgency\",\"name\":\"Korascale\",\"url\":\"https://www.korascale.com\",\"description\":\"Korascale designs journeys through a China that is still in motion. Tailored",
+          "types": [
+            "TravelAgency"
+          ],
+          "valid": true
+        }
+      ],
+      "cardLikeAnchors": 4
+    },
+    {
+      "page": "type:group-tours",
+      "url": "https://www.korascale.com/journeys/type/group-tours",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Group Tours | Korascale Journeys",
+      "metaDescription": "Structured group travel in China: coordinated delivery, project-based execution, and consistent service for institutions and inbound cohorts.",
+      "canonical": "",
+      "h1Count": 1,
+      "h1Texts": [
+        "Group Travel in China, Without Operational Chaos"
+      ],
+      "journeyLinkCount": 4,
+      "visibleTextLength": 4452,
+      "jsonLd": [
+        {
+          "raw": "{\"@context\":\"https://schema.org\",\"@type\":\"Organization\",\"name\":\"Korascale\",\"url\":\"https://www.korascale.com\",\"description\":\"Craft your own adventure in China. Discover authentic travel experiences, cu",
+          "types": [
+            "Organization"
+          ],
+          "valid": true
+        },
+        {
+          "raw": "{\"@context\":\"https://schema.org\",\"@type\":\"TravelAgency\",\"name\":\"Korascale\",\"url\":\"https://www.korascale.com\",\"description\":\"Korascale designs journeys through a China that is still in motion. Tailored",
+          "types": [
+            "TravelAgency"
+          ],
+          "valid": true
+        }
+      ],
+      "cardLikeAnchors": 4
+    }
+  ],
+  "legacyTypeRedirects": [
+    {
+      "path": "/journeys/explore-together",
+      "status": 200,
+      "finalUrl": "https://www.korascale.com/journeys/explore-together",
+      "redirectChain": []
+    },
+    {
+      "path": "/journeys/deep-discovery",
+      "status": 200,
+      "finalUrl": "https://www.korascale.com/journeys/deep-discovery",
+      "redirectChain": []
+    },
+    {
+      "path": "/journeys/signature-journeys",
+      "status": 200,
+      "finalUrl": "https://www.korascale.com/journeys/signature-journeys",
+      "redirectChain": []
+    },
+    {
+      "path": "/journeys/group-tours",
+      "status": 200,
+      "finalUrl": "https://www.korascale.com/journeys/group-tours",
+      "redirectChain": []
+    }
+  ],
+  "detailPages": [
+    {
+      "slug": "beijing-city-imperial-grandeur-urban-chic-1-day-tour",
+      "url": "https://www.korascale.com/journeys/beijing-city-imperial-grandeur-urban-chic-1-day-tour",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Beijing City Imperial Grandeur &amp; Urban Chic 1-Day Tour | Korascale",
+      "metaDescription": "Navigating the Monumental Scale of Dynastic History and the Avant-Garde Ambition of a Modern Metropolis.",
+      "canonical": "https://www.korascale.com/journeys/beijing-city-imperial-grandeur-urban-chic-1-day-tour",
+      "robots": "",
+      "h1Count": 0,
+      "h1": "",
+      "bodyInInitialHtml": false,
+      "itineraryInHtml": false,
+      "relatedArticlesInHtml": true,
+      "relatedJourneysInHtml": false,
+      "breadcrumbInHtml": false,
+      "jsonLdTypes": [
+        "Organization",
+        "TravelAgency"
+      ],
+      "jsonLdValid": true,
+      "visibleTextLength": 706,
+      "severity": "P0"
+    },
+    {
+      "slug": "grand-china-highlands-nature-18-day-journey",
+      "url": "https://www.korascale.com/journeys/grand-china-highlands-nature-18-day-journey",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Grand China Highlands &amp; Nature 18-Day Journey | Korascale",
+      "metaDescription": "Shanghai begins · Lijiang · Shangri-La · Lhasa · Everest · Shigatse · Beijing ends",
+      "canonical": "https://www.korascale.com/journeys/grand-china-highlands-nature-18-day-journey",
+      "robots": "",
+      "h1Count": 0,
+      "h1": "",
+      "bodyInInitialHtml": false,
+      "itineraryInHtml": false,
+      "relatedArticlesInHtml": true,
+      "relatedJourneysInHtml": false,
+      "breadcrumbInHtml": false,
+      "jsonLdTypes": [
+        "Organization",
+        "TravelAgency"
+      ],
+      "jsonLdValid": true,
+      "visibleTextLength": 697,
+      "severity": "P0"
+    },
+    {
+      "slug": "grand-china-highlights-16-day-multi-city-journey",
+      "url": "https://www.korascale.com/journeys/grand-china-highlights-16-day-multi-city-journey",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Grand China Highlights 16-Day Multi-City Journey | Korascale",
+      "metaDescription": "Beijing begins · Xi’an · Chengdu · Chongqing · Guilin · Shanghai ends",
+      "canonical": "https://www.korascale.com/journeys/grand-china-highlights-16-day-multi-city-journey",
+      "robots": "",
+      "h1Count": 0,
+      "h1": "",
+      "bodyInInitialHtml": false,
+      "itineraryInHtml": false,
+      "relatedArticlesInHtml": true,
+      "relatedJourneysInHtml": false,
+      "breadcrumbInHtml": false,
+      "jsonLdTypes": [
+        "Organization",
+        "TravelAgency"
+      ],
+      "jsonLdValid": true,
+      "visibleTextLength": 696,
+      "severity": "P0"
+    },
+    {
+      "slug": "yunnan-kunming-dali-lijiang-shangri-la-9-day-tour",
+      "url": "https://www.korascale.com/journeys/yunnan-kunming-dali-lijiang-shangri-la-9-day-tour",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Yunnan Kunming, Dali, Lijiang &amp; Shangri-La 9-Day  Tour | Korascale",
+      "metaDescription": "Kunming begins, Shangri-La ends",
+      "canonical": "https://www.korascale.com/journeys/yunnan-kunming-dali-lijiang-shangri-la-9-day-tour",
+      "robots": "",
+      "h1Count": 0,
+      "h1": "",
+      "bodyInInitialHtml": false,
+      "itineraryInHtml": false,
+      "relatedArticlesInHtml": true,
+      "relatedJourneysInHtml": false,
+      "breadcrumbInHtml": false,
+      "jsonLdTypes": [
+        "Organization",
+        "TravelAgency"
+      ],
+      "jsonLdValid": true,
+      "visibleTextLength": 705,
+      "severity": "P0"
+    },
+    {
+      "slug": "lhasa-holy-lakes-classic-tibet-8-day-tour",
+      "url": "https://www.korascale.com/journeys/lhasa-holy-lakes-classic-tibet-8-day-tour",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Lhasa &amp; Holy Lakes  Classic Tibet 8-Day Tour | Korascale",
+      "metaDescription": "Lhasa begins, Lhasa ends",
+      "canonical": "https://www.korascale.com/journeys/lhasa-holy-lakes-classic-tibet-8-day-tour",
+      "robots": "",
+      "h1Count": 0,
+      "h1": "",
+      "bodyInInitialHtml": false,
+      "itineraryInHtml": false,
+      "relatedArticlesInHtml": true,
+      "relatedJourneysInHtml": false,
+      "breadcrumbInHtml": false,
+      "jsonLdTypes": [
+        "Organization",
+        "TravelAgency"
+      ],
+      "jsonLdValid": true,
+      "visibleTextLength": 695,
+      "severity": "P0"
+    },
+    {
+      "slug": "xining-to-lhasa-mount-everest-tibet-grand-10-day-tour",
+      "url": "https://www.korascale.com/journeys/xining-to-lhasa-mount-everest-tibet-grand-10-day-tour",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Xining to Lhasa &amp; Mount Everest  Tibet Grand 10-Day Tour | Korascale",
+      "metaDescription": "Xining begins, Lhasa ends",
+      "canonical": "https://www.korascale.com/journeys/xining-to-lhasa-mount-everest-tibet-grand-10-day-tour",
+      "robots": "",
+      "h1Count": 0,
+      "h1": "",
+      "bodyInInitialHtml": false,
+      "itineraryInHtml": false,
+      "relatedArticlesInHtml": true,
+      "relatedJourneysInHtml": false,
+      "breadcrumbInHtml": false,
+      "jsonLdTypes": [
+        "Organization",
+        "TravelAgency"
+      ],
+      "jsonLdValid": true,
+      "visibleTextLength": 707,
+      "severity": "P0"
+    },
+    {
+      "slug": "chengdu-chongqing-double-cities-6-day-tour",
+      "url": "https://www.korascale.com/journeys/chengdu-chongqing-double-cities-6-day-tour",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Chengdu &amp; Chongqing Double Cities 6-Day  Tour | Korascale",
+      "metaDescription": "Chengdu begins, Chongqing ends",
+      "canonical": "https://www.korascale.com/journeys/chengdu-chongqing-double-cities-6-day-tour",
+      "robots": "",
+      "h1Count": 0,
+      "h1": "",
+      "bodyInInitialHtml": false,
+      "itineraryInHtml": false,
+      "relatedArticlesInHtml": true,
+      "relatedJourneysInHtml": false,
+      "breadcrumbInHtml": false,
+      "jsonLdTypes": [
+        "Organization",
+        "TravelAgency"
+      ],
+      "jsonLdValid": true,
+      "visibleTextLength": 696,
+      "severity": "P0"
+    },
+    {
+      "slug": "zhangjiajie-fenghuang-classic-7-day-dual-destination-tour",
+      "url": "https://www.korascale.com/journeys/zhangjiajie-fenghuang-classic-7-day-dual-destination-tour",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Zhangjiajie &amp; Fenghuang Classic 7-Day Dual-Destination Tour | Korascale",
+      "metaDescription": "Zhangjiajie begins, Zhangjiajie ends",
+      "canonical": "https://www.korascale.com/journeys/zhangjiajie-fenghuang-classic-7-day-dual-destination-tour",
+      "robots": "",
+      "h1Count": 0,
+      "h1": "",
+      "bodyInInitialHtml": false,
+      "itineraryInHtml": false,
+      "relatedArticlesInHtml": true,
+      "relatedJourneysInHtml": false,
+      "breadcrumbInHtml": false,
+      "jsonLdTypes": [
+        "Organization",
+        "TravelAgency"
+      ],
+      "jsonLdValid": true,
+      "visibleTextLength": 711,
+      "severity": "P0"
+    },
+    {
+      "slug": "shanghai-suzhou-classic-dual-city-7-day-tour",
+      "url": "https://www.korascale.com/journeys/shanghai-suzhou-classic-dual-city-7-day-tour",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Shanghai &amp; Suzhou Classic Dual-City 7-Day  Tour | Korascale",
+      "metaDescription": "Shanghai begins, Shanghai ends",
+      "canonical": "https://www.korascale.com/journeys/shanghai-suzhou-classic-dual-city-7-day-tour",
+      "robots": "",
+      "h1Count": 0,
+      "h1": "",
+      "bodyInInitialHtml": false,
+      "itineraryInHtml": false,
+      "relatedArticlesInHtml": true,
+      "relatedJourneysInHtml": false,
+      "breadcrumbInHtml": false,
+      "jsonLdTypes": [
+        "Organization",
+        "TravelAgency"
+      ],
+      "jsonLdValid": true,
+      "visibleTextLength": 698,
+      "severity": "P0"
+    },
+    {
+      "slug": "huangshan-to-huizhou-ancient-villages-6-day-tour",
+      "url": "https://www.korascale.com/journeys/huangshan-to-huizhou-ancient-villages-6-day-tour",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Huangshan to Huizhou Ancient Villages 6-Day Tour | Korascale",
+      "metaDescription": "Huangshan begins, Huangshan ends",
+      "canonical": "https://www.korascale.com/journeys/huangshan-to-huizhou-ancient-villages-6-day-tour",
+      "robots": "",
+      "h1Count": 0,
+      "h1": "",
+      "bodyInInitialHtml": false,
+      "itineraryInHtml": false,
+      "relatedArticlesInHtml": true,
+      "relatedJourneysInHtml": false,
+      "breadcrumbInHtml": false,
+      "jsonLdTypes": [
+        "Organization",
+        "TravelAgency"
+      ],
+      "jsonLdValid": true,
+      "visibleTextLength": 696,
+      "severity": "P0"
+    },
+    {
+      "slug": "guangzhou-chaoshan-xiamen-cultural-loop-8-day-tour",
+      "url": "https://www.korascale.com/journeys/guangzhou-chaoshan-xiamen-cultural-loop-8-day-tour",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Guangzhou, Chaoshan &amp; Xiamen  Cultural Loop 8-Day Tour | Korascale",
+      "metaDescription": "Guangzhou begins, Xiamen ends",
+      "canonical": "https://www.korascale.com/journeys/guangzhou-chaoshan-xiamen-cultural-loop-8-day-tour",
+      "robots": "",
+      "h1Count": 0,
+      "h1": "",
+      "bodyInInitialHtml": false,
+      "itineraryInHtml": false,
+      "relatedArticlesInHtml": true,
+      "relatedJourneysInHtml": false,
+      "breadcrumbInHtml": false,
+      "jsonLdTypes": [
+        "Organization",
+        "TravelAgency"
+      ],
+      "jsonLdValid": true,
+      "visibleTextLength": 705,
+      "severity": "P0"
+    },
+    {
+      "slug": "chaoshan-region-cultural-heritage-6-day-tour",
+      "url": "https://www.korascale.com/journeys/chaoshan-region-cultural-heritage-6-day-tour",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Chaoshan Region Cultural Heritage 6-Day  Tour | Korascale",
+      "metaDescription": "Chaozhou begins, Jieyang ends",
+      "canonical": "https://www.korascale.com/journeys/chaoshan-region-cultural-heritage-6-day-tour",
+      "robots": "",
+      "h1Count": 0,
+      "h1": "",
+      "bodyInInitialHtml": false,
+      "itineraryInHtml": false,
+      "relatedArticlesInHtml": true,
+      "relatedJourneysInHtml": false,
+      "breadcrumbInHtml": false,
+      "jsonLdTypes": [
+        "Organization",
+        "TravelAgency"
+      ],
+      "jsonLdValid": true,
+      "visibleTextLength": 692,
+      "severity": "P0"
+    },
+    {
+      "slug": "guilin-to-yangshuo-classic-7-day-tour",
+      "url": "https://www.korascale.com/journeys/guilin-to-yangshuo-classic-7-day-tour",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Guilin to Yangshuo  Classic 7-Day Tour | Korascale",
+      "metaDescription": "Guilin begins, Guilin ends",
+      "canonical": "https://www.korascale.com/journeys/guilin-to-yangshuo-classic-7-day-tour",
+      "robots": "",
+      "h1Count": 0,
+      "h1": "",
+      "bodyInInitialHtml": false,
+      "itineraryInHtml": false,
+      "relatedArticlesInHtml": true,
+      "relatedJourneysInHtml": false,
+      "breadcrumbInHtml": false,
+      "jsonLdTypes": [
+        "Organization",
+        "TravelAgency"
+      ],
+      "jsonLdValid": true,
+      "visibleTextLength": 685,
+      "severity": "P0"
+    },
+    {
+      "slug": "xian-culture-mount-hua-in-depth-4-day-tour",
+      "url": "https://www.korascale.com/journeys/xian-culture-mount-hua-in-depth-4-day-tour",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Xi&#x27;an Culture &amp; Mount Hua  In-Depth 4-Day Tour | Korascale",
+      "metaDescription": "Xi&#x27;an begins, Xi&#x27;an ends",
+      "canonical": "https://www.korascale.com/journeys/xian-culture-mount-hua-in-depth-4-day-tour",
+      "robots": "",
+      "h1Count": 0,
+      "h1": "",
+      "bodyInInitialHtml": false,
+      "itineraryInHtml": false,
+      "relatedArticlesInHtml": true,
+      "relatedJourneysInHtml": false,
+      "breadcrumbInHtml": false,
+      "jsonLdTypes": [
+        "Organization",
+        "TravelAgency"
+      ],
+      "jsonLdValid": true,
+      "visibleTextLength": 702,
+      "severity": "P0"
+    },
+    {
+      "slug": "beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour-",
+      "url": "https://www.korascale.com/journeys/beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour-",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Beijing to Shanxi Ancient Architecture with Black Myth: Wukong Inspirations  6-Day Tour | Korascale",
+      "metaDescription": "Beijing begins, Xi’an ends",
+      "canonical": "https://www.korascale.com/journeys/beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour-",
+      "robots": "",
+      "h1Count": 0,
+      "h1": "",
+      "bodyInInitialHtml": false,
+      "itineraryInHtml": false,
+      "relatedArticlesInHtml": true,
+      "relatedJourneysInHtml": false,
+      "breadcrumbInHtml": false,
+      "jsonLdTypes": [
+        "Organization",
+        "TravelAgency"
+      ],
+      "jsonLdValid": true,
+      "visibleTextLength": 734,
+      "severity": "P0"
+    },
+    {
+      "slug": "beijing-cultural-highlights-and-iconic-sights-5-multi-days-tour",
+      "url": "https://www.korascale.com/journeys/beijing-cultural-highlights-and-iconic-sights-5-multi-days-tour",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Beijing Cultural Highlights, and Iconic Sights  5 Multi-Days Tour | Korascale",
+      "metaDescription": "Beijing begins, Beijing ends",
+      "canonical": "https://www.korascale.com/journeys/beijing-cultural-highlights-and-iconic-sights-5-multi-days-tour",
+      "robots": "",
+      "h1Count": 0,
+      "h1": "",
+      "bodyInInitialHtml": false,
+      "itineraryInHtml": false,
+      "relatedArticlesInHtml": true,
+      "relatedJourneysInHtml": false,
+      "breadcrumbInHtml": false,
+      "jsonLdTypes": [
+        "Organization",
+        "TravelAgency"
+      ],
+      "jsonLdValid": true,
+      "visibleTextLength": 712,
+      "severity": "P0"
+    },
+    {
+      "slug": "jiuzhaigou-cultural-adventure-4-day-tour",
+      "url": "https://www.korascale.com/journeys/jiuzhaigou-cultural-adventure-4-day-tour",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Jiuzhaigou Cultural &amp; Adventure 4-Day Tour | Korascale",
+      "metaDescription": "Chengdu begins, Chengdu ends",
+      "canonical": "https://www.korascale.com/journeys/jiuzhaigou-cultural-adventure-4-day-tour",
+      "robots": "",
+      "h1Count": 0,
+      "h1": "",
+      "bodyInInitialHtml": false,
+      "itineraryInHtml": false,
+      "relatedArticlesInHtml": true,
+      "relatedJourneysInHtml": false,
+      "breadcrumbInHtml": false,
+      "jsonLdTypes": [
+        "Organization",
+        "TravelAgency"
+      ],
+      "jsonLdValid": true,
+      "visibleTextLength": 694,
+      "severity": "P0"
+    },
+    {
+      "slug": "xian-terracotta-warriors-tang-paradise-night-tour",
+      "url": "https://www.korascale.com/journeys/xian-terracotta-warriors-tang-paradise-night-tour",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Xi&#x27;an Terracotta Warriors &amp; Tang Paradise Night Tour | Korascale",
+      "metaDescription": "Uncovering the Subterranean Scale of Ancient Empires and the Radiant Spectacle of China’s Cultural Renaissance.",
+      "canonical": "https://www.korascale.com/journeys/xian-terracotta-warriors-tang-paradise-night-tour",
+      "robots": "",
+      "h1Count": 0,
+      "h1": "",
+      "bodyInInitialHtml": false,
+      "itineraryInHtml": false,
+      "relatedArticlesInHtml": true,
+      "relatedJourneysInHtml": false,
+      "breadcrumbInHtml": false,
+      "jsonLdTypes": [
+        "Organization",
+        "TravelAgency"
+      ],
+      "jsonLdValid": true,
+      "visibleTextLength": 709,
+      "severity": "P0"
+    },
+    {
+      "slug": "beijing-to-mutianyu-great-wall-day-tour",
+      "url": "https://www.korascale.com/journeys/beijing-to-mutianyu-great-wall-day-tour",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Beijing to Mutianyu Great Wall Day Tour | Korascale",
+      "metaDescription": "Beijing begins, Beijing ends",
+      "canonical": "https://www.korascale.com/journeys/beijing-to-mutianyu-great-wall-day-tour",
+      "robots": "",
+      "h1Count": 0,
+      "h1": "",
+      "bodyInInitialHtml": false,
+      "itineraryInHtml": false,
+      "relatedArticlesInHtml": true,
+      "relatedJourneysInHtml": false,
+      "breadcrumbInHtml": false,
+      "jsonLdTypes": [
+        "Organization",
+        "TravelAgency"
+      ],
+      "jsonLdValid": true,
+      "visibleTextLength": 687,
+      "severity": "OK"
+    },
+    {
+      "slug": "badaling-great-wall-day-tour",
+      "url": "https://www.korascale.com/journeys/badaling-great-wall-day-tour",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Badaling Great Wall Day Tour | Korascale",
+      "metaDescription": "Beijing begins, Beijing ends",
+      "canonical": "https://www.korascale.com/journeys/badaling-great-wall-day-tour",
+      "robots": "",
+      "h1Count": 0,
+      "h1": "",
+      "bodyInInitialHtml": false,
+      "itineraryInHtml": false,
+      "relatedArticlesInHtml": true,
+      "relatedJourneysInHtml": false,
+      "breadcrumbInHtml": false,
+      "jsonLdTypes": [
+        "Organization",
+        "TravelAgency"
+      ],
+      "jsonLdValid": true,
+      "visibleTextLength": 676,
+      "severity": "OK"
+    },
+    {
+      "slug": "siguniang-mountain-2-day-tour",
+      "url": "https://www.korascale.com/journeys/siguniang-mountain-2-day-tour",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Siguniang Mountain 2-Day Tour | Korascale Travel | Korascale",
+      "metaDescription": "Chengdu begins, Chengdu ends",
+      "canonical": "https://www.korascale.com/journeys/siguniang-mountain-2-day-tour",
+      "robots": "",
+      "h1Count": 0,
+      "h1": "",
+      "bodyInInitialHtml": false,
+      "itineraryInHtml": false,
+      "relatedArticlesInHtml": true,
+      "relatedJourneysInHtml": false,
+      "breadcrumbInHtml": false,
+      "jsonLdTypes": [
+        "Organization",
+        "TravelAgency"
+      ],
+      "jsonLdValid": true,
+      "visibleTextLength": 696,
+      "severity": "P0"
+    },
+    {
+      "slug": "chongqing-highlights-magic-cityscape-day-tour",
+      "url": "https://www.korascale.com/journeys/chongqing-highlights-magic-cityscape-day-tour",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Chongqing Highlights &amp; Magic Cityscape Day Tour | Korascale Travel | Korascale",
+      "metaDescription": "Chongqing begins, Chongqing ends",
+      "canonical": "https://www.korascale.com/journeys/chongqing-highlights-magic-cityscape-day-tour",
+      "robots": "",
+      "h1Count": 0,
+      "h1": "",
+      "bodyInInitialHtml": false,
+      "itineraryInHtml": false,
+      "relatedArticlesInHtml": true,
+      "relatedJourneysInHtml": false,
+      "breadcrumbInHtml": false,
+      "jsonLdTypes": [
+        "Organization",
+        "TravelAgency"
+      ],
+      "jsonLdValid": true,
+      "visibleTextLength": 718,
+      "severity": "P0"
+    },
+    {
+      "slug": "jiuzhaigou-huanglong-by-high-speed-rail-3-day-tour",
+      "url": "https://www.korascale.com/journeys/jiuzhaigou-huanglong-by-high-speed-rail-3-day-tour",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Jiuzhaigou &amp; Huanglong by High-Speed Rail 3-Day Tour | Korascale Travel | Korascale",
+      "metaDescription": "Chengdu begins, Chengdu ends",
+      "canonical": "https://www.korascale.com/journeys/jiuzhaigou-huanglong-by-high-speed-rail-3-day-tour",
+      "robots": "",
+      "h1Count": 0,
+      "h1": "",
+      "bodyInInitialHtml": false,
+      "itineraryInHtml": false,
+      "relatedArticlesInHtml": true,
+      "relatedJourneysInHtml": false,
+      "breadcrumbInHtml": false,
+      "jsonLdTypes": [
+        "Organization",
+        "TravelAgency"
+      ],
+      "jsonLdValid": true,
+      "visibleTextLength": 723,
+      "severity": "P0"
+    },
+    {
+      "slug": "leshan-buddha-emei-mountain-2-day-tour",
+      "url": "https://www.korascale.com/journeys/leshan-buddha-emei-mountain-2-day-tour",
+      "http": 200,
+      "redirectChain": [],
+      "title": "Leshan Buddha &amp; Emei Mountain 2-Day Tour | Korascale Travel | Korascale",
+      "metaDescription": "Chengdu begins, Chengdu ends",
+      "canonical": "https://www.korascale.com/journeys/leshan-buddha-emei-mountain-2-day-tour",
+      "robots": "",
+      "h1Count": 0,
+      "h1": "",
+      "bodyInInitialHtml": false,
+      "itineraryInHtml": false,
+      "relatedArticlesInHtml": true,
+      "relatedJourneysInHtml": false,
+      "breadcrumbInHtml": false,
+      "jsonLdTypes": [
+        "Organization",
+        "TravelAgency"
+      ],
+      "jsonLdValid": true,
+      "visibleTextLength": 711,
+      "severity": "P0"
+    }
+  ],
+  "trailingHyphenCheck": {
+    "slug": "beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour-",
+    "status": 200,
+    "finalUrl": "https://www.korascale.com/journeys/beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour-",
+    "redirectChain": [],
+    "inDb": true
+  },
+  "sitemap": {
+    "totalUrls": 61,
+    "journeyUrls": 29,
+    "journeyUrlList": [
+      "https://www.korascale.com/journeys",
+      "https://www.korascale.com/journeys/type/explore-together",
+      "https://www.korascale.com/journeys/type/deep-discovery",
+      "https://www.korascale.com/journeys/type/signature-journeys",
+      "https://www.korascale.com/journeys/type/group-tours",
+      "https://www.korascale.com/journeys/beijing-city-imperial-grandeur-urban-chic-1-day-tour",
+      "https://www.korascale.com/journeys/grand-china-highlands-nature-18-day-journey",
+      "https://www.korascale.com/journeys/grand-china-highlights-16-day-multi-city-journey",
+      "https://www.korascale.com/journeys/yunnan-kunming-dali-lijiang-shangri-la-9-day-tour",
+      "https://www.korascale.com/journeys/lhasa-holy-lakes-classic-tibet-8-day-tour",
+      "https://www.korascale.com/journeys/xining-to-lhasa-mount-everest-tibet-grand-10-day-tour",
+      "https://www.korascale.com/journeys/chengdu-chongqing-double-cities-6-day-tour",
+      "https://www.korascale.com/journeys/zhangjiajie-fenghuang-classic-7-day-dual-destination-tour",
+      "https://www.korascale.com/journeys/shanghai-suzhou-classic-dual-city-7-day-tour",
+      "https://www.korascale.com/journeys/huangshan-to-huizhou-ancient-villages-6-day-tour",
+      "https://www.korascale.com/journeys/guangzhou-chaoshan-xiamen-cultural-loop-8-day-tour",
+      "https://www.korascale.com/journeys/chaoshan-region-cultural-heritage-6-day-tour",
+      "https://www.korascale.com/journeys/guilin-to-yangshuo-classic-7-day-tour",
+      "https://www.korascale.com/journeys/xian-culture-mount-hua-in-depth-4-day-tour",
+      "https://www.korascale.com/journeys/beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour-",
+      "https://www.korascale.com/journeys/beijing-cultural-highlights-and-iconic-sights-5-multi-days-tour",
+      "https://www.korascale.com/journeys/jiuzhaigou-cultural-adventure-4-day-tour",
+      "https://www.korascale.com/journeys/xian-terracotta-warriors-tang-paradise-night-tour",
+      "https://www.korascale.com/journeys/beijing-to-mutianyu-great-wall-day-tour",
+      "https://www.korascale.com/journeys/badaling-great-wall-day-tour",
+      "https://www.korascale.com/journeys/siguniang-mountain-2-day-tour",
+      "https://www.korascale.com/journeys/chongqing-highlights-magic-cityscape-day-tour",
+      "https://www.korascale.com/journeys/jiuzhaigou-huanglong-by-high-speed-rail-3-day-tour",
+      "https://www.korascale.com/journeys/leshan-buddha-emei-mountain-2-day-tour"
+    ],
+    "sampleChecks": [
+      {
+        "url": "https://www.korascale.com/journeys",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/type/explore-together",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/type/explore-together",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/type/deep-discovery",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/type/deep-discovery",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/type/signature-journeys",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/type/signature-journeys",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/type/group-tours",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/type/group-tours",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/beijing-city-imperial-grandeur-urban-chic-1-day-tour",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/beijing-city-imperial-grandeur-urban-chic-1-day-tour",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/grand-china-highlands-nature-18-day-journey",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/grand-china-highlands-nature-18-day-journey",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/grand-china-highlights-16-day-multi-city-journey",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/grand-china-highlights-16-day-multi-city-journey",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/yunnan-kunming-dali-lijiang-shangri-la-9-day-tour",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/yunnan-kunming-dali-lijiang-shangri-la-9-day-tour",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/lhasa-holy-lakes-classic-tibet-8-day-tour",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/lhasa-holy-lakes-classic-tibet-8-day-tour",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/xining-to-lhasa-mount-everest-tibet-grand-10-day-tour",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/xining-to-lhasa-mount-everest-tibet-grand-10-day-tour",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/chengdu-chongqing-double-cities-6-day-tour",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/chengdu-chongqing-double-cities-6-day-tour",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/zhangjiajie-fenghuang-classic-7-day-dual-destination-tour",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/zhangjiajie-fenghuang-classic-7-day-dual-destination-tour",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/shanghai-suzhou-classic-dual-city-7-day-tour",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/shanghai-suzhou-classic-dual-city-7-day-tour",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/huangshan-to-huizhou-ancient-villages-6-day-tour",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/huangshan-to-huizhou-ancient-villages-6-day-tour",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/guangzhou-chaoshan-xiamen-cultural-loop-8-day-tour",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/guangzhou-chaoshan-xiamen-cultural-loop-8-day-tour",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/chaoshan-region-cultural-heritage-6-day-tour",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/chaoshan-region-cultural-heritage-6-day-tour",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/guilin-to-yangshuo-classic-7-day-tour",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/guilin-to-yangshuo-classic-7-day-tour",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/xian-culture-mount-hua-in-depth-4-day-tour",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/xian-culture-mount-hua-in-depth-4-day-tour",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour-",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour-",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/beijing-cultural-highlights-and-iconic-sights-5-multi-days-tour",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/beijing-cultural-highlights-and-iconic-sights-5-multi-days-tour",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/jiuzhaigou-cultural-adventure-4-day-tour",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/jiuzhaigou-cultural-adventure-4-day-tour",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/xian-terracotta-warriors-tang-paradise-night-tour",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/xian-terracotta-warriors-tang-paradise-night-tour",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/beijing-to-mutianyu-great-wall-day-tour",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/beijing-to-mutianyu-great-wall-day-tour",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/badaling-great-wall-day-tour",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/badaling-great-wall-day-tour",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/siguniang-mountain-2-day-tour",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/siguniang-mountain-2-day-tour",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/chongqing-highlights-magic-cityscape-day-tour",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/chongqing-highlights-magic-cityscape-day-tour",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/jiuzhaigou-huanglong-by-high-speed-rail-3-day-tour",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/jiuzhaigou-huanglong-by-high-speed-rail-3-day-tour",
+        "redirectChain": []
+      },
+      {
+        "url": "https://www.korascale.com/journeys/leshan-buddha-emei-mountain-2-day-tour",
+        "status": 200,
+        "finalUrl": "https://www.korascale.com/journeys/leshan-buddha-emei-mountain-2-day-tour",
+        "redirectChain": []
+      }
+    ],
+    "missingFromSitemap": [],
+    "extraInSitemapNotActive": [
+      "https://www.korascale.com/journeys"
+    ]
+  },
+  "robotsTxt": "User-Agent: *\nAllow: /\n\nHost: https://www.korascale.com\nSitemap: https://www.korascale.com/sitemap.xml\n"
+}
