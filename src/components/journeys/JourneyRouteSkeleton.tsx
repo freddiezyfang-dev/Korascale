@@ -4,7 +4,7 @@
 
 export function JourneyTypePageSkeleton() {
   return (
-    <main className="min-h-screen bg-[#f5f1e6]">
+    <main className="bg-[#f5f1e6]">
       <div className="relative h-[min(800px,85vh)] w-full overflow-hidden animate-pulse">
         <div className="flex h-full w-full flex-col md:flex-row">
           <div className="h-1/2 w-full bg-[#e8e4d9] md:h-full md:w-1/2" />
@@ -33,7 +33,7 @@ export function JourneyTypePageSkeleton() {
 
 export function JourneyDetailPageSkeleton() {
   return (
-    <div className="min-h-screen bg-[#f5f1e6]">
+    <div className="bg-[#f5f1e6]">
       <div className="relative h-[min(520px,70vh)] w-full animate-pulse bg-[#1e3b32]/20">
         <div className="absolute inset-0 bg-gradient-to-t from-[#1e3b32]/50 to-transparent" />
         <div className="absolute bottom-12 left-8 right-8 lg:left-16">

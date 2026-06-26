@@ -185,10 +185,7 @@ export default function JourneyTypePageClient({
   
   const journeyType = journeyTypeFromSlug(typeSlug);
 
-  const journeys =
-    initialJourneys && initialJourneys.length > 0
-      ? initialJourneys
-      : contextJourneys;
+  const journeys = initialJourneys !== undefined ? initialJourneys : contextJourneys;
   
   // Journey Type 筛选：自动选择当前类型，但允许用户更改
   const [selectedJourneyType, setSelectedJourneyType] = useState<JourneyType | 'All'>(journeyType || 'All');
@@ -254,7 +251,7 @@ export default function JourneyTypePageClient({
 
   // 列表数据加载中：Hero/文案可由本地常量立即渲染，仅在有列表依赖区块前统一用骨架更稳；
   // 首屏仍以完整类型页呈现，网格区在 journeys 为空且加载中时显示内联骨架即可。
-  const showListSkeleton = isLoading && journeys.length === 0 && !(initialJourneys && initialJourneys.length > 0);
+  const showListSkeleton = isLoading && journeys.length === 0 && initialJourneys === undefined;
 
   const isGroupTours = journeyType === 'Group Tours';
 
@@ -282,7 +279,7 @@ export default function JourneyTypePageClient({
       <Section background="secondary" padding="none" className="relative overflow-hidden">
         {isGroupTours ? (
           // Group Tours：无配图，标题和正文居中
-          <div className="relative h-[700px] w-full bg-[#f5f1e6] flex flex-col">
+          <div className="relative h-[700px] w-full bg-[#f5f1e6] flex flex-col" data-testid="journey-type-hero">
             {/* 面包屑导航 - 左上角 */}
             <div className="px-6 py-4 md:px-10 md:py-6">
               <Breadcrumb
@@ -311,7 +308,7 @@ export default function JourneyTypePageClient({
           </div>
         ) : (
           // 其他类型：左图右文布局
-          <div className="flex h-[800px] w-full overflow-hidden relative">
+          <div className="flex h-[800px] w-full overflow-hidden relative" data-testid="journey-type-hero">
             {/* 左侧图片区域 */}
             <div
               className="w-1/2 h-[800px] bg-center bg-cover bg-no-repeat relative flex-shrink-0 md:w-1/2 w-full"
@@ -844,7 +841,7 @@ export default function JourneyTypePageClient({
                       Found {filteredJourneys.length} journey{filteredJourneys.length !== 1 ? 's' : ''}
                 </Text>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="journey-grid">
                     {filteredJourneys.map((journey: Journey) => {
                       // 获取 maxGuests
                       const maxGuests = ('maxGuests' in journey && journey.maxGuests) 

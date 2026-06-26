@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
 import JourneyTypePageClient from './JourneyTypePageClient';
-import JourneyTypeServerProductList from './JourneyTypeServerProductList';
 import {
   isValidJourneyTypeSlug,
   journeyTypeFromSlug,
@@ -80,10 +79,5 @@ export default async function JourneyTypePage({ params }: PageProps) {
 
   const initialJourneys = await getActiveJourneysByType(journeyType);
 
-  return (
-    <>
-      <JourneyTypeServerProductList journeys={initialJourneys} heading={`${journeyType} journeys`} />
-      <JourneyTypePageClient typeSlug={type} initialJourneys={initialJourneys} />
-    </>
-  );
+  return <JourneyTypePageClient typeSlug={type} initialJourneys={initialJourneys} />;
 }

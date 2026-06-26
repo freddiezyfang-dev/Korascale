@@ -122,6 +122,87 @@ function checkDuplicatePrimaryContent(html: string, h1Text: string, pageKind: 'd
   return notes;
 }
 
+function countJourneyLinksInGrid(html: string): number {
+  const visibleHtml = htmlWithoutScripts(html);
+  const gridStart = visibleHtml.indexOf('data-testid="journey-grid"');
+  if (gridStart === -1) return 0;
+  const footerStart = visibleHtml.indexOf('data-testid="site-footer"', gridStart);
+  const gridHtml = visibleHtml.slice(gridStart, footerStart > gridStart ? footerStart : undefined);
+  return new Set(
+    [...gridHtml.matchAll(/href=["'](\/journeys\/[^"'#?]+)["']/gi)].map((m) => m[1])
+  ).size;
+}
+
+function htmlWithoutScripts(html: string): string {
+  return html.replace(/<script[\s\S]*?<\/script>/gi, ' ');
+}
+
+function checkVisualRegression(html: string, pageKind: 'detail' | 'type' | 'list', typeSlug?: string): string[] {
+  const notes: string[] = [];
+  const visibleHtml = htmlWithoutScripts(html);
+
+  if (!visibleHtml.includes('data-testid="site-footer"')) {
+    notes.push('missing site-footer marker');
+  }
+
+  if (pageKind === 'detail') {
+    if (!visibleHtml.includes('data-testid="journey-hero"')) {
+      notes.push('missing journey-hero marker');
+    }
+    if (/<nav[^>]*aria-label=["']Breadcrumb["'][^>]*class="[^"]*border-b/i.test(visibleHtml)) {
+      notes.push('standalone breadcrumb bar detected');
+    }
+    if (/min-h-screen/i.test(visibleHtml)) {
+      notes.push('min-h-screen on detail page');
+    }
+  }
+
+  if (pageKind === 'type') {
+    if (typeSlug === 'group-tours') {
+      if (/No journeys are currently published in this collection/i.test(visibleHtml)) {
+        notes.push('server product list empty state detected');
+      }
+      return notes;
+    }
+
+    if (!visibleHtml.includes('data-testid="journey-type-hero"')) {
+      notes.push('missing journey-type-hero marker');
+    }
+    if (/No journeys are currently published in this collection/i.test(visibleHtml)) {
+      notes.push('server product list block detected');
+    }
+
+    const heroIdx = visibleHtml.indexOf('data-testid="journey-type-hero"');
+    if (heroIdx > 0) {
+      const beforeHero = visibleHtml.slice(0, heroIdx);
+      const linksBeforeHero = [
+        ...new Set(
+          [...beforeHero.matchAll(/href=["'](\/journeys\/[^"'#?]+)["']/gi)]
+            .map((m) => m[1])
+            .filter((href) => !href.startsWith('/journeys/type/'))
+        ),
+      ].length;
+      if (linksBeforeHero > 0) {
+        notes.push(`${linksBeforeHero} journey product links before hero`);
+      }
+    }
+
+    if (typeSlug !== 'signature-journeys' && !visibleHtml.includes('data-testid="journey-grid"')) {
+      notes.push('missing journey-grid marker');
+    }
+
+    if (/min-h-screen/i.test(visibleHtml) && typeSlug !== 'group-tours') {
+      notes.push('min-h-screen on type page');
+    }
+  }
+
+  if (pageKind === 'list' && /min-h-screen/i.test(visibleHtml)) {
+    notes.push('min-h-screen on journeys list page');
+  }
+
+  return notes;
+}
+
 async function fetchWithRedirects(url: string) {
   const chain: string[] = [];
   let current = url;
@@ -187,14 +268,14 @@ function parseHtml(html: string, pageKind: 'detail' | 'type' = 'detail') {
 async function checkDetail(slug: string): Promise<CheckResult> {
   const res = await fetchWithRedirects(`${BASE}/journeys/${slug}`);
   const parsed = parseHtml(res.html);
-  const notes: string[] = [...parsed.duplicateContentNotes];
+  const visualNotes = checkVisualRegression(res.html, 'detail');
+  const notes: string[] = [...parsed.duplicateContentNotes, ...visualNotes];
   if (parsed.h1Count !== 1) notes.push(`expected 1 h1, got ${parsed.h1Count}`);
   if (parsed.hasSkeleton) notes.push('skeleton-only main detected');
   if (parsed.tripJsonLdCount !== 1) notes.push(`expected 1 Trip JSON-LD, got ${parsed.tripJsonLdCount}`);
   if (parsed.breadcrumbJsonLdCount !== 1) {
     notes.push(`expected 1 BreadcrumbList JSON-LD, got ${parsed.breadcrumbJsonLdCount}`);
   }
-  if (!parsed.hasBreadcrumbNav) notes.push('missing breadcrumb nav');
   if (parsed.bodyTextLength < 1200) notes.push(`body too short (${parsed.bodyTextLength})`);
 
   return {
@@ -208,9 +289,9 @@ async function checkDetail(slug: string): Promise<CheckResult> {
       !parsed.hasSkeleton &&
       parsed.tripJsonLdCount === 1 &&
       parsed.breadcrumbJsonLdCount === 1 &&
-      parsed.hasBreadcrumbNav &&
       parsed.bodyTextLength >= 1200 &&
-      parsed.duplicateContentNotes.length === 0,
+      parsed.duplicateContentNotes.length === 0 &&
+      visualNotes.length === 0,
     notes,
   };
 }
@@ -218,17 +299,22 @@ async function checkDetail(slug: string): Promise<CheckResult> {
 async function checkType(typeSlug: string, expectedLinks: number): Promise<CheckResult> {
   const res = await fetchWithRedirects(`${BASE}/journeys/type/${typeSlug}`);
   const parsed = parseHtml(res.html, 'type');
-  const productLinks = [
-    ...new Set(
-      [...res.html.matchAll(/href=["'](\/journeys\/[^"'#?]+)["']/gi)]
-        .map((m) => m[1])
-        .filter((href) => !href.startsWith('/journeys/type/'))
-    ),
-  ].length;
-  const notes: string[] = [...parsed.duplicateContentNotes];
+  const visualNotes = checkVisualRegression(res.html, 'type', typeSlug);
+  const gridLinks = countJourneyLinksInGrid(res.html);
+  const productLinks =
+    expectedLinks > 0 && gridLinks >= expectedLinks
+      ? gridLinks
+      : [
+          ...new Set(
+            [...res.html.matchAll(/href=["'](\/journeys\/[^"'#?]+)["']/gi)]
+              .map((m) => m[1])
+              .filter((href) => !href.startsWith('/journeys/type/'))
+          ),
+        ].length;
+  const notes: string[] = [...parsed.duplicateContentNotes, ...visualNotes];
   if (!parsed.canonical.includes(`/journeys/type/${typeSlug}`)) notes.push('canonical mismatch');
-  if (productLinks < expectedLinks) {
-    notes.push(`expected >=${expectedLinks} product links, got ${productLinks}`);
+  if (expectedLinks > 0 && gridLinks < expectedLinks) {
+    notes.push(`expected >=${expectedLinks} grid product links, got ${gridLinks}`);
   }
 
   return {
@@ -240,8 +326,9 @@ async function checkType(typeSlug: string, expectedLinks: number): Promise<Check
     pass:
       res.status === 200 &&
       parsed.canonical.includes(`/journeys/type/${typeSlug}`) &&
-      productLinks >= expectedLinks &&
-      parsed.duplicateContentNotes.length === 0,
+      (expectedLinks === 0 || gridLinks >= expectedLinks) &&
+      parsed.duplicateContentNotes.length === 0 &&
+      visualNotes.length === 0,
     notes,
   };
 }

@@ -790,7 +790,7 @@ export default function ClientJourneyPage({
     !isLoadingFromApi
   ) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f5f1e6] px-6">
+      <div className="flex min-h-[40vh] items-center justify-center bg-[#f5f1e6] px-6">
         <div className="w-full text-center">
           <Heading level={1} className="text-3xl mb-4">Journey Not Found</Heading>
           <Text className="text-gray-600 mb-6">
@@ -826,8 +826,11 @@ export default function ClientJourneyPage({
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <section className={`relative ${JOURNEY_PAGE_TEMPLATE.hero.height} overflow-hidden`}>
+    <div className="bg-white">
+      <section
+        data-testid="journey-hero"
+        className={`relative ${JOURNEY_PAGE_TEMPLATE.hero.height} overflow-hidden`}
+      >
         <div
           className="absolute inset-0 bg-center bg-cover bg-no-repeat"
           style={{ backgroundImage: `url('${currentPageConfig.hero.image}')` }}

@@ -8,7 +8,7 @@ const imgGlobe = "/globe.svg";
 
 export default function Footer() {
 	return (
-		<footer className="w-full bg-black text-white" data-name="Footer" data-node-id="771:337">
+		<footer className="w-full bg-black text-white" data-testid="site-footer" data-name="Footer" data-node-id="771:337">
 			<style dangerouslySetInnerHTML={{__html: `
 				footer[data-name="Footer"] a {
 					color: #FFFFFF !important;

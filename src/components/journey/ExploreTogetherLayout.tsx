@@ -102,9 +102,9 @@ export default function ExploreTogetherLayout({
   const priceDisplay = (priceFrom && priceFrom.trim() !== '') ? priceFrom : (priceValue && priceValue.trim() !== '') ? priceValue : null;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="bg-white">
       {/* 1. Hero Banner: heroImage，主副标题下紧跟价格，大号衬线 + 简洁数字；不设 overflow-hidden 避免底部被裁切 */}
-      <header className="relative w-full min-h-[50vh] md:min-h-[60vh] flex flex-col justify-end">
+      <header data-testid="journey-hero" className="relative w-full min-h-[50vh] md:min-h-[60vh] flex flex-col justify-end">
         {heroImage ? (
           <>
             <div

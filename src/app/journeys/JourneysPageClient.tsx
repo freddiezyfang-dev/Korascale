@@ -319,7 +319,7 @@ export default function JourneysPageClient({ initialJourneys }: JourneysPageClie
 	// 加载状态：有服务端 initialJourneys 时不阻塞首屏
 	if (isLoading && !(initialJourneys && initialJourneys.length > 0)) {
 		return (
-			<div className="min-h-screen bg-white flex items-center justify-center">
+			<div className="bg-white flex min-h-[40vh] items-center justify-center">
 				<div className="text-center">
 					<Text className="text-gray-600">Loading journeys...</Text>
 				</div>
@@ -328,7 +328,7 @@ export default function JourneysPageClient({ initialJourneys }: JourneysPageClie
 	}
 
 	return (
-		<div className="min-h-screen bg-white">
+		<div className="bg-white">
 			{/* Plan Your Trip Hero Section - 与其他页面统一 */}
 			<Section background="primary" padding="none" className="relative h-[447px] overflow-hidden">
 				<div 
@@ -747,7 +747,7 @@ export default function JourneysPageClient({ initialJourneys }: JourneysPageClie
 							</div>
 
 							{/* Journey Cards Grid：移动端单列大间距，桌面端多列 */}
-							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 sm:gap-y-12 md:gap-y-10">
+							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 sm:gap-y-12 md:gap-y-10" data-testid="journey-grid">
 								{filteredJourneys.map((journey) => {
 									const maxGuests = ('maxGuests' in journey && journey.maxGuests)
 										? journey.maxGuests
