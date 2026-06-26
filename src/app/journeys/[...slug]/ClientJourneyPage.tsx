@@ -25,6 +25,8 @@ import Hotels from '@/components/journey/Hotels';
 import Experiences from '@/components/journey/Experiences';
 import { JourneyInquiryModal } from '@/components/inquiries/JourneyInquiryModal';
 import type { JourneyInquiryClickPayload } from '@/components/inquiries/journeyInquiryTypes';
+import { TourismPageCta } from '@/components/cta/TourismPageCta';
+import { JOURNEY_DETAIL_CTA } from '@/lib/tourismPageCtaContent';
 import ExploreTogetherLayout from '@/components/journey/ExploreTogetherLayout';
 import JourneyMap from '@/components/map/JourneyMap';
 import { JourneyHotelDetailModal } from '@/components/journey/JourneyHotelDetailModal';
@@ -812,6 +814,33 @@ export default function ClientJourneyPage({
           journey={currentJourney}
           onBookingClick={handleRequestJourney}
         />
+        {heroImage ? (
+          <TourismPageCta
+            title={JOURNEY_DETAIL_CTA.title}
+            description={JOURNEY_DETAIL_CTA.description}
+            buttonLabel={JOURNEY_DETAIL_CTA.buttonLabel}
+            image={{
+              src: heroImage,
+              alt: currentJourney.title
+                ? `${currentJourney.title} journey in China`
+                : 'Private journey in China',
+            }}
+            sourcePage={`/journeys/${currentJourney.slug ?? ''}`}
+            journeyId={String(currentJourney.id)}
+            journeySlug={currentJourney.slug ?? undefined}
+            inquiry={{
+              intent: 'custom_journey',
+              sourceType: 'journey',
+              sourcePage: `/journeys/${currentJourney.slug ?? ''}`,
+              sourceSlug: currentJourney.slug ?? undefined,
+              sourceContext: {
+                journeyId: String(currentJourney.id),
+                journeySlug: currentJourney.slug ?? undefined,
+                journeyName: currentJourney.title ?? undefined,
+              },
+            }}
+          />
+        ) : null}
         <JourneyInquiryModal
           journey={currentJourney}
           isOpen={journeyInquiryOpen}
@@ -1252,6 +1281,34 @@ export default function ClientJourneyPage({
           onClose={() => setActiveExperience(null)}
         />
       )}
+
+      {currentJourney?.id && heroImage ? (
+        <TourismPageCta
+          title={JOURNEY_DETAIL_CTA.title}
+          description={JOURNEY_DETAIL_CTA.description}
+          buttonLabel={JOURNEY_DETAIL_CTA.buttonLabel}
+          image={{
+            src: heroImage,
+            alt: currentJourney.title
+              ? `${currentJourney.title} journey in China`
+              : 'Private journey in China',
+          }}
+          sourcePage={`/journeys/${currentJourney.slug ?? ''}`}
+          journeyId={String(currentJourney.id)}
+          journeySlug={currentJourney.slug ?? undefined}
+          inquiry={{
+            intent: 'custom_journey',
+            sourceType: 'journey',
+            sourcePage: `/journeys/${currentJourney.slug ?? ''}`,
+            sourceSlug: currentJourney.slug ?? undefined,
+            sourceContext: {
+              journeyId: String(currentJourney.id),
+              journeySlug: currentJourney.slug ?? undefined,
+              journeyName: currentJourney.title ?? undefined,
+            },
+          }}
+        />
+      ) : null}
     </div>
   );
 }

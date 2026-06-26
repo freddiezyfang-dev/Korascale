@@ -7,7 +7,8 @@ import { Section, Container, Heading, Text, Breadcrumb, Card, Button } from '@/c
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { JourneyType, Journey } from '@/types';
 import { JOURNEY_TYPE_CARD_IMAGE } from '@/lib/journeyTypeCardImages';
-import { PlanTripModal } from '@/components/modals/PlanTripModal';
+import { TourismPageCta } from '@/components/cta/TourismPageCta';
+import { JOURNEY_TYPE_CTA } from '@/lib/tourismPageCtaContent';
 import { journeyTypeFromSlug } from '@/config/journeyTypeRoutes';
 import { JourneyTypePageSkeleton } from '@/components/journeys/JourneyRouteSkeleton';
 
@@ -130,7 +131,6 @@ export default function JourneyTypePageClient({
 }: JourneyTypePageClientProps) {
   const router = useRouter();
   const { journeys: contextJourneys, isLoading } = useJourneyManagement();
-  const [isPlanTripModalOpen, setIsPlanTripModalOpen] = useState(false);
   const [hoveredPath, setHoveredPath] = useState<number | null>(null);
 
   // Filter 状态：与 journey 主页面一致
@@ -912,50 +912,23 @@ export default function JourneyTypePageClient({
       </Section>
       )}
 
-      {/* 5. Plan Your Journey Section */}
-      <Section background="primary" padding="none" className="py-12" data-testid="plan-your-journey-section">
-        <Container
-          size="xl"
-          padding="none"
-          className="bg-[#1e3b32] mx-4 sm:mx-8 lg:mx-20 rounded-lg p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6"
-          data-testid="plan-your-journey-cta"
-        >
-          <div>
-            <Heading
-              level={2}
-              className="text-2xl sm:text-3xl mb-4"
-              style={{ color: '#FFFFFF', fontFamily: FONT_SERIF }}
-            >
-              Plan your journey in China with Korascale
-            </Heading>
-            <Text
-              className="text-sm sm:text-base"
-              style={{ color: '#FFFFFF', fontFamily: FONT_SANS }}
-            >
-              Tell us what you are looking for and our team will craft a tailored itinerary that matches your
-              interests, timing and budget.
-            </Text>
-          </div>
-          <Button
-            variant="primary"
-            size="lg"
-            className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-body text-sm hover:bg-white hover:text-tertiary transition-all duration-300"
-            onClick={() => setIsPlanTripModalOpen(true)}
-          >
-            PLAN YOUR JOURNEY
-          </Button>
-        </Container>
-
-        <PlanTripModal
-          isOpen={isPlanTripModalOpen}
-          onClose={() => setIsPlanTripModalOpen(false)}
+      {!isGroupTours && journeyType && JOURNEY_TYPE_CTA[journeyType] ? (
+        <TourismPageCta
+          title={JOURNEY_TYPE_CTA[journeyType].title}
+          description={JOURNEY_TYPE_CTA[journeyType].description}
+          buttonLabel={JOURNEY_TYPE_CTA[journeyType].buttonLabel}
+          image={{
+            src: JOURNEY_TYPE_CTA[journeyType].image,
+            alt: `${journeyType} journey in China`,
+          }}
+          sourcePage={`/journeys/type/${typeSlug}`}
           inquiry={{
             intent: 'custom_journey',
             sourceType: 'journey',
             sourcePage: `/journeys/type/${typeSlug}`,
           }}
         />
-      </Section>
+      ) : null}
     </main>
   );
 }

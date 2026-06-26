@@ -2,7 +2,12 @@
 
 import Link from "next/link";
 import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/components/common';
-import { InspirationsSection, PlanningSectionNew } from '@/components/sections';
+import { InspirationsSection } from '@/components/sections';
+import { TourismPageCta } from '@/components/cta/TourismPageCta';
+import {
+	DESTINATIONS_LIST_CTA,
+	DESTINATIONS_LIST_IMAGE,
+} from '@/lib/tourismPageCtaContent';
 import { useState, useEffect } from 'react';
 
 // 图片资源 - 使用本地图片
@@ -198,8 +203,21 @@ export default function Destinations() {
       {/* Inspirations Section */}
       <InspirationsSection />
 
-      {/* Planning Section */}
-      <PlanningSectionNew />
+      <TourismPageCta
+        title={DESTINATIONS_LIST_CTA.title}
+        description={DESTINATIONS_LIST_CTA.description}
+        buttonLabel={DESTINATIONS_LIST_CTA.buttonLabel}
+        image={{
+          src: DESTINATIONS_LIST_IMAGE,
+          alt: 'Destinations across China',
+        }}
+        sourcePage="/destinations"
+        inquiry={{
+          intent: 'custom_journey',
+          sourceType: 'direct',
+          sourcePage: '/destinations',
+        }}
+      />
     </main>
   );
 }

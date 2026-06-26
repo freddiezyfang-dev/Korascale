@@ -7,9 +7,10 @@ import { Container, Section, Heading, Text, Button, Breadcrumb } from '@/compone
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import RegionMap, { RegionMapHandle } from '@/components/map/RegionMap';
 import { getRegionMapping, getSidebarDataByCategory, REGION_MAPPING } from '@/lib/regionMapping';
-import PlanningSectionNew from '@/components/sections/PlanningSectionNew';
 import { getRenderableImageUrl } from '@/lib/imageUtils';
 import { getCoordsForPlacePageId } from '@/lib/geographyDatabase';
+import { TourismPageCta } from '@/components/cta/TourismPageCta';
+import { DESTINATION_DETAIL_CTA } from '@/lib/tourismPageCtaContent';
 
 // 地区映射
 const regionMap: { [key: string]: { name: string; description: string; image: string } } = {
@@ -672,8 +673,27 @@ export default function RegionDestinationsPage() {
             </Container>
           </Section>
 
-          {/* Plan Your Trip Section */}
-          <PlanningSectionNew />
+          <TourismPageCta
+            title={DESTINATION_DETAIL_CTA.title}
+            description={DESTINATION_DETAIL_CTA.description}
+            buttonLabel={DESTINATION_DETAIL_CTA.buttonLabel}
+            image={{
+              src: regionInfo.image,
+              alt: `${regionInfo.name} destination in China`,
+            }}
+            sourcePage={`/destinations/${region}`}
+            destinationId={region}
+            inquiry={{
+              intent: 'custom_journey',
+              sourceType: 'direct',
+              sourcePage: `/destinations/${region}`,
+              sourceSlug: region,
+              sourceContext: {
+                destinationName: regionInfo.name,
+                destinationSlug: region,
+              },
+            }}
+          />
         </>
       )}
     </main>

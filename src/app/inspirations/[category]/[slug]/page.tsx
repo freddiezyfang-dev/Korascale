@@ -13,6 +13,7 @@ import {
 } from '@/lib/articleQuery.server';
 import { getArticleBodyContentBlocks, resolveArticleCta } from '@/lib/articleCta';
 import ArticlePrimaryCta from '@/components/articles/ArticlePrimaryCta';
+import { ArticleTourismPageCta } from '@/components/cta/ArticleTourismPageCta';
 import {
 	getArticleCanonicalCategorySlug,
 	getArticleCanonicalPath,
@@ -172,11 +173,17 @@ export default async function ArticleDetailPage({ params }: PageProps) {
 					<ArticleDesktopSidebar relatedArticles={serializedSidebarArticles} />
 				}
 				ctaSlot={
-					resolvedCta ? (
+					resolvedCta && resolvedCta.mode === 'corporate_travel' ? (
 						<ArticlePrimaryCta
 							cta={resolvedCta}
 							articleSlug={article.slug}
 							articleTitle={article.title}
+							categorySlug={categorySlug}
+							sourcePage={`/inspirations/${categorySlug}/${article.slug}`}
+						/>
+					) : resolvedCta ? (
+						<ArticleTourismPageCta
+							article={article}
 							categorySlug={categorySlug}
 							sourcePage={`/inspirations/${categorySlug}/${article.slug}`}
 						/>
