@@ -200,6 +200,25 @@ function checkVisualRegression(html: string, pageKind: 'detail' | 'type' | 'list
     notes.push('min-h-screen on journeys list page');
   }
 
+  if (pageKind === 'list' || (pageKind === 'type' && typeSlug !== 'group-tours')) {
+    if (!visibleHtml.includes('data-testid="plan-your-journey-section"')) {
+      notes.push('missing plan-your-journey-section marker');
+    } else {
+      if (!visibleHtml.includes('data-testid="plan-your-journey-cta"')) {
+        notes.push('missing plan-your-journey-cta marker');
+      }
+      if (!/Plan your journey in China with Korascale/i.test(visibleHtml)) {
+        notes.push('plan-your-journey heading missing in SSR HTML');
+      }
+      if (!/PLAN YOUR JOURNEY/i.test(visibleHtml)) {
+        notes.push('plan-your-journey button label missing in SSR HTML');
+      }
+      if (!visibleHtml.includes('bg-[#1e3b32]')) {
+        notes.push('plan-your-journey cta missing bg-[#1e3b32]');
+      }
+    }
+  }
+
   return notes;
 }
 

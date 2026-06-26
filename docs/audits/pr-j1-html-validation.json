@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-06-26T09:30:48.016Z",
-  "baseUrl": "http://127.0.0.1:3033",
+  "generatedAt": "2026-06-26T10:26:54.945Z",
+  "baseUrl": "http://127.0.0.1:3057",
   "detail": [
     {
-      "url": "http://127.0.0.1:3033/journeys/beijing-city-imperial-grandeur-urban-chic-1-day-tour",
+      "url": "http://127.0.0.1:3057/journeys/beijing-city-imperial-grandeur-urban-chic-1-day-tour",
       "status": 200,
       "redirectChain": [],
       "title": "Beijing City Imperial Grandeur &amp; Urban Chic 1-Day Tour | Korascale",
@@ -23,7 +23,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/grand-china-highlands-nature-18-day-journey",
+      "url": "http://127.0.0.1:3057/journeys/grand-china-highlands-nature-18-day-journey",
       "status": 200,
       "redirectChain": [],
       "title": "Grand China Highlands &amp; Nature 18-Day Journey | Korascale",
@@ -43,7 +43,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/grand-china-highlights-16-day-multi-city-journey",
+      "url": "http://127.0.0.1:3057/journeys/grand-china-highlights-16-day-multi-city-journey",
       "status": 200,
       "redirectChain": [],
       "title": "Grand China Highlights 16-Day Multi-City Journey | Korascale",
@@ -63,7 +63,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/yunnan-kunming-dali-lijiang-shangri-la-9-day-tour",
+      "url": "http://127.0.0.1:3057/journeys/yunnan-kunming-dali-lijiang-shangri-la-9-day-tour",
       "status": 200,
       "redirectChain": [],
       "title": "Yunnan Kunming, Dali, Lijiang &amp; Shangri-La 9-Day  Tour | Korascale",
@@ -83,7 +83,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/lhasa-holy-lakes-classic-tibet-8-day-tour",
+      "url": "http://127.0.0.1:3057/journeys/lhasa-holy-lakes-classic-tibet-8-day-tour",
       "status": 200,
       "redirectChain": [],
       "title": "Lhasa &amp; Holy Lakes  Classic Tibet 8-Day Tour | Korascale",
@@ -103,7 +103,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/xining-to-lhasa-mount-everest-tibet-grand-10-day-tour",
+      "url": "http://127.0.0.1:3057/journeys/xining-to-lhasa-mount-everest-tibet-grand-10-day-tour",
       "status": 200,
       "redirectChain": [],
       "title": "Xining to Lhasa &amp; Mount Everest  Tibet Grand 10-Day Tour | Korascale",
@@ -123,7 +123,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/chengdu-chongqing-double-cities-6-day-tour",
+      "url": "http://127.0.0.1:3057/journeys/chengdu-chongqing-double-cities-6-day-tour",
       "status": 200,
       "redirectChain": [],
       "title": "Chengdu &amp; Chongqing Double Cities 6-Day  Tour | Korascale",
@@ -143,7 +143,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/zhangjiajie-fenghuang-classic-7-day-dual-destination-tour",
+      "url": "http://127.0.0.1:3057/journeys/zhangjiajie-fenghuang-classic-7-day-dual-destination-tour",
       "status": 200,
       "redirectChain": [],
       "title": "Zhangjiajie &amp; Fenghuang Classic 7-Day Dual-Destination Tour | Korascale",
@@ -163,7 +163,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/shanghai-suzhou-classic-dual-city-7-day-tour",
+      "url": "http://127.0.0.1:3057/journeys/shanghai-suzhou-classic-dual-city-7-day-tour",
       "status": 200,
       "redirectChain": [],
       "title": "Shanghai &amp; Suzhou Classic Dual-City 7-Day  Tour | Korascale",
@@ -183,7 +183,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/huangshan-to-huizhou-ancient-villages-6-day-tour",
+      "url": "http://127.0.0.1:3057/journeys/huangshan-to-huizhou-ancient-villages-6-day-tour",
       "status": 200,
       "redirectChain": [],
       "title": "Huangshan to Huizhou Ancient Villages 6-Day Tour | Korascale",
@@ -203,7 +203,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/guangzhou-chaoshan-xiamen-cultural-loop-8-day-tour",
+      "url": "http://127.0.0.1:3057/journeys/guangzhou-chaoshan-xiamen-cultural-loop-8-day-tour",
       "status": 200,
       "redirectChain": [],
       "title": "Guangzhou, Chaoshan &amp; Xiamen  Cultural Loop 8-Day Tour | Korascale",
@@ -223,7 +223,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/chaoshan-region-cultural-heritage-6-day-tour",
+      "url": "http://127.0.0.1:3057/journeys/chaoshan-region-cultural-heritage-6-day-tour",
       "status": 200,
       "redirectChain": [],
       "title": "Chaoshan Region Cultural Heritage 6-Day  Tour | Korascale",
@@ -243,7 +243,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/guilin-to-yangshuo-classic-7-day-tour",
+      "url": "http://127.0.0.1:3057/journeys/guilin-to-yangshuo-classic-7-day-tour",
       "status": 200,
       "redirectChain": [],
       "title": "Guilin to Yangshuo  Classic 7-Day Tour | Korascale",
@@ -263,7 +263,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/xian-culture-mount-hua-in-depth-4-day-tour",
+      "url": "http://127.0.0.1:3057/journeys/xian-culture-mount-hua-in-depth-4-day-tour",
       "status": 200,
       "redirectChain": [],
       "title": "Xi&#x27;an Culture &amp; Mount Hua  In-Depth 4-Day Tour | Korascale",
@@ -283,7 +283,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour-",
+      "url": "http://127.0.0.1:3057/journeys/beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour-",
       "status": 200,
       "redirectChain": [],
       "title": "Beijing to Shanxi Ancient Architecture with Black Myth: Wukong Inspirations  6-Day Tour | Korascale",
@@ -303,7 +303,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/beijing-cultural-highlights-and-iconic-sights-5-multi-days-tour",
+      "url": "http://127.0.0.1:3057/journeys/beijing-cultural-highlights-and-iconic-sights-5-multi-days-tour",
       "status": 200,
       "redirectChain": [],
       "title": "Beijing Cultural Highlights, and Iconic Sights  5 Multi-Days Tour | Korascale",
@@ -323,7 +323,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/jiuzhaigou-cultural-adventure-4-day-tour",
+      "url": "http://127.0.0.1:3057/journeys/jiuzhaigou-cultural-adventure-4-day-tour",
       "status": 200,
       "redirectChain": [],
       "title": "Jiuzhaigou Cultural &amp; Adventure 4-Day Tour | Korascale",
@@ -343,7 +343,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/xian-terracotta-warriors-tang-paradise-night-tour",
+      "url": "http://127.0.0.1:3057/journeys/xian-terracotta-warriors-tang-paradise-night-tour",
       "status": 200,
       "redirectChain": [],
       "title": "Xi&#x27;an Terracotta Warriors &amp; Tang Paradise Night Tour | Korascale",
@@ -363,7 +363,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/beijing-to-mutianyu-great-wall-day-tour",
+      "url": "http://127.0.0.1:3057/journeys/beijing-to-mutianyu-great-wall-day-tour",
       "status": 200,
       "redirectChain": [],
       "title": "Beijing to Mutianyu Great Wall Day Tour | Korascale",
@@ -383,7 +383,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/badaling-great-wall-day-tour",
+      "url": "http://127.0.0.1:3057/journeys/badaling-great-wall-day-tour",
       "status": 200,
       "redirectChain": [],
       "title": "Badaling Great Wall Day Tour | Korascale",
@@ -403,7 +403,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/siguniang-mountain-2-day-tour",
+      "url": "http://127.0.0.1:3057/journeys/siguniang-mountain-2-day-tour",
       "status": 200,
       "redirectChain": [],
       "title": "Siguniang Mountain 2-Day Tour | Korascale Travel | Korascale",
@@ -423,7 +423,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/chongqing-highlights-magic-cityscape-day-tour",
+      "url": "http://127.0.0.1:3057/journeys/chongqing-highlights-magic-cityscape-day-tour",
       "status": 200,
       "redirectChain": [],
       "title": "Chongqing Highlights &amp; Magic Cityscape Day Tour | Korascale Travel | Korascale",
@@ -443,7 +443,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/jiuzhaigou-huanglong-by-high-speed-rail-3-day-tour",
+      "url": "http://127.0.0.1:3057/journeys/jiuzhaigou-huanglong-by-high-speed-rail-3-day-tour",
       "status": 200,
       "redirectChain": [],
       "title": "Jiuzhaigou &amp; Huanglong by High-Speed Rail 3-Day Tour | Korascale Travel | Korascale",
@@ -463,7 +463,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/leshan-buddha-emei-mountain-2-day-tour",
+      "url": "http://127.0.0.1:3057/journeys/leshan-buddha-emei-mountain-2-day-tour",
       "status": 200,
       "redirectChain": [],
       "title": "Leshan Buddha &amp; Emei Mountain 2-Day Tour | Korascale Travel | Korascale",
@@ -485,7 +485,7 @@
   ],
   "typePages": [
     {
-      "url": "http://127.0.0.1:3033/journeys/type/explore-together",
+      "url": "http://127.0.0.1:3057/journeys/type/explore-together",
       "status": 200,
       "redirectChain": [],
       "title": "Explore Together | Korascale Journeys",
@@ -505,7 +505,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/type/deep-discovery",
+      "url": "http://127.0.0.1:3057/journeys/type/deep-discovery",
       "status": 200,
       "redirectChain": [],
       "title": "Deep Discovery | Korascale Journeys",
@@ -525,7 +525,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/type/signature-journeys",
+      "url": "http://127.0.0.1:3057/journeys/type/signature-journeys",
       "status": 200,
       "redirectChain": [],
       "title": "Signature Journeys | Korascale Journeys",
@@ -545,7 +545,7 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/type/group-tours",
+      "url": "http://127.0.0.1:3057/journeys/type/group-tours",
       "status": 200,
       "redirectChain": [],
       "title": "Group Tours | Korascale Journeys",
@@ -567,10 +567,10 @@
   ],
   "legacyRedirects": [
     {
-      "url": "http://127.0.0.1:3033/journeys/type/explore-together",
+      "url": "http://127.0.0.1:3057/journeys/type/explore-together",
       "status": 200,
       "redirectChain": [
-        "308 http://127.0.0.1:3033/journeys/explore-together -> http://127.0.0.1:3033/journeys/type/explore-together"
+        "308 http://127.0.0.1:3057/journeys/explore-together -> http://127.0.0.1:3057/journeys/type/explore-together"
       ],
       "title": "",
       "canonical": "",
@@ -589,10 +589,10 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/type/deep-discovery",
+      "url": "http://127.0.0.1:3057/journeys/type/deep-discovery",
       "status": 200,
       "redirectChain": [
-        "308 http://127.0.0.1:3033/journeys/deep-discovery -> http://127.0.0.1:3033/journeys/type/deep-discovery"
+        "308 http://127.0.0.1:3057/journeys/deep-discovery -> http://127.0.0.1:3057/journeys/type/deep-discovery"
       ],
       "title": "",
       "canonical": "",
@@ -611,10 +611,10 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/type/signature-journeys",
+      "url": "http://127.0.0.1:3057/journeys/type/signature-journeys",
       "status": 200,
       "redirectChain": [
-        "308 http://127.0.0.1:3033/journeys/signature-journeys -> http://127.0.0.1:3033/journeys/type/signature-journeys"
+        "308 http://127.0.0.1:3057/journeys/signature-journeys -> http://127.0.0.1:3057/journeys/type/signature-journeys"
       ],
       "title": "",
       "canonical": "",
@@ -633,10 +633,10 @@
       "notes": []
     },
     {
-      "url": "http://127.0.0.1:3033/journeys/type/group-tours",
+      "url": "http://127.0.0.1:3057/journeys/type/group-tours",
       "status": 200,
       "redirectChain": [
-        "308 http://127.0.0.1:3033/journeys/group-tours -> http://127.0.0.1:3033/journeys/type/group-tours"
+        "308 http://127.0.0.1:3057/journeys/group-tours -> http://127.0.0.1:3057/journeys/type/group-tours"
       ],
       "title": "",
       "canonical": "",

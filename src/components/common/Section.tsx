@@ -7,6 +7,7 @@ interface SectionProps {
   background?: 'primary' | 'secondary' | 'tertiary' | 'accent';
   padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   id?: string;
+  testId?: string;
 }
 
 const backgroundClasses = {
@@ -29,11 +30,13 @@ export function Section({
   className, 
   background = 'primary',
   padding = 'lg',
-  id
+  id,
+  testId,
 }: SectionProps) {
   return (
     <section 
       id={id}
+      data-testid={testId}
       className={cn(
         backgroundClasses[background],
         paddingClasses[padding],

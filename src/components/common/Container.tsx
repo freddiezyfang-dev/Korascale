@@ -6,6 +6,7 @@ interface ContainerProps {
   className?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
   padding?: 'none' | 'sm' | 'md' | 'lg';
+  testId?: string;
 }
 
 const sizeClasses = {
@@ -27,10 +28,12 @@ export function Container({
   children, 
   className, 
   size = 'lg', 
-  padding = 'md' 
+  padding = 'md',
+  testId,
 }: ContainerProps) {
   return (
     <div 
+      data-testid={testId}
       className={cn(
         'mx-auto w-full',
         sizeClasses[size],
