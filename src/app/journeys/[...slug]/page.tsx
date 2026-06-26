@@ -9,6 +9,7 @@ import {
   normalizeSlugFromParams,
 } from '@/lib/journeyDetailQuery.server';
 import { getJourneyBySlugForPage } from '@/lib/journeyServer';
+import { getJourneySlugRedirect } from '@/lib/journeyNormalization/redirects';
 import { pickFirstValidImagePath } from '@/lib/imageUtils';
 import { buildJourneyDetailUrl, getJourneyDisplayTitle, getJourneyExcerpt } from '@/lib/journeySeo.server';
 import type { Journey } from '@/types';
@@ -61,6 +62,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
+  const slugRedirect = getJourneySlugRedirect(slugParts.normalizedSlug);
+  if (slugRedirect) {
+    permanentRedirect(`/journeys/${slugRedirect}`);
+  }
+
   const journey = await getJourneyBySlugForPage(slugParts.normalizedSlug);
   if (!journey) {
     return { title: 'Journey Not Found | Korascale' };
@@ -103,6 +109,11 @@ export default async function DynamicJourneyPage({ params }: PageProps) {
 
   if (typeRedirect) {
     permanentRedirect(typeRedirect);
+  }
+
+  const slugRedirect = getJourneySlugRedirect(slugParts.normalizedSlug);
+  if (slugRedirect) {
+    permanentRedirect(`/journeys/${slugRedirect}`);
   }
 
   const journey = await getJourneyBySlugForPage(slugParts.normalizedSlug);

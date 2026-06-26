@@ -1,12 +1,8 @@
+import { JOURNEY_TYPES } from '@/lib/journeyNormalization/constants';
 import type { JourneyType } from '@/types';
 
 /** URL 段 → 与站点一致的旅程类型 slug */
-export const JOURNEY_TYPE_SLUGS = [
-  'explore-together',
-  'deep-discovery',
-  'signature-journeys',
-  'group-tours',
-] as const;
+export const JOURNEY_TYPE_SLUGS = JOURNEY_TYPES;
 
 export type JourneyTypeUrlSlug = (typeof JOURNEY_TYPE_SLUGS)[number];
 

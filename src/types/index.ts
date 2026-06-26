@@ -113,7 +113,7 @@ export interface User {
 export type HotelStatus = 'active' | 'inactive';
 
 // 旅行卡片状态类型
-export type JourneyStatus = 'active' | 'inactive' | 'draft';
+export type JourneyStatus = 'active' | 'inactive' | 'draft' | 'archived';
 
 // 旅行卡片版面分类类型
 export type JourneyType = 'Explore Together' | 'Deep Discovery' | 'Signature Journeys' | 'Group Tours';

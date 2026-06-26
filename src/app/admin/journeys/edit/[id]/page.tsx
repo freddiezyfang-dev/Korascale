@@ -11,6 +11,8 @@ import { Journey, JourneyStatus, JourneyType } from '@/types';
 import { PageGenerationHelper } from '@/components/admin/PageGenerationHelper';
 import { DeleteConfirmationModal } from '@/components/modals/DeleteConfirmationModal';
 import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation';
+import { JOURNEY_ADMIN_STATUS_OPTIONS } from '@/lib/journeyNormalization/write';
+import { journeyStatusForAdminDisplay } from '@/lib/journeyNormalization/adminStatus';
 import { 
   ArrowLeft,
   Save,
@@ -78,11 +80,7 @@ const placeOptions = [
   'Yellow Mountain & Southern Anhui'
 ];
 
-const statusOptions = [
-  { value: 'draft', label: 'Draft' },
-  { value: 'active', label: 'Active' },
-  { value: 'inactive', label: 'Inactive' }
-];
+const statusOptions = JOURNEY_ADMIN_STATUS_OPTIONS;
 
 /** Explore Together 专用：全月日历管理面板，点击日期切换 enabled */
 function ExploreTogetherCalendarPanel({
@@ -719,7 +717,7 @@ export default function EditJourneyPage() {
 
   const handleStatusToggle = () => {
     if (journey) {
-      const newStatus = journey.status === 'active' ? 'inactive' : 'active';
+      const newStatus: JourneyStatus = journey.status === 'active' ? 'archived' : 'active';
       updateJourney(journey.id, { status: newStatus });
       setJourney({ ...journey, status: newStatus });
     }
@@ -2023,7 +2021,11 @@ export default function EditJourneyPage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                     <select
-                      value={isEditing ? (formData.status ?? '') : (journey.status ?? '')}
+                      value={
+                        isEditing
+                          ? journeyStatusForAdminDisplay(formData.status)
+                          : journeyStatusForAdminDisplay(journey.status)
+                      }
                       onChange={(e) => handleInputChange('status', e.target.value as JourneyStatus)}
                       disabled={!isEditing}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"

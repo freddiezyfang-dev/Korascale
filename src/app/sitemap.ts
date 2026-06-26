@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { fetchActiveJourneySitemapSlugs } from '@/lib/journeyDetailQuery.server';
+import { fetchActiveJourneySitemapEntries } from '@/lib/journeyDetailQuery.server';
 import {
 	getActiveArticleCategoriesForSitemap,
 	getLatestActiveArticleUpdatedAt,
@@ -27,10 +27,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
 	let journeyEntries: MetadataRoute.Sitemap = [];
 	try {
-		const slugs = await fetchActiveJourneySitemapSlugs();
-		journeyEntries = slugs.map((slug) => ({
-			url: `${SITE_URL}${buildJourneyDetailPath(slug)}`,
-			lastModified: fallbackModified,
+		const entries = await fetchActiveJourneySitemapEntries();
+		journeyEntries = entries.map(({ canonicalSlug, updatedAt }) => ({
+			url: `${SITE_URL}${buildJourneyDetailPath(canonicalSlug)}`,
+			lastModified: updatedAt,
 			changeFrequency: 'weekly' as const,
 			priority: 0.8,
 		}));

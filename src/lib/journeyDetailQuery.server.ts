@@ -3,6 +3,13 @@
  */
 import { query } from '@/lib/db';
 import { JOURNEY_TYPE_SLUGS } from '@/config/journeyTypeRoutes';
+import { getJourneySlugDbLookupCandidates } from '@/lib/journeyNormalization/redirects';
+import {
+	mapRowToJourneySitemapEntry,
+	resolveCanonicalJourneySlug,
+	shouldIncludeJourneyInSitemap,
+} from '@/lib/journeyNormalization/sitemap';
+import { buildPublicStatusWhereClause } from '@/lib/journeyNormalization/status';
 import { mapJourneyRowToJourney } from '@/lib/journeyListQuery.server';
 import type { Journey } from '@/types';
 
@@ -54,15 +61,18 @@ export async function fetchJourneyBySlugFromDb(
   const trimmed = slugForQuery?.trim();
   if (!trimmed) return null;
 
+  const lookupSlugs = getJourneySlugDbLookupCandidates(trimmed);
+  if (lookupSlugs.length === 0) return null;
+
   const result = await query(
     `
       SELECT *
       FROM journeys
-      WHERE slug = $1
-        AND (status = 'active' OR status IS NULL)
+      WHERE slug = ANY($1::text[])
+        AND (${buildPublicStatusWhereClause()})
       LIMIT 1
     `,
-    [trimmed]
+    [lookupSlugs]
   );
 
   if (result.rows.length === 0) return null;
@@ -77,7 +87,7 @@ export async function fetchActiveJourneySlugsForStaticParams(): Promise<
   const result = await query(`
     SELECT slug
     FROM journeys
-    WHERE status = 'active' OR status IS NULL
+    WHERE ${buildPublicStatusWhereClause()}
     ORDER BY created_at DESC
     LIMIT 500
   `);
@@ -86,29 +96,48 @@ export async function fetchActiveJourneySlugsForStaticParams(): Promise<
 
   for (const row of result.rows) {
     const slug = (row.slug as string)?.trim();
-    if (!slug) continue;
+    if (!slug || !shouldIncludeJourneyInSitemap(row)) continue;
+    const canonical = resolveCanonicalJourneySlug(slug);
     params.push({
-      slug: slug.split('/').filter(Boolean),
+      slug: canonical.split('/').filter(Boolean),
     });
   }
 
   return params;
 }
 
-/** Flat slugs for sitemap entries (active/null only). */
-export async function fetchActiveJourneySitemapSlugs(): Promise<string[]> {
+/** Sitemap rows with canonical slug and real updated_at (no build-time fallback). */
+export async function fetchActiveJourneySitemapEntries(): Promise<
+  Array<{ canonicalSlug: string; updatedAt: Date }>
+> {
   const result = await query(`
-    SELECT slug
+    SELECT slug, status, updated_at
     FROM journeys
-    WHERE status = 'active' OR status IS NULL
-    ORDER BY created_at DESC
+    WHERE ${buildPublicStatusWhereClause()}
+    ORDER BY updated_at DESC
     LIMIT 500
   `);
 
-  const slugs: string[] = [];
+  const entries: Array<{ canonicalSlug: string; updatedAt: Date }> = [];
+
   for (const row of result.rows) {
-    const slug = (row.slug as string)?.trim();
-    if (slug) slugs.push(slug);
+    const mapped = mapRowToJourneySitemapEntry({
+      slug: row.slug as string,
+      status: row.status,
+      updated_at: row.updated_at as string | Date,
+    });
+    if (!mapped) continue;
+    entries.push({
+      canonicalSlug: mapped.canonicalSlug,
+      updatedAt: mapped.updatedAt,
+    });
   }
-  return slugs;
+
+  return entries;
+}
+
+/** Flat canonical slugs for sitemap entries (active/null only). */
+export async function fetchActiveJourneySitemapSlugs(): Promise<string[]> {
+  const entries = await fetchActiveJourneySitemapEntries();
+  return entries.map((entry) => entry.canonicalSlug);
 }

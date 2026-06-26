@@ -3,6 +3,7 @@ import path from 'node:path';
 
 import { query } from '@/lib/db';
 import { getCanonicalCategoryForArticle } from '@/lib/articleCategories';
+import { buildPublicStatusWhereClause } from '@/lib/journeyNormalization/status';
 
 export type ContentCatalogArticle = {
 	id: string;
@@ -57,7 +58,7 @@ export async function fetchActiveJourneysForCatalog(): Promise<ContentCatalogJou
 		`
     SELECT id, slug, title, journey_type
     FROM journeys
-    WHERE status = 'active' OR status IS NULL
+    WHERE ${buildPublicStatusWhereClause()}
     ORDER BY title ASC
     LIMIT 500
   `

@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { enforceAdminWrite } from '@/lib/auth/requireAdmin.server';
 import { query } from '@/lib/db';
 import { pickFirstValidImagePath, sanitizeImageList, sanitizeImagePath } from '@/lib/imageUtils';
+import {
+  assertJourneySqlSafeForCurrentSchema,
+  buildJourneyDualWritePayload,
+  mergeExpandedColumnSql,
+  normalizeJourneyStatusForWrite,
+} from '@/lib/journeyNormalization/write';
 import { Journey } from '@/types';
 
 /** 标准化 availableDates：确保每项含 enabled（缺省 true），与单日游格式一致 */
@@ -251,7 +257,7 @@ export async function PUT(
     }
     if (updates.status !== undefined) {
       updateFields.push(`status = $${paramIndex++}`);
-      updateValues.push(updates.status);
+      updateValues.push(normalizeJourneyStatusForWrite(updates.status));
     }
     if (updates.featured !== undefined) {
       updateFields.push(`featured = $${paramIndex++}`);
@@ -285,7 +291,14 @@ export async function PUT(
     if ((updates as any).heroStats !== undefined) jsonbUpdates.heroStats = (updates as any).heroStats;
     if ((updates as any).navigation !== undefined) jsonbUpdates.navigation = (updates as any).navigation;
     if ((updates as any).pageTitle !== undefined) jsonbUpdates.pageTitle = (updates as any).pageTitle;
+    if ((updates as any).metaDescription !== undefined) {
+      jsonbUpdates.metaDescription = (updates as any).metaDescription;
+    }
     if ((updates as any).heroImage !== undefined) jsonbUpdates.heroImage = (updates as any).heroImage;
+    if ((updates as any).heroAlt !== undefined) {
+      jsonbUpdates.heroAlt = (updates as any).heroAlt;
+      jsonbUpdates.heroImageAlt = (updates as any).heroAlt;
+    }
     if ((updates as any).mainContentImage !== undefined) jsonbUpdates.mainContentImage = (updates as any).mainContentImage;
     if ((updates as any).destinationCount !== undefined) jsonbUpdates.destinationCount = (updates as any).destinationCount;
     if ((updates as any).maxGuests !== undefined) jsonbUpdates.maxGuests = (updates as any).maxGuests;
@@ -297,6 +310,16 @@ export async function PUT(
     if ((updates as any).priceDetails !== undefined) jsonbUpdates.priceDetails = (updates as any).priceDetails;
     if ((updates as any).extensions !== undefined) jsonbUpdates.extensions = (updates as any).extensions;
     if ((updates as any).hotels !== undefined) jsonbUpdates.hotels = (updates as any).hotels;
+
+    const dualWrite = buildJourneyDualWritePayload({
+      pageTitle: (updates as Journey).pageTitle,
+      metaDescription: (updates as Journey).metaDescription,
+      heroImage: (updates as any).heroImage,
+      heroAlt: (updates as any).heroAlt ?? (updates as any).heroImageAlt,
+      journeyType: (updates as any).journeyType,
+      shortDescription: (updates as any).shortDescription,
+    });
+    Object.assign(jsonbUpdates, dualWrite.jsonb);
     
     // 先获取journey ID并验证journey是否存在
     const { id } = await context.params;
@@ -341,6 +364,11 @@ export async function PUT(
       }
     }
     
+    const expandedMerge = mergeExpandedColumnSql(dualWrite.expandedColumns, paramIndex);
+    updateFields.push(...expandedMerge.fields);
+    updateValues.push(...expandedMerge.values);
+    paramIndex = expandedMerge.nextIndex;
+
     if (updateFields.length === 0) {
       return NextResponse.json({ success: true, message: 'No updates provided' });
     }
@@ -355,6 +383,7 @@ export async function PUT(
       RETURNING id, updated_at
     `;
     updateValues.push(id);
+    assertJourneySqlSafeForCurrentSchema(updateSql);
     
     try {
       await query(updateSql, updateValues);

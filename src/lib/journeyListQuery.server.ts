@@ -2,6 +2,7 @@
  * Server-only journey list queries (direct DB). Do not import from Client Components.
  */
 import { query } from '@/lib/db';
+import { buildPublicStatusWhereClause } from '@/lib/journeyNormalization/status';
 import { pickFirstValidImagePath, sanitizeImageList, sanitizeImagePath } from '@/lib/imageUtils';
 import type { Journey } from '@/types';
 
@@ -116,9 +117,7 @@ export async function queryJourneyRows(options?: {
   const minimalFields = fields === 'minimal';
   const listFields = fields === 'list';
 
-  const statusCondition = includeAll
-    ? ''
-    : "WHERE status = 'active' OR status IS NULL";
+  const statusCondition = includeAll ? '' : `WHERE ${buildPublicStatusWhereClause()}`;
 
   const limit = listFields ? 500 : 1000;
 
