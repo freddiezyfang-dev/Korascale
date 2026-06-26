@@ -7,7 +7,7 @@ import { Section, Container, Heading, Text, Breadcrumb, Card, Button } from '@/c
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { JourneyType, Journey } from '@/types';
 import { JOURNEY_TYPE_CARD_IMAGE } from '@/lib/journeyTypeCardImages';
-import { PlanYourJourneyCtaSection } from '@/components/journeys/PlanYourJourneyCtaSection';
+import { PlanTripModal } from '@/components/modals/PlanTripModal';
 import { journeyTypeFromSlug } from '@/config/journeyTypeRoutes';
 import { JourneyTypePageSkeleton } from '@/components/journeys/JourneyRouteSkeleton';
 
@@ -639,7 +639,7 @@ export default function JourneyTypePageClient({
       {/* 4. Journey Filter + Grid Section - Group Tours 不显示 */}
       {!isGroupTours && (
       <Section background="secondary" padding="none" className="pb-16 bg-[#f5f1e6]">
-        <Container size="full" padding="none" className="px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-12">
+        <Container size="full" padding="none" className="px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-12" data-testid="journey-main-content">
           <div className="flex gap-8">
             {/* Filter Sidebar - 左侧栏 */}
             <div className="w-80 flex-shrink-0">
@@ -912,11 +912,50 @@ export default function JourneyTypePageClient({
       </Section>
       )}
 
-      <PlanYourJourneyCtaSection
-        sourcePage={`/journeys/type/${typeSlug}`}
-        isModalOpen={isPlanTripModalOpen}
-        onModalOpenChange={setIsPlanTripModalOpen}
-      />
+      {/* 5. Plan Your Journey Section */}
+      <Section background="primary" padding="none" className="py-12" data-testid="plan-your-journey-section">
+        <Container
+          size="xl"
+          padding="none"
+          className="bg-[#1e3b32] mx-4 sm:mx-8 lg:mx-20 rounded-lg p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6"
+          data-testid="plan-your-journey-cta"
+        >
+          <div>
+            <Heading
+              level={2}
+              className="text-2xl sm:text-3xl mb-4"
+              style={{ color: '#FFFFFF', fontFamily: FONT_SERIF }}
+            >
+              Plan your journey in China with Korascale
+            </Heading>
+            <Text
+              className="text-sm sm:text-base"
+              style={{ color: '#FFFFFF', fontFamily: FONT_SANS }}
+            >
+              Tell us what you are looking for and our team will craft a tailored itinerary that matches your
+              interests, timing and budget.
+            </Text>
+          </div>
+          <Button
+            variant="primary"
+            size="lg"
+            className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-body text-sm hover:bg-white hover:text-tertiary transition-all duration-300"
+            onClick={() => setIsPlanTripModalOpen(true)}
+          >
+            PLAN YOUR JOURNEY
+          </Button>
+        </Container>
+
+        <PlanTripModal
+          isOpen={isPlanTripModalOpen}
+          onClose={() => setIsPlanTripModalOpen(false)}
+          inquiry={{
+            intent: 'custom_journey',
+            sourceType: 'journey',
+            sourcePage: `/journeys/type/${typeSlug}`,
+          }}
+        />
+      </Section>
     </main>
   );
 }

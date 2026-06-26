@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState, useMemo } from 'react';
 import { Container, Section, Heading, Text, Button, Card, Breadcrumb } from '@/components/common';
-import { PlanYourJourneyCtaSection } from '@/components/journeys/PlanYourJourneyCtaSection';
+import { PlanTripModal } from '@/components/modals/PlanTripModal';
 import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import type { Journey, JourneyType } from '@/types';
 import { JOURNEY_TYPE_CARD_IMAGE } from '@/lib/journeyTypeCardImages';
@@ -348,7 +348,7 @@ export default function JourneysPageClient({ initialJourneys }: JourneysPageClie
 						</div>
 						
 						{/* Text Box Overlay - Right Side - 与其他页面统一 */}
-						<div className="w-full max-w-[359px] aspect-[359/352] min-h-0 rounded-lg bg-[#1e3b32] p-6 sm:p-8 flex flex-col justify-center">
+						<div className="bg-tertiary w-full max-w-[359px] aspect-[359/352] min-h-0 rounded-lg p-6 sm:p-8 flex flex-col justify-center">
 							<Heading 
 								level={2} 
 								className="text-4xl font-heading mb-8" 
@@ -359,7 +359,7 @@ export default function JourneysPageClient({ initialJourneys }: JourneysPageClie
 							<Button 
 								variant="primary" 
 								size="lg" 
-								className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-body text-sm hover:bg-white hover:text-[#1e3b32] transition-all duration-300"
+								className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-body text-sm hover:bg-white hover:text-tertiary transition-all duration-300"
 								onClick={() => setIsPlanTripModalOpen(true)}
 							>
 								EXPLORE NOW
@@ -492,9 +492,20 @@ export default function JourneysPageClient({ initialJourneys }: JourneysPageClie
 				</Container>
 			</Section>
 
+			{/* Plan Trip Modal */}
+			<PlanTripModal
+				isOpen={isPlanTripModalOpen}
+				onClose={() => setIsPlanTripModalOpen(false)}
+				inquiry={{
+					intent: 'custom_journey',
+					sourceType: 'homepage',
+					sourcePage: '/journeys',
+				}}
+			/>
+
 			{/* Filter and Results Section */}
 			<div className="bg-[#f5f1e6] py-16">
-				<Container size="full" padding="none" className="px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+				<Container size="full" padding="none" className="px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16" data-testid="journey-main-content">
 					<div className="flex flex-col md:flex-row gap-8">
 						{/* Filter Sidebar: 仅桌面端显示；移动端用抽屉 */}
 						<div className="hidden md:block w-80 flex-shrink-0">
@@ -796,12 +807,40 @@ export default function JourneysPageClient({ initialJourneys }: JourneysPageClie
 				</Container>
 			</div>
 
-			<PlanYourJourneyCtaSection
-				sourcePage="/journeys"
-				inquirySourceType="homepage"
-				isModalOpen={isPlanTripModalOpen}
-				onModalOpenChange={setIsPlanTripModalOpen}
-			/>
+			{/* Plan Your Journey Section */}
+			<Section background="primary" padding="none" className="py-12" data-testid="plan-your-journey-section">
+				<Container
+					size="xl"
+					padding="none"
+					className="bg-[#1e3b32] mx-4 sm:mx-8 lg:mx-20 rounded-lg p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6"
+					data-testid="plan-your-journey-cta"
+				>
+					<div>
+						<Heading
+							level={2}
+							className="text-2xl sm:text-3xl mb-4"
+							style={{ color: '#FFFFFF', fontFamily: 'Montaga, serif' }}
+						>
+							Plan your journey in China with Korascale
+						</Heading>
+						<Text
+							className="text-sm sm:text-base"
+							style={{ color: '#FFFFFF', fontFamily: 'Monda, sans-serif' }}
+						>
+							Tell us what you are looking for and our team will craft a tailored itinerary that matches your
+							interests, timing and budget.
+						</Text>
+					</div>
+					<Button
+						variant="primary"
+						size="lg"
+						className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-body text-sm hover:bg-white hover:text-tertiary transition-all duration-300"
+						onClick={() => setIsPlanTripModalOpen(true)}
+					>
+						PLAN YOUR JOURNEY
+					</Button>
+				</Container>
+			</Section>
 		</div>
 	);
 }

@@ -7,7 +7,6 @@ interface SectionProps {
   background?: 'primary' | 'secondary' | 'tertiary' | 'accent';
   padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   id?: string;
-  testId?: string;
 }
 
 const backgroundClasses = {
@@ -31,53 +30,20 @@ export function Section({
   background = 'primary',
   padding = 'lg',
   id,
-  testId,
-}: SectionProps) {
+  ...rest
+}: SectionProps & React.ComponentPropsWithoutRef<'section'>) {
   return (
     <section 
       id={id}
-      data-testid={testId}
       className={cn(
         backgroundClasses[background],
         paddingClasses[padding],
         'w-full overflow-x-hidden', // 防止水平滚动
         className
       )}
+      {...rest}
     >
       {children}
     </section>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

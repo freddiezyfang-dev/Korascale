@@ -1,0 +1,229 @@
+{
+  "generatedAt": "2026-06-26T10:49:53.528Z",
+  "tolerancePx": 4,
+  "reports": [
+    {
+      "page": "journeys-list",
+      "url": "/journeys",
+      "desktop": {
+        "viewport": "1440x900",
+        "mainContent": {
+          "left": 0,
+          "right": 1440,
+          "width": 1440
+        },
+        "grid": {
+          "left": 416,
+          "right": 1376,
+          "width": 960
+        },
+        "cta": {
+          "left": 80,
+          "right": 1360,
+          "width": 1280
+        },
+        "leftDelta": 336,
+        "rightDelta": 16,
+        "pass": false,
+        "notes": [
+          "left delta 336px > 4px",
+          "right delta 16px > 4px"
+        ]
+      },
+      "mobile": {
+        "viewport": "390x844",
+        "mainContent": {
+          "left": 0,
+          "right": 390,
+          "width": 390
+        },
+        "grid": {
+          "left": 16,
+          "right": 374,
+          "width": 358
+        },
+        "cta": {
+          "left": 16,
+          "right": 406,
+          "width": 390
+        },
+        "leftDelta": 0,
+        "rightDelta": 32,
+        "pass": false,
+        "notes": [
+          "right delta 32px > 4px"
+        ]
+      },
+      "screenshots": {
+        "desktop": "docs/audits/pr-j1-cta-alignment/journeys-list-desktop-1440.png",
+        "mobile": "docs/audits/pr-j1-cta-alignment/journeys-list-mobile-390.png"
+      }
+    },
+    {
+      "page": "explore-together",
+      "url": "/journeys/type/explore-together",
+      "desktop": {
+        "viewport": "1440x900",
+        "mainContent": {
+          "left": 0,
+          "right": 1440,
+          "width": 1440
+        },
+        "grid": {
+          "left": 416,
+          "right": 1376,
+          "width": 960
+        },
+        "cta": {
+          "left": 80,
+          "right": 1360,
+          "width": 1280
+        },
+        "leftDelta": 336,
+        "rightDelta": 16,
+        "pass": false,
+        "notes": [
+          "left delta 336px > 4px",
+          "right delta 16px > 4px"
+        ]
+      },
+      "mobile": {
+        "viewport": "390x844",
+        "mainContent": {
+          "left": 0,
+          "right": 390,
+          "width": 390
+        },
+        "grid": {
+          "left": 368,
+          "right": 374,
+          "width": 6
+        },
+        "cta": {
+          "left": 16,
+          "right": 406,
+          "width": 390
+        },
+        "leftDelta": 352,
+        "rightDelta": 32,
+        "pass": false,
+        "notes": [
+          "left delta 352px > 4px",
+          "right delta 32px > 4px"
+        ]
+      },
+      "screenshots": {
+        "desktop": "docs/audits/pr-j1-cta-alignment/explore-together-desktop-1440.png",
+        "mobile": "docs/audits/pr-j1-cta-alignment/explore-together-mobile-390.png"
+      }
+    },
+    {
+      "page": "deep-discovery",
+      "url": "/journeys/type/deep-discovery",
+      "desktop": {
+        "viewport": "1440x900",
+        "mainContent": {
+          "left": 0,
+          "right": 1440,
+          "width": 1440
+        },
+        "grid": {
+          "left": 416,
+          "right": 1376,
+          "width": 960
+        },
+        "cta": {
+          "left": 80,
+          "right": 1360,
+          "width": 1280
+        },
+        "leftDelta": 336,
+        "rightDelta": 16,
+        "pass": false,
+        "notes": [
+          "left delta 336px > 4px",
+          "right delta 16px > 4px"
+        ]
+      },
+      "mobile": {
+        "viewport": "390x844",
+        "mainContent": {
+          "left": 0,
+          "right": 390,
+          "width": 390
+        },
+        "grid": {
+          "left": 368,
+          "right": 374,
+          "width": 6
+        },
+        "cta": {
+          "left": 16,
+          "right": 406,
+          "width": 390
+        },
+        "leftDelta": 352,
+        "rightDelta": 32,
+        "pass": false,
+        "notes": [
+          "left delta 352px > 4px",
+          "right delta 32px > 4px"
+        ]
+      },
+      "screenshots": {
+        "desktop": "docs/audits/pr-j1-cta-alignment/deep-discovery-desktop-1440.png",
+        "mobile": "docs/audits/pr-j1-cta-alignment/deep-discovery-mobile-390.png"
+      }
+    },
+    {
+      "page": "signature-journeys",
+      "url": "/journeys/type/signature-journeys",
+      "desktop": {
+        "viewport": "1440x900",
+        "mainContent": {
+          "left": 0,
+          "right": 1440,
+          "width": 1440
+        },
+        "grid": null,
+        "cta": {
+          "left": 80,
+          "right": 1360,
+          "width": 1280
+        },
+        "leftDelta": 80,
+        "rightDelta": 80,
+        "pass": false,
+        "notes": [
+          "left delta 80px > 4px",
+          "right delta 80px > 4px"
+        ]
+      },
+      "mobile": {
+        "viewport": "390x844",
+        "mainContent": {
+          "left": 0,
+          "right": 390,
+          "width": 390
+        },
+        "grid": null,
+        "cta": {
+          "left": 16,
+          "right": 406,
+          "width": 390
+        },
+        "leftDelta": 16,
+        "rightDelta": 16,
+        "pass": false,
+        "notes": [
+          "left delta 16px > 4px",
+          "right delta 16px > 4px"
+        ]
+      },
+      "screenshots": {
+        "desktop": "docs/audits/pr-j1-cta-alignment/signature-journeys-desktop-1440.png",
+        "mobile": "docs/audits/pr-j1-cta-alignment/signature-journeys-mobile-390.png"
+      }
+    }
+  ]
+}

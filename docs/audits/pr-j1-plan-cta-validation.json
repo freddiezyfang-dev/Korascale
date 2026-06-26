@@ -1,40 +1,46 @@
 {
-  "generatedAt": "2026-06-26T10:25:09.611Z",
+  "generatedAt": "2026-06-26T10:52:26.599Z",
   "reports": [
     {
       "page": "journeys-list",
       "url": "/journeys",
       "desktop": {
         "viewport": "1440x900",
-        "sectionExists": true,
-        "ctaExists": true,
-        "ctaVisible": true,
-        "ctaText": "Plan your journey in China with KorascaleTell us what you are looking for and our team will craft a tailored itinerary t",
-        "sectionHeight": 261,
-        "ctaHeight": 165,
-        "ctaWidth": 1280,
-        "ctaOpacity": "1",
-        "ctaDisplay": "flex",
-        "ctaVisibility": "visible",
-        "ctaBackground": "rgb(30, 59, 50)",
-        "pass": true,
-        "notes": []
+        "sectionExists": false,
+        "ctaExists": false,
+        "ctaVisible": false,
+        "ctaText": "",
+        "sectionHeight": 0,
+        "ctaHeight": 0,
+        "ctaWidth": 0,
+        "ctaOpacity": "",
+        "ctaDisplay": "",
+        "ctaVisibility": "",
+        "ctaBackground": "",
+        "pass": false,
+        "notes": [
+          "expected section missing",
+          "cta element missing"
+        ]
       },
       "mobile": {
         "viewport": "390x844",
-        "sectionExists": true,
-        "ctaExists": true,
-        "ctaVisible": true,
-        "ctaText": "Plan your journey in China with KorascaleTell us what you are looking for and our team will craft a tailored itinerary t",
-        "sectionHeight": 379,
-        "ctaHeight": 283,
-        "ctaWidth": 390,
-        "ctaOpacity": "1",
-        "ctaDisplay": "flex",
-        "ctaVisibility": "visible",
-        "ctaBackground": "rgb(30, 59, 50)",
-        "pass": true,
-        "notes": []
+        "sectionExists": false,
+        "ctaExists": false,
+        "ctaVisible": false,
+        "ctaText": "",
+        "sectionHeight": 0,
+        "ctaHeight": 0,
+        "ctaWidth": 0,
+        "ctaOpacity": "",
+        "ctaDisplay": "",
+        "ctaVisibility": "",
+        "ctaBackground": "",
+        "pass": false,
+        "notes": [
+          "expected section missing",
+          "cta element missing"
+        ]
       }
     },
     {
