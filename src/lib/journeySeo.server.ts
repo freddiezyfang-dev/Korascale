@@ -1,4 +1,5 @@
 import { JourneyTypeToSlug, type JourneyTypeUrlSlug } from '@/config/journeyTypeRoutes';
+import { resolveCanonicalJourneySlug } from '@/lib/journeyNormalization/sitemap';
 import { pickFirstValidImagePath } from '@/lib/imageUtils';
 import type { Journey } from '@/types';
 
@@ -30,7 +31,7 @@ export function getJourneyExcerpt(journey: Journey): string {
 }
 
 export function buildJourneyDetailUrl(slug: string): string {
-  const normalized = slug.replace(/^journeys\//i, '').replace(/^\/+/, '').trim();
+  const normalized = resolveCanonicalJourneySlug(slug);
   return `${SITE_URL}/journeys/${normalized}`;
 }
 
@@ -129,12 +130,18 @@ export function buildJourneyTripJsonLd(journey: Journey) {
   }
 
   if (typeof journey.price === 'number' && journey.price > 0) {
-    jsonLd.offers = {
-      '@type': 'Offer',
-      price: journey.price,
-      priceCurrency: 'USD',
-      url,
-    };
+    const currency =
+      typeof (journey as Journey & { currency?: string }).currency === 'string'
+        ? (journey as Journey & { currency?: string }).currency?.toUpperCase()
+        : undefined;
+    if (currency === 'USD' || currency === 'CNY' || currency === 'EUR') {
+      jsonLd.offers = {
+        '@type': 'Offer',
+        price: journey.price,
+        priceCurrency: currency,
+        url,
+      };
+    }
   }
 
   return jsonLd;
@@ -149,7 +156,7 @@ export function resolveJourneyCardHref(
 ): string {
   const slug = journey.slug?.trim();
   if (slug) {
-    const segment = slug.replace(/^journeys\//i, '').replace(/^\/+/, '');
+    const segment = resolveCanonicalJourneySlug(slug);
     return segment ? `/journeys/${segment}` : '/journeys';
   }
   const link = typeof journey.link === 'string' ? journey.link.trim() : '';

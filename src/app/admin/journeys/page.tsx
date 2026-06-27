@@ -11,7 +11,12 @@ import { migrateExistingPage, validateMigratedPage } from '@/lib/pageMigration';
 import { DeleteConfirmationModal } from '@/components/modals/DeleteConfirmationModal';
 import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation';
 import { checkDataStatus, createEmergencyBackup, restoreFromEmergencyBackup } from '@/utils/dataRecovery';
-import { 
+import {
+  journeyMatchesAdminStatusFilter,
+  journeyStatusForAdminDisplay,
+  isJourneyArchivedInDb,
+} from '@/lib/journeyNormalization/adminStatus';
+import {
   MapPin, 
   Star, 
   Eye, 
@@ -41,7 +46,12 @@ const statusConfig = {
     description: 'Journey is available for booking'
   },
   inactive: { 
-    label: 'Inactive', 
+    label: 'Archived', 
+    color: 'bg-red-100 text-red-800 border-red-200',
+    description: 'Journey is not available for booking (legacy DB value)'
+  },
+  archived: { 
+    label: 'Archived', 
     color: 'bg-red-100 text-red-800 border-red-200',
     description: 'Journey is not available for booking'
   },
@@ -183,7 +193,7 @@ export default function AdminJourneysPage() {
   };
 
   const handleStatusToggle = (journeyId: string, currentStatus: JourneyStatus) => {
-    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    const newStatus: JourneyStatus = currentStatus === 'active' ? 'archived' : 'active';
     updateJourneyStatus(journeyId, newStatus);
   };
 
@@ -221,7 +231,9 @@ export default function AdminJourneysPage() {
 
   // 过滤旅行卡片
   const filteredJourneys = journeys.filter(journey => {
-    const matchesStatus = selectedStatus === 'all' || journey.status === selectedStatus;
+    const matchesStatus =
+      selectedStatus === 'all' ||
+      journeyMatchesAdminStatusFilter(journey.status, selectedStatus);
     const journeyType = resolveJourneyType(journey);
     const matchesJourneyType = selectedJourneyType === 'all' || journeyType === selectedJourneyType;
     const matchesRegion = selectedRegion === 'all' || journey.region === selectedRegion;
@@ -238,7 +250,7 @@ export default function AdminJourneysPage() {
   const stats = {
     total: journeys.length,
     active: getJourneysByStatus('active').length,
-    inactive: getJourneysByStatus('inactive').length,
+    archived: journeys.filter((j) => isJourneyArchivedInDb(j.status)).length,
     draft: getJourneysByStatus('draft').length,
     featured: journeys.filter(j => j.featured && j.status === 'active').length,
     nature: getJourneysByCategory('Nature').length,
@@ -463,8 +475,8 @@ export default function AdminJourneysPage() {
             <Card className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Text className="text-sm font-medium text-gray-600">Inactive</Text>
-                  <Text className="text-2xl font-bold text-red-600">{stats.inactive}</Text>
+                  <Text className="text-sm font-medium text-gray-600">Archived</Text>
+                  <Text className="text-2xl font-bold text-red-600">{stats.archived}</Text>
                 </div>
                 <div className="w-3 h-3 bg-red-500 rounded-full"></div>
               </div>
@@ -535,11 +547,11 @@ export default function AdminJourneysPage() {
                   Active ({stats.active})
                 </Button>
                 <Button
-                  variant={selectedStatus === 'inactive' ? 'primary' : 'secondary'}
-                  onClick={() => setSelectedStatus('inactive')}
+                  variant={selectedStatus === 'archived' ? 'primary' : 'secondary'}
+                  onClick={() => setSelectedStatus('archived')}
                   size="sm"
                 >
-                  Inactive ({stats.inactive})
+                  Archived ({stats.archived})
                 </Button>
                 <Button
                   variant={selectedStatus === 'draft' ? 'primary' : 'secondary'}

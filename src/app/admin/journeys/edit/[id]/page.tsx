@@ -11,6 +11,8 @@ import { Journey, JourneyStatus, JourneyType } from '@/types';
 import { PageGenerationHelper } from '@/components/admin/PageGenerationHelper';
 import { DeleteConfirmationModal } from '@/components/modals/DeleteConfirmationModal';
 import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation';
+import { JOURNEY_ADMIN_STATUS_OPTIONS } from '@/lib/journeyNormalization/write';
+import { journeyStatusForAdminDisplay } from '@/lib/journeyNormalization/adminStatus';
 import { 
   ArrowLeft,
   Save,
@@ -78,11 +80,7 @@ const placeOptions = [
   'Yellow Mountain & Southern Anhui'
 ];
 
-const statusOptions = [
-  { value: 'draft', label: 'Draft' },
-  { value: 'active', label: 'Active' },
-  { value: 'inactive', label: 'Inactive' }
-];
+const statusOptions = JOURNEY_ADMIN_STATUS_OPTIONS;
 
 /** Explore Together 专用：全月日历管理面板，点击日期切换 enabled */
 function ExploreTogetherCalendarPanel({
@@ -719,7 +717,7 @@ export default function EditJourneyPage() {
 
   const handleStatusToggle = () => {
     if (journey) {
-      const newStatus = journey.status === 'active' ? 'inactive' : 'active';
+      const newStatus: JourneyStatus = journey.status === 'active' ? 'archived' : 'active';
       updateJourney(journey.id, { status: newStatus });
       setJourney({ ...journey, status: newStatus });
     }
@@ -2023,7 +2021,11 @@ export default function EditJourneyPage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                     <select
-                      value={isEditing ? (formData.status ?? '') : (journey.status ?? '')}
+                      value={
+                        isEditing
+                          ? journeyStatusForAdminDisplay(formData.status)
+                          : journeyStatusForAdminDisplay(journey.status)
+                      }
                       onChange={(e) => handleInputChange('status', e.target.value as JourneyStatus)}
                       disabled={!isEditing}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
@@ -2108,14 +2110,41 @@ export default function EditJourneyPage() {
                   <div className="mt-4">
                     {(() => {
                       const previewUrl = isEditing ? (formData.image ?? journey.image) : journey.image;
+                      const previewAlt =
+                        (isEditing
+                          ? (formData.heroAlt ?? journey.heroAlt)
+                          : journey.heroAlt) ||
+                        journey.title ||
+                        'Journey preview';
                       return previewUrl ? (
                         <img
                           src={previewUrl}
-                          alt="Journey preview"
+                          alt={previewAlt}
                           className="w-full h-32 object-cover rounded-lg"
                         />
                       ) : null;
                     })()}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Hero Alt Text（SEO / 无障碍）
+                    </label>
+                    <textarea
+                      value={
+                        isEditing
+                          ? (formData.heroAlt ?? journey.heroAlt ?? '')
+                          : (journey.heroAlt ?? '')
+                      }
+                      onChange={(e) => handleInputChange('heroAlt', e.target.value)}
+                      disabled={!isEditing}
+                      rows={2}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                      placeholder="客观描述 Hero 主图画面，用于 img alt 与 SEO"
+                    />
+                    <Text size="sm" className="text-gray-500 mt-1">
+                      描述主图（Main Image / Hero Banner）内容，避免营销套话。保存后写入 JSONB 与 hero_image_alt 列。
+                    </Text>
                   </div>
 
                   {/* Explore Together 专用：Hero 图 + 中间大图 */}
@@ -2144,7 +2173,14 @@ export default function EditJourneyPage() {
                         </div>
                         {(formData.heroImage ?? journey.heroImage) && (
                           <div className="mt-2">
-                            <img src={getRenderableImageUrl(formData.heroImage ?? journey.heroImage)} alt="Hero" className="w-full max-w-md h-24 object-cover rounded-lg" />
+                            <img
+                              src={getRenderableImageUrl(formData.heroImage ?? journey.heroImage)}
+                              alt={
+                                (isEditing ? (formData.heroAlt ?? journey.heroAlt) : journey.heroAlt) ||
+                                'Explore Together hero'
+                              }
+                              className="w-full max-w-md h-24 object-cover rounded-lg"
+                            />
                           </div>
                         )}
                       </div>

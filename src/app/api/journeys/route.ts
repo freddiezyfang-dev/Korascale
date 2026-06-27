@@ -7,6 +7,12 @@ import {
   normalizeAvailableDates,
   queryJourneyRows,
 } from '@/lib/journeyListQuery.server';
+import {
+  assertJourneySqlSafeForCurrentSchema,
+  buildJourneyDualWritePayload,
+  buildJourneyInsertSql,
+  normalizeJourneyStatusForWrite,
+} from '@/lib/journeyNormalization/write';
 import { Journey } from '@/types';
 
 // Route Segment Config - 确保路由被正确识别
@@ -214,6 +220,15 @@ export async function POST(request: NextRequest) {
     } = journey;
     
     // 提取JSONB字段（复杂嵌套结构）
+    const dualWrite = buildJourneyDualWritePayload({
+      pageTitle: (journey as Journey).pageTitle,
+      metaDescription: (journey as Journey).metaDescription,
+      heroImage: journey.heroImage,
+      heroAlt: (journey as any).heroAlt ?? (journey as any).heroImageAlt,
+      journeyType: journeyType ?? undefined,
+      shortDescription: shortDescription ?? undefined,
+    });
+
     const jsonbData = {
       itinerary: journey.itinerary || [],
       overview: journey.overview || {},
@@ -240,22 +255,16 @@ export async function POST(request: NextRequest) {
       priceDetails: (journey as any).priceDetails ?? undefined,
       standardInclusionsList: (journey as any).standardInclusionsList ?? undefined,
       availableDates: normalizeAvailableDates((journey as any).availableDates),
+      pageTitle: (journey as Journey).pageTitle,
+      metaDescription: (journey as Journey).metaDescription,
+      ...dualWrite.jsonb,
     };
-    
-    // 插入数据库
-    const insertSql = `
-      INSERT INTO journeys (
-        title, slug, description, short_description, 
-        price, original_price, category, journey_type, region, place, city, location,
-        duration, difficulty, max_participants, min_participants,
-        image, status, featured, rating, review_count,
-        data, created_at, updated_at
-      ) VALUES (
-        $2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,
-        $14,$15,$16,$17,$18,$19,$20,$21,$22,
-        $1::jsonb,NOW(),NOW()
-      ) RETURNING id, created_at, updated_at
-    `;
+
+    const normalizedStatus = normalizeJourneyStatusForWrite(status, 'draft');
+    const { sql: insertSql, expandedValues } = buildJourneyInsertSql(
+      dualWrite.expandedColumns
+    );
+    assertJourneySqlSafeForCurrentSchema(insertSql);
     const params = [
       JSON.stringify(jsonbData),
       title,
@@ -265,7 +274,7 @@ export async function POST(request: NextRequest) {
       price || 0,
       originalPrice || null,
       category || null,
-      journeyType || null, // journey_type
+      journeyType || null,
       region || null,
       place || null,
       city || null,
@@ -275,10 +284,11 @@ export async function POST(request: NextRequest) {
       maxParticipants || 12,
       minParticipants || 2,
       image || null,
-      status || 'draft',
+      normalizedStatus,
       featured || false,
       rating || 0,
       reviewCount || 0,
+      ...expandedValues,
     ];
     const { rows } = await query(insertSql, params);
     

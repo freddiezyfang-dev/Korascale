@@ -62,11 +62,9 @@ const placeOptions = [
   'Yellow Mountain & Southern Anhui'
 ];
 
-const statusOptions = [
-  { value: 'draft', label: 'Draft' },
-  { value: 'active', label: 'Active' },
-  { value: 'inactive', label: 'Inactive' }
-];
+import { JOURNEY_ADMIN_STATUS_OPTIONS } from '@/lib/journeyNormalization/write';
+
+const statusOptions = JOURNEY_ADMIN_STATUS_OPTIONS;
 
 // 预设的标准服务列表（基于 A&K 风格）
 const STANDARD_INCLUDES = [

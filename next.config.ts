@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import path from "path";
+import { buildJourneySlugRedirectConfig } from "./src/lib/journeyNormalization/redirects";
 
 const nextConfig: NextConfig = {
   images: {
@@ -84,6 +85,7 @@ const nextConfig: NextConfig = {
         destination: '/journeys/type/group-tours',
         permanent: true,
       },
+      ...buildJourneySlugRedirectConfig(),
     ];
   },
   // 明确指定项目根目录，避免 Turbopack 误用上级 lockfile 导致 404

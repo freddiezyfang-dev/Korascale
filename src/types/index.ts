@@ -113,7 +113,7 @@ export interface User {
 export type HotelStatus = 'active' | 'inactive';
 
 // 旅行卡片状态类型
-export type JourneyStatus = 'active' | 'inactive' | 'draft';
+export type JourneyStatus = 'active' | 'inactive' | 'draft' | 'archived';
 
 // 旅行卡片版面分类类型
 export type JourneyType = 'Explore Together' | 'Deep Discovery' | 'Signature Journeys' | 'Group Tours';
@@ -221,6 +221,8 @@ export interface Journey {
   pageTitle: string; // 页面标题
   metaDescription: string; // SEO描述
   heroImage: string; // 主横幅图片（Hero Banner），与 mainContentImage 独立
+  /** Hero 图片无障碍/SEO 描述（写入 data.heroAlt 与 hero_image_alt 列） */
+  heroAlt?: string;
   /** Explore Together 专用：页面中间带边框的大图 */
   mainContentImage?: string;
   /** Explore Together 专用：价格详情 Tooltip 文案 */

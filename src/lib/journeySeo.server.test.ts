@@ -53,10 +53,15 @@ describe('journeySeo.server', () => {
     expect(jsonLd.description).toBe(getJourneyExcerpt(sampleJourney));
   });
 
-  it('omits offer when price is zero', () => {
-    const jsonLd = buildJourneyTripJsonLd({ ...sampleJourney, price: 0 });
-    expect(jsonLd.offers).toBeUndefined();
-  });
+	it('omits offer when price is zero', () => {
+		const jsonLd = buildJourneyTripJsonLd({ ...sampleJourney, price: 0 });
+		expect(jsonLd.offers).toBeUndefined();
+	});
+
+	it('omits offer when currency is not structured', () => {
+		const jsonLd = buildJourneyTripJsonLd({ ...sampleJourney, price: 299 });
+		expect(jsonLd.offers).toBeUndefined();
+	});
 
   it('builds breadcrumb JSON-LD aligned with visible trail', () => {
     const breadcrumb = buildJourneyBreadcrumbJsonLd(sampleJourney);
