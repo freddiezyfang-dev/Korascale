@@ -2110,14 +2110,41 @@ export default function EditJourneyPage() {
                   <div className="mt-4">
                     {(() => {
                       const previewUrl = isEditing ? (formData.image ?? journey.image) : journey.image;
+                      const previewAlt =
+                        (isEditing
+                          ? (formData.heroAlt ?? journey.heroAlt)
+                          : journey.heroAlt) ||
+                        journey.title ||
+                        'Journey preview';
                       return previewUrl ? (
                         <img
                           src={previewUrl}
-                          alt="Journey preview"
+                          alt={previewAlt}
                           className="w-full h-32 object-cover rounded-lg"
                         />
                       ) : null;
                     })()}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Hero Alt Text（SEO / 无障碍）
+                    </label>
+                    <textarea
+                      value={
+                        isEditing
+                          ? (formData.heroAlt ?? journey.heroAlt ?? '')
+                          : (journey.heroAlt ?? '')
+                      }
+                      onChange={(e) => handleInputChange('heroAlt', e.target.value)}
+                      disabled={!isEditing}
+                      rows={2}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
+                      placeholder="客观描述 Hero 主图画面，用于 img alt 与 SEO"
+                    />
+                    <Text size="sm" className="text-gray-500 mt-1">
+                      描述主图（Main Image / Hero Banner）内容，避免营销套话。保存后写入 JSONB 与 hero_image_alt 列。
+                    </Text>
                   </div>
 
                   {/* Explore Together 专用：Hero 图 + 中间大图 */}
@@ -2146,7 +2173,14 @@ export default function EditJourneyPage() {
                         </div>
                         {(formData.heroImage ?? journey.heroImage) && (
                           <div className="mt-2">
-                            <img src={getRenderableImageUrl(formData.heroImage ?? journey.heroImage)} alt="Hero" className="w-full max-w-md h-24 object-cover rounded-lg" />
+                            <img
+                              src={getRenderableImageUrl(formData.heroImage ?? journey.heroImage)}
+                              alt={
+                                (isEditing ? (formData.heroAlt ?? journey.heroAlt) : journey.heroAlt) ||
+                                'Explore Together hero'
+                              }
+                              className="w-full max-w-md h-24 object-cover rounded-lg"
+                            />
                           </div>
                         )}
                       </div>

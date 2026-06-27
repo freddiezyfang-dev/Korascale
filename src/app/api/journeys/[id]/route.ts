@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { enforceAdminWrite } from '@/lib/auth/requireAdmin.server';
 import { query } from '@/lib/db';
 import { pickFirstValidImagePath, sanitizeImageList, sanitizeImagePath } from '@/lib/imageUtils';
+import { resolveHeroImageAlt } from '@/lib/journeyNormalization/fields';
 import {
   assertJourneySqlSafeForCurrentSchema,
   buildJourneyDualWritePayload,
@@ -74,6 +75,7 @@ export async function GET(
     
     const row = rows[0];
     const baseData = sanitizeJourneyBaseData(row.data || {});
+    const resolvedHeroAlt = resolveHeroImageAlt(row);
     const safePrimaryImage = pickFirstValidImagePath(
       row.image,
       baseData.image,
@@ -113,6 +115,7 @@ export async function GET(
       destinationCount: baseData.destinationCount,
       maxGuests: baseData.maxGuests,
       heroImage: pickFirstValidImagePath(baseData.heroImage, row.image, safePrimaryImage),
+      heroAlt: resolvedHeroAlt.value || baseData.heroAlt || baseData.heroImageAlt || undefined,
       mainContentImage: sanitizeImagePath(baseData.mainContentImage),
       images: sanitizeImageList(baseData.images),
       priceDetails: baseData.priceDetails ?? undefined,

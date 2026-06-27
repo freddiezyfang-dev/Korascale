@@ -221,6 +221,8 @@ export interface Journey {
   pageTitle: string; // 页面标题
   metaDescription: string; // SEO描述
   heroImage: string; // 主横幅图片（Hero Banner），与 mainContentImage 独立
+  /** Hero 图片无障碍/SEO 描述（写入 data.heroAlt 与 hero_image_alt 列） */
+  heroAlt?: string;
   /** Explore Together 专用：页面中间带边框的大图 */
   mainContentImage?: string;
   /** Explore Together 专用：价格详情 Tooltip 文案 */
