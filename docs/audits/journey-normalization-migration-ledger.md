@@ -2,7 +2,7 @@
 
 Production database: `neondb` (`ep-red-sunset-adgu8hlv-pooler`)
 
-Last updated: 2026-06-29 (PR-J2B3A preparation)
+Last updated: 2026-06-29 (PR-J2B3A executed; PR-J2B4 prepared)
 
 ## Status overview
 
@@ -11,8 +11,8 @@ Last updated: 2026-06-29 (PR-J2B3A preparation)
 | 025A | Schema (expanded columns) | **executed** | available |
 | 025B1 | Status backfill (59 inactive → archived) | **executed** | not executed |
 | 025B2 | Slug normalization (4 trailing-hyphen) | **executed** | not executed |
-| 025B3A | Active metadata & taxonomy (24 active) | **prepared / not executed** | prepared |
-| 025B4 | — | **not executed** | — |
+| 025B3A | Active metadata & taxonomy (24 active) | **executed** | not executed |
+| 025B4 | Active price_from (24 active) | **prepared / not executed** | prepared |
 | 025C | Constraints | **not executed** | — |
 
 ## 025A — executed
@@ -55,20 +55,38 @@ Last updated: 2026-06-29 (PR-J2B3A preparation)
   - sitemap contains canonical new slug only (24 URLs)
   - archived 3 rows: old/new URLs remain **404**, no public redirect added
 
-## 025B3A — prepared / not executed
+## 025B3A — executed
 
 - **Files:**
   - `database/migrations/pending/025b3a_active_journey_metadata_backfill.sql`
   - `database/migrations/pending/025b3a_active_journey_metadata_backfill.rollback.sql`
 - **Manifest:** 24 active IDs (`prJ2b3aActiveManifest.ts`)
 - **Scope:** `page_title`, `meta_description`, `hero_image_url`, `journey_type_slug` only
-- **Excludes:** archived 59, `hero_image_alt` (already 24/24), `seo_complete`, price fields, slug, status, JSONB
-- **Preflight:** `scripts/migrations/pr-j2b3a-active-metadata-preflight.ts`
+- **Expected / actual row counts:**
+  - total: 83 / 83
+  - active: 24 / 24
+  - archived: 59 / 59
+  - updated rows: 24 / 24
+  - page_title / meta_description / hero_image_url / journey_type_slug: 24/24 each
+  - hero_image_alt: 24/24 (unchanged)
+- **Rollback:** not executed
+- **Production acceptance:**
+  - preflight `ready: true` before execution
+  - 3 representative pages: title / meta / H1 / canonical unchanged (see `pr-j2b3a-post-migration-page-snapshot.json`)
+  - og:image hero URLs match manifest for sampled pages
+
+## 025B4 — prepared / not executed
+
+- **Files:**
+  - `database/migrations/pending/025b4_active_journey_price_backfill.sql`
+  - `database/migrations/pending/025b4_active_journey_price_backfill.rollback.sql`
+- **Manifest:** 24 active IDs (`prJ2b4ActiveManifest.ts`)
+- **Scope:** `price_from` only — `COALESCE(price_from, NULLIF(price, 0))` for active manifest
+- **Excludes:** archived 59, `currency`, `price_basis`, `price_on_request`, metadata, slug, status, JSONB
+- **Preflight:** `scripts/migrations/pr-j2b4-active-price-preflight.ts`
 - **Audit artifacts:**
-  - `docs/audits/pr-j2b3a-active-source-matrix.csv`
-  - `docs/audits/pr-j2b3a-active-preview.csv`
-  - `docs/audits/pr-j2b3a-rendered-value-snapshot.json`
+  - `docs/audits/pr-j2b4-active-preview.csv`
 
-## 025B4 / 025C — not executed
+## 025C — not executed
 
-Frozen until B3A completes and is separately authorized.
+Frozen until B4 completes and is separately authorized.
