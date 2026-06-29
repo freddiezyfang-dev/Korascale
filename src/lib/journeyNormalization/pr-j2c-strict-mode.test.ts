@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { resolvePageTitle } from '@/lib/journeyNormalization/fields';
+import { resolveAdminCompatPageTitle } from '@/lib/journeyNormalization/adminCompatFields';
+import { mapJourneyRowToPublicJourney } from '@/lib/journeyListQuery.server';
 import { isJourneyPublished } from '@/lib/journeyNormalization/published';
 import { shouldIncludeJourneyInSitemap } from '@/lib/journeyNormalization/sitemap';
 import {
@@ -133,16 +134,21 @@ describe('PR-J2C1 strict public status', () => {
 		expect(compat).toHaveLength(24);
 	});
 
-	it('JSONB fallback still resolves when flag off', () => {
+	it('JSONB itinerary still available on public journey rows', () => {
 		const original = process.env.JOURNEY_NORMALIZATION_COLUMNS;
 		delete process.env.JOURNEY_NORMALIZATION_COLUMNS;
-		const resolved = resolvePageTitle({
-			title: 'Column',
-			data: { pageTitle: 'JSON Title' },
-			page_title: 'Expanded',
-		} as JourneyRowLike);
-		expect(resolved.value).toBe('JSON Title');
-		expect(resolved.source).toBe('jsonb');
+		const journey = mapJourneyRowToPublicJourney({
+			id: '1',
+			slug: 's',
+			status: 'active',
+			page_title: 'Col',
+			meta_description: 'Meta',
+			hero_image_url: '/h.jpg',
+			hero_image_alt: 'Alt',
+			journey_type_slug: 'deep-discovery',
+			data: { itinerary: [{ day: 1 }] },
+		} as Record<string, unknown>);
+		expect(journey.itinerary?.length).toBe(1);
 		if (original === undefined) delete process.env.JOURNEY_NORMALIZATION_COLUMNS;
 		else process.env.JOURNEY_NORMALIZATION_COLUMNS = original;
 	});

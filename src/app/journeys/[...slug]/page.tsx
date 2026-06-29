@@ -11,7 +11,7 @@ import {
 import { getJourneyBySlugForPage } from '@/lib/journeyServer';
 import { getJourneySlugRedirect } from '@/lib/journeyNormalization/redirects';
 import { pickFirstValidImagePath } from '@/lib/imageUtils';
-import { buildJourneyDetailUrl, getJourneyDisplayTitle, getJourneyExcerpt } from '@/lib/journeySeo.server';
+import { buildJourneyDetailUrl, getJourneyDisplayTitle, getJourneySeoMetaDescription } from '@/lib/journeySeo.server';
 import type { Journey } from '@/types';
 
 const SITE_URL = 'https://www.korascale.com';
@@ -74,17 +74,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const displayTitle = getJourneyDisplayTitle(journey);
   const canonical = buildJourneyDetailUrl(journey.slug || slugParts.normalizedSlug);
-  const rawDescription = getJourneyExcerpt(journey);
+  const rawDescription = getJourneySeoMetaDescription(journey);
   const description = rawDescription
     ? truncateMetaDescription(rawDescription)
     : `Discover ${displayTitle} with Korascale.`;
 
-  const ogImage = pickFirstValidImagePath(
-    journey.heroImage,
-    journey.image,
-    journey.mainContentImage,
-    journey.images?.[0]
-  );
+  const ogImage = pickFirstValidImagePath(journey.heroImage, journey.image);
 
   return {
     title: `${displayTitle} | Korascale`,

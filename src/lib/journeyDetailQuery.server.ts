@@ -10,7 +10,7 @@ import {
 	shouldIncludeJourneyInSitemap,
 } from '@/lib/journeyNormalization/sitemap';
 import { buildPublicStatusWhereClause } from '@/lib/journeyNormalization/status';
-import { mapJourneyRowToJourney } from '@/lib/journeyListQuery.server';
+import { mapJourneyRowToPublicJourney } from '@/lib/journeyListQuery.server';
 import type { Journey } from '@/types';
 
 export type NormalizedJourneySlugParams = {
@@ -77,7 +77,7 @@ export async function fetchJourneyBySlugFromDb(
 
   if (result.rows.length === 0) return null;
 
-  return mapJourneyRowToJourney(result.rows[0] as Record<string, unknown>);
+  return mapJourneyRowToPublicJourney(result.rows[0] as Record<string, unknown>);
 }
 
 /** Slugs for generateStaticParams — active only (strict). */

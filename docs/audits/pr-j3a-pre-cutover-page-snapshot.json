@@ -1,0 +1,63 @@
+{
+  "phase": "PR-J3A-pre-cutover",
+  "generatedAt": "2026-06-29T09:42:09.272Z",
+  "entries": [
+    {
+      "slug": "badaling-great-wall-day-tour",
+      "url": "https://www.korascale.com/journeys/badaling-great-wall-day-tour",
+      "httpStatus": 200,
+      "htmlTitle": "Badaling Great Wall Day Tour | Korascale",
+      "metaDescription": "Beijing begins, Beijing ends",
+      "canonical": "https://www.korascale.com/journeys/badaling-great-wall-day-tour",
+      "ogTitle": "Badaling Great Wall Day Tour",
+      "ogDescription": "Beijing begins, Beijing ends",
+      "ogImage": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1771747900791-%E4%B8%BB%E5%9B%BE-%E5%85%AB%E8%BE%BE%E5%B2%AD%E9%95%BF%E5%9F%8E-%E6%A8%AA%E5%9B%BE-I5XJSRFtV6au0gTCTXw6TWd7UoT4fh.jpg",
+      "h1": "Badaling Great Wall Day Tour",
+      "heroImageUrl": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1771747900791-%E4%B8%BB%E5%9B%BE-%E5%85%AB%E8%BE%BE%E5%B2%AD%E9%95%BF%E5%9F%8E-%E6%A8%AA%E5%9B%BE-I5XJSRFtV6au0gTCTXw6TWd7UoT4fh.jpg",
+      "heroDomNote": "Hero DOM selector unreliable; og:image used as primary hero URL reference per J3A audit guidance.",
+      "visibleJourneyType": "unavailable",
+      "jsonLdName": "Badaling Great Wall Day Tour",
+      "jsonLdDescription": "Beijing begins, Beijing ends",
+      "jsonLdImage": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1771747900791-%E4%B8%BB%E5%9B%BE-%E5%85%AB%E8%BE%BE%E5%B2%AD%E9%95%BF%E5%9F%8E-%E6%A8%AA%E5%9B%BE-I5XJSRFtV6au0gTCTXw6TWd7UoT4fh.jpg",
+      "fetchedAt": "2026-06-29T09:42:07.954Z"
+    },
+    {
+      "slug": "beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour",
+      "url": "https://www.korascale.com/journeys/beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour",
+      "httpStatus": 200,
+      "htmlTitle": "Beijing to Shanxi Ancient Architecture with Black Myth: Wukong Inspirations  6-Day Tour | Korascale",
+      "metaDescription": "Beijing begins, Xi’an ends",
+      "canonical": "https://www.korascale.com/journeys/beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour",
+      "ogTitle": "Beijing to Shanxi Ancient Architecture with Black Myth: Wukong Inspirations  6-Day Tour",
+      "ogDescription": "Beijing begins, Xi’an ends",
+      "ogImage": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1766845845305-D1-%E5%A4%A7%E5%90%8C%E5%8F%A4%E5%9F%8E-%E7%AB%96%E5%9B%BE-CvfB9ls8Q7HhZavjCmqai1HKdlUgqN.jpeg",
+      "h1": "Beijing to Shanxi Ancient Architecture with Black Myth: Wukong Inspirations  6-Day Tour",
+      "heroImageUrl": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1766845845305-D1-%E5%A4%A7%E5%90%8C%E5%8F%A4%E5%9F%8E-%E7%AB%96%E5%9B%BE-CvfB9ls8Q7HhZavjCmqai1HKdlUgqN.jpeg",
+      "heroDomNote": "Hero DOM selector unreliable; og:image used as primary hero URL reference per J3A audit guidance.",
+      "visibleJourneyType": "unavailable",
+      "jsonLdName": "Beijing to Shanxi Ancient Architecture with Black Myth: Wukong Inspirations  6-Day Tour",
+      "jsonLdDescription": "Beijing begins, Xi’an ends",
+      "jsonLdImage": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1766845845305-D1-%E5%A4%A7%E5%90%8C%E5%8F%A4%E5%9F%8E-%E7%AB%96%E5%9B%BE-CvfB9ls8Q7HhZavjCmqai1HKdlUgqN.jpeg",
+      "fetchedAt": "2026-06-29T09:42:08.640Z"
+    },
+    {
+      "slug": "grand-china-highlights-16-day-multi-city-journey",
+      "url": "https://www.korascale.com/journeys/grand-china-highlights-16-day-multi-city-journey",
+      "httpStatus": 200,
+      "htmlTitle": "Grand China Highlights 16-Day Multi-City Journey | Korascale",
+      "metaDescription": "Beijing begins · Xi’an · Chengdu · Chongqing · Guilin · Shanghai ends",
+      "canonical": "https://www.korascale.com/journeys/grand-china-highlights-16-day-multi-city-journey",
+      "ogTitle": "Grand China Highlights 16-Day Multi-City Journey",
+      "ogDescription": "Beijing begins · Xi’an · Chengdu · Chongqing · Guilin · Shanghai ends",
+      "ogImage": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1769921047051-%E4%B8%BB%E5%9B%BE-%E6%A1%82%E6%9E%97%E5%B1%B1%E6%B0%B4-%E6%A8%AA%E5%9B%BE-6aJddp5N5BEhJi8dKhKOYiIG2vEqPw.jpg",
+      "h1": "Grand China Highlights 16-Day Multi-City Journey",
+      "heroImageUrl": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1769921047051-%E4%B8%BB%E5%9B%BE-%E6%A1%82%E6%9E%97%E5%B1%B1%E6%B0%B4-%E6%A8%AA%E5%9B%BE-6aJddp5N5BEhJi8dKhKOYiIG2vEqPw.jpg",
+      "heroDomNote": "Hero DOM selector unreliable; og:image used as primary hero URL reference per J3A audit guidance.",
+      "visibleJourneyType": "unavailable",
+      "jsonLdName": "Grand China Highlights 16-Day Multi-City Journey",
+      "jsonLdDescription": "Beijing begins · Xi’an · Chengdu · Chongqing · Guilin · Shanghai ends",
+      "jsonLdImage": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1769921047051-%E4%B8%BB%E5%9B%BE-%E6%A1%82%E6%9E%97%E5%B1%B1%E6%B0%B4-%E6%A8%AA%E5%9B%BE-6aJddp5N5BEhJi8dKhKOYiIG2vEqPw.jpg",
+      "fetchedAt": "2026-06-29T09:42:09.272Z"
+    }
+  ]
+}

@@ -30,6 +30,11 @@ export function getJourneyExcerpt(journey: Journey): string {
   );
 }
 
+/** SEO metadata / JSON-LD only — uses normalized meta_description, not visible card copy. */
+export function getJourneySeoMetaDescription(journey: Journey): string {
+  return journey.metaDescription?.trim() || '';
+}
+
 export function buildJourneyDetailUrl(slug: string): string {
   const normalized = resolveCanonicalJourneySlug(slug);
   return `${SITE_URL}/journeys/${normalized}`;
@@ -84,14 +89,9 @@ export function buildJourneyBreadcrumbJsonLd(journey: Journey) {
 
 export function buildJourneyTripJsonLd(journey: Journey) {
   const title = getJourneyDisplayTitle(journey);
-  const description = getJourneyExcerpt(journey);
+  const description = getJourneySeoMetaDescription(journey);
   const url = buildJourneyDetailUrl(journey.slug);
-  const heroImage = pickFirstValidImagePath(
-    journey.heroImage,
-    journey.image,
-    journey.mainContentImage,
-    journey.images?.[0]
-  );
+  const heroImage = pickFirstValidImagePath(journey.heroImage, journey.image, journey.mainContentImage, journey.images?.[0]);
   const imageUrl = heroImage
     ? heroImage.startsWith('http')
       ? heroImage

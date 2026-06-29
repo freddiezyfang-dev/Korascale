@@ -6,6 +6,7 @@ import {
   buildJourneyTypeUrl,
   getJourneyDisplayTitle,
   getJourneyExcerpt,
+  getJourneySeoMetaDescription,
   resolveJourneyCardHref,
   resolveJourneyTypeSlug,
 } from '@/lib/journeySeo.server';
@@ -45,12 +46,26 @@ describe('journeySeo.server', () => {
     expect(resolveJourneyTypeSlug(sampleJourney)).toBe('explore-together');
   });
 
-  it('builds Trip JSON-LD with canonical URL and name aligned to H1', () => {
-    const jsonLd = buildJourneyTripJsonLd(sampleJourney);
+  it('uses short description for visible excerpt, not meta description', () => {
+    const journey = {
+      ...sampleJourney,
+      shortDescription: 'Visible short copy',
+      metaDescription: 'SEO meta only',
+    } as Journey;
+    expect(getJourneyExcerpt(journey)).toBe('Visible short copy');
+    expect(getJourneySeoMetaDescription(journey)).toBe('SEO meta only');
+  });
+
+  it('builds Trip JSON-LD with SEO meta description', () => {
+    const journey = {
+      ...sampleJourney,
+      metaDescription: 'SEO meta for structured data',
+    } as Journey;
+    const jsonLd = buildJourneyTripJsonLd(journey);
     expect(jsonLd['@type']).toBe('Trip');
-    expect(jsonLd.name).toBe(getJourneyDisplayTitle(sampleJourney));
-    expect(jsonLd.url).toBe(buildJourneyDetailUrl(sampleJourney.slug));
-    expect(jsonLd.description).toBe(getJourneyExcerpt(sampleJourney));
+    expect(jsonLd.name).toBe(getJourneyDisplayTitle(journey));
+    expect(jsonLd.url).toBe(buildJourneyDetailUrl(journey.slug));
+    expect(jsonLd.description).toBe(getJourneySeoMetaDescription(journey));
   });
 
 	it('omits offer when price is zero', () => {
