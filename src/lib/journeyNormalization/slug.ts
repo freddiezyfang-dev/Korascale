@@ -1,6 +1,20 @@
 import { JOURNEY_SLUG_RESERVED_SEGMENTS } from './constants';
 import type { JourneyRowLike, SlugIssueCode, SlugProposal } from './types';
 
+/** PR-J3C: fixed unique expression index on journeys.slug */
+export const JOURNEY_SLUG_NORMALIZED_UNIQUE_INDEX = 'journeys_slug_normalized_unique_idx';
+
+/**
+ * Database-equivalent slug comparison key: LOWER(BTRIM(slug)).
+ * Does not rewrite stored slug, strip path prefixes, or fix hyphen issues.
+ */
+export function normalizeJourneySlugForComparison(rawSlug: unknown): string | null {
+	if (rawSlug == null) return null;
+	const trimmed = String(rawSlug).trim();
+	if (!trimmed) return null;
+	return trimmed.toLowerCase();
+}
+
 export function pickFirstNonEmptyString(...values: unknown[]): string {
 	for (const value of values) {
 		if (typeof value === 'string' && value.trim()) return value.trim();

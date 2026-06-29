@@ -127,3 +127,14 @@ Monolithic file `025c_journey_normalization_constraints.sql` superseded by 025C1
 ## 025C2 — not prepared / not executed
 
 Optional field constraints (`journey_type_slug`, `currency`, `price_basis`) — frozen until separately authorized.
+
+## 026 — Journey normalized slug unique index
+
+- **Files:**
+  - `database/migrations/pending/026_journey_slug_normalized_unique_index.sql`
+  - `database/migrations/pending/026_journey_slug_normalized_unique_index.rollback.sql`
+- **Scope:** unique expression index `journeys_slug_normalized_unique_idx` on `LOWER(BTRIM(slug))` where slug is non-null/non-empty
+- **Status:** **prepared / not executed**
+- **Does not:** modify Journey rows, add slug NOT NULL, add canonical CHECK, or deploy automatically
+- **Preflight:** `scripts/migrations/pr-j3c-slug-uniqueness-preflight.ts` (read-only)
+- **Production execution:** blocked until separate authorization after preparation review

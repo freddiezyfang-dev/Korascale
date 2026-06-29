@@ -4,6 +4,7 @@
 import { Journey, JourneyStatus } from '@/types';
 import { Article } from '@/types/article';
 import { JOURNEY_PUBLISH_INTEGRITY_ERROR } from '@/lib/journeyNormalization/journeyPublishIntegrity';
+import { JOURNEY_SLUG_CONFLICT_ERROR } from '@/lib/journeyNormalization/journeySlugConflictConstants';
 
 export type JourneyPublishFieldError = {
   field: string;
@@ -17,6 +18,16 @@ export class JourneyPublishIntegrityClientError extends Error {
   constructor(message: string, fields: JourneyPublishFieldError[]) {
     super(message);
     this.name = 'JourneyPublishIntegrityClientError';
+    this.fields = fields;
+  }
+}
+
+export class JourneySlugConflictClientError extends Error {
+  readonly fields: JourneyPublishFieldError[];
+
+  constructor(message: string, fields: JourneyPublishFieldError[]) {
+    super(message);
+    this.name = 'JourneySlugConflictClientError';
     this.fields = fields;
   }
 }
@@ -83,12 +94,19 @@ async function parseJourneyApiFailure(response: Response, fallbackMessage: strin
           error.fields
         );
       }
+      if (error.error === JOURNEY_SLUG_CONFLICT_ERROR && Array.isArray(error.fields)) {
+        throw new JourneySlugConflictClientError(
+          error.message || 'This Journey slug is already in use.',
+          error.fields
+        );
+      }
       throw new Error(sanitizeErrorMessage(error.error || fallbackMessage, response.status));
     }
     const text = await response.text();
     throw new Error(sanitizeErrorMessage(text || fallbackMessage, response.status));
   } catch (error) {
     if (error instanceof JourneyPublishIntegrityClientError) throw error;
+    if (error instanceof JourneySlugConflictClientError) throw error;
     throwJourneyApiError(response, fallbackMessage);
   }
 }

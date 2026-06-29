@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from 'react';
 import { Journey, JourneyStatus } from '@/types';
 import { dataPersistence } from '@/utils/dataPersistence';
-import { journeyAPI, JourneyPublishIntegrityClientError } from '@/lib/databaseClient';
+import { journeyAPI, JourneyPublishIntegrityClientError, JourneySlugConflictClientError } from '@/lib/databaseClient';
 
 interface JourneyManagementContextType {
   journeys: Journey[];
@@ -1118,6 +1118,9 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
       if (error instanceof JourneyPublishIntegrityClientError) {
         throw error;
       }
+      if (error instanceof JourneySlugConflictClientError) {
+        throw error;
+      }
       
       // 如果数据库失败，更新localStorage作为fallback
       const updatedJourneys = journeys.map(journey => {
@@ -1156,6 +1159,9 @@ export const JourneyManagementProvider: React.FC<JourneyManagementProviderProps>
     } catch (error) {
       console.error('Error saving journey to database:', error);
       if (error instanceof JourneyPublishIntegrityClientError) {
+        throw error;
+      }
+      if (error instanceof JourneySlugConflictClientError) {
         throw error;
       }
       

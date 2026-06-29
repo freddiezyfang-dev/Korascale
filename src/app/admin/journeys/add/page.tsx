@@ -8,7 +8,7 @@ import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { useExperienceManagement } from '@/context/ExperienceManagementContext';
 import { useHotelManagement } from '@/context/HotelManagementContext';
 import { Journey, JourneyStatus, JourneyType } from '@/types';
-import { uploadAPI, JourneyPublishIntegrityClientError, type JourneyPublishFieldError } from '@/lib/databaseClient';
+import { uploadAPI, JourneyPublishIntegrityClientError, JourneySlugConflictClientError, type JourneyPublishFieldError } from '@/lib/databaseClient';
 import { PageGenerationHelper } from '@/components/admin/PageGenerationHelper';
 import { 
   ArrowLeft,
@@ -307,6 +307,11 @@ export default function AddJourneyPage() {
       if (error instanceof JourneyPublishIntegrityClientError) {
         setPublishErrors(error.fields);
         alert('Not ready to publish. Please fix the highlighted fields.');
+        return;
+      }
+      if (error instanceof JourneySlugConflictClientError) {
+        setPublishErrors(error.fields);
+        alert('This Journey slug is already in use.');
         return;
       }
       alert('创建旅行卡片时出错，请重试');
