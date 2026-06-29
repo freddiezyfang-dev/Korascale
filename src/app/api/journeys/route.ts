@@ -3,10 +3,11 @@ import { enforceAdminWrite } from '@/lib/auth/requireAdmin.server';
 import { isAuthenticatedAdmin } from '@/lib/auth/articleAccess.server';
 import { query } from '@/lib/db';
 import {
-  mapJourneyRowToJourney,
+  mapJourneyRowToPublicJourney,
   normalizeAvailableDates,
   queryJourneyRows,
 } from '@/lib/journeyListQuery.server';
+import { mapJourneyRowToAdminCompatJourney } from '@/lib/journeyAdminCompatMapper.server';
 import {
   assertJourneySqlSafeForCurrentSchema,
   buildJourneyDualWritePayload,
@@ -151,7 +152,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const journeys = rows.map((row) => mapJourneyRowToJourney(row));
+    const mapRow = includeAll ? mapJourneyRowToAdminCompatJourney : mapJourneyRowToPublicJourney;
+    const journeys = rows.map((row) => mapRow(row));
     
     // 设置响应头，禁用缓存并添加 CORS
     return NextResponse.json(

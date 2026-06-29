@@ -11,7 +11,7 @@ import {
 	isJourneyExpandedColumnsEnabled,
 	mergeExpandedColumnSql,
 } from '@/lib/journeyNormalization/write';
-import { resolvePageTitle } from '@/lib/journeyNormalization/fields';
+import { resolveAdminCompatPageTitle } from '@/lib/journeyNormalization/adminCompatFields';
 import { migrationSqlModifiesOnlyB3aMetadata } from '@/lib/journeyNormalization/activeMetadataBackfill';
 import { migrationSqlModifiesOnlyB4SeoComplete } from '@/lib/journeyNormalization/activeSeoCompleteBackfill';
 import { migrationSqlModifiesOnlySlug } from '@/lib/journeyNormalization/slugBackfill';
@@ -97,9 +97,9 @@ describe('safety gate 2: flag off must not reference expanded columns in SQL', (
 		assertJourneySqlSafeForCurrentSchema(sql);
 	});
 
-	it('flag off: field resolver ignores expanded columns on row', () => {
+	it('flag off: admin compat resolver reads JSONB when column gated off', () => {
 		delete process.env.JOURNEY_NORMALIZATION_COLUMNS;
-		const resolved = resolvePageTitle({
+		const resolved = resolveAdminCompatPageTitle({
 			title: 'Column Title',
 			data: { pageTitle: 'JSON Title' },
 			page_title: 'Expanded Column',

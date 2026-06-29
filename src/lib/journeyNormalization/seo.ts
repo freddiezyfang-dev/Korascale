@@ -1,10 +1,10 @@
 import { isValidCanonicalSlug, normalizeJourneySlug } from './slug';
 import {
-	resolveHeroImageAlt,
-	resolveHeroImageUrl,
-	resolveMetaDescription,
-	resolvePageTitle,
-} from './fields';
+	resolveAdminCompatHeroImageAlt,
+	resolveAdminCompatHeroImageUrl,
+	resolveAdminCompatMetaDescription,
+	resolveAdminCompatPageTitle,
+} from './adminCompatFields';
 import { pickFirstNonEmptyString } from './slug';
 import type { JourneyRowLike, SeoCompletenessEvaluation, SeoFieldSources } from './types';
 
@@ -16,10 +16,10 @@ export function extractJourneyData(row: JourneyRowLike): Record<string, unknown>
 
 export function extractSeoFieldSources(row: JourneyRowLike): SeoFieldSources {
 	const data = extractJourneyData(row);
-	const pageTitle = resolvePageTitle(row);
-	const meta = resolveMetaDescription(row);
-	const heroUrl = resolveHeroImageUrl(row);
-	const heroAlt = resolveHeroImageAlt(row);
+	const pageTitle = resolveAdminCompatPageTitle(row);
+	const meta = resolveAdminCompatMetaDescription(row);
+	const heroUrl = resolveAdminCompatHeroImageUrl(row);
+	const heroAlt = resolveAdminCompatHeroImageAlt(row);
 	const name = pickFirstNonEmptyString(row.title, data.name, pageTitle.value);
 	const excerpt = pickFirstNonEmptyString(
 		row.short_description,

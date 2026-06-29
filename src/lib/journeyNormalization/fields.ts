@@ -1,119 +1,58 @@
 import {
-	JOURNEY_TYPE_LABEL_TO_SLUG,
-	type JourneyTypeSlug,
-} from './constants';
-import { isJourneyTypeSlug } from './taxonomy';
-import { pickFirstNonEmptyString } from './slug';
-import { isJourneyExpandedColumnsEnabled } from './write';
+	resolveAdminCompatHeroImageAlt,
+	resolveAdminCompatHeroImageUrl,
+	resolveAdminCompatJourneyTypeSlug,
+	resolveAdminCompatMetaDescription,
+	resolveAdminCompatPageTitle,
+} from './adminCompatFields';
 import type { JourneyRowLike } from './types';
 
-export type JourneyFieldReadSource =
-	| 'column'
-	| 'jsonb'
-	| 'legacy_column'
-	| 'fallback'
-	| 'missing';
+export type { JourneyFieldReadSource, ResolvedJourneyField } from './fieldsLegacyTypes';
 
-export type ResolvedJourneyField<T> = {
-	value: T;
-	source: JourneyFieldReadSource;
-	path: string;
-};
+/** @deprecated Public runtime must use publicNormalizedFields.ts (PR-J3A). */
+export const resolvePageTitle = resolveAdminCompatPageTitle;
 
-function readExpandedColumn(row: JourneyRowLike, column: string): string {
-	if (!isJourneyExpandedColumnsEnabled()) return '';
-	return pickFirstNonEmptyString((row as Record<string, unknown>)[column]);
-}
+/** @deprecated Public runtime must use publicNormalizedFields.ts (PR-J3A). */
+export const resolveMetaDescription = resolveAdminCompatMetaDescription;
 
-/** Read priority: expanded columns only when JOURNEY_NORMALIZATION_COLUMNS=1 and post-025A. */
-export function resolvePageTitle(row: JourneyRowLike): ResolvedJourneyField<string> {
-	const data = (row.data as Record<string, unknown>) || {};
-	const column = readExpandedColumn(row, 'page_title');
-	if (column) return { value: column, source: 'column', path: 'page_title' };
-	const jsonb = pickFirstNonEmptyString(data.pageTitle);
-	if (jsonb) return { value: jsonb, source: 'jsonb', path: 'data.pageTitle' };
-	const title = pickFirstNonEmptyString(row.title);
-	if (title) return { value: title, source: 'legacy_column', path: 'title' };
-	return { value: '', source: 'missing', path: '' };
-}
+/** @deprecated Public runtime must use publicNormalizedFields.ts (PR-J3A). */
+export const resolveHeroImageUrl = resolveAdminCompatHeroImageUrl;
 
-export function resolveMetaDescription(row: JourneyRowLike): ResolvedJourneyField<string> {
-	const data = (row.data as Record<string, unknown>) || {};
-	const column = readExpandedColumn(row, 'meta_description');
-	if (column) return { value: column, source: 'column', path: 'meta_description' };
-	const jsonb = pickFirstNonEmptyString(data.metaDescription);
-	if (jsonb) return { value: jsonb, source: 'jsonb', path: 'data.metaDescription' };
-	const short = pickFirstNonEmptyString(row.short_description);
-	if (short) return { value: short, source: 'legacy_column', path: 'short_description' };
-	return { value: '', source: 'missing', path: '' };
-}
+/** @deprecated Public runtime must use publicNormalizedFields.ts (PR-J3A). */
+export const resolveHeroImageAlt = resolveAdminCompatHeroImageAlt;
 
-export function resolveHeroImageUrl(row: JourneyRowLike): ResolvedJourneyField<string> {
-	const data = (row.data as Record<string, unknown>) || {};
-	const column = readExpandedColumn(row, 'hero_image_url');
-	if (column) return { value: column, source: 'column', path: 'hero_image_url' };
-	const jsonb = pickFirstNonEmptyString(data.heroImage);
-	if (jsonb) return { value: jsonb, source: 'jsonb', path: 'data.heroImage' };
-	const image = pickFirstNonEmptyString(row.image);
-	if (image) return { value: image, source: 'legacy_column', path: 'image' };
-	return { value: '', source: 'missing', path: '' };
-}
-
-export function resolveHeroImageAlt(row: JourneyRowLike): ResolvedJourneyField<string> {
-	const data = (row.data as Record<string, unknown>) || {};
-	const column = readExpandedColumn(row, 'hero_image_alt');
-	if (column) return { value: column, source: 'column', path: 'hero_image_alt' };
-	const jsonb = pickFirstNonEmptyString(data.heroAlt, data.heroImageAlt, data.hero_alt);
-	if (jsonb) return { value: jsonb, source: 'jsonb', path: 'data.heroAlt' };
-	return { value: '', source: 'missing', path: '' };
-}
-
-export function resolveJourneyTypeSlug(row: JourneyRowLike): ResolvedJourneyField<JourneyTypeSlug | ''> {
-	const data = (row.data as Record<string, unknown>) || {};
-	const column = readExpandedColumn(row, 'journey_type_slug');
-	if (column && isJourneyTypeSlug(column)) {
-		return { value: column, source: 'column', path: 'journey_type_slug' };
-	}
-	const label = pickFirstNonEmptyString(row.journey_type, data.journeyType);
-	const fromLabel = label ? JOURNEY_TYPE_LABEL_TO_SLUG[label] : undefined;
-	if (fromLabel) {
-		return { value: fromLabel, source: 'legacy_column', path: 'journey_type' };
-	}
-	const jsonbLabel = pickFirstNonEmptyString(data.journeyType);
-	const fromJsonb = jsonbLabel ? JOURNEY_TYPE_LABEL_TO_SLUG[jsonbLabel] : undefined;
-	if (fromJsonb) return { value: fromJsonb, source: 'jsonb', path: 'data.journeyType' };
-	return { value: '', source: 'missing', path: '' };
-}
+/** @deprecated Public runtime must use publicNormalizedFields.ts (PR-J3A). */
+export const resolveJourneyTypeSlug = resolveAdminCompatJourneyTypeSlug;
 
 export const JOURNEY_SOURCE_OF_TRUTH_MATRIX = {
 	pageTitle: {
-		read: 'page_title (flag on) → data.pageTitle → title',
+		read: 'PUBLIC: page_title column only | ADMIN: page_title → data.pageTitle → title',
 		write: 'dual-write: column + data.pageTitle when JOURNEY_NORMALIZATION_COLUMNS=1',
-		legacyFallback: 'title',
-		futureRemoval: 'data.pageTitle after admin/API cutover',
+		legacyFallback: 'title (admin compat only)',
+		futureRemoval: 'data.pageTitle after admin cutover',
 	},
 	metaDescription: {
-		read: 'meta_description (flag on) → data.metaDescription → short_description',
+		read: 'PUBLIC: meta_description column only | ADMIN: column → JSONB → short_description',
 		write: 'dual-write when flag on',
-		legacyFallback: 'short_description',
+		legacyFallback: 'short_description (admin compat only)',
 		futureRemoval: 'data.metaDescription',
 	},
 	heroImageUrl: {
-		read: 'hero_image_url (flag on) → data.heroImage → image',
+		read: 'PUBLIC: hero_image_url column only | ADMIN: column → data.heroImage → image',
 		write: 'dual-write when flag on',
-		legacyFallback: 'image',
+		legacyFallback: 'image (admin compat only)',
 		futureRemoval: 'data.heroImage',
 	},
 	heroImageAlt: {
-		read: 'hero_image_alt (flag on) → data.heroAlt / heroImageAlt',
+		read: 'PUBLIC: hero_image_alt column only | ADMIN: column → data.heroAlt',
 		write: 'dual-write when flag on',
 		legacyFallback: 'none',
 		futureRemoval: 'data.heroAlt',
 	},
 	journeyTypeSlug: {
-		read: 'journey_type_slug (flag on) → journey_type label → data.journeyType',
+		read: 'PUBLIC: journey_type_slug column only | ADMIN: column → journey_type → data.journeyType',
 		write: 'dual-write when flag on',
-		legacyFallback: 'journey_type display label',
+		legacyFallback: 'journey_type display label (admin compat only)',
 		futureRemoval: 'journey_type label after route cutover',
 	},
 	price: {
@@ -129,3 +68,5 @@ export const JOURNEY_SOURCE_OF_TRUTH_MATRIX = {
 		futureRemoval: 'inactive vocabulary',
 	},
 } as const;
+
+export type { JourneyRowLike };
