@@ -136,6 +136,9 @@ Optional field constraints (`journey_type_slug`, `currency`, `price_basis`) — 
 - **Scope:** unique expression index `journeys_slug_normalized_unique_idx` on `LOWER(BTRIM(slug))` where slug is non-null/non-empty; coexists with existing `journeys_slug_key`
 - **Status:** **executed** on Production
 - **Executed:** Production 2026-06-29 (authorized post PR #26 merge)
+- **Main commit (app):** `be6e29f` (PR #26 — dual slug `23505` → 409 handling)
+- **Production Vercel deploy:** `59703a0` on `Production – korascale` (includes `be6e29f`)
+- **Execution report:** `docs/audits/pr-j3c-production-execution-report.md`
 - **Pre-execution preflight:** `ready=true`, `normalizedDuplicateGroups=[]`, `targetIndexExists=false`
 - **Post-execution verification:**
   - both slug unique objects present: `journeys_slug_key`, `journeys_slug_normalized_unique_idx`
