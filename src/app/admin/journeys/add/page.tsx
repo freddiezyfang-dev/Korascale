@@ -8,7 +8,7 @@ import { useJourneyManagement } from '@/context/JourneyManagementContext';
 import { useExperienceManagement } from '@/context/ExperienceManagementContext';
 import { useHotelManagement } from '@/context/HotelManagementContext';
 import { Journey, JourneyStatus, JourneyType } from '@/types';
-import { uploadAPI } from '@/lib/databaseClient';
+import { uploadAPI, JourneyPublishIntegrityClientError, type JourneyPublishFieldError } from '@/lib/databaseClient';
 import { PageGenerationHelper } from '@/components/admin/PageGenerationHelper';
 import { 
   ArrowLeft,
@@ -149,6 +149,7 @@ export default function AddJourneyPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [publishErrors, setPublishErrors] = useState<JourneyPublishFieldError[]>([]);
 
   // 辅助函数：从duration字符串中提取数字
   const parseDurationDays = (duration: string | undefined): number => {
@@ -164,6 +165,7 @@ export default function AddJourneyPage() {
   };
 
   const handleInputChange = (field: string, value: any) => {
+    setPublishErrors([]);
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -286,13 +288,10 @@ export default function AddJourneyPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted with data:', formData);
     setIsSubmitting(true);
+    setPublishErrors([]);
 
     try {
-      console.log('Creating journey without validation...');
-      
-      // 确保duration格式正确（如果只是数字，格式化为"X Day"或"X Days"）
       const submitData = { ...formData };
       if (submitData.duration && /^\d+$/.test(submitData.duration.trim())) {
         const days = parseInt(submitData.duration.trim(), 10);
@@ -300,23 +299,16 @@ export default function AddJourneyPage() {
           submitData.duration = formatDuration(days);
         }
       }
-      
-      // 创建新的旅行卡片
-      const newJourney = {
-        ...submitData,
-        id: `journey-${Date.now()}`,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      } as Omit<Journey, 'id' | 'createdAt' | 'updatedAt'>;
 
-      console.log('New journey data:', newJourney);
-      addJourney(newJourney);
-      
-      console.log('Journey added successfully, redirecting...');
-      // 重定向到旅行卡片列表
+      await addJourney(submitData as Omit<Journey, 'id' | 'createdAt' | 'updatedAt'>);
       router.push('/admin/journeys');
     } catch (error) {
       console.error('Error creating journey:', error);
+      if (error instanceof JourneyPublishIntegrityClientError) {
+        setPublishErrors(error.fields);
+        alert('Not ready to publish. Please fix the highlighted fields.');
+        return;
+      }
       alert('创建旅行卡片时出错，请重试');
     } finally {
       setIsSubmitting(false);
@@ -368,6 +360,19 @@ export default function AddJourneyPage() {
               </div>
             </div>
           </div>
+
+          {publishErrors.length > 0 && (
+            <div className="mb-6 rounded-md border border-red-200 bg-red-50 p-4">
+              <Text className="font-semibold text-red-800">Not ready to publish</Text>
+              <ul className="mt-2 list-disc pl-5 text-sm text-red-700">
+                {publishErrors.map((error) => (
+                  <li key={`${error.field}-${error.code}`}>
+                    {error.field}: {error.message}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

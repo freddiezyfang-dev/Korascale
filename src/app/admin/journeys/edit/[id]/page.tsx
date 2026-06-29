@@ -35,6 +35,7 @@ import { ExtensionFormModal } from '@/components/admin/ExtensionFormModal';
 import { JourneyHotelFormModal } from '@/components/admin/JourneyHotelFormModal';
 import { ExperienceFormModal } from '@/components/admin/ExperienceFormModal';
 import { uploadAPI } from '@/lib/databaseClient';
+import { JourneyPublishIntegrityClientError, type JourneyPublishFieldError } from '@/lib/databaseClient';
 import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 const categoryOptions = [
@@ -253,6 +254,7 @@ export default function EditJourneyPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [publishErrors, setPublishErrors] = useState<JourneyPublishFieldError[]>([]);
   const [formData, setFormData] = useState<Partial<Journey>>({});
   const [extensions, setExtensions] = useState<any[]>([]);
   const [journeyHotels, setJourneyHotels] = useState<any[]>([]);
@@ -549,6 +551,7 @@ export default function EditJourneyPage() {
   const handleSave = async () => {
     if (!journey || isSaving) return;
     setIsSaving(true);
+    setPublishErrors([]);
     try {
       // 确保duration格式正确（如果只是数字，格式化为"X Day"或"X Days"）
       const saveData = { ...formData };
@@ -609,6 +612,11 @@ export default function EditJourneyPage() {
       alert('保存成功！');
     } catch (e) {
       console.error('Save journey failed:', e);
+      if (e instanceof JourneyPublishIntegrityClientError) {
+        setPublishErrors(e.fields);
+        alert('Not ready to publish. Please fix the highlighted fields.');
+        return;
+      }
       alert('保存失败，请稍后重试');
     } finally {
       setIsSaving(false);
@@ -792,6 +800,19 @@ export default function EditJourneyPage() {
               </div>
             </div>
           </div>
+
+          {isEditing && publishErrors.length > 0 && (
+            <div className="mb-6 rounded-md border border-red-200 bg-red-50 p-4">
+              <Text className="font-semibold text-red-800">Not ready to publish</Text>
+              <ul className="mt-2 list-disc pl-5 text-sm text-red-700">
+                {publishErrors.map((error) => (
+                  <li key={`${error.field}-${error.code}`}>
+                    {error.field}: {error.message}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}

@@ -3,6 +3,23 @@
 
 import { Journey, JourneyStatus } from '@/types';
 import { Article } from '@/types/article';
+import { JOURNEY_PUBLISH_INTEGRITY_ERROR } from '@/lib/journeyNormalization/journeyPublishIntegrity';
+
+export type JourneyPublishFieldError = {
+  field: string;
+  code: string;
+  message: string;
+};
+
+export class JourneyPublishIntegrityClientError extends Error {
+  readonly fields: JourneyPublishFieldError[];
+
+  constructor(message: string, fields: JourneyPublishFieldError[]) {
+    super(message);
+    this.name = 'JourneyPublishIntegrityClientError';
+    this.fields = fields;
+  }
+}
 
 // 获取服务端请求的 base URL（仅在服务端且需要绝对地址时使用）
 function getServerBaseUrl(): string {
@@ -49,6 +66,31 @@ function sanitizeErrorMessage(message: string, status?: number): string {
       : `API returned HTML instead of JSON (HTTP ${status ?? 'unknown'}).`;
   }
   return m.length > 300 ? m.slice(0, 300) + '…' : m;
+}
+
+function throwJourneyApiError(response: Response, fallbackMessage: string): never {
+  throw new Error(sanitizeErrorMessage(fallbackMessage, response.status));
+}
+
+async function parseJourneyApiFailure(response: Response, fallbackMessage: string): Promise<never> {
+  try {
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      const error = await response.json();
+      if (error.error === JOURNEY_PUBLISH_INTEGRITY_ERROR && Array.isArray(error.fields)) {
+        throw new JourneyPublishIntegrityClientError(
+          error.message || 'This Journey is not ready to publish.',
+          error.fields
+        );
+      }
+      throw new Error(sanitizeErrorMessage(error.error || fallbackMessage, response.status));
+    }
+    const text = await response.text();
+    throw new Error(sanitizeErrorMessage(text || fallbackMessage, response.status));
+  } catch (error) {
+    if (error instanceof JourneyPublishIntegrityClientError) throw error;
+    throwJourneyApiError(response, fallbackMessage);
+  }
 }
 
 // Journey API调用
@@ -252,20 +294,7 @@ export const journeyAPI = {
       });
       
       if (!response.ok) {
-        let errorMessage = 'Failed to create journey';
-        try {
-          const contentType = response.headers.get('content-type');
-          if (contentType && contentType.includes('application/json')) {
-            const error = await response.json();
-            errorMessage = error.error || errorMessage;
-          } else {
-            const text = await response.text();
-            errorMessage = text || errorMessage;
-          }
-        } catch (e) {
-          errorMessage = `HTTP ${response.status}: ${response.statusText || errorMessage}`;
-        }
-        throw new Error(sanitizeErrorMessage(errorMessage, response.status));
+        await parseJourneyApiFailure(response, 'Failed to create journey');
       }
       
       const data = await response.json();
@@ -293,20 +322,7 @@ export const journeyAPI = {
       });
       
       if (!response.ok) {
-        let errorMessage = 'Failed to update journey';
-        try {
-          const error = await response.json();
-          errorMessage = error.error || errorMessage;
-          // 如果有详细信息，也包含在错误消息中
-          if (error.details) {
-            console.error('Update journey error details:', error.details);
-          }
-        } catch (e) {
-          // 如果无法解析错误响应，尝试获取文本
-          const text = await response.text();
-          errorMessage = text || errorMessage;
-        }
-        throw new Error(sanitizeErrorMessage(errorMessage, response.status));
+        await parseJourneyApiFailure(response, 'Failed to update journey');
       }
       
       const data = await response.json();
