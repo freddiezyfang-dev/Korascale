@@ -2,7 +2,7 @@
 
 Production database: `neondb` (`ep-red-sunset-adgu8hlv-pooler`)
 
-Last updated: 2026-06-26 (PR-J2C1 strict public queries)
+Last updated: 2026-06-29 (PR-J2C2 preparation)
 
 ## Status overview
 
@@ -13,13 +13,17 @@ Last updated: 2026-06-26 (PR-J2C1 strict public queries)
 | 025B2 | Slug normalization (4 trailing-hyphen) | **executed** | not executed |
 | 025B3A | Active metadata & taxonomy (24 active) | **executed** | not executed |
 | 025B4 | Active seo_complete (24 active) | **executed** | not executed |
-| 025C | Constraints | **not executed** | — |
+| 025C | Constraints (monolithic — reference only) | **not executed** | — |
+| 025C1 | Status NOT NULL + CHECK | **prepared / not executed** | available |
+| 025C2 | Optional field CHECKs | **not prepared / not executed** | — |
 
 **Price normalization:** frozen pending business review — see `pr-j2-price-normalization-frozen.md`.
 
-**PR-J2C1 (strict public queries):** application code uses `status = 'active'` by default. Compat (`OR status IS NULL`) is audit-script only. Public counts unchanged at 24 (NULL status = 0).
+**PR-J2C1 (strict public queries):** deployed — `status = 'active'` default for public queries.
 
-**Audits:** `pr-j2c-public-status-query-audit.md`, `pr-j2c-writer-readiness.md`.
+**PR-J2C2 (025C1):** prepared in `fix/pr-j2c2-journey-constraint-prep` — **not executed** until Production preflight `ready=true` and separate authorization.
+
+**Audits:** `pr-j2c-public-status-query-audit.md`, `pr-j2c-writer-readiness.md`, `pr-j2c2-status-constraint-readiness.md`.
 
 ## 025A — executed
 
@@ -97,4 +101,20 @@ Last updated: 2026-06-26 (PR-J2C1 strict public queries)
 
 ## 025C — not executed
 
-Frozen until separately authorized. Database CHECK constraints (025C1/025C2) are out of scope for PR-J2C1.
+Monolithic reference: `025c_journey_normalization_constraints.sql` (superseded by split plan).
+
+## 025C1 — prepared / not executed
+
+- **Files:**
+  - `database/migrations/pending/025c1_journey_status_constraints.sql`
+  - `database/migrations/pending/025c1_journey_status_constraints.rollback.sql`
+- **Scope:** `status NOT NULL` + `journeys_status_check` (`draft`, `active`, `archived`)
+- **Does not:** UPDATE rows, add 025C2 optional field CHECKs, or modify metadata / price columns
+- **Preflight:** `scripts/migrations/pr-j2c2-status-constraint-preflight.ts`
+- **Execution:** manual via `node scripts/run-migration.js pending/025c1_journey_status_constraints.sql` after `ready=true`
+
+## 025C2 — not prepared / not executed
+
+Optional field constraints (`journey_type_slug`, `currency`, `price_basis`) are out of scope for PR-J2C2.
+
+Frozen until separately authorized after 025C1 acceptance.
