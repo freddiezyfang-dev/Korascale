@@ -4,17 +4,16 @@ import { isAuthenticatedAdmin } from '@/lib/auth/articleAccess.server';
 import { query } from '@/lib/db';
 import {
   mapJourneyRowToPublicJourney,
-  normalizeAvailableDates,
   queryJourneyRows,
 } from '@/lib/journeyListQuery.server';
 import { mapJourneyRowToAdminCompatJourney } from '@/lib/journeyAdminCompatMapper.server';
 import {
-  assertJourneySqlSafeForCurrentSchema,
-  buildJourneyDualWritePayload,
-  buildJourneyInsertSql,
-  normalizeJourneyStatusForWrite,
-} from '@/lib/journeyNormalization/write';
-import { Journey } from '@/types';
+  buildCreatePublishCandidate,
+  buildJourneyCreateMutation,
+  sanitizeJourneyCreateBody,
+} from '@/lib/journeyNormalization/journeyAdminMutation.server';
+import { journeyPublishIntegrityJsonResponse } from '@/lib/journeyNormalization/journeyPublishIntegrityHttp';
+import { runJourneyPublishIntegrityGate } from '@/lib/journeyNormalization/journeyPublishIntegrityGate.server';
 
 // Route Segment Config - 确保路由被正确识别
 export const dynamic = 'force-dynamic';
@@ -194,110 +193,19 @@ export async function POST(request: NextRequest) {
   if (!guard.ok) return guard.response;
 
   try {
-    const journey: Omit<Journey, 'id' | 'createdAt' | 'updatedAt'> = await request.json();
-    
-    // 提取结构化字段
-    const {
-      title,
-      slug,
-      description,
-      shortDescription,
-      price,
-      originalPrice,
-      category,
-      journeyType,
-      region,
-      place,
-      city,
-      location,
-      duration,
-      difficulty,
-      maxParticipants,
-      minParticipants,
-      image,
-      status,
-      featured,
-      rating,
-      reviewCount,
-    } = journey;
-    
-    // 提取JSONB字段（复杂嵌套结构）
-    const dualWrite = buildJourneyDualWritePayload({
-      pageTitle: (journey as Journey).pageTitle,
-      metaDescription: (journey as Journey).metaDescription,
-      heroImage: journey.heroImage,
-      heroAlt: (journey as any).heroAlt ?? (journey as any).heroImageAlt,
-      journeyType: journeyType ?? undefined,
-      shortDescription: shortDescription ?? undefined,
-    });
+    const body = sanitizeJourneyCreateBody(await request.json());
+    const publishGate = await runJourneyPublishIntegrityGate(buildCreatePublishCandidate(body));
+    if (!publishGate.ok) {
+      return journeyPublishIntegrityJsonResponse(publishGate);
+    }
 
-    const jsonbData = {
-      itinerary: journey.itinerary || [],
-      overview: journey.overview || {},
-      includes: journey.includes || '',
-      excludes: journey.excludes || '',
-      modules: journey.modules || [],
-      heroStats: journey.heroStats || {},
-      images: journey.images || [],
-      availableExperiences: journey.availableExperiences || [],
-      availableAccommodations: journey.availableAccommodations || [],
-      experiences: journey.experiences || [],
-      accommodations: journey.accommodations || [],
-      highlights: journey.highlights || [],
-      included: journey.included || [],
-      excluded: journey.excluded || [],
-      requirements: journey.requirements || [],
-      bestTimeToVisit: journey.bestTimeToVisit || [],
-      tags: journey.tags || [],
-      navigation: journey.navigation || [],
-      extensions: journey.extensions || [],
-      hotels: journey.hotels || [],
-      heroImage: journey.heroImage || undefined,
-      mainContentImage: (journey as any).mainContentImage || undefined,
-      priceDetails: (journey as any).priceDetails ?? undefined,
-      standardInclusionsList: (journey as any).standardInclusionsList ?? undefined,
-      availableDates: normalizeAvailableDates((journey as any).availableDates),
-      pageTitle: (journey as Journey).pageTitle,
-      metaDescription: (journey as Journey).metaDescription,
-      ...dualWrite.jsonb,
-    };
+    const mutation = buildJourneyCreateMutation(body, publishGate.seoComplete);
+    const { rows } = await query(mutation.insertSql, mutation.insertParams);
 
-    const normalizedStatus = normalizeJourneyStatusForWrite(status, 'draft');
-    const { sql: insertSql, expandedValues } = buildJourneyInsertSql(
-      dualWrite.expandedColumns
-    );
-    assertJourneySqlSafeForCurrentSchema(insertSql);
-    const params = [
-      JSON.stringify(jsonbData),
-      title,
-      slug,
-      description || null,
-      shortDescription || null,
-      price || 0,
-      originalPrice || null,
-      category || null,
-      journeyType || null,
-      region || null,
-      place || null,
-      city || null,
-      location || null,
-      duration || null,
-      difficulty || 'Easy',
-      maxParticipants || 12,
-      minParticipants || 2,
-      image || null,
-      normalizedStatus,
-      featured || false,
-      rating || 0,
-      reviewCount || 0,
-      ...expandedValues,
-    ];
-    const { rows } = await query(insertSql, params);
-    
     return NextResponse.json({
       success: true,
       journey: {
-        ...journey,
+        ...body,
         id: rows[0].id,
         createdAt: new Date(rows[0].created_at),
         updatedAt: new Date(rows[0].updated_at),
