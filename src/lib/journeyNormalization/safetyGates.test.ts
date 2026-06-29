@@ -13,6 +13,7 @@ import {
 } from '@/lib/journeyNormalization/write';
 import { resolvePageTitle } from '@/lib/journeyNormalization/fields';
 import { migrationSqlModifiesOnlyB3aMetadata } from '@/lib/journeyNormalization/activeMetadataBackfill';
+import { migrationSqlModifiesOnlyB4SeoComplete } from '@/lib/journeyNormalization/activeSeoCompleteBackfill';
 import { migrationSqlModifiesOnlySlug } from '@/lib/journeyNormalization/slugBackfill';
 import type { JourneyRowLike } from '@/lib/journeyNormalization/types';
 
@@ -204,6 +205,23 @@ describe('safety gate 4b: 025B1 status-only backfill', () => {
 		expect(stripSqlComments(sql)).not.toMatch(/\bslug\s*=/i);
 		expect(stripSqlComments(sql)).not.toMatch(/\bprice_/i);
 		expect(stripSqlComments(sql)).not.toMatch(/\bseo_complete\s*=/i);
+	});
+});
+
+describe('safety gate 4c: 025B4 seo_complete-only backfill', () => {
+	const sql = readFileSync(
+		join(pendingDir, '025b4_active_journey_seo_complete_backfill.sql'),
+		'utf8'
+	);
+
+	it('requires manifest table and seo_complete-only update', () => {
+		expect(sql).toContain('pr_j2b4_manifest');
+		expect(sql).toContain('seo_complete = TRUE');
+		expect(sql).not.toContain('SET status');
+	});
+
+	it('does not modify price or metadata fields', () => {
+		expect(migrationSqlModifiesOnlyB4SeoComplete(sql)).toBe(true);
 	});
 });
 
