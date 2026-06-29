@@ -1,0 +1,1287 @@
+{
+  "generatedAt": "2026-06-29T12:38:41.462Z",
+  "siteUrl": "https://www.korascale.com",
+  "count": 24,
+  "journeys": [
+    {
+      "id": "37f6a3ae-f758-4449-83f5-e036c83f189d",
+      "slug": "badaling-great-wall-day-tour",
+      "canonical_slug": "badaling-great-wall-day-tour",
+      "status": "active",
+      "journey_type_slug": "explore-together",
+      "title": "Badaling Great Wall Day Tour",
+      "h1": "Badaling Great Wall Day Tour",
+      "page_title": "Badaling Great Wall Day Tour",
+      "meta_description": "Beijing begins, Beijing ends",
+      "short_description": "Beijing begins, Beijing ends",
+      "hero_image_url": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1771747900791-%E4%B8%BB%E5%9B%BE-%E5%85%AB%E8%BE%BE%E5%B2%AD%E9%95%BF%E5%9F%8E-%E6%A8%AA%E5%9B%BE-I5XJSRFtV6au0gTCTXw6TWd7UoT4fh.jpg",
+      "hero_image_alt": "The Great Wall of China winding across forested hills with watchtowers under a blue sky",
+      "seo_complete": true,
+      "display_order": null,
+      "created_at": "2025-12-14T05:34:34.000Z",
+      "updated_at": "2026-06-29T00:17:01.000Z",
+      "duration_days": 1,
+      "itinerary_day_count": 1,
+      "itinerary_section_count": 4,
+      "highlights_count": 0,
+      "inclusions_count": 5,
+      "exclusions_count": 0,
+      "gallery_image_count": 1,
+      "faq_count": 0,
+      "related_journey_count": 0,
+      "related_article_count": 2,
+      "cta_presence": true,
+      "json_ld_types": [
+        "Trip",
+        "BreadcrumbList"
+      ],
+      "visible_body_word_count": 217,
+      "destination_entities": [
+        "Badaling Great Wall",
+        "Beijing",
+        "Dali",
+        "Great Wall"
+      ],
+      "route_entities": [
+        "Badaling Great Wall",
+        "Beijing",
+        "Dali",
+        "Great Wall",
+        "Beijing begins, Beijing ends"
+      ],
+      "city_coverage": [
+        "Beijing",
+        "Badaling Great Wall",
+        "Dali",
+        "Great Wall"
+      ],
+      "province_region_coverage": [
+        "North China",
+        "Beijing"
+      ]
+    },
+    {
+      "id": "3468ea14-5f5e-40f6-9234-0fedf137189e",
+      "slug": "beijing-city-imperial-grandeur-urban-chic-1-day-tour",
+      "canonical_slug": "beijing-city-imperial-grandeur-urban-chic-1-day-tour",
+      "status": "active",
+      "journey_type_slug": "explore-together",
+      "title": "Beijing City Imperial Grandeur & Urban Chic One-Day Tour",
+      "h1": "Beijing City Imperial Grandeur & Urban Chic 1-Day Tour",
+      "page_title": "Beijing City Imperial Grandeur & Urban Chic 1-Day Tour",
+      "meta_description": "Navigating the Monumental Scale of Dynastic History and the Avant-Garde Ambition of a Modern Metropolis.",
+      "short_description": "Navigating the Monumental Scale of Dynastic History and the Avant-Garde Ambition of a Modern Metropolis.",
+      "hero_image_url": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1771749910450-%E4%B8%BB%E5%9B%BE-%E6%95%85%E5%AE%AB-%E6%A8%AA%E5%9B%BE-v6JynohkI6UiYbNv4kXh63fUsV6p7N.jpeg",
+      "hero_image_alt": "Courtyard and yellow-roofed halls of the Forbidden City in Beijing under a blue sky",
+      "seo_complete": true,
+      "display_order": null,
+      "created_at": "2026-02-22T00:46:16.000Z",
+      "updated_at": "2026-06-29T00:17:01.000Z",
+      "duration_days": 1,
+      "itinerary_day_count": 5,
+      "itinerary_section_count": 5,
+      "highlights_count": 0,
+      "inclusions_count": 5,
+      "exclusions_count": 0,
+      "gallery_image_count": 3,
+      "faq_count": 0,
+      "related_journey_count": 0,
+      "related_article_count": 0,
+      "cta_presence": true,
+      "json_ld_types": [
+        "Trip",
+        "BreadcrumbList"
+      ],
+      "visible_body_word_count": 724,
+      "destination_entities": [
+        "Beijing"
+      ],
+      "route_entities": [
+        "Beijing"
+      ],
+      "city_coverage": [
+        "Beijing"
+      ],
+      "province_region_coverage": [
+        "North China",
+        "Beijing"
+      ]
+    },
+    {
+      "id": "8f3cdc36-f243-45da-b3b5-ecfba83929a6",
+      "slug": "beijing-cultural-highlights-and-iconic-sights-5-multi-days-tour",
+      "canonical_slug": "beijing-cultural-highlights-and-iconic-sights-5-multi-days-tour",
+      "status": "active",
+      "journey_type_slug": "deep-discovery",
+      "title": "Beijing Cultural Highlights, and Iconic Sights  5 Multi-Days Tour",
+      "h1": "Beijing Cultural Highlights, and Iconic Sights  5 Multi-Days Tour",
+      "page_title": "Beijing Cultural Highlights, and Iconic Sights  5 Multi-Days Tour",
+      "meta_description": "Beijing begins, Beijing ends",
+      "short_description": "Beijing begins, Beijing ends",
+      "hero_image_url": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1766842579054-%E4%B8%BB%E5%9B%BE-%E6%A8%AA%E5%9B%BE-hjLT44tBhGSiUk0G8wk7chpW0Yu8Iy.jpeg",
+      "hero_image_alt": "Meridian Gate of the Forbidden City viewed from a pavilion at sunset",
+      "seo_complete": true,
+      "display_order": null,
+      "created_at": "2025-12-27T05:35:30.000Z",
+      "updated_at": "2026-06-29T00:17:01.000Z",
+      "duration_days": 5,
+      "itinerary_day_count": 5,
+      "itinerary_section_count": 4,
+      "highlights_count": 0,
+      "inclusions_count": 9,
+      "exclusions_count": 0,
+      "gallery_image_count": 2,
+      "faq_count": 0,
+      "related_journey_count": 0,
+      "related_article_count": 1,
+      "cta_presence": true,
+      "json_ld_types": [
+        "Trip",
+        "BreadcrumbList"
+      ],
+      "visible_body_word_count": 299,
+      "destination_entities": [
+        "Beijing"
+      ],
+      "route_entities": [
+        "Beijing",
+        "Beijing begins, Beijing ends"
+      ],
+      "city_coverage": [
+        "Beijing"
+      ],
+      "province_region_coverage": [
+        "North China",
+        "Beijing"
+      ]
+    },
+    {
+      "id": "d5e5c0e9-6549-497a-97a3-4843621da5dc",
+      "slug": "beijing-to-mutianyu-great-wall-day-tour",
+      "canonical_slug": "beijing-to-mutianyu-great-wall-day-tour",
+      "status": "active",
+      "journey_type_slug": "explore-together",
+      "title": "Beijing to Mutianyu Great Wall Day Tour",
+      "h1": "Beijing to Mutianyu Great Wall Day Tour",
+      "page_title": "Beijing to Mutianyu Great Wall Day Tour",
+      "meta_description": "Beijing begins, Beijing ends",
+      "short_description": "Beijing begins, Beijing ends",
+      "hero_image_url": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1771688549942-%E4%B8%BB%E5%9B%BE-%E6%85%95%E7%94%B0%E5%B3%AA%E9%95%BF%E5%9F%8E-%E6%A8%AA%E5%9B%BE-fwCKaJ5Q0zNkoOew79SY9tN8SXCMSe.jpg",
+      "hero_image_alt": "The Great Wall snaking over hills covered in autumn foliage under cloudy skies",
+      "seo_complete": true,
+      "display_order": null,
+      "created_at": "2025-12-14T05:37:50.000Z",
+      "updated_at": "2026-06-29T00:17:01.000Z",
+      "duration_days": 1,
+      "itinerary_day_count": 1,
+      "itinerary_section_count": 4,
+      "highlights_count": 0,
+      "inclusions_count": 5,
+      "exclusions_count": 0,
+      "gallery_image_count": 1,
+      "faq_count": 0,
+      "related_journey_count": 0,
+      "related_article_count": 2,
+      "cta_presence": true,
+      "json_ld_types": [
+        "Trip",
+        "BreadcrumbList"
+      ],
+      "visible_body_word_count": 205,
+      "destination_entities": [
+        "Beijing",
+        "Great Wall",
+        "Mutianyu Great Wall"
+      ],
+      "route_entities": [
+        "Beijing",
+        "Great Wall",
+        "Mutianyu Great Wall",
+        "Beijing begins, Beijing ends"
+      ],
+      "city_coverage": [
+        "Beijing",
+        "Great Wall",
+        "Mutianyu Great Wall"
+      ],
+      "province_region_coverage": [
+        "North China",
+        "Beijing"
+      ]
+    },
+    {
+      "id": "4d3bbbb8-3907-459b-af10-181ace7af8ec",
+      "slug": "beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour",
+      "canonical_slug": "beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour",
+      "status": "active",
+      "journey_type_slug": "deep-discovery",
+      "title": "Beijing to Shanxi Ancient Architecture with Black Myth: Wukong Inspirations  6-Day Tour",
+      "h1": "Beijing to Shanxi Ancient Architecture with Black Myth: Wukong Inspirations  6-Day Tour",
+      "page_title": "Beijing to Shanxi Ancient Architecture with Black Myth: Wukong Inspirations  6-Day Tour",
+      "meta_description": "Beijing begins, Xi’an ends",
+      "short_description": "Beijing begins, Xi’an ends",
+      "hero_image_url": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1766845845305-D1-%E5%A4%A7%E5%90%8C%E5%8F%A4%E5%9F%8E-%E7%AB%96%E5%9B%BE-CvfB9ls8Q7HhZavjCmqai1HKdlUgqN.jpeg",
+      "hero_image_alt": "Multi-tiered traditional Chinese tower on a stone city wall at golden hour",
+      "seo_complete": true,
+      "display_order": null,
+      "created_at": "2025-12-27T06:32:53.000Z",
+      "updated_at": "2026-06-29T00:17:01.000Z",
+      "duration_days": 6,
+      "itinerary_day_count": 6,
+      "itinerary_section_count": 5,
+      "highlights_count": 0,
+      "inclusions_count": 9,
+      "exclusions_count": 0,
+      "gallery_image_count": 2,
+      "faq_count": 0,
+      "related_journey_count": 0,
+      "related_article_count": 0,
+      "cta_presence": true,
+      "json_ld_types": [
+        "Trip",
+        "BreadcrumbList"
+      ],
+      "visible_body_word_count": 366,
+      "destination_entities": [
+        "Beijing",
+        "Shanxi",
+        "Xi'an"
+      ],
+      "route_entities": [
+        "Beijing",
+        "Shanxi",
+        "Xi'an",
+        "Beijing begins, Xi’an ends"
+      ],
+      "city_coverage": [
+        "Datong",
+        "Beijing",
+        "Shanxi",
+        "Xi'an"
+      ],
+      "province_region_coverage": [
+        "North China",
+        "Loess & Shanxi Heritage"
+      ]
+    },
+    {
+      "id": "12da1d30-0d8d-49df-b350-fe6880c56ab8",
+      "slug": "chaoshan-region-cultural-heritage-6-day-tour",
+      "canonical_slug": "chaoshan-region-cultural-heritage-6-day-tour",
+      "status": "active",
+      "journey_type_slug": "deep-discovery",
+      "title": "Chaoshan Region Cultural Heritage 6-Day  Tour",
+      "h1": "Chaoshan Region Cultural Heritage 6-Day  Tour",
+      "page_title": "Chaoshan Region Cultural Heritage 6-Day  Tour",
+      "meta_description": "Chaozhou begins, Jieyang ends",
+      "short_description": "Chaozhou begins, Jieyang ends",
+      "hero_image_url": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1767327974888-%E4%B8%BB%E5%9B%BE-%E6%BD%AE%E6%B1%95-%E6%A8%AA%E5%9B%BE-7jm5TXOGouZn5XH3Bz7nlBoG5zBjVF.jpeg",
+      "hero_image_alt": "Yingge dancers in painted costumes performing before a decorated ancestral hall in Chaoshan",
+      "seo_complete": true,
+      "display_order": null,
+      "created_at": "2026-01-01T20:26:31.000Z",
+      "updated_at": "2026-06-29T00:17:01.000Z",
+      "duration_days": 6,
+      "itinerary_day_count": 6,
+      "itinerary_section_count": 5,
+      "highlights_count": 0,
+      "inclusions_count": 0,
+      "exclusions_count": 0,
+      "gallery_image_count": 2,
+      "faq_count": 0,
+      "related_journey_count": 0,
+      "related_article_count": 0,
+      "cta_presence": true,
+      "json_ld_types": [
+        "Trip",
+        "BreadcrumbList"
+      ],
+      "visible_body_word_count": 145,
+      "destination_entities": [
+        "Chaoshan",
+        "Chaozhou"
+      ],
+      "route_entities": [
+        "Chaoshan",
+        "Chaozhou",
+        "Chaozhou begins, Jieyang ends"
+      ],
+      "city_coverage": [
+        "Chaoshan",
+        "Chaozhou"
+      ],
+      "province_region_coverage": [
+        "South China",
+        "Hakka Fujian"
+      ]
+    },
+    {
+      "id": "535ac95b-f891-4e1c-916f-57028d7cb9e0",
+      "slug": "chengdu-chongqing-double-cities-6-day-tour",
+      "canonical_slug": "chengdu-chongqing-double-cities-6-day-tour",
+      "status": "active",
+      "journey_type_slug": "deep-discovery",
+      "title": "Chengdu & Chongqing Double Cities 6-Day  Tour",
+      "h1": "Chengdu & Chongqing Double Cities 6-Day  Tour",
+      "page_title": "Chengdu & Chongqing Double Cities 6-Day  Tour",
+      "meta_description": "Chengdu begins, Chongqing ends",
+      "short_description": "Chengdu begins, Chongqing ends",
+      "hero_image_url": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1767711463448-%E4%B8%BB%E5%9B%BE%E2%80%94%E6%88%90%E9%83%BD%E2%80%94%E6%A8%AA%E5%9B%BE-04q2MMWKiamDwGcgjVXGn3ZSuZYpTS.png",
+      "hero_image_alt": "Giant 3D panda digital billboard on a corner building above a busy Chengdu street",
+      "seo_complete": true,
+      "display_order": null,
+      "created_at": "2026-01-06T06:58:06.000Z",
+      "updated_at": "2026-06-29T00:17:01.000Z",
+      "duration_days": 6,
+      "itinerary_day_count": 6,
+      "itinerary_section_count": 4,
+      "highlights_count": 0,
+      "inclusions_count": 10,
+      "exclusions_count": 0,
+      "gallery_image_count": 2,
+      "faq_count": 0,
+      "related_journey_count": 0,
+      "related_article_count": 0,
+      "cta_presence": true,
+      "json_ld_types": [
+        "Trip",
+        "BreadcrumbList"
+      ],
+      "visible_body_word_count": 378,
+      "destination_entities": [
+        "Chengdu",
+        "Chongqing"
+      ],
+      "route_entities": [
+        "Chengdu",
+        "Chongqing",
+        "Chengdu begins, Chongqing ends"
+      ],
+      "city_coverage": [
+        "Chengdu",
+        "Chongqing"
+      ],
+      "province_region_coverage": [
+        "Southwest China",
+        "Sichuan Basin & Mountains"
+      ]
+    },
+    {
+      "id": "d48f2466-e466-4801-886c-cd28c6cc97c6",
+      "slug": "chongqing-highlights-magic-cityscape-day-tour",
+      "canonical_slug": "chongqing-highlights-magic-cityscape-day-tour",
+      "status": "active",
+      "journey_type_slug": "explore-together",
+      "title": "Chongqing Highlights & Magic Cityscape Day Tour",
+      "h1": "Chongqing Highlights & Magic Cityscape Day Tour | Korascale Travel",
+      "page_title": "Chongqing Highlights & Magic Cityscape Day Tour | Korascale Travel",
+      "meta_description": "Chongqing begins, Chongqing ends",
+      "short_description": "Chongqing begins, Chongqing ends",
+      "hero_image_url": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1771754676598-%E4%B8%BB%E5%9B%BE-%E9%87%8D%E5%BA%86%E5%B8%82%E5%8C%BA-%E6%A8%AA%E5%9B%BE-RG3wOzUWFTX4jHSQYUlZmKppYZJZk3.jpeg",
+      "hero_image_alt": "Chongqing skyline with golden twin towers, the Yangtze River, and a red bridge",
+      "seo_complete": true,
+      "display_order": null,
+      "created_at": "2025-12-09T21:52:35.000Z",
+      "updated_at": "2026-06-29T00:17:01.000Z",
+      "duration_days": 1,
+      "itinerary_day_count": 4,
+      "itinerary_section_count": 5,
+      "highlights_count": 0,
+      "inclusions_count": 5,
+      "exclusions_count": 0,
+      "gallery_image_count": 2,
+      "faq_count": 0,
+      "related_journey_count": 4,
+      "related_article_count": 0,
+      "cta_presence": true,
+      "json_ld_types": [
+        "Trip",
+        "BreadcrumbList"
+      ],
+      "visible_body_word_count": 847,
+      "destination_entities": [
+        "Chongqing"
+      ],
+      "route_entities": [
+        "Chongqing",
+        "Chongqing begins, Chongqing ends"
+      ],
+      "city_coverage": [
+        "Chongqing"
+      ],
+      "province_region_coverage": [
+        "Chongqing",
+        "Chongqing & Three Gorges"
+      ]
+    },
+    {
+      "id": "9b0aefcc-3604-4d5c-bcc2-0b8ee80bb621",
+      "slug": "grand-china-highlands-nature-18-day-journey",
+      "canonical_slug": "grand-china-highlands-nature-18-day-journey",
+      "status": "active",
+      "journey_type_slug": "deep-discovery",
+      "title": "Grand China Highlands & Nature 18-Day Journey",
+      "h1": "Grand China Highlands & Nature 18-Day Journey",
+      "page_title": "Grand China Highlands & Nature 18-Day Journey",
+      "meta_description": "Shanghai begins · Lijiang · Shangri-La · Lhasa · Everest · Shigatse · Beijing ends",
+      "short_description": "Shanghai begins · Lijiang · Shangri-La · Lhasa · Everest · Shigatse · Beijing ends",
+      "hero_image_url": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1769923887089-%E4%B8%BB%E5%9B%BE-%E5%B8%83%E8%BE%BE%E6%8B%89%E5%AE%AB-%E6%A8%AA%E5%9B%BE-nUl8p9O9Z5vEKsSj7GdfgyRSebzbRu.jpeg",
+      "hero_image_alt": "Potala Palace red and white palaces on a hillside in Lhasa under a blue sky",
+      "seo_complete": true,
+      "display_order": null,
+      "created_at": "2026-01-31T21:31:49.000Z",
+      "updated_at": "2026-06-29T00:17:01.000Z",
+      "duration_days": 18,
+      "itinerary_day_count": 18,
+      "itinerary_section_count": 6,
+      "highlights_count": 0,
+      "inclusions_count": 10,
+      "exclusions_count": 0,
+      "gallery_image_count": 2,
+      "faq_count": 0,
+      "related_journey_count": 0,
+      "related_article_count": 0,
+      "cta_presence": true,
+      "json_ld_types": [
+        "Trip",
+        "BreadcrumbList"
+      ],
+      "visible_body_word_count": 741,
+      "destination_entities": [
+        "Beijing",
+        "Lhasa",
+        "Lijiang",
+        "Mount Everest",
+        "Shanghai",
+        "Shangri-La"
+      ],
+      "route_entities": [
+        "Beijing",
+        "Lhasa",
+        "Lijiang",
+        "Mount Everest",
+        "Shanghai",
+        "Shangri-La",
+        "Shanghai begins · Lijiang · Shangri-La · Lhasa · Everest · Shigatse · Beijing ends"
+      ],
+      "city_coverage": [
+        "Beijing",
+        "Lhasa",
+        "Lijiang",
+        "Mount Everest",
+        "Shanghai",
+        "Shangri-La"
+      ],
+      "province_region_coverage": [
+        "East&Central China",
+        "Shanghai"
+      ]
+    },
+    {
+      "id": "eb9647df-6b38-46be-9920-9b80f27a9d2e",
+      "slug": "grand-china-highlights-16-day-multi-city-journey",
+      "canonical_slug": "grand-china-highlights-16-day-multi-city-journey",
+      "status": "active",
+      "journey_type_slug": "deep-discovery",
+      "title": "Grand China Highlights 16-Day Multi-City Journey",
+      "h1": "Grand China Highlights 16-Day Multi-City Journey",
+      "page_title": "Grand China Highlights 16-Day Multi-City Journey",
+      "meta_description": "Beijing begins · Xi’an · Chengdu · Chongqing · Guilin · Shanghai ends",
+      "short_description": "Beijing begins · Xi’an · Chengdu · Chongqing · Guilin · Shanghai ends",
+      "hero_image_url": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1769921047051-%E4%B8%BB%E5%9B%BE-%E6%A1%82%E6%9E%97%E5%B1%B1%E6%B0%B4-%E6%A8%AA%E5%9B%BE-6aJddp5N5BEhJi8dKhKOYiIG2vEqPw.jpg",
+      "hero_image_alt": "Karst peaks and a stone weir on a river near Guilin under a blue sky",
+      "seo_complete": true,
+      "display_order": null,
+      "created_at": "2026-01-31T20:45:29.000Z",
+      "updated_at": "2026-06-29T00:17:01.000Z",
+      "duration_days": 16,
+      "itinerary_day_count": 16,
+      "itinerary_section_count": 5,
+      "highlights_count": 0,
+      "inclusions_count": 10,
+      "exclusions_count": 0,
+      "gallery_image_count": 2,
+      "faq_count": 0,
+      "related_journey_count": 0,
+      "related_article_count": 0,
+      "cta_presence": true,
+      "json_ld_types": [
+        "Trip",
+        "BreadcrumbList"
+      ],
+      "visible_body_word_count": 689,
+      "destination_entities": [
+        "Beijing",
+        "Chengdu",
+        "Chongqing",
+        "Guilin",
+        "Shanghai"
+      ],
+      "route_entities": [
+        "Beijing",
+        "Chengdu",
+        "Chongqing",
+        "Guilin",
+        "Shanghai",
+        "Beijing begins · Xi’an · Chengdu · Chongqing · Guilin · Shanghai ends"
+      ],
+      "city_coverage": [
+        "Beijing",
+        "Chengdu",
+        "Chongqing",
+        "Guilin",
+        "Shanghai"
+      ],
+      "province_region_coverage": [
+        "North China",
+        "Beijing"
+      ]
+    },
+    {
+      "id": "4a22ea8c-15a2-4b39-b1d2-c7b3d3e32fd7",
+      "slug": "guangzhou-chaoshan-xiamen-cultural-loop-8-day-tour",
+      "canonical_slug": "guangzhou-chaoshan-xiamen-cultural-loop-8-day-tour",
+      "status": "active",
+      "journey_type_slug": "deep-discovery",
+      "title": "Guangzhou, Chaoshan & Xiamen  Cultural Loop 8-Day Tour",
+      "h1": "Guangzhou, Chaoshan & Xiamen  Cultural Loop 8-Day Tour",
+      "page_title": "Guangzhou, Chaoshan & Xiamen  Cultural Loop 8-Day Tour",
+      "meta_description": "Guangzhou begins, Xiamen ends",
+      "short_description": "Guangzhou begins, Xiamen ends",
+      "hero_image_url": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1767336091625-%E4%B8%BB%E5%9B%BE-%E9%BC%93%E6%B5%AA%E5%B1%BF-%E6%A8%AA%E5%9B%BE-BYoPelIP7Z05GUaamn23ttGm6vw8O0.jpeg",
+      "hero_image_alt": "Gulangyu Island with red-roofed buildings surrounded by turquoise sea and ferries",
+      "seo_complete": true,
+      "display_order": null,
+      "created_at": "2026-01-01T22:41:37.000Z",
+      "updated_at": "2026-06-29T00:17:01.000Z",
+      "duration_days": 8,
+      "itinerary_day_count": 8,
+      "itinerary_section_count": 5,
+      "highlights_count": 0,
+      "inclusions_count": 0,
+      "exclusions_count": 0,
+      "gallery_image_count": 2,
+      "faq_count": 0,
+      "related_journey_count": 0,
+      "related_article_count": 0,
+      "cta_presence": true,
+      "json_ld_types": [
+        "Trip",
+        "BreadcrumbList"
+      ],
+      "visible_body_word_count": 235,
+      "destination_entities": [
+        "Chaoshan",
+        "Guangzhou",
+        "Xiamen"
+      ],
+      "route_entities": [
+        "Chaoshan",
+        "Guangzhou",
+        "Xiamen",
+        "Guangzhou begins, Xiamen ends"
+      ],
+      "city_coverage": [
+        "Chaoshan",
+        "Guangzhou",
+        "Xiamen"
+      ],
+      "province_region_coverage": [
+        "South China",
+        "Hakka Fujian"
+      ]
+    },
+    {
+      "id": "d2be5f8a-75a3-453a-88e6-a13c8baa70d4",
+      "slug": "guilin-to-yangshuo-classic-7-day-tour",
+      "canonical_slug": "guilin-to-yangshuo-classic-7-day-tour",
+      "status": "active",
+      "journey_type_slug": "deep-discovery",
+      "title": "Guilin to Yangshuo  Classic 7-Day Tour",
+      "h1": "Guilin to Yangshuo  Classic 7-Day Tour",
+      "page_title": "Guilin to Yangshuo  Classic 7-Day Tour",
+      "meta_description": "Guilin begins, Guilin ends",
+      "short_description": "Guilin begins, Guilin ends",
+      "hero_image_url": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1767280379682-%E4%B8%BB%E5%9B%BE-%E6%A1%82%E6%9E%97%E5%B1%B1%E6%B0%B4-%E6%A8%AA%E5%9B%BE-cWIzMKou5RqE2x2ZWYvmqGdEZE6S1g.jpg",
+      "hero_image_alt": "Bamboo raft with cormorants on the Li River reflecting karst peaks near Yangshuo",
+      "seo_complete": true,
+      "display_order": null,
+      "created_at": "2026-01-01T07:14:38.000Z",
+      "updated_at": "2026-06-29T00:17:01.000Z",
+      "duration_days": 7,
+      "itinerary_day_count": 7,
+      "itinerary_section_count": 5,
+      "highlights_count": 0,
+      "inclusions_count": 8,
+      "exclusions_count": 0,
+      "gallery_image_count": 2,
+      "faq_count": 0,
+      "related_journey_count": 0,
+      "related_article_count": 0,
+      "cta_presence": true,
+      "json_ld_types": [
+        "Trip",
+        "BreadcrumbList"
+      ],
+      "visible_body_word_count": 436,
+      "destination_entities": [
+        "Guilin",
+        "Yangshuo"
+      ],
+      "route_entities": [
+        "Guilin",
+        "Yangshuo",
+        "Guilin begins, Guilin ends"
+      ],
+      "city_coverage": [
+        "Guilin",
+        "Yangshuo"
+      ],
+      "province_region_coverage": [
+        "South China",
+        "Guilin"
+      ]
+    },
+    {
+      "id": "fe99d869-cb67-4ba7-8791-ecdfa38c2701",
+      "slug": "huangshan-to-huizhou-ancient-villages-6-day-tour",
+      "canonical_slug": "huangshan-to-huizhou-ancient-villages-6-day-tour",
+      "status": "active",
+      "journey_type_slug": "deep-discovery",
+      "title": "Huangshan to Huizhou Ancient Villages 6-Day Tour",
+      "h1": "Huangshan to Huizhou Ancient Villages 6-Day Tour",
+      "page_title": "Huangshan to Huizhou Ancient Villages 6-Day Tour",
+      "meta_description": "Huangshan begins, Huangshan ends",
+      "short_description": "Huangshan begins, Huangshan ends",
+      "hero_image_url": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1767340686645-%E4%B8%BB%E5%9B%BE-%E8%BF%8E%E5%AE%A2%E6%9D%BE-%E6%A8%AA%E5%9B%BE-4FOkmcw5y1HwAvY72Ou2giwRIEIiE4.jpg",
+      "hero_image_alt": "Iconic pine tree and granite peaks rising above mist at Huangshan (Yellow Mountain)",
+      "seo_complete": true,
+      "display_order": null,
+      "created_at": "2026-01-01T23:58:31.000Z",
+      "updated_at": "2026-06-29T00:17:01.000Z",
+      "duration_days": 6,
+      "itinerary_day_count": 6,
+      "itinerary_section_count": 5,
+      "highlights_count": 0,
+      "inclusions_count": 9,
+      "exclusions_count": 0,
+      "gallery_image_count": 2,
+      "faq_count": 0,
+      "related_journey_count": 0,
+      "related_article_count": 0,
+      "cta_presence": true,
+      "json_ld_types": [
+        "Trip",
+        "BreadcrumbList"
+      ],
+      "visible_body_word_count": 401,
+      "destination_entities": [
+        "Huangshan",
+        "Huizhou"
+      ],
+      "route_entities": [
+        "Huangshan",
+        "Huizhou",
+        "Huangshan begins, Huangshan ends"
+      ],
+      "city_coverage": [
+        "Huangshan",
+        "Huizhou"
+      ],
+      "province_region_coverage": [
+        "East&Central China",
+        "Yellow Mountain & Southern Anhui"
+      ]
+    },
+    {
+      "id": "aa64bf32-d48f-4d5a-8bb7-e0e85353de5c",
+      "slug": "jiuzhaigou-cultural-adventure-4-day-tour",
+      "canonical_slug": "jiuzhaigou-cultural-adventure-4-day-tour",
+      "status": "active",
+      "journey_type_slug": "deep-discovery",
+      "title": "Chengdu to Jiuzhaigou & Huanglong 6-Day Nature & Culture Tour",
+      "h1": "Jiuzhaigou Cultural & Adventure 4-Day Tour",
+      "page_title": "Jiuzhaigou Cultural & Adventure 4-Day Tour",
+      "meta_description": "Chengdu begins, Chengdu ends",
+      "short_description": "Chengdu begins, Chengdu ends",
+      "hero_image_url": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1767714076358-%E4%B8%BB%E5%9B%BE-%E4%B9%9D%E5%AF%A8%E6%B2%9F-%E6%A8%AA%E5%9B%BE-z8k3mNCllKHJa6CARBGLsPC7wPmzDb.jpeg",
+      "hero_image_alt": "Turquoise lake in Jiuzhaigou reflecting autumn forests and submerged tree trunks",
+      "seo_complete": true,
+      "display_order": null,
+      "created_at": "2025-12-17T07:47:52.000Z",
+      "updated_at": "2026-06-29T00:17:01.000Z",
+      "duration_days": 6,
+      "itinerary_day_count": 6,
+      "itinerary_section_count": 4,
+      "highlights_count": 0,
+      "inclusions_count": 12,
+      "exclusions_count": 0,
+      "gallery_image_count": 2,
+      "faq_count": 0,
+      "related_journey_count": 0,
+      "related_article_count": 1,
+      "cta_presence": true,
+      "json_ld_types": [
+        "Trip",
+        "BreadcrumbList"
+      ],
+      "visible_body_word_count": 401,
+      "destination_entities": [
+        "Chengdu",
+        "Huanglong",
+        "Jiuzhaigou",
+        "Tibet"
+      ],
+      "route_entities": [
+        "Chengdu",
+        "Huanglong",
+        "Jiuzhaigou",
+        "Tibet",
+        "Chengdu begins, Chengdu ends"
+      ],
+      "city_coverage": [
+        "Aba Tibetan and Qiang Autonomous Prefecture",
+        "Chengdu",
+        "Huanglong",
+        "Jiuzhaigou",
+        "Tibet"
+      ],
+      "province_region_coverage": [
+        "Southwest China",
+        "Sichuan Basin & Mountains"
+      ]
+    },
+    {
+      "id": "062f363b-eabb-493c-a15b-fe769db12ac5",
+      "slug": "jiuzhaigou-huanglong-by-high-speed-rail-3-day-tour",
+      "canonical_slug": "jiuzhaigou-huanglong-by-high-speed-rail-3-day-tour",
+      "status": "active",
+      "journey_type_slug": "explore-together",
+      "title": "Jiuzhaigou & Huanglong by High-Speed Rail 3-Day Tour",
+      "h1": "Jiuzhaigou & Huanglong by High-Speed Rail 3-Day Tour | Korascale Travel",
+      "page_title": "Jiuzhaigou & Huanglong by High-Speed Rail 3-Day Tour | Korascale Travel",
+      "meta_description": "Chengdu begins, Chengdu ends",
+      "short_description": "Chengdu begins, Chengdu ends",
+      "hero_image_url": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1771753923521-%E4%B8%BB%E5%9B%BE-%E4%B9%9D%E5%AF%A8%E6%B2%9F-%E6%A8%AA%E5%9B%BE-RBIWFJFZDyD8TzHhytYjCAmfndXhda.jpeg",
+      "hero_image_alt": "Turquoise Jiuzhaigou lake bordered by golden autumn forest and a submerged log",
+      "seo_complete": true,
+      "display_order": null,
+      "created_at": "2025-12-09T21:52:34.000Z",
+      "updated_at": "2026-06-29T00:17:01.000Z",
+      "duration_days": 3,
+      "itinerary_day_count": 3,
+      "itinerary_section_count": 5,
+      "highlights_count": 0,
+      "inclusions_count": 8,
+      "exclusions_count": 0,
+      "gallery_image_count": 2,
+      "faq_count": 0,
+      "related_journey_count": 4,
+      "related_article_count": 1,
+      "cta_presence": true,
+      "json_ld_types": [
+        "Trip",
+        "BreadcrumbList"
+      ],
+      "visible_body_word_count": 584,
+      "destination_entities": [
+        "Chengdu",
+        "Huanglong",
+        "Jiuzhaigou",
+        "Tibet"
+      ],
+      "route_entities": [
+        "Chengdu",
+        "Huanglong",
+        "Jiuzhaigou",
+        "Tibet",
+        "Chengdu begins, Chengdu ends"
+      ],
+      "city_coverage": [
+        "AbaTibetan and Qiang AutonomousPrefecture",
+        "Chengdu",
+        "Huanglong",
+        "Jiuzhaigou",
+        "Tibet"
+      ],
+      "province_region_coverage": [
+        "Sichuan",
+        "Sichuan Basin & Mountains"
+      ]
+    },
+    {
+      "id": "28ae5874-2c8f-4f88-895e-09cb45c36872",
+      "slug": "leshan-buddha-emei-mountain-2-day-tour",
+      "canonical_slug": "leshan-buddha-emei-mountain-2-day-tour",
+      "status": "active",
+      "journey_type_slug": "explore-together",
+      "title": "Leshan Buddha & Emei Mountain 2-Day Tour",
+      "h1": "Leshan Buddha & Emei Mountain 2-Day Tour | Korascale Travel",
+      "page_title": "Leshan Buddha & Emei Mountain 2-Day Tour | Korascale Travel",
+      "meta_description": "Chengdu begins, Chengdu ends",
+      "short_description": "Chengdu begins, Chengdu ends",
+      "hero_image_url": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1771753037248-%E4%B8%BB%E5%9B%BE-%E5%B3%A8%E7%9C%89%E5%B1%B1-%E6%A8%AA%E5%9B%BE-hLbMBhKWnUFPqpWmBSKQwBxKwyW5n2.png",
+      "hero_image_alt": "Golden Samantabhadra statue and temple roofs on Mount Emei above a sea of clouds",
+      "seo_complete": true,
+      "display_order": null,
+      "created_at": "2025-12-09T21:52:34.000Z",
+      "updated_at": "2026-06-29T00:17:01.000Z",
+      "duration_days": 2,
+      "itinerary_day_count": 2,
+      "itinerary_section_count": 5,
+      "highlights_count": 0,
+      "inclusions_count": 7,
+      "exclusions_count": 0,
+      "gallery_image_count": 2,
+      "faq_count": 0,
+      "related_journey_count": 4,
+      "related_article_count": 0,
+      "cta_presence": true,
+      "json_ld_types": [
+        "Trip",
+        "BreadcrumbList"
+      ],
+      "visible_body_word_count": 409,
+      "destination_entities": [
+        "Chengdu",
+        "Emei Mountain",
+        "Leshan"
+      ],
+      "route_entities": [
+        "Chengdu",
+        "Emei Mountain",
+        "Leshan",
+        "Chengdu begins, Chengdu ends"
+      ],
+      "city_coverage": [
+        "Chengdu",
+        "Emei Mountain",
+        "Leshan"
+      ],
+      "province_region_coverage": [
+        "Sichuan",
+        "Sichuan Basin & Mountains"
+      ]
+    },
+    {
+      "id": "43afa024-0a6b-42a4-ab24-b582778ad587",
+      "slug": "lhasa-holy-lakes-classic-tibet-8-day-tour",
+      "canonical_slug": "lhasa-holy-lakes-classic-tibet-8-day-tour",
+      "status": "active",
+      "journey_type_slug": "deep-discovery",
+      "title": "Lhasa & Holy Lakes  Classic Tibet 8-Day Tour",
+      "h1": "Lhasa & Holy Lakes  Classic Tibet 8-Day Tour",
+      "page_title": "Lhasa & Holy Lakes  Classic Tibet 8-Day Tour",
+      "meta_description": "Lhasa begins, Lhasa ends",
+      "short_description": "Lhasa begins, Lhasa ends",
+      "hero_image_url": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1768222356636-%E4%B8%BB%E5%9B%BE-%E5%B7%B4%E6%9D%BE%E6%8E%AA-%E6%A8%AA%E5%9B%BE-serMl9dPsgjQRaFlaSJXlkvu4oHyjL.jpeg",
+      "hero_image_alt": "Turquoise Basum Lake with a forested island and snow-capped mountains in Tibet",
+      "seo_complete": true,
+      "display_order": null,
+      "created_at": "2026-01-12T04:53:25.000Z",
+      "updated_at": "2026-06-29T00:17:01.000Z",
+      "duration_days": 8,
+      "itinerary_day_count": 8,
+      "itinerary_section_count": 3,
+      "highlights_count": 0,
+      "inclusions_count": 9,
+      "exclusions_count": 0,
+      "gallery_image_count": 2,
+      "faq_count": 0,
+      "related_journey_count": 0,
+      "related_article_count": 1,
+      "cta_presence": true,
+      "json_ld_types": [
+        "Trip",
+        "BreadcrumbList"
+      ],
+      "visible_body_word_count": 550,
+      "destination_entities": [
+        "Lhasa",
+        "Tibet"
+      ],
+      "route_entities": [
+        "Lhasa",
+        "Tibet",
+        "Lhasa begins, Lhasa ends"
+      ],
+      "city_coverage": [
+        "Lhasa",
+        "Tibet"
+      ],
+      "province_region_coverage": [
+        "Southwest China",
+        "Tibetan Plateau & Kham Region"
+      ]
+    },
+    {
+      "id": "645c7b01-6a18-4246-91b7-69f1311e9ebc",
+      "slug": "shanghai-suzhou-classic-dual-city-7-day-tour",
+      "canonical_slug": "shanghai-suzhou-classic-dual-city-7-day-tour",
+      "status": "active",
+      "journey_type_slug": "deep-discovery",
+      "title": "Shanghai & Suzhou Classic Dual-City 7-Day  Tour",
+      "h1": "Shanghai & Suzhou Classic Dual-City 7-Day  Tour",
+      "page_title": "Shanghai & Suzhou Classic Dual-City 7-Day  Tour",
+      "meta_description": "Shanghai begins, Shanghai ends",
+      "short_description": "Shanghai begins, Shanghai ends",
+      "hero_image_url": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1767455968109-%E4%B8%BB%E5%9B%BE-%E8%8B%8F%E5%B7%9E-%E6%A8%AA%E5%9B%BE-BaUlNeqFN1L39nd7jshRCvpf2vdRix.jpeg",
+      "hero_image_alt": "Hexagonal pavilion beside a reflecting pond in a classical Suzhou garden at dusk",
+      "seo_complete": true,
+      "display_order": null,
+      "created_at": "2026-01-03T08:00:22.000Z",
+      "updated_at": "2026-06-29T00:17:01.000Z",
+      "duration_days": 7,
+      "itinerary_day_count": 7,
+      "itinerary_section_count": 4,
+      "highlights_count": 0,
+      "inclusions_count": 9,
+      "exclusions_count": 0,
+      "gallery_image_count": 2,
+      "faq_count": 0,
+      "related_journey_count": 0,
+      "related_article_count": 0,
+      "cta_presence": true,
+      "json_ld_types": [
+        "Trip",
+        "BreadcrumbList"
+      ],
+      "visible_body_word_count": 428,
+      "destination_entities": [
+        "Shanghai",
+        "Suzhou"
+      ],
+      "route_entities": [
+        "Shanghai",
+        "Suzhou",
+        "Shanghai begins, Shanghai ends"
+      ],
+      "city_coverage": [
+        "Shanghai",
+        "Suzhou"
+      ],
+      "province_region_coverage": [
+        "East&Central China",
+        "WaterTowns"
+      ]
+    },
+    {
+      "id": "743d03b7-82a9-4d72-9715-10ee9df9f231",
+      "slug": "siguniang-mountain-2-day-tour",
+      "canonical_slug": "siguniang-mountain-2-day-tour",
+      "status": "active",
+      "journey_type_slug": "explore-together",
+      "title": "Siguniang Mountain 2-Day Tour",
+      "h1": "Siguniang Mountain 2-Day Tour | Korascale Travel",
+      "page_title": "Siguniang Mountain 2-Day Tour | Korascale Travel",
+      "meta_description": "Chengdu begins, Chengdu ends",
+      "short_description": "Chengdu begins, Chengdu ends",
+      "hero_image_url": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1765962302332-%E5%9B%9B%E5%A7%91%E5%A8%98%E5%B1%B1%E5%8F%8C%E6%A1%A5%E6%B2%9F%E5%9B%9B%E5%A7%91%E5%A8%9C%E6%8E%AA2-DnmiqcpIYffSIvp9ALSTlj06LneFtk.png",
+      "hero_image_alt": "Snow-capped peaks reflected in a lake with dead tree trunks in Shuangqiao Valley, Mount Siguniang",
+      "seo_complete": true,
+      "display_order": null,
+      "created_at": "2025-12-09T21:52:35.000Z",
+      "updated_at": "2026-06-29T00:17:01.000Z",
+      "duration_days": 2,
+      "itinerary_day_count": 2,
+      "itinerary_section_count": 5,
+      "highlights_count": 0,
+      "inclusions_count": 7,
+      "exclusions_count": 0,
+      "gallery_image_count": 2,
+      "faq_count": 0,
+      "related_journey_count": 4,
+      "related_article_count": 0,
+      "cta_presence": true,
+      "json_ld_types": [
+        "Trip",
+        "BreadcrumbList"
+      ],
+      "visible_body_word_count": 427,
+      "destination_entities": [
+        "Chengdu",
+        "Siguniang Mountain",
+        "Tibet"
+      ],
+      "route_entities": [
+        "Chengdu",
+        "Siguniang Mountain",
+        "Tibet",
+        "Chengdu begins, Chengdu ends"
+      ],
+      "city_coverage": [
+        "AbaTibetan and Qiang AutonomousPrefecture",
+        "Chengdu",
+        "Siguniang Mountain",
+        "Tibet"
+      ],
+      "province_region_coverage": [
+        "Sichuan",
+        "Sichuan Basin & Mountains"
+      ]
+    },
+    {
+      "id": "bfd44a68-c631-4e23-950f-f93a7e9231b5",
+      "slug": "xian-culture-mount-hua-in-depth-4-day-tour",
+      "canonical_slug": "xian-culture-mount-hua-in-depth-4-day-tour",
+      "status": "active",
+      "journey_type_slug": "deep-discovery",
+      "title": "Xi'an Culture & Mount Hua  In-Depth 6-Day Tour",
+      "h1": "Xi'an Culture & Mount Hua  In-Depth 4-Day Tour",
+      "page_title": "Xi'an Culture & Mount Hua  In-Depth 4-Day Tour",
+      "meta_description": "Xi'an begins, Xi'an ends",
+      "short_description": "Xi'an begins, Xi'an ends",
+      "hero_image_url": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1766931010118-%E4%B8%BB%E5%9B%BE-%E8%A5%BF%E5%AE%89%E5%9F%8E%E5%A2%99-%E6%A8%AA%E5%9B%BE-NlSHPTNxeOYztmbhrzWZCqvHwWKO6I.jpg",
+      "hero_image_alt": "Xi'an City Wall watchtower and red lanterns along the ramparts at sunset",
+      "seo_complete": true,
+      "display_order": null,
+      "created_at": "2025-12-28T06:09:50.000Z",
+      "updated_at": "2026-06-29T00:17:01.000Z",
+      "duration_days": 6,
+      "itinerary_day_count": 6,
+      "itinerary_section_count": 4,
+      "highlights_count": 0,
+      "inclusions_count": 9,
+      "exclusions_count": 0,
+      "gallery_image_count": 2,
+      "faq_count": 0,
+      "related_journey_count": 0,
+      "related_article_count": 0,
+      "cta_presence": true,
+      "json_ld_types": [
+        "Trip",
+        "BreadcrumbList"
+      ],
+      "visible_body_word_count": 371,
+      "destination_entities": [
+        "Xi'an"
+      ],
+      "route_entities": [
+        "Xi'an",
+        "Xi'an begins, Xi'an ends"
+      ],
+      "city_coverage": [
+        "Xi'an"
+      ],
+      "province_region_coverage": [
+        "Northwest&Northern Frontier",
+        "Xi'an"
+      ]
+    },
+    {
+      "id": "06f935af-8ca1-45e0-bdc3-053b94907cf2",
+      "slug": "xian-terracotta-warriors-tang-paradise-night-tour",
+      "canonical_slug": "xian-terracotta-warriors-tang-paradise-night-tour",
+      "status": "active",
+      "journey_type_slug": "explore-together",
+      "title": "Xi’an: Monumental Guardians & Neon Reveries",
+      "h1": "Xi'an Terracotta Warriors & Tang Paradise Night Tour",
+      "page_title": "Xi'an Terracotta Warriors & Tang Paradise Night Tour",
+      "meta_description": "Uncovering the Subterranean Scale of Ancient Empires and the Radiant Spectacle of China’s Cultural Renaissance.",
+      "short_description": "Uncovering the Subterranean Scale of Ancient Empires and the Radiant Spectacle of China’s Cultural Renaissance.",
+      "hero_image_url": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1771751385210-%E4%B8%BB%E5%9B%BE-%E5%85%B5%E9%A9%AC%E4%BF%91-%E6%A8%AA%E5%9B%BE-nsKYkQSn2Pko5A3csi3FSClT5Rr5vh.jpeg",
+      "hero_image_alt": "Rows of Terracotta Army statues in an excavated pit in Xi'an",
+      "seo_complete": true,
+      "display_order": null,
+      "created_at": "2025-12-14T06:02:26.000Z",
+      "updated_at": "2026-06-29T00:17:01.000Z",
+      "duration_days": 1,
+      "itinerary_day_count": 4,
+      "itinerary_section_count": 4,
+      "highlights_count": 0,
+      "inclusions_count": 6,
+      "exclusions_count": 0,
+      "gallery_image_count": 2,
+      "faq_count": 0,
+      "related_journey_count": 0,
+      "related_article_count": 0,
+      "cta_presence": true,
+      "json_ld_types": [
+        "Trip",
+        "BreadcrumbList"
+      ],
+      "visible_body_word_count": 600,
+      "destination_entities": [
+        "Xi'an"
+      ],
+      "route_entities": [
+        "Xi'an"
+      ],
+      "city_coverage": [
+        "Xi'an"
+      ],
+      "province_region_coverage": [
+        "Northwest&Northern Frontier",
+        "Xi'an"
+      ]
+    },
+    {
+      "id": "1211dc54-4653-4bb1-a925-75fa38477919",
+      "slug": "xining-to-lhasa-mount-everest-tibet-grand-10-day-tour",
+      "canonical_slug": "xining-to-lhasa-mount-everest-tibet-grand-10-day-tour",
+      "status": "active",
+      "journey_type_slug": "deep-discovery",
+      "title": "Xining to Lhasa & Mount Everest  Tibet Grand 10-Day Tour",
+      "h1": "Xining to Lhasa & Mount Everest  Tibet Grand 10-Day Tour",
+      "page_title": "Xining to Lhasa & Mount Everest  Tibet Grand 10-Day Tour",
+      "meta_description": "Xining begins, Lhasa ends",
+      "short_description": "Xining begins, Lhasa ends",
+      "hero_image_url": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1767931763849-%E4%B8%BB%E5%9B%BE-%E9%9D%92%E8%97%8F%E9%93%81%E8%B7%AF-%E6%A8%AA%E5%9B%BE-KOj3Ae3UB0Luayq8Br88l9P5DGvD6r.jpeg",
+      "hero_image_alt": "Qinghai-Tibet Railway train crossing a plateau with Tibetan antelope grazing nearby",
+      "seo_complete": true,
+      "display_order": null,
+      "created_at": "2026-01-08T20:10:22.000Z",
+      "updated_at": "2026-06-29T00:17:01.000Z",
+      "duration_days": 10,
+      "itinerary_day_count": 10,
+      "itinerary_section_count": 4,
+      "highlights_count": 0,
+      "inclusions_count": 9,
+      "exclusions_count": 0,
+      "gallery_image_count": 2,
+      "faq_count": 0,
+      "related_journey_count": 0,
+      "related_article_count": 1,
+      "cta_presence": true,
+      "json_ld_types": [
+        "Trip",
+        "BreadcrumbList"
+      ],
+      "visible_body_word_count": 658,
+      "destination_entities": [
+        "Lhasa",
+        "Mount Everest",
+        "Tibet",
+        "Xining"
+      ],
+      "route_entities": [
+        "Lhasa",
+        "Mount Everest",
+        "Tibet",
+        "Xining",
+        "Xining begins, Lhasa ends"
+      ],
+      "city_coverage": [
+        "Lhasa",
+        "Mount Everest",
+        "Tibet",
+        "Xining"
+      ],
+      "province_region_coverage": [
+        "Southwest China",
+        "Tibetan Plateau & Kham Region"
+      ]
+    },
+    {
+      "id": "ef87b1c3-d52a-4e8e-ade7-950e1bceadb3",
+      "slug": "yunnan-kunming-dali-lijiang-shangri-la-9-day-tour",
+      "canonical_slug": "yunnan-kunming-dali-lijiang-shangri-la-9-day-tour",
+      "status": "active",
+      "journey_type_slug": "deep-discovery",
+      "title": "Yunnan Kunming, Dali, Lijiang & Shangri-La 9-Day  Tour",
+      "h1": "Yunnan Kunming, Dali, Lijiang & Shangri-La 9-Day  Tour",
+      "page_title": "Yunnan Kunming, Dali, Lijiang & Shangri-La 9-Day  Tour",
+      "meta_description": "Kunming begins, Shangri-La ends",
+      "short_description": "Kunming begins, Shangri-La ends",
+      "hero_image_url": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1768228201513-%E4%B8%BB%E5%9B%BE-%E5%A4%A7%E7%BB%8F%E5%B9%A1-%E6%A8%AA%E5%9B%BE-mRCBTRF3GbHKUl5euE15JCuIJdIECU.jpeg",
+      "hero_image_alt": "Colorful Tibetan prayer flags radiating from a central pole against a blue sky",
+      "seo_complete": true,
+      "display_order": null,
+      "created_at": "2026-01-12T06:30:34.000Z",
+      "updated_at": "2026-06-29T00:17:01.000Z",
+      "duration_days": 9,
+      "itinerary_day_count": 9,
+      "itinerary_section_count": 3,
+      "highlights_count": 0,
+      "inclusions_count": 10,
+      "exclusions_count": 0,
+      "gallery_image_count": 2,
+      "faq_count": 0,
+      "related_journey_count": 0,
+      "related_article_count": 0,
+      "cta_presence": true,
+      "json_ld_types": [
+        "Trip",
+        "BreadcrumbList"
+      ],
+      "visible_body_word_count": 635,
+      "destination_entities": [
+        "Dali",
+        "Kunming",
+        "Lijiang",
+        "Shangri-La",
+        "Yunnan"
+      ],
+      "route_entities": [
+        "Dali",
+        "Kunming",
+        "Lijiang",
+        "Shangri-La",
+        "Yunnan",
+        "Kunming begins, Shangri-La ends"
+      ],
+      "city_coverage": [
+        "Dali",
+        "Kunming",
+        "Lijiang",
+        "Shangri-La",
+        "Yunnan"
+      ],
+      "province_region_coverage": [
+        "Southwest China",
+        "Yunnan–Guizhou Highlands"
+      ]
+    },
+    {
+      "id": "08579f34-894b-4278-9608-a96f54d2b591",
+      "slug": "zhangjiajie-fenghuang-classic-7-day-dual-destination-tour",
+      "canonical_slug": "zhangjiajie-fenghuang-classic-7-day-dual-destination-tour",
+      "status": "active",
+      "journey_type_slug": "deep-discovery",
+      "title": "Zhangjiajie & Fenghuang Classic 7-Day Dual-Destination Tour",
+      "h1": "Zhangjiajie & Fenghuang Classic 7-Day Dual-Destination Tour",
+      "page_title": "Zhangjiajie & Fenghuang Classic 7-Day Dual-Destination Tour",
+      "meta_description": "Zhangjiajie begins, Zhangjiajie ends",
+      "short_description": "Zhangjiajie begins, Zhangjiajie ends",
+      "hero_image_url": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1767679604101-%E4%B8%BB%E5%9B%BE-%E6%AD%A6%E9%99%B5%E6%BA%90-%E6%A8%AA%E5%9B%BE-oFGPNkojecNVIpFNd7mnzy8MzDGUay.jpeg",
+      "hero_image_alt": "Sandstone pillar peaks covered in green forest at Zhangjiajie National Forest Park",
+      "seo_complete": true,
+      "display_order": null,
+      "created_at": "2026-01-05T22:07:20.000Z",
+      "updated_at": "2026-06-29T00:17:01.000Z",
+      "duration_days": 7,
+      "itinerary_day_count": 7,
+      "itinerary_section_count": 4,
+      "highlights_count": 0,
+      "inclusions_count": 8,
+      "exclusions_count": 0,
+      "gallery_image_count": 2,
+      "faq_count": 0,
+      "related_journey_count": 0,
+      "related_article_count": 0,
+      "cta_presence": true,
+      "json_ld_types": [
+        "Trip",
+        "BreadcrumbList"
+      ],
+      "visible_body_word_count": 459,
+      "destination_entities": [
+        "Fenghuang",
+        "Zhangjiajie"
+      ],
+      "route_entities": [
+        "Fenghuang",
+        "Zhangjiajie",
+        "Zhangjiajie begins, Zhangjiajie ends"
+      ],
+      "city_coverage": [
+        "Fenghuang",
+        "Zhangjiajie"
+      ],
+      "province_region_coverage": [
+        "South China",
+        "Zhangjiajie"
+      ]
+    }
+  ]
+}
