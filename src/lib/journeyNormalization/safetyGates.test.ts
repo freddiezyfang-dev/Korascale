@@ -263,3 +263,36 @@ describe('safety gate 4: 025B does not write unconfirmed data', () => {
 		expect(rowScopedUpdates?.length).toBeGreaterThanOrEqual(2);
 	});
 });
+
+describe('safety gate 5: 025C1 status-only constraints', () => {
+	const forwardSql = readFileSync(
+		join(pendingDir, '025c1_journey_status_constraints.sql'),
+		'utf8'
+	);
+	const rollbackSql = readFileSync(
+		join(pendingDir, '025c1_journey_status_constraints.rollback.sql'),
+		'utf8'
+	);
+
+	it('forward migration sets NOT NULL and journeys_status_check only', () => {
+		const executable = stripSqlComments(forwardSql);
+		expect(forwardSql).toContain('journeys_status_check');
+		expect(forwardSql).toContain("SET NOT NULL");
+		expect(executable).not.toMatch(/\bUPDATE\s+journeys\b/i);
+		expect(executable).not.toContain('journey_type_slug');
+		expect(executable).not.toContain('currency');
+		expect(executable).not.toContain('price_basis');
+	});
+
+	it('rollback drops constraint and NOT NULL without row changes', () => {
+		expect(rollbackSql).toContain('DROP CONSTRAINT journeys_status_check');
+		expect(rollbackSql).toContain('DROP NOT NULL');
+		expect(stripSqlComments(rollbackSql)).not.toMatch(/\bUPDATE\s+journeys\b/i);
+	});
+
+	it('025C1 lives under pending/ and is not auto-discovered', () => {
+		expect(() =>
+			readFileSync(join(migrationsDir, '025c1_journey_status_constraints.sql'), 'utf8')
+		).toThrow();
+	});
+});
