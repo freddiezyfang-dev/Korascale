@@ -41,8 +41,8 @@ function toNumber(value: unknown): number | null {
 	return Number.isFinite(n) ? n : null;
 }
 
-function columnValue(row: JourneyRowLike, column: keyof JourneyRowLike): unknown {
-	return row[column];
+function columnValue(row: JourneyRowLike, column: string): unknown {
+	return (row as Record<string, unknown>)[column];
 }
 
 export function resolveB4PriceFrom(row: JourneyRowLike): {
