@@ -2,26 +2,29 @@
 
 Production database: `neondb` (`ep-red-sunset-adgu8hlv-pooler`)
 
-Last updated: 2026-06-29 (025C1 executed on Production)
+Last updated: 2026-06-29 (Journey status pipeline closed)
+
+## Journey status pipeline (closed)
+
+| Layer | Rule |
+|-------|------|
+| Public queries | `status = 'active'` only |
+| Writers | `draft` / `active` / `archived` only |
+| Database | `status NOT NULL` + `journeys_status_check`; rejects NULL, `inactive`, and illegal values |
 
 ## Status overview
 
-| Migration | Phase | Status | Rollback |
-|-----------|-------|--------|----------|
-| 025A | Schema (expanded columns) | **executed** | available |
-| 025B1 | Status backfill (59 inactive → archived) | **executed** | not executed |
-| 025B2 | Slug normalization (4 trailing-hyphen) | **executed** | not executed |
-| 025B3A | Active metadata & taxonomy (24 active) | **executed** | not executed |
-| 025B4 | Active seo_complete (24 active) | **executed** | not executed |
-| 025C | Constraints (monolithic — reference only) | **not executed** | — |
-| 025C1 | Status NOT NULL + CHECK | **executed** | available, not executed |
-| 025C2 | Optional field CHECKs | **not prepared / not executed** | — |
+| Migration | Status |
+|-----------|--------|
+| 025A | **executed** |
+| 025B1 | **executed** |
+| 025B2 | **executed** |
+| 025B3A | **executed** |
+| 025B4 | **executed** |
+| 025C1 | **executed** |
+| 025C2 | **not prepared / not executed** |
 
 **Price normalization:** frozen pending business review — see `pr-j2-price-normalization-frozen.md`.
-
-**PR-J2C1 (strict public queries):** deployed — `status = 'active'` default for public queries.
-
-**PR-J2C2 / 025C1:** executed on Production 2026-06-29. Post-check: `is_nullable=NO`, `journeys_status_check` in place, active 24 / archived 59, invalid 0.
 
 **Audits:** `pr-j2c-public-status-query-audit.md`, `pr-j2c-writer-readiness.md`, `pr-j2c2-status-constraint-readiness.md`.
 
@@ -99,9 +102,9 @@ Last updated: 2026-06-29 (025C1 executed on Production)
   - `seo_complete` not used in public list/detail/sitemap queries
   - price columns unchanged (0/24 filled)
 
-## 025C — not executed
+## 025C — reference only (superseded)
 
-Monolithic reference: `025c_journey_normalization_constraints.sql` (superseded by split plan).
+Monolithic file `025c_journey_normalization_constraints.sql` superseded by 025C1 / 025C2 split plan. Not executed.
 
 ## 025C1 — executed
 
@@ -123,6 +126,4 @@ Monolithic reference: `025c_journey_normalization_constraints.sql` (superseded b
 
 ## 025C2 — not prepared / not executed
 
-Optional field constraints (`journey_type_slug`, `currency`, `price_basis`) are out of scope for PR-J2C2.
-
-Frozen until separately authorized after 025C1 acceptance.
+Optional field constraints (`journey_type_slug`, `currency`, `price_basis`) — frozen until separately authorized.
