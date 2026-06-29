@@ -12,6 +12,7 @@ import {
 	mergeExpandedColumnSql,
 } from '@/lib/journeyNormalization/write';
 import { resolvePageTitle } from '@/lib/journeyNormalization/fields';
+import { migrationSqlModifiesOnlySlug } from '@/lib/journeyNormalization/slugBackfill';
 import type { JourneyRowLike } from '@/lib/journeyNormalization/types';
 
 const migrationsDir = join(process.cwd(), 'database/migrations');
@@ -148,6 +149,23 @@ describe('safety gate 3: dual-write is single-statement', () => {
 		expect(sql).toContain('$1::jsonb');
 		expect(sql.match(/INSERT INTO journeys/g)?.length).toBe(1);
 		delete process.env.JOURNEY_NORMALIZATION_COLUMNS;
+	});
+});
+
+describe('safety gate 4c: 025B2 slug-only backfill', () => {
+	const sql = readFileSync(
+		join(pendingDir, '025b2_journey_slug_normalization.sql'),
+		'utf8'
+	);
+
+	it('requires manifest table and slug-only update', () => {
+		expect(sql).toContain('pr_j2b2_manifest');
+		expect(sql).toContain('SET slug = m.new_slug');
+		expect(sql).not.toContain('SET status');
+	});
+
+	it('does not modify status, metadata, or price fields', () => {
+		expect(migrationSqlModifiesOnlySlug(sql)).toBe(true);
 	});
 });
 

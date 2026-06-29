@@ -2,6 +2,8 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
+import { migrationSqlModifiesOnlySlug } from '@/lib/journeyNormalization/slugBackfill';
+
 const migrationsDir = join(process.cwd(), 'database/migrations');
 const pendingDir = join(migrationsDir, 'pending');
 
@@ -56,6 +58,27 @@ describe('migration 025b1 status backfill (pending/)', () => {
 		expect(sql).toContain('pr_j2b1_manifest');
 		expect(sql).toContain('non_manifest_archived_before');
 		expect(sql).not.toContain('expected 0 archived');
+	});
+});
+
+describe('migration 025b2 slug normalization (pending/)', () => {
+	it('uses manifest-scoped slug update only', () => {
+		const sql = readFileSync(
+			join(pendingDir, '025b2_journey_slug_normalization.sql'),
+			'utf8'
+		);
+		expect(sql).toContain('pr_j2b2_manifest');
+		expect(sql).toContain('SET slug = m.new_slug');
+		expect(migrationSqlModifiesOnlySlug(sql)).toBe(true);
+	});
+
+	it('rollback restores manifest slugs only', () => {
+		const sql = readFileSync(
+			join(pendingDir, '025b2_journey_slug_normalization.rollback.sql'),
+			'utf8'
+		);
+		expect(sql).toContain('pr_j2b2_external_slug_snapshot');
+		expect(sql).toContain('SET slug = m.old_slug');
 	});
 });
 
