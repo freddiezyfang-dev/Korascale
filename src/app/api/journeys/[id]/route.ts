@@ -13,6 +13,11 @@ import {
 	loadJourneyDbRowById,
 } from '@/lib/journeyNormalization/journeyPublishIntegrity.server';
 import { runJourneyPublishIntegrityGate } from '@/lib/journeyNormalization/journeyPublishIntegrityGate.server';
+import { journeySlugConflictJsonResponse } from '@/lib/journeyNormalization/journeySlugConflictHttp';
+import {
+	isJourneySlugUniquenessViolation,
+	runJourneySlugUniquenessPreCheck,
+} from '@/lib/journeyNormalization/journeySlugUniqueness.server';
 import {
   assertJourneySqlSafeForCurrentSchema,
 } from '@/lib/journeyNormalization/write';
@@ -169,9 +174,16 @@ export async function PUT(
       return NextResponse.json({ error: 'Journey not found' }, { status: 404 });
     }
 
-    const publishGate = await runJourneyPublishIntegrityGate(
-      buildUpdatePublishCandidate(existingRow, body)
-    );
+    const publishCandidate = buildUpdatePublishCandidate(existingRow, body);
+
+    if (publishCandidate.status !== 'active') {
+      const slugCheck = await runJourneySlugUniquenessPreCheck(publishCandidate);
+      if (slugCheck.conflict) {
+        return journeySlugConflictJsonResponse();
+      }
+    }
+
+    const publishGate = await runJourneyPublishIntegrityGate(publishCandidate);
     if (!publishGate.ok) {
       return journeyPublishIntegrityJsonResponse(publishGate);
     }
@@ -191,36 +203,44 @@ export async function PUT(
 
     try {
       await query(mutation.updateSql, mutation.updateValues);
-    } catch (dbError: any) {
-      if (dbError.code === '23505') {
-        throw new Error(`Duplicate value: ${dbError.detail || 'Unique constraint violation'}`);
-      } else if (dbError.code === '23503') {
-        throw new Error(`Foreign key constraint violation: ${dbError.detail || 'Referenced record does not exist'}`);
-      } else if (dbError.code === '23502') {
-        throw new Error(`Not null constraint violation: ${dbError.detail || 'Required field is missing'}`);
+    } catch (dbError: unknown) {
+      if (isJourneySlugUniquenessViolation(dbError)) {
+        return journeySlugConflictJsonResponse();
+      }
+      const err = dbError as { code?: string; detail?: string };
+      if (err.code === '23505') {
+        throw new Error(`Duplicate value: ${err.detail || 'Unique constraint violation'}`);
+      } else if (err.code === '23503') {
+        throw new Error(`Foreign key constraint violation: ${err.detail || 'Referenced record does not exist'}`);
+      } else if (err.code === '23502') {
+        throw new Error(`Not null constraint violation: ${err.detail || 'Required field is missing'}`);
       }
       throw dbError;
     }
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error updating journey:', error);
+    if (isJourneySlugUniquenessViolation(error)) {
+      return journeySlugConflictJsonResponse();
+    }
     
     // 提取更详细的错误信息
     let errorMessage = 'Failed to update journey';
-    if (error?.message) {
-      errorMessage = error.message;
+    const err = error as { message?: string; code?: string; stack?: string };
+    if (err?.message) {
+      errorMessage = err.message;
     } else if (typeof error === 'string') {
       errorMessage = error;
     }
     
     // 如果是数据库错误，提取更具体的信息
-    if (error?.code) {
-      errorMessage = `Database error: ${error.code} - ${errorMessage}`;
+    if (err?.code) {
+      errorMessage = `Database error: ${err.code} - ${errorMessage}`;
     }
     
     return NextResponse.json(
-      { error: errorMessage, details: error?.stack || null },
+      { error: errorMessage, details: err?.stack || null },
       { status: 500 }
     );
   }

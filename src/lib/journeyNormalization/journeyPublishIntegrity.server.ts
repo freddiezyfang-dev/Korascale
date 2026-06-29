@@ -1,6 +1,5 @@
 import { query } from '@/lib/db';
 import type { JourneyPublishCandidate } from './journeyPublishIntegrity';
-import { resolveCanonicalPublishSlug } from './journeyPublishIntegrity';
 import {
 	buildJourneyDualWritePayload,
 	journeyTypeLabelToSlug,
@@ -123,25 +122,7 @@ export function publishCandidateFromCreatePayload(
 	};
 }
 
-export async function findJourneySlugConflict(
-	canonicalSlug: string,
-	excludeJourneyId?: string
-): Promise<boolean> {
-	if (!canonicalSlug) return false;
-	const { rows } = await query('SELECT id, slug FROM journeys');
-	for (const row of rows) {
-		if (excludeJourneyId && String(row.id) === String(excludeJourneyId)) continue;
-		const otherCanonical = resolveCanonicalPublishSlug(row.slug);
-		if (otherCanonical === canonicalSlug) return true;
-	}
-	return false;
-}
-
 export async function loadJourneyDbRowById(id: string): Promise<JourneyDbRow | null> {
 	const { rows } = await query('SELECT * FROM journeys WHERE id = $1', [id]);
 	return rows.length > 0 ? (rows[0] as JourneyDbRow) : null;
-}
-
-export function resolveCandidateCanonicalSlug(candidate: JourneyPublishCandidate): string | null {
-	return resolveCanonicalPublishSlug(candidate.slug);
 }

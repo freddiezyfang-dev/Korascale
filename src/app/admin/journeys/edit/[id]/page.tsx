@@ -35,7 +35,7 @@ import { ExtensionFormModal } from '@/components/admin/ExtensionFormModal';
 import { JourneyHotelFormModal } from '@/components/admin/JourneyHotelFormModal';
 import { ExperienceFormModal } from '@/components/admin/ExperienceFormModal';
 import { uploadAPI } from '@/lib/databaseClient';
-import { JourneyPublishIntegrityClientError, type JourneyPublishFieldError } from '@/lib/databaseClient';
+import { JourneyPublishIntegrityClientError, JourneySlugConflictClientError, type JourneyPublishFieldError } from '@/lib/databaseClient';
 import { getRenderableImageUrl } from '@/lib/imageUtils';
 
 const categoryOptions = [
@@ -615,6 +615,11 @@ export default function EditJourneyPage() {
       if (e instanceof JourneyPublishIntegrityClientError) {
         setPublishErrors(e.fields);
         alert('Not ready to publish. Please fix the highlighted fields.');
+        return;
+      }
+      if (e instanceof JourneySlugConflictClientError) {
+        setPublishErrors(e.fields);
+        alert('This Journey slug is already in use.');
         return;
       }
       alert('保存失败，请稍后重试');

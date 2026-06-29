@@ -7,8 +7,8 @@ import {
 } from './journeyPublishIntegrity';
 import {
 	findJourneySlugConflict,
-	resolveCandidateCanonicalSlug,
-} from './journeyPublishIntegrity.server';
+	resolveCandidateComparisonSlug,
+} from './journeySlugUniqueness.server';
 
 export type JourneyPublishGateResult =
 	| {
@@ -58,9 +58,9 @@ export async function runJourneyPublishIntegrityGate(
 		};
 	}
 
-	const canonicalSlug = resolveCandidateCanonicalSlug(candidate);
-	const slugConflict = canonicalSlug
-		? await findJourneySlugConflict(canonicalSlug, candidate.id)
+	const comparisonSlug = resolveCandidateComparisonSlug(candidate);
+	const slugConflict = comparisonSlug
+		? await findJourneySlugConflict(comparisonSlug, candidate.id)
 		: false;
 
 	const readiness = validateJourneyPublishReadiness(candidate, { slugConflict });

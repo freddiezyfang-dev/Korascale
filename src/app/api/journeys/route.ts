@@ -14,6 +14,11 @@ import {
 } from '@/lib/journeyNormalization/journeyAdminMutation.server';
 import { journeyPublishIntegrityJsonResponse } from '@/lib/journeyNormalization/journeyPublishIntegrityHttp';
 import { runJourneyPublishIntegrityGate } from '@/lib/journeyNormalization/journeyPublishIntegrityGate.server';
+import { journeySlugConflictJsonResponse } from '@/lib/journeyNormalization/journeySlugConflictHttp';
+import {
+	isJourneySlugUniquenessViolation,
+	runJourneySlugUniquenessPreCheck,
+} from '@/lib/journeyNormalization/journeySlugUniqueness.server';
 
 // Route Segment Config - 确保路由被正确识别
 export const dynamic = 'force-dynamic';
@@ -194,7 +199,16 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = sanitizeJourneyCreateBody(await request.json());
-    const publishGate = await runJourneyPublishIntegrityGate(buildCreatePublishCandidate(body));
+    const publishCandidate = buildCreatePublishCandidate(body);
+
+    if (publishCandidate.status !== 'active') {
+      const slugCheck = await runJourneySlugUniquenessPreCheck(publishCandidate);
+      if (slugCheck.conflict) {
+        return journeySlugConflictJsonResponse();
+      }
+    }
+
+    const publishGate = await runJourneyPublishIntegrityGate(publishCandidate);
     if (!publishGate.ok) {
       return journeyPublishIntegrityJsonResponse(publishGate);
     }
@@ -213,6 +227,9 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error creating journey:', error);
+    if (isJourneySlugUniquenessViolation(error)) {
+      return journeySlugConflictJsonResponse();
+    }
     return NextResponse.json(
       { error: 'Failed to create journey' },
       { status: 500 }
