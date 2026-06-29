@@ -2,7 +2,7 @@
 
 Production database: `neondb` (`ep-red-sunset-adgu8hlv-pooler`)
 
-Last updated: 2026-06-29 (Journey status pipeline closed)
+Last updated: 2026-06-29 (026 Production executed)
 
 ## Journey status pipeline (closed)
 
@@ -133,8 +133,17 @@ Optional field constraints (`journey_type_slug`, `currency`, `price_basis`) — 
 - **Files:**
   - `database/migrations/pending/026_journey_slug_normalized_unique_index.sql`
   - `database/migrations/pending/026_journey_slug_normalized_unique_index.rollback.sql`
-- **Scope:** unique expression index `journeys_slug_normalized_unique_idx` on `LOWER(BTRIM(slug))` where slug is non-null/non-empty
-- **Status:** **prepared / not executed**
-- **Does not:** modify Journey rows, add slug NOT NULL, add canonical CHECK, or deploy automatically
-- **Preflight:** `scripts/migrations/pr-j3c-slug-uniqueness-preflight.ts` (read-only)
-- **Production execution:** blocked until separate authorization after preparation review
+- **Scope:** unique expression index `journeys_slug_normalized_unique_idx` on `LOWER(BTRIM(slug))` where slug is non-null/non-empty; coexists with existing `journeys_slug_key`
+- **Status:** **executed** on Production
+- **Executed:** Production 2026-06-29 (authorized post PR #26 merge)
+- **Pre-execution preflight:** `ready=true`, `normalizedDuplicateGroups=[]`, `targetIndexExists=false`
+- **Post-execution verification:**
+  - both slug unique objects present: `journeys_slug_key`, `journeys_slug_normalized_unique_idx`
+  - row fingerprint unchanged (`7b324929b7a0d898a6a245b15b786bf3`)
+  - counts: total 83, active 24, archived 59
+  - public taxonomy: Explore Together 8 / Deep Discovery 16
+  - J3A preflight `ready=true`; J2C strict delta 0
+  - Production sitemap journey detail URLs: 24
+  - **no Journey row UPDATE/DELETE** (index-only migration)
+- **Rollback:** not executed
+- **Does not include:** slug NOT NULL changes, canonical CHECK, DROP `journeys_slug_key`, slug data cleanup
