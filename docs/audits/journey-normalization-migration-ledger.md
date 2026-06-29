@@ -2,7 +2,7 @@
 
 Production database: `neondb` (`ep-red-sunset-adgu8hlv-pooler`)
 
-Last updated: 2026-06-29 (PR-J2B4 seo_complete preparation)
+Last updated: 2026-06-29 (PR-J2B4 executed)
 
 ## Status overview
 
@@ -12,7 +12,7 @@ Last updated: 2026-06-29 (PR-J2B4 seo_complete preparation)
 | 025B1 | Status backfill (59 inactive → archived) | **executed** | not executed |
 | 025B2 | Slug normalization (4 trailing-hyphen) | **executed** | not executed |
 | 025B3A | Active metadata & taxonomy (24 active) | **executed** | not executed |
-| 025B4 | Active seo_complete (24 active) | **prepared / not executed** | prepared |
+| 025B4 | Active seo_complete (24 active) | **executed** | not executed |
 | 025C | Constraints | **not executed** | — |
 
 **Price normalization:** frozen pending business review — see `pr-j2-price-normalization-frozen.md`.
@@ -71,19 +71,26 @@ Last updated: 2026-06-29 (PR-J2B4 seo_complete preparation)
   - snapshot notes: `pr-j2b3a-page-snapshot-notes.md`
 - **Not modified:** `price_from`, `currency`, `price_basis`, `price_on_request`, `seo_complete`, status, slug, JSONB
 
-## 025B4 — prepared / not executed
+## 025B4 — executed
 
 - **Files:**
   - `database/migrations/pending/025b4_active_journey_seo_complete_backfill.sql`
   - `database/migrations/pending/025b4_active_journey_seo_complete_backfill.rollback.sql`
 - **Manifest:** 24 active IDs (`prJ2b4ActiveSeoCompleteManifest.ts`)
 - **Scope:** `seo_complete = true` for active manifest only (admin quality marker)
-- **Prerequisites (evaluator):** active status, canonical slug, title, page_title, meta_description, short_description, hero_image_url, hero_image_alt, journey_type_slug
-- **Excludes:** price_from, currency, price_basis, price_on_request, metadata, status, slug, JSONB, archived 59
-- **Does NOT gate:** list inclusion, detail 200, sitemap, canonical, indexability, published status
-- **Preflight:** `scripts/migrations/pr-j2b4-active-seo-complete-preflight.ts`
-- **Audit artifacts:** `docs/audits/pr-j2b4-active-seo-complete-preview.csv`
+- **Expected / actual row counts:**
+  - active: 24 / 24
+  - active seo_complete: 24 / 24
+  - archived seo_complete: 0 / 0
+- **Rollback:** not executed (restores NULL per manifest)
+- **Production acceptance:**
+  - preflight `ready: true` before execution
+  - `/journeys` 200, sitemap 24 journey URLs
+  - taxonomy: explore-together 8 / deep-discovery 16
+  - 3 representative detail pages: title / meta / H1 / canonical / og:image unchanged
+  - `seo_complete` not used in public list/detail/sitemap queries
+  - price columns unchanged (0/24 filled)
 
 ## 025C — not executed
 
-Frozen until 025B4 completes and is separately authorized.
+Frozen until separately authorized.

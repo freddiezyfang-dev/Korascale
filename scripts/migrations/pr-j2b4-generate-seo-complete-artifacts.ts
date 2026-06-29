@@ -33,6 +33,10 @@ function loadEnvLocal() {
 	}
 }
 
+function sqlEscape(value: string): string {
+	return value.replace(/'/g, "''");
+}
+
 function csvEscape(v: unknown): string {
 	const s = v == null ? '' : String(v);
 	if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
@@ -84,7 +88,7 @@ assertPrJ2b4SeoCompleteManifestIntegrity();
 
 function buildForwardSql(manifest: B4SeoCompleteManifestEntry[]): string {
 	const values = manifest
-		.map((e) => `  ('${e.id}'::uuid, ${JSON.stringify(e.slug)})`)
+		.map((e) => `  ('${e.id}'::uuid, '${sqlEscape(e.slug)}')`)
 		.join(',\n');
 
 	return `-- PR-J2B4: Active Journey seo_complete backfill ONLY (24 active)
