@@ -1,0 +1,107 @@
+{
+  "phase": "post-migration",
+  "generatedAt": "2026-06-29T07:27:54.041Z",
+  "entries": [
+    {
+      "slug": "badaling-great-wall-day-tour",
+      "htmlTitle": "Badaling Great Wall Day Tour | Korascale",
+      "metaDescription": "Beijing begins, Beijing ends",
+      "h1": "Badaling Great Wall Day Tour",
+      "canonicalUrl": "https://www.korascale.com/journeys/badaling-great-wall-day-tour",
+      "heroImageUrl": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1771747900791-%E4%B8%BB%E5%9B%BE-%E5%85%AB%E8%BE%BE%E5%B2%AD%E9%95%BF%E5%9F%8E-%E6%A8%AA%E5%9B%BE-I5XJSRFtV6au0gTCTXw6TWd7UoT4fh.jpg",
+      "journeyTypeSlug": "",
+      "httpStatus": 200,
+      "fetchedAt": "2026-06-29T07:27:52.465Z",
+      "url": "https://www.korascale.com/journeys/badaling-great-wall-day-tour"
+    },
+    {
+      "slug": "beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour",
+      "htmlTitle": "Beijing to Shanxi Ancient Architecture with Black Myth: Wukong Inspirations  6-Day Tour | Korascale",
+      "metaDescription": "Beijing begins, Xi’an ends",
+      "h1": "Beijing to Shanxi Ancient Architecture with Black Myth: Wukong Inspirations  6-Day Tour",
+      "canonicalUrl": "https://www.korascale.com/journeys/beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour",
+      "heroImageUrl": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1766845845305-D1-%E5%A4%A7%E5%90%8C%E5%8F%A4%E5%9F%8E-%E7%AB%96%E5%9B%BE-CvfB9ls8Q7HhZavjCmqai1HKdlUgqN.jpeg",
+      "journeyTypeSlug": "",
+      "httpStatus": 200,
+      "fetchedAt": "2026-06-29T07:27:53.250Z",
+      "url": "https://www.korascale.com/journeys/beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour"
+    },
+    {
+      "slug": "grand-china-highlights-16-day-multi-city-journey",
+      "htmlTitle": "Grand China Highlights 16-Day Multi-City Journey | Korascale",
+      "metaDescription": "Beijing begins · Xi’an · Chengdu · Chongqing · Guilin · Shanghai ends",
+      "h1": "Grand China Highlights 16-Day Multi-City Journey",
+      "canonicalUrl": "https://www.korascale.com/journeys/grand-china-highlights-16-day-multi-city-journey",
+      "heroImageUrl": "https://kbnup6n3k5ja0hg2.public.blob.vercel-storage.com/journeys/1769921047051-%E4%B8%BB%E5%9B%BE-%E6%A1%82%E6%9E%97%E5%B1%B1%E6%B0%B4-%E6%A8%AA%E5%9B%BE-6aJddp5N5BEhJi8dKhKOYiIG2vEqPw.jpg",
+      "journeyTypeSlug": "",
+      "httpStatus": 200,
+      "fetchedAt": "2026-06-29T07:27:54.041Z",
+      "url": "https://www.korascale.com/journeys/grand-china-highlights-16-day-multi-city-journey"
+    }
+  ],
+  "comparison": [
+    {
+      "slug": "badaling-great-wall-day-tour",
+      "unchanged": {
+        "htmlTitle": true,
+        "metaDescription": true,
+        "h1": true,
+        "canonicalUrl": true
+      },
+      "before": {
+        "htmlTitle": "Badaling Great Wall Day Tour | Korascale",
+        "metaDescription": "Beijing begins, Beijing ends",
+        "h1": "Badaling Great Wall Day Tour",
+        "canonicalUrl": "https://www.korascale.com/journeys/badaling-great-wall-day-tour"
+      },
+      "after": {
+        "htmlTitle": "Badaling Great Wall Day Tour | Korascale",
+        "metaDescription": "Beijing begins, Beijing ends",
+        "h1": "Badaling Great Wall Day Tour",
+        "canonicalUrl": "https://www.korascale.com/journeys/badaling-great-wall-day-tour"
+      }
+    },
+    {
+      "slug": "beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour",
+      "unchanged": {
+        "htmlTitle": true,
+        "metaDescription": true,
+        "h1": true,
+        "canonicalUrl": true
+      },
+      "before": {
+        "htmlTitle": "Beijing to Shanxi Ancient Architecture with Black Myth: Wukong Inspirations  6-Day Tour | Korascale",
+        "metaDescription": "Beijing begins, Xi’an ends",
+        "h1": "Beijing to Shanxi Ancient Architecture with Black Myth: Wukong Inspirations  6-Day Tour",
+        "canonicalUrl": "https://www.korascale.com/journeys/beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour"
+      },
+      "after": {
+        "htmlTitle": "Beijing to Shanxi Ancient Architecture with Black Myth: Wukong Inspirations  6-Day Tour | Korascale",
+        "metaDescription": "Beijing begins, Xi’an ends",
+        "h1": "Beijing to Shanxi Ancient Architecture with Black Myth: Wukong Inspirations  6-Day Tour",
+        "canonicalUrl": "https://www.korascale.com/journeys/beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour"
+      }
+    },
+    {
+      "slug": "grand-china-highlights-16-day-multi-city-journey",
+      "unchanged": {
+        "htmlTitle": true,
+        "metaDescription": true,
+        "h1": true,
+        "canonicalUrl": true
+      },
+      "before": {
+        "htmlTitle": "Grand China Highlights 16-Day Multi-City Journey | Korascale",
+        "metaDescription": "Beijing begins · Xi’an · Chengdu · Chongqing · Guilin · Shanghai ends",
+        "h1": "Grand China Highlights 16-Day Multi-City Journey",
+        "canonicalUrl": "https://www.korascale.com/journeys/grand-china-highlights-16-day-multi-city-journey"
+      },
+      "after": {
+        "htmlTitle": "Grand China Highlights 16-Day Multi-City Journey | Korascale",
+        "metaDescription": "Beijing begins · Xi’an · Chengdu · Chongqing · Guilin · Shanghai ends",
+        "h1": "Grand China Highlights 16-Day Multi-City Journey",
+        "canonicalUrl": "https://www.korascale.com/journeys/grand-china-highlights-16-day-multi-city-journey"
+      }
+    }
+  ]
+}

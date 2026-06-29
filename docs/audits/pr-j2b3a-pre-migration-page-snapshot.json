@@ -1,0 +1,42 @@
+{
+  "phase": "pre-migration",
+  "generatedAt": "2026-06-29T07:26:08.215Z",
+  "entries": [
+    {
+      "slug": "badaling-great-wall-day-tour",
+      "httpStatus": 200,
+      "htmlTitle": "Badaling Great Wall Day Tour | Korascale",
+      "metaDescription": "Beijing begins, Beijing ends",
+      "h1": "Badaling Great Wall Day Tour",
+      "canonicalUrl": "https://www.korascale.com/journeys/badaling-great-wall-day-tour",
+      "heroImageUrl": "/logo.png",
+      "journeyTypeSlug": "explore-together",
+      "fetchedAt": "2026-06-29T07:26:07.173Z",
+      "url": "https://www.korascale.com/journeys/badaling-great-wall-day-tour"
+    },
+    {
+      "slug": "beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour",
+      "httpStatus": 200,
+      "htmlTitle": "Beijing to Shanxi Ancient Architecture with Black Myth: Wukong Inspirations  6-Day Tour | Korascale",
+      "metaDescription": "Beijing begins, Xi’an ends",
+      "h1": "Beijing to Shanxi Ancient Architecture with Black Myth: Wukong Inspirations  6-Day Tour",
+      "canonicalUrl": "https://www.korascale.com/journeys/beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour",
+      "heroImageUrl": "/logo.png",
+      "journeyTypeSlug": "explore-together",
+      "fetchedAt": "2026-06-29T07:26:07.624Z",
+      "url": "https://www.korascale.com/journeys/beijing-to-shanxi-ancient-architecture-with-black-myth-wukong-inspirations-6-day-tour"
+    },
+    {
+      "slug": "grand-china-highlights-16-day-multi-city-journey",
+      "httpStatus": 200,
+      "htmlTitle": "Grand China Highlights 16-Day Multi-City Journey | Korascale",
+      "metaDescription": "Beijing begins · Xi’an · Chengdu · Chongqing · Guilin · Shanghai ends",
+      "h1": "Grand China Highlights 16-Day Multi-City Journey",
+      "canonicalUrl": "https://www.korascale.com/journeys/grand-china-highlights-16-day-multi-city-journey",
+      "heroImageUrl": "/logo.png",
+      "journeyTypeSlug": "explore-together",
+      "fetchedAt": "2026-06-29T07:26:08.215Z",
+      "url": "https://www.korascale.com/journeys/grand-china-highlights-16-day-multi-city-journey"
+    }
+  ]
+}
