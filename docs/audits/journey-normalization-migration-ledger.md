@@ -2,7 +2,7 @@
 
 Production database: `neondb` (`ep-red-sunset-adgu8hlv-pooler`)
 
-Last updated: 2026-06-29 (PR-J2C2 preparation)
+Last updated: 2026-06-29 (025C1 executed on Production)
 
 ## Status overview
 
@@ -14,14 +14,14 @@ Last updated: 2026-06-29 (PR-J2C2 preparation)
 | 025B3A | Active metadata & taxonomy (24 active) | **executed** | not executed |
 | 025B4 | Active seo_complete (24 active) | **executed** | not executed |
 | 025C | Constraints (monolithic — reference only) | **not executed** | — |
-| 025C1 | Status NOT NULL + CHECK | **prepared / not executed** | available |
+| 025C1 | Status NOT NULL + CHECK | **executed** | available, not executed |
 | 025C2 | Optional field CHECKs | **not prepared / not executed** | — |
 
 **Price normalization:** frozen pending business review — see `pr-j2-price-normalization-frozen.md`.
 
 **PR-J2C1 (strict public queries):** deployed — `status = 'active'` default for public queries.
 
-**PR-J2C2 (025C1):** prepared in `fix/pr-j2c2-journey-constraint-prep` — **not executed** until Production preflight `ready=true` and separate authorization.
+**PR-J2C2 / 025C1:** executed on Production 2026-06-29. Post-check: `is_nullable=NO`, `journeys_status_check` in place, active 24 / archived 59, invalid 0.
 
 **Audits:** `pr-j2c-public-status-query-audit.md`, `pr-j2c-writer-readiness.md`, `pr-j2c2-status-constraint-readiness.md`.
 
@@ -103,15 +103,23 @@ Last updated: 2026-06-29 (PR-J2C2 preparation)
 
 Monolithic reference: `025c_journey_normalization_constraints.sql` (superseded by split plan).
 
-## 025C1 — prepared / not executed
+## 025C1 — executed
 
 - **Files:**
   - `database/migrations/pending/025c1_journey_status_constraints.sql`
   - `database/migrations/pending/025c1_journey_status_constraints.rollback.sql`
 - **Scope:** `status NOT NULL` + `journeys_status_check` (`draft`, `active`, `archived`)
-- **Does not:** UPDATE rows, add 025C2 optional field CHECKs, or modify metadata / price columns
-- **Preflight:** `scripts/migrations/pr-j2c2-status-constraint-preflight.ts`
-- **Execution:** manual via `node scripts/run-migration.js pending/025c1_journey_status_constraints.sql` after `ready=true`
+- **Executed:** Production 2026-06-29 (manual `run-migration.js`)
+- **Pre-execution preflight:** `ready=true`, all baseline counts matched
+- **Post-execution verification:**
+  - `status.is_nullable = NO`, `column_default = 'draft'::character varying`
+  - `journeys_status_check` present (draft / active / archived)
+  - counts: active 24, archived 59, total 83, invalid 0
+  - explore-together 8 / deep-discovery 16 (active)
+  - `/journeys` 200, sitemap journey detail URLs 24
+  - active detail 200 (`badaling-great-wall-day-tour`), archived detail 404
+- **Rollback:** not executed
+- **Does not include:** 025C2 optional field CHECKs
 
 ## 025C2 — not prepared / not executed
 
