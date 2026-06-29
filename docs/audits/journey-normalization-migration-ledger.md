@@ -2,7 +2,7 @@
 
 Production database: `neondb` (`ep-red-sunset-adgu8hlv-pooler`)
 
-Last updated: 2026-06-29 (PR-J2B4 executed)
+Last updated: 2026-06-26 (PR-J2C1 strict public queries)
 
 ## Status overview
 
@@ -16,6 +16,10 @@ Last updated: 2026-06-29 (PR-J2B4 executed)
 | 025C | Constraints | **not executed** | — |
 
 **Price normalization:** frozen pending business review — see `pr-j2-price-normalization-frozen.md`.
+
+**PR-J2C1 (strict public queries):** application code uses `status = 'active'` by default. Compat (`OR status IS NULL`) is audit-script only. Public counts unchanged at 24 (NULL status = 0).
+
+**Audits:** `pr-j2c-public-status-query-audit.md`, `pr-j2c-writer-readiness.md`.
 
 ## 025A — executed
 
@@ -93,4 +97,4 @@ Last updated: 2026-06-29 (PR-J2B4 executed)
 
 ## 025C — not executed
 
-Frozen until separately authorized.
+Frozen until separately authorized. Database CHECK constraints (025C1/025C2) are out of scope for PR-J2C1.

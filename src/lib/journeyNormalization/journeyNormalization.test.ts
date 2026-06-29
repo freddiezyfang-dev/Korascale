@@ -69,7 +69,11 @@ describe('journeyNormalization.status', () => {
 		expect(proposeJourneyStatus({ status: 'inactive' }).proposed).toBe('archived');
 	});
 
-	it('uses strict SQL after migration', () => {
+	it('strict is default public status SQL after J2C1', () => {
+		expect(buildPublicStatusWhereClause()).toBe("status = 'active'");
+		expect(buildPublicStatusWhereClause({ mode: 'compat' })).toBe(
+			"status = 'active' OR status IS NULL"
+		);
 		expect(buildPublicStatusWhereClause({ strict: true })).toBe("status = 'active'");
 	});
 });

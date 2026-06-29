@@ -80,7 +80,7 @@ export async function fetchJourneyBySlugFromDb(
   return mapJourneyRowToJourney(result.rows[0] as Record<string, unknown>);
 }
 
-/** Slugs for generateStaticParams — no HTTP, active/null only. */
+/** Slugs for generateStaticParams — active only (strict). */
 export async function fetchActiveJourneySlugsForStaticParams(): Promise<
   { slug: string[] }[]
 > {
@@ -136,7 +136,7 @@ export async function fetchActiveJourneySitemapEntries(): Promise<
   return entries;
 }
 
-/** Flat canonical slugs for sitemap entries (active/null only). */
+/** Flat canonical slugs for sitemap entries (active only). */
 export async function fetchActiveJourneySitemapSlugs(): Promise<string[]> {
   const entries = await fetchActiveJourneySitemapEntries();
   return entries.map((entry) => entry.canonicalSlug);
