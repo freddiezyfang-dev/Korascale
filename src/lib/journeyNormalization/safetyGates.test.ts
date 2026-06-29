@@ -151,6 +151,25 @@ describe('safety gate 3: dual-write is single-statement', () => {
 	});
 });
 
+describe('safety gate 4b: 025B1 status-only backfill', () => {
+	const sql = readFileSync(
+		join(pendingDir, '025b1_journey_status_backfill.sql'),
+		'utf8'
+	);
+
+	it('requires manifest IDs and inactive guard', () => {
+		expect(sql).toContain('Manifest target IDs');
+		expect(sql).toContain("WHERE status = 'inactive'");
+		expect(sql).toContain('id IN (');
+	});
+
+	it('does not modify slug, price, or seo_complete', () => {
+		expect(stripSqlComments(sql)).not.toMatch(/\bslug\s*=/i);
+		expect(stripSqlComments(sql)).not.toMatch(/\bprice_/i);
+		expect(stripSqlComments(sql)).not.toMatch(/\bseo_complete\s*=/i);
+	});
+});
+
 describe('safety gate 4: 025B does not write unconfirmed data', () => {
 	const sql = readFileSync(
 		join(pendingDir, '025b_journey_normalization_backfill.sql'),

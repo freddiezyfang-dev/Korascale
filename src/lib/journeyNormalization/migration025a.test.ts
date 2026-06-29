@@ -36,6 +36,29 @@ describe('migration 025a expand', () => {
 	});
 });
 
+describe('migration 025b1 status backfill (pending/)', () => {
+	it('uses manifest-scoped inactive to archived update only', () => {
+		const sql = readFileSync(
+			join(pendingDir, '025b1_journey_status_backfill.sql'),
+			'utf8'
+		);
+		expect(sql).toContain('Manifest target IDs');
+		expect(sql).toContain("status = 'inactive'");
+		expect(sql).toContain("SET status = 'archived'");
+		expect(stripSqlComments(sql)).not.toMatch(/\bslug\s*=/i);
+	});
+
+	it('rollback restores manifest IDs only and preserves non-manifest archived rows', () => {
+		const sql = readFileSync(
+			join(pendingDir, '025b1_journey_status_backfill.rollback.sql'),
+			'utf8'
+		);
+		expect(sql).toContain('pr_j2b1_manifest');
+		expect(sql).toContain('non_manifest_archived_before');
+		expect(sql).not.toContain('expected 0 archived');
+	});
+});
+
 describe('migration 025b backfill (pending/)', () => {
 	it('includes row count guards and skips manual review id', () => {
 		const sql = readFileSync(
