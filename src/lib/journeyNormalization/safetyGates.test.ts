@@ -12,6 +12,7 @@ import {
 	mergeExpandedColumnSql,
 } from '@/lib/journeyNormalization/write';
 import { resolvePageTitle } from '@/lib/journeyNormalization/fields';
+import { migrationSqlModifiesOnlyB3aMetadata } from '@/lib/journeyNormalization/activeMetadataBackfill';
 import { migrationSqlModifiesOnlySlug } from '@/lib/journeyNormalization/slugBackfill';
 import type { JourneyRowLike } from '@/lib/journeyNormalization/types';
 
@@ -149,6 +150,24 @@ describe('safety gate 3: dual-write is single-statement', () => {
 		expect(sql).toContain('$1::jsonb');
 		expect(sql.match(/INSERT INTO journeys/g)?.length).toBe(1);
 		delete process.env.JOURNEY_NORMALIZATION_COLUMNS;
+	});
+});
+
+describe('safety gate 4d: 025B3A active metadata-only backfill', () => {
+	const sql = readFileSync(
+		join(pendingDir, '025b3a_active_journey_metadata_backfill.sql'),
+		'utf8'
+	);
+
+	it('requires manifest table and metadata-only update', () => {
+		expect(sql).toContain('pr_j2b3a_manifest');
+		expect(migrationSqlModifiesOnlyB3aMetadata(sql)).toBe(true);
+	});
+
+	it('does not SET hero_image_alt, seo_complete, slug, or status', () => {
+		expect(migrationSqlModifiesOnlyB3aMetadata(sql)).toBe(true);
+		expect(sql).not.toMatch(/\bSET\s+slug/i);
+		expect(sql).not.toMatch(/\bSET\s+status/i);
 	});
 });
 

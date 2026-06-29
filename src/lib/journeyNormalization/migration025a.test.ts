@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
+import { migrationSqlModifiesOnlyB3aMetadata } from '@/lib/journeyNormalization/activeMetadataBackfill';
 import { migrationSqlModifiesOnlySlug } from '@/lib/journeyNormalization/slugBackfill';
 
 const migrationsDir = join(process.cwd(), 'database/migrations');
@@ -58,6 +59,26 @@ describe('migration 025b1 status backfill (pending/)', () => {
 		expect(sql).toContain('pr_j2b1_manifest');
 		expect(sql).toContain('non_manifest_archived_before');
 		expect(sql).not.toContain('expected 0 archived');
+	});
+});
+
+describe('migration 025b3a active metadata backfill (pending/)', () => {
+	it('uses manifest-scoped metadata update only', () => {
+		const sql = readFileSync(
+			join(pendingDir, '025b3a_active_journey_metadata_backfill.sql'),
+			'utf8'
+		);
+		expect(sql).toContain('pr_j2b3a_manifest');
+		expect(migrationSqlModifiesOnlyB3aMetadata(sql)).toBe(true);
+	});
+
+	it('rollback restores manifest column values only', () => {
+		const sql = readFileSync(
+			join(pendingDir, '025b3a_active_journey_metadata_backfill.rollback.sql'),
+			'utf8'
+		);
+		expect(sql).toContain('pr_j2b3a_rollback');
+		expect(sql).toContain('pr_j2b3a_external_slug_snapshot');
 	});
 });
 
