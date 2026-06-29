@@ -1,4 +1,4 @@
-import { isPublicJourneyStatusCompat } from './status';
+import { isPublicJourneyStatusStrict } from './status';
 import type { JourneyRowLike } from './types';
 
 /**
@@ -6,7 +6,7 @@ import type { JourneyRowLike } from './types';
  * Source of truth: `status` column only — NOT seo_complete.
  */
 export function isJourneyPublished(status: unknown): boolean {
-	return isPublicJourneyStatusCompat(status);
+	return isPublicJourneyStatusStrict(status);
 }
 
 export function isJourneyRowPublished(row: JourneyRowLike): boolean {

@@ -1,7 +1,7 @@
 import { buildJourneyDetailPath } from '@/lib/journeySitemap.server';
 import { getJourneySlugRedirect } from './redirects';
 import { isValidCanonicalSlug, normalizeJourneySlug } from './slug';
-import { isPublicJourneyStatusCompat } from './status';
+import { isPublicJourneyStatusStrict } from './status';
 
 export type JourneySitemapEntry = {
 	slug: string;
@@ -22,7 +22,7 @@ export function shouldIncludeJourneyInSitemap(row: {
 	slug?: unknown;
 	status?: unknown;
 }): boolean {
-	if (!isPublicJourneyStatusCompat(row.status)) return false;
+	if (!isPublicJourneyStatusStrict(row.status)) return false;
 	const rawSlug = typeof row.slug === 'string' ? row.slug.trim() : '';
 	if (!rawSlug) return false;
 	const canonical = resolveCanonicalJourneySlug(rawSlug);

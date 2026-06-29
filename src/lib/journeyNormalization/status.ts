@@ -18,17 +18,20 @@ export function isCanonicalJourneyStatus(value: unknown): value is JourneyCanoni
 	);
 }
 
-/** Stage A compat: matches current public queries (`active` or NULL). */
+/** Stage A compat: matches legacy public queries (`active` or NULL). Audit / dry-run only. */
 export function isPublicJourneyStatusCompat(value: unknown): boolean {
 	if (value === undefined) return false;
 	const normalized = normalizeStatusValue(value);
 	return normalized === 'active' || normalized === null;
 }
 
-/** Target post-migration rule: only explicit `active`. */
+/** Target strict mode: only explicit `active`. */
 export function isPublicJourneyStatusStrict(value: unknown): boolean {
 	return normalizeStatusValue(value) === 'active';
 }
+
+/** @deprecated Public code should use isPublicJourneyStatusStrict (PR-J2C1). */
+export const isPublicJourneyStatus = isPublicJourneyStatusStrict;
 
 export function validateJourneyStatus(value: unknown): {
 	valid: boolean;
@@ -96,12 +99,19 @@ export function proposeJourneyStatus(row: JourneyRowLike): StatusProposal {
 	};
 }
 
-/** SQL fragment for stage A (compat with legacy NULL-as-active queries). */
+/** SQL fragment for stage A (compat with legacy NULL-as-active queries). Audit only. */
 export const JOURNEY_PUBLIC_STATUS_SQL_COMPAT = "status = 'active' OR status IS NULL";
 
-/** SQL fragment after migration backfill — use only once NULL records are resolved. */
+/** SQL fragment for strict public queries — default after PR-J2C1. */
 export const JOURNEY_PUBLIC_STATUS_SQL_STRICT = "status = 'active'";
 
-export function buildPublicStatusWhereClause(options?: { strict?: boolean }): string {
-	return options?.strict ? JOURNEY_PUBLIC_STATUS_SQL_STRICT : JOURNEY_PUBLIC_STATUS_SQL_COMPAT;
+export type PublicStatusQueryMode = 'strict' | 'compat';
+
+export function buildPublicStatusWhereClause(options?: {
+	strict?: boolean;
+	mode?: PublicStatusQueryMode;
+}): string {
+	const useCompat =
+		options?.mode === 'compat' || (options?.strict === false && options?.mode !== 'strict');
+	return useCompat ? JOURNEY_PUBLIC_STATUS_SQL_COMPAT : JOURNEY_PUBLIC_STATUS_SQL_STRICT;
 }

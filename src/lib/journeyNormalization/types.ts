@@ -10,6 +10,7 @@ export type JourneyRowLike = {
 	slug?: unknown;
 	status?: unknown;
 	journey_type?: unknown;
+	journey_type_slug?: unknown;
 	title?: unknown;
 	short_description?: unknown;
 	description?: unknown;
@@ -17,6 +18,14 @@ export type JourneyRowLike = {
 	image?: unknown;
 	updated_at?: unknown;
 	data?: unknown;
+	page_title?: unknown;
+	meta_description?: unknown;
+	hero_image_url?: unknown;
+	hero_image_alt?: unknown;
+	currency?: unknown;
+	price_basis?: unknown;
+	price_from?: unknown;
+	seo_complete?: unknown;
 };
 
 export type JourneyDataLike = Record<string, unknown>;
