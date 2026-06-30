@@ -84,6 +84,23 @@ On failure, read structured `errors[]` with `{ field, code, message }`. Do not r
 - `validationReport.warnings` (e.g. `FACT_CHECK_REQUIRED`)
 - unresolved fact check items (if any)
 
-## J5A scope note
+## J5C Codex tooling
 
-Migration `027` is **prepared but not executed**. Until applied, revision APIs will fail preflight / table-missing guards in non-migrated environments.
+- Skill: `.agents/skills/journey-editor/SKILL.md`
+- CLI: `npm run journey:revision`
+- Usage: `docs/workflows/codex-journey-editor-usage.md`
+- Reuse audit: `docs/audits/pr-j5c-inspiration-codex-workflow-reuse.md`
+
+Migration `027` is applied in Production. Revision APIs require `journey_revisions` table; preflight script verifies readiness.
+
+## J5C write guards (fail-closed)
+
+| Command | Write flag | Production extras |
+|---------|------------|-------------------|
+| read / get / dry-run | Not required | — |
+| create / publish / reject | `CODEX_JOURNEY_REVISION_WRITE_ENABLED=true` (strict) | `--environment production --confirm-production` + `JOURNEY_REVISION_ACTOR` + Production DB identity match |
+| publish / reject | — | `--revision` and `--confirm` must be identical UUIDs |
+
+- No-op updates (`JOURNEY_REVISION_NO_CHANGES`) must not create pending revisions.
+- Database identity output is masked (host/db only, no credentials).
+- Legacy `CODEX_JOURNEY_REVISION_PREP` is not supported.

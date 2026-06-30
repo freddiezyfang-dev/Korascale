@@ -18,7 +18,8 @@
     "auth:bootstrap-admin": "npx tsx --tsconfig tsconfig.json scripts/auth/bootstrap-admin.ts",
     "seo:export": "tsx scripts/seo/export-article.ts",
     "seo:export-catalog": "tsx scripts/seo/export-catalog.ts",
-    "seo:submit-revision": "tsx scripts/seo/submit-revision.ts"
+    "seo:submit-revision": "tsx scripts/seo/submit-revision.ts",
+    "journey:revision": "tsx scripts/codex/journey-revision-cli.ts"
   },
   "dependencies": {
     "@turf/turf": "^6.5.0",
@@ -67,7 +68,6 @@
     "tailwindcss": "^4",
     "tsx": "^4.20.5",
     "typescript": "^5",
-    "tsx": "^4.20.5",
     "vitest": "^3.2.4"
   }
 }
