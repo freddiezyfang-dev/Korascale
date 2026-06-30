@@ -87,6 +87,22 @@ export async function getJourneyRowById(
 	return rows[0] ?? null;
 }
 
+export async function findJourneyRowByNormalizedSlug(
+	slug: string,
+	client?: PoolClient
+): Promise<Record<string, unknown> | null> {
+	const { normalizeJourneySlugForComparison } = await import('@/lib/journeyNormalization/slug');
+	const normalized = normalizeJourneySlugForComparison(slug);
+	if (!normalized) return null;
+	const sql = `SELECT * FROM journeys`;
+	const rows = client ? (await client.query(sql)).rows : (await query(sql)).rows;
+	return (
+		rows.find(
+			(row) => normalizeJourneySlugForComparison((row as { slug: string }).slug) === normalized
+		) ?? null
+	);
+}
+
 export async function getJourneyRevisionById(
 	id: string,
 	client?: PoolClient

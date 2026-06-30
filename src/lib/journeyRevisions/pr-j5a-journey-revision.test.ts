@@ -489,8 +489,10 @@ describe('PR-J5A module guards', () => {
 
 		const dir = path.join(process.cwd(), 'src/lib/journeyRevisions');
 		for (const file of fs.readdirSync(dir)) {
+			const fullPath = path.join(dir, file);
+			if (!fs.statSync(fullPath).isFile()) continue;
 			if (file.endsWith('.test.ts')) continue;
-			const source = fs.readFileSync(path.join(dir, file), 'utf8');
+			const source = fs.readFileSync(fullPath, 'utf8');
 			expect(source).not.toContain('025C2');
 		}
 	});

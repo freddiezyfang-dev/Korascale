@@ -7,6 +7,7 @@ import { findJourneySlugConflict } from '@/lib/journeyNormalization/journeySlugU
 import { normalizeJourneyStatusForWrite } from '@/lib/journeyNormalization/write';
 
 import { CLIENT_PROTECTED_CHANGE_KEYS, sanitizeClientChanges } from './allowlist';
+import { detectNoOpUpdate } from './codex/noOpRevision';
 import { JOURNEY_REVISION_ERROR_CODES } from './errors';
 import { validateOperationStatusSemantics } from './operationRules';
 import {
@@ -553,6 +554,8 @@ export async function runJourneyRevisionValidation(
 	}
 
 	const proposed = mergeChangesIntoProposedSnapshot({ operation, source, changes });
+
+	errors.push(...detectNoOpUpdate(operation, source, proposed));
 
 	const sourceCheck = validateSourceUpdatedAt(operation, request.sourceUpdatedAt, journeyRow);
 	errors.push(...sourceCheck.errors);
