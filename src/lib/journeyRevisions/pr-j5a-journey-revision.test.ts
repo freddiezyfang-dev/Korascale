@@ -34,7 +34,10 @@ import {
 } from '@/lib/journeyRevisions/priceProtection';
 import { sanitizeClientChanges } from '@/lib/journeyRevisions/allowlist';
 import { validateOperationStatusSemantics } from '@/lib/journeyRevisions/operationRules';
-import { supersedePendingJourneyRevisions } from '@/lib/journeyRevisions/repository.server';
+import {
+	getJourneyRevisionById,
+	supersedePendingJourneyRevisions,
+} from '@/lib/journeyRevisions/repository.server';
 import {
 	allowedActionsForStatus,
 	canTransitionRevisionStatus,
@@ -43,6 +46,12 @@ import {
 import { dryRunJourneyRevision, createJourneyRevision } from '@/lib/journeyRevisions/dryRun.server';
 import { publishJourneyRevision } from '@/lib/journeyRevisions/publish.server';
 import { JourneyRevisionError } from '@/lib/journeyRevisions/errors';
+import {
+	CANONICAL_ENCODING_ZONE,
+	JOURNEY_TIMESTAMP_SEMANTIC,
+	journeyRevisionSourceMatchSql,
+	journeyUpdatedAtTokenSql,
+} from '@/lib/journeyRevisions/concurrencyTimestamp';
 
 const JOURNEY_ID = '11111111-1111-4111-8111-111111111111';
 const OTHER_JOURNEY_ID = '44444444-4444-4444-8444-444444444444';
@@ -51,8 +60,24 @@ const REVISION_ID = '33333333-3333-4333-8333-333333333333';
 const CREATE_REVISION_A = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const CREATE_REVISION_B = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 
+function opaqueWallClockToken(updatedAt: string | Date): string {
+	if (typeof updatedAt === 'string') {
+		if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(updatedAt)) {
+			const [date, timePart] = updatedAt.split(' ');
+			const [time, frac = ''] = timePart.split('.');
+			const ms = frac.padEnd(3, '0').slice(0, 3);
+			return `${date}T${time}.${ms}Z`;
+		}
+		if (updatedAt.endsWith('Z')) return updatedAt;
+	}
+	if (updatedAt instanceof Date) {
+		return updatedAt.toISOString();
+	}
+	throw new Error(`Unable to derive opaque token from ${String(updatedAt)}`);
+}
+
 function sampleJourneyRow(overrides: Record<string, unknown> = {}) {
-	return {
+	const base = {
 		id: JOURNEY_ID,
 		slug: 'sample-journey',
 		status: 'active',
@@ -76,10 +101,16 @@ function sampleJourneyRow(overrides: Record<string, unknown> = {}) {
 			gallery: ['a.jpg'],
 			customField: 'preserve-me',
 		},
-		updated_at: '2026-06-29T10:00:00.000Z',
+		updated_at: '2026-06-29 10:00:00.000',
 		created_at: '2026-06-01T10:00:00.000Z',
-		...overrides,
 	};
+	const row = { ...base, ...overrides } as Record<string, unknown>;
+	if (row.journey_revision_source_updated_at == null && row.updated_at != null) {
+		row.journey_revision_source_updated_at = opaqueWallClockToken(
+			row.updated_at as string | Date
+		);
+	}
+	return row;
 }
 
 describe('PR-J5A inspiration reuse audit artifact', () => {
@@ -198,6 +229,161 @@ describe('PR-J5A source_updated_at validation', () => {
 		const good = validateSourceUpdatedAt('update', '2026-06-29T10:00:00.000Z', row);
 		expect(good.matched).toBe(true);
 	});
+
+	it('J5C1. snapshot uses opaque wall-clock canonical token from SQL column', () => {
+		const snapshot = rowToJourneyRevisionSnapshot(
+			sampleJourneyRow({ updated_at: '2026-06-29 08:17:01.919390' })
+		);
+		expect(snapshot.updated_at).toBe('2026-06-29T08:17:01.919Z');
+	});
+
+	it('J5C1. source_updated_at Date mapping preserves milliseconds via SQL token', async () => {
+		vi.mocked(query).mockReset();
+		vi.mocked(query).mockResolvedValueOnce({
+			rows: [
+				{
+					id: REVISION_ID,
+					journey_id: JOURNEY_ID,
+					operation: 'update',
+					status: 'pending_review',
+					schema_version: 1,
+					source_updated_at: new Date('2026-06-29T10:00:00.919Z'),
+					source_updated_at_token: '2026-06-29T10:00:00.919Z',
+					source_snapshot: rowToJourneyRevisionSnapshot(
+						sampleJourneyRow({ updated_at: '2026-06-29 10:00:00.919' })
+					),
+					proposed_snapshot: rowToJourneyRevisionSnapshot(
+						sampleJourneyRow({ updated_at: '2026-06-29 10:00:00.919' })
+					),
+					change_summary: [],
+					validation_report: { errors: [], warnings: [] },
+					review_metadata: {},
+					created_by: 'admin@test.com',
+					published_by: null,
+					created_at: new Date('2026-06-29T10:01:00.123Z'),
+					updated_at: new Date('2026-06-29T10:01:00.456Z'),
+					published_at: null,
+					rejected_at: null,
+				},
+			],
+		} as never);
+
+		const revision = await getJourneyRevisionById(REVISION_ID);
+		expect(revision?.sourceUpdatedAt).toBe('2026-06-29T10:00:00.919Z');
+	});
+
+	it('J5C1. source_updated_at milliseconds must match exactly', () => {
+		const row = sampleJourneyRow({ updated_at: '2026-06-29 10:00:00.919' });
+		const exact = validateSourceUpdatedAt('update', '2026-06-29T10:00:00.919Z', row);
+		expect(exact.matched).toBe(true);
+
+		const truncated = validateSourceUpdatedAt('update', '2026-06-29T10:00:00.000Z', row);
+		expect(truncated.matched).toBe(false);
+		expect(truncated.errors.some((e) => e.code === 'JOURNEY_REVISION_SOURCE_CHANGED')).toBe(true);
+	});
+
+	it('J5C1. sourceUpdatedAt requires a full ISO timestamp with timezone', () => {
+		const row = sampleJourneyRow({ updated_at: '2026-06-29 10:00:00.919' });
+		const dateOnly = validateSourceUpdatedAt('update', '2026-06-29', row);
+		expect(dateOnly.matched).toBe(false);
+		expect(dateOnly.errors.some((e) => e.code === 'JOURNEY_REVISION_VALIDATION_FAILED')).toBe(true);
+
+		const noTimezone = validateSourceUpdatedAt('update', '2026-06-29T10:00:00.919', row);
+		expect(noTimezone.matched).toBe(false);
+		expect(noTimezone.errors.some((e) => e.code === 'JOURNEY_REVISION_VALIDATION_FAILED')).toBe(true);
+	});
+
+	it('J5C1. canonical SQL uses opaque UTC encoding and not Asia/Shanghai', () => {
+		const journeySql = journeyUpdatedAtTokenSql('j.updated_at');
+		const matchSql = journeyRevisionSourceMatchSql('j.updated_at', 'jr.source_updated_at');
+		expect(journeySql).not.toContain('Asia/Shanghai');
+		expect(matchSql).not.toContain('Asia/Shanghai');
+		expect(journeySql).toContain("AT TIME ZONE 'UTC'");
+		expect(matchSql).toContain("AT TIME ZONE 'UTC'");
+		expect(JOURNEY_TIMESTAMP_SEMANTIC).toBe('opaque_wall_clock');
+		expect(CANONICAL_ENCODING_ZONE).toBe('UTC');
+	});
+
+	it('J5C1. opaque wall-clock token is stable across Node runtime TZ changes', () => {
+		const previousTz = process.env.TZ;
+		try {
+			const row = sampleJourneyRow({ updated_at: '2026-06-29 08:17:01.919390' });
+			const expectedToken = '2026-06-29T08:17:01.919Z';
+			for (const tz of ['UTC', 'Asia/Shanghai', 'America/Los_Angeles']) {
+				process.env.TZ = tz;
+				const snapshot = rowToJourneyRevisionSnapshot(row);
+				expect(snapshot.updated_at).toBe(expectedToken);
+				expect(
+					validateSourceUpdatedAt('update', expectedToken, row).matched
+				).toBe(true);
+			}
+		} finally {
+			if (previousTz === undefined) delete process.env.TZ;
+			else process.env.TZ = previousTz;
+		}
+	});
+
+	it('J5C1. legacy revision token with UTC+8 encoding does not match opaque journey token', () => {
+		const row = sampleJourneyRow({ updated_at: '2026-06-29 08:17:01.919390' });
+		const legacyRevisionToken = '2026-06-29T00:17:01.919Z';
+		const journeyToken = opaqueWallClockToken('2026-06-29 08:17:01.919390');
+		expect(journeyToken).toBe('2026-06-29T08:17:01.919Z');
+		expect(legacyRevisionToken).not.toBe(journeyToken);
+		expect(validateSourceUpdatedAt('update', legacyRevisionToken, row).matched).toBe(false);
+	});
+
+	it('J5C1. request source token confirms read baseline but is not authoritative on create', async () => {
+		vi.mocked(withTransaction).mockImplementation(async (fn) => fn({ query: vi.mocked(query) } as never));
+		vi.mocked(findJourneySlugConflict).mockResolvedValue(false);
+		vi.mocked(runJourneyPublishIntegrityGate).mockResolvedValue({
+			ok: true,
+			contentComplete: true,
+			publishReady: false,
+			errors: [],
+			seoComplete: false,
+		});
+		let insertSql = '';
+		vi.mocked(query).mockImplementation(async (text: string) => {
+			if (text.includes('journey_revisions') && text.includes('information_schema')) {
+				return { rows: [{ exists: true }] } as never;
+			}
+			if (text.includes('FOR UPDATE') && text.includes('journeys')) {
+				return {
+					rows: [sampleJourneyRow({ updated_at: '2026-06-29 10:00:00.919' })],
+				} as never;
+			}
+			if (text.includes('INSERT INTO journey_revisions') && text.includes('FROM journeys j')) {
+				insertSql = text;
+				return { rows: [{ id: REVISION_ID }] } as never;
+			}
+			if (text.includes('SELECT id FROM journey_revisions')) {
+				return { rows: [] } as never;
+			}
+			if (text.includes('FROM journeys WHERE id')) {
+				return {
+					rows: [sampleJourneyRow({ updated_at: '2026-06-29 10:00:00.919' })],
+				} as never;
+			}
+			if (text.includes('FROM articles WHERE id')) {
+				return { rows: [{ id: 'x' }] } as never;
+			}
+			return { rows: [] } as never;
+		});
+
+		await createJourneyRevision({
+			request: {
+				operation: 'update',
+				journeyId: JOURNEY_ID,
+				sourceUpdatedAt: '2026-06-29T10:00:00.919Z',
+				changes: { meta_description: 'New meta' },
+			},
+			createdBy: 'admin@test.com',
+		});
+
+		expect(insertSql).toContain("AT TIME ZONE 'UTC'");
+		expect(insertSql).toContain('FROM journeys j');
+		expect(insertSql).not.toContain('$3::timestamptz');
+	});
 });
 
 describe('PR-J5A state machine', () => {
@@ -212,6 +398,8 @@ describe('PR-J5A state machine', () => {
 describe('PR-J5A dry-run and create (mocked DB)', () => {
 	beforeEach(() => {
 		vi.mocked(query).mockReset();
+		vi.mocked(withTransaction).mockReset();
+		vi.mocked(withTransaction).mockImplementation(async (fn) => fn({ query: vi.mocked(query) } as never));
 		vi.mocked(findJourneySlugConflict).mockResolvedValue(false);
 		vi.mocked(runJourneyPublishIntegrityGate).mockResolvedValue({
 			ok: true,
@@ -254,6 +442,34 @@ describe('PR-J5A dry-run and create (mocked DB)', () => {
 			.mocked(query)
 			.mock.calls.filter(([sql]) => /UPDATE journeys|INSERT INTO journeys/i.test(String(sql)));
 		expect(journeyUpdates.length).toBe(0);
+	});
+
+	it('J5C1. dry-run preserves sourceUpdatedAt milliseconds', async () => {
+		vi.mocked(query).mockImplementation(async (text: string, params?: unknown[]) => {
+			if (text.includes('journey_revisions') && text.includes('information_schema')) {
+				return { rows: [{ exists: true }] } as never;
+			}
+			if (text.includes('FROM journeys WHERE id')) {
+				return {
+					rows: [sampleJourneyRow({ updated_at: '2026-06-29 10:00:00.919' })],
+				} as never;
+			}
+			if (text.includes('FROM articles WHERE id')) {
+				return { rows: [{ id: params?.[0] }] } as never;
+			}
+			return { rows: [] } as never;
+		});
+
+		const result = await dryRunJourneyRevision({
+			operation: 'update',
+			journeyId: JOURNEY_ID,
+			sourceUpdatedAt: '2026-06-29T10:00:00.919Z',
+			changes: { meta_description: 'New meta' },
+		});
+
+		expect(result.valid).toBe(true);
+		expect(result.sourceUpdatedAtMatched).toBe(true);
+		expect(result.resolvedSnapshot.updated_at).toBe('2026-06-29T10:00:00.919Z');
 	});
 
 	it('6-9. create revision does not modify journeys', async () => {
@@ -329,6 +545,48 @@ describe('PR-J5A dry-run and create (mocked DB)', () => {
 		expect(result.valid).toBe(false);
 		expect(result.report.errors.length).toBeGreaterThan(0);
 	});
+
+	it('J5C1. create revision writes DB canonical token from locked Journey row', async () => {
+		let insertSql = '';
+		vi.mocked(query).mockImplementation(async (text: string, params?: unknown[]) => {
+			if (text.includes('journey_revisions') && text.includes('information_schema')) {
+				return { rows: [{ exists: true }] } as never;
+			}
+			if (text.includes('FOR UPDATE') && text.includes('journeys')) {
+				return {
+					rows: [sampleJourneyRow({ updated_at: '2026-06-29 10:00:00.919' })],
+				} as never;
+			}
+			if (text.includes('INSERT INTO journey_revisions') && text.includes('FROM journeys j')) {
+				insertSql = text;
+				return { rows: [{ id: REVISION_ID }] } as never;
+			}
+			if (text.includes('SELECT id FROM journey_revisions')) {
+				return { rows: [] } as never;
+			}
+			if (text.includes('FROM journeys WHERE id')) {
+				return {
+					rows: [sampleJourneyRow({ updated_at: '2026-06-29 10:00:00.919' })],
+				} as never;
+			}
+			if (text.includes('FROM articles WHERE id')) {
+				return { rows: [{ id: params?.[0] }] } as never;
+			}
+			return { rows: [] } as never;
+		});
+
+		await createJourneyRevision({
+			request: {
+				operation: 'update',
+				journeyId: JOURNEY_ID,
+				sourceUpdatedAt: '2026-06-29T10:00:00.919Z',
+				changes: { meta_description: 'New meta' },
+			},
+			createdBy: 'admin@test.com',
+		});
+
+		expect(insertSql).toContain("date_trunc('milliseconds', j.updated_at) AT TIME ZONE 'UTC'");
+	});
 });
 
 describe('PR-J5A publish transaction (mocked)', () => {
@@ -349,6 +607,9 @@ describe('PR-J5A publish transaction (mocked)', () => {
 
 	it('32-34. publish uses transaction and marks revision published', async () => {
 		const clientQuery = vi.fn(async (text: string) => {
+			if (text.includes('source_timestamp_matches')) {
+				return { rows: [{ source_timestamp_matches: true }] };
+			}
 			if (text.includes('FOR UPDATE') && text.includes('journey_revisions')) {
 				return {
 					rows: [
@@ -439,6 +700,9 @@ describe('PR-J5A publish transaction (mocked)', () => {
 		vi.mocked(withTransaction).mockImplementation(async (fn) => {
 			await fn({
 				query: async (text: string) => {
+					if (text.includes('source_timestamp_matches')) {
+						return { rows: [{ source_timestamp_matches: false }] };
+					}
 					if (text.includes('journey_revisions')) {
 						return {
 							rows: [
@@ -466,6 +730,159 @@ describe('PR-J5A publish transaction (mocked)', () => {
 					}
 					if (text.includes('journeys')) {
 						return { rows: [sampleJourneyRow({ updated_at: '2026-06-29T10:00:00.000Z' })] };
+					}
+					return { rows: [] };
+				},
+			} as never);
+		});
+
+		await expect(
+			publishJourneyRevision({ revisionId: REVISION_ID, publishedBy: 'admin@test.com' })
+		).rejects.toMatchObject({ code: 'JOURNEY_REVISION_SOURCE_CHANGED', status: 409 });
+	});
+
+	it('J5C1. publish accepts exact millisecond source_updated_at match', async () => {
+		const clientQuery = vi.fn(async (text: string) => {
+			if (text.includes('source_timestamp_matches')) {
+				return { rows: [{ source_timestamp_matches: true }] };
+			}
+			if (text.includes('FOR UPDATE') && text.includes('journey_revisions')) {
+				return {
+					rows: [
+						{
+							id: REVISION_ID,
+							journey_id: JOURNEY_ID,
+							operation: 'update',
+							status: 'pending_review',
+							schema_version: 1,
+							source_updated_at: new Date('2026-06-29T10:00:00.919Z'),
+							source_snapshot: rowToJourneyRevisionSnapshot(
+								sampleJourneyRow({ updated_at: new Date('2026-06-29T10:00:00.919Z') })
+							),
+							proposed_snapshot: mergeChangesIntoProposedSnapshot({
+								operation: 'update',
+								source: rowToJourneyRevisionSnapshot(
+									sampleJourneyRow({ updated_at: new Date('2026-06-29T10:00:00.919Z') })
+								),
+								changes: { meta_description: 'New meta' },
+							}),
+							change_summary: [],
+							validation_report: { errors: [], warnings: [] },
+							review_metadata: {},
+							created_by: 'admin@test.com',
+							published_by: null,
+							created_at: new Date('2026-06-29T10:01:00.123Z'),
+							updated_at: new Date('2026-06-29T10:01:00.456Z'),
+							published_at: null,
+							rejected_at: null,
+						},
+					],
+				};
+			}
+			if (text.includes('FOR UPDATE') && text.includes('journeys')) {
+				return {
+					rows: [sampleJourneyRow({ updated_at: new Date('2026-06-29T10:00:00.919Z') })],
+				};
+			}
+			if (text.includes('UPDATE journeys')) return { rows: [{ id: JOURNEY_ID }] };
+			if (text.includes('UPDATE journey_revisions') && text.includes('published')) {
+				return { rowCount: 1, rows: [] };
+			}
+			if (text.includes('FROM articles') || text.includes('FROM journeys WHERE id = $1 LIMIT')) {
+				return { rows: [{ id: 'x', status: 'active' }] };
+			}
+			return { rows: [] };
+		});
+
+		vi.mocked(withTransaction).mockImplementation(async (fn) => {
+			await fn({ query: clientQuery } as never);
+		});
+
+		vi.mocked(query).mockImplementation(async (text: string) => {
+			if (text.includes('information_schema')) return { rows: [{ exists: true }] } as never;
+			if (text.includes('journey_revisions WHERE id')) {
+				return {
+					rows: [
+						{
+							id: REVISION_ID,
+							journey_id: JOURNEY_ID,
+							operation: 'update',
+							status: 'published',
+							schema_version: 1,
+							source_updated_at: new Date('2026-06-29T10:00:00.919Z'),
+							source_snapshot: rowToJourneyRevisionSnapshot(
+								sampleJourneyRow({ updated_at: new Date('2026-06-29T10:00:00.919Z') })
+							),
+							proposed_snapshot: rowToJourneyRevisionSnapshot(
+								sampleJourneyRow({ updated_at: new Date('2026-06-29T10:00:00.919Z') })
+							),
+							change_summary: [],
+							validation_report: { errors: [], warnings: [] },
+							review_metadata: {},
+							created_by: 'admin@test.com',
+							published_by: 'admin@test.com',
+							created_at: new Date('2026-06-29T10:01:00.123Z'),
+							updated_at: new Date('2026-06-29T10:01:00.456Z'),
+							published_at: new Date('2026-06-29T11:00:00.789Z'),
+							rejected_at: null,
+						},
+					],
+				} as never;
+			}
+			if (text.includes('FROM journeys WHERE id')) {
+				return {
+					rows: [sampleJourneyRow({ updated_at: new Date('2026-06-29T10:00:00.919Z') })],
+				} as never;
+			}
+			return { rows: [] } as never;
+		});
+
+		await publishJourneyRevision({ revisionId: REVISION_ID, publishedBy: 'admin@test.com' });
+		expect(clientQuery.mock.calls.some(([sql]) => String(sql).includes('UPDATE journeys'))).toBe(
+			true
+		);
+	});
+
+	it('J5C1. publish rejects truncated millisecond source_updated_at', async () => {
+		vi.mocked(withTransaction).mockImplementation(async (fn) => {
+			await fn({
+				query: async (text: string) => {
+					if (text.includes('source_timestamp_matches')) {
+						return { rows: [{ source_timestamp_matches: false }] };
+					}
+					if (text.includes('journey_revisions')) {
+						return {
+							rows: [
+								{
+									id: REVISION_ID,
+									journey_id: JOURNEY_ID,
+									operation: 'update',
+									status: 'pending_review',
+									source_updated_at: new Date('2026-06-29T10:00:00.000Z'),
+									proposed_snapshot: rowToJourneyRevisionSnapshot(
+										sampleJourneyRow({ updated_at: new Date('2026-06-29T10:00:00.919Z') })
+									),
+									source_snapshot: rowToJourneyRevisionSnapshot(
+										sampleJourneyRow({ updated_at: new Date('2026-06-29T10:00:00.919Z') })
+									),
+									change_summary: [],
+									validation_report: { errors: [], warnings: [] },
+									review_metadata: {},
+									created_by: 'admin',
+									schema_version: 1,
+									published_by: null,
+									created_at: new Date(),
+									updated_at: new Date(),
+									published_at: null,
+									rejected_at: null,
+								},
+							],
+						};
+					}
+					if (text.includes('journeys')) {
+						return {
+							rows: [sampleJourneyRow({ updated_at: new Date('2026-06-29T10:00:00.919Z') })],
+						};
 					}
 					return { rows: [] };
 				},
@@ -523,6 +940,8 @@ describe('PR-J5A default status helpers', () => {
 describe('PR-J5A create revision lifecycle', () => {
 	beforeEach(() => {
 		vi.mocked(query).mockReset();
+		vi.mocked(withTransaction).mockReset();
+		vi.mocked(withTransaction).mockImplementation(async (fn) => fn({ query: vi.mocked(query) } as never));
 		vi.mocked(findJourneySlugConflict).mockResolvedValue(false);
 		vi.mocked(runJourneyPublishIntegrityGate).mockResolvedValue({
 			ok: true,
@@ -702,6 +1121,8 @@ describe('PR-J5A create revision lifecycle', () => {
 describe('PR-J5A supersede logic', () => {
 	beforeEach(() => {
 		vi.mocked(query).mockReset();
+		vi.mocked(withTransaction).mockReset();
+		vi.mocked(withTransaction).mockImplementation(async (fn) => fn({ query: vi.mocked(query) } as never));
 	});
 
 	it('1. update revision supersedes same journey pending only', async () => {
@@ -715,6 +1136,9 @@ describe('PR-J5A supersede logic', () => {
 			if (text.includes('UPDATE journey_revisions') && text.includes('superseded')) {
 				updateSql.push(text);
 				expect(params?.[0]).toBe(JOURNEY_ID);
+			}
+			if (text.includes('FOR UPDATE') && text.includes('journeys')) {
+				return { rows: [sampleJourneyRow()] } as never;
 			}
 			if (text.includes('FROM journeys WHERE id')) {
 				return { rows: [sampleJourneyRow()] } as never;

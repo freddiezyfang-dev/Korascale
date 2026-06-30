@@ -11,14 +11,14 @@ import { JourneyRevisionError, JOURNEY_REVISION_ERROR_CODES } from './errors';
 import {
 	getJourneyRevisionDetail,
 } from './dryRun.server';
+import { journeyRevisionSourceMatchSql } from './concurrencyTimestamp';
 import {
-	getJourneyRowById,
 	journeyRevisionsTableExists,
 	lockJourneyForUpdate,
 	lockJourneyRevisionForUpdate,
 	markJourneyRevisionPublished,
 } from './repository.server';
-import { rowToJourneyRevisionSnapshot, serializeJourneyUpdatedAt, snapshotToMutationBody } from './snapshot';
+import { snapshotToMutationBody } from './snapshot';
 import { assertRevisionPublishable } from './stateMachine';
 import { validateResolvedProposedSnapshot, withClientQuery } from './validation';
 
@@ -73,8 +73,18 @@ export async function publishJourneyRevision(params: {
 				);
 			}
 
-			const liveUpdatedAt = serializeJourneyUpdatedAt(journeyRow.updated_at as string | Date);
-			if (locked.sourceUpdatedAt && liveUpdatedAt !== locked.sourceUpdatedAt) {
+			const matchRes = await client.query<{ source_timestamp_matches: boolean }>(
+				`
+          SELECT ${journeyRevisionSourceMatchSql('j.updated_at', 'jr.source_updated_at')} AS source_timestamp_matches
+          FROM journeys j
+          JOIN journey_revisions jr ON jr.id = $2
+          WHERE j.id = $1
+          LIMIT 1
+        `,
+				[locked.journeyId, locked.id]
+			);
+			const sourceTimestampMatches = matchRes.rows[0]?.source_timestamp_matches === true;
+			if (locked.sourceUpdatedAt && !sourceTimestampMatches) {
 				throw new JourneyRevisionError(
 					'The Journey changed after this revision was created. Create a new revision from the latest version.',
 					JOURNEY_REVISION_ERROR_CODES.SOURCE_CHANGED,

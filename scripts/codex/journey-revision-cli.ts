@@ -176,6 +176,8 @@ async function main() {
 						operation: detail.revision.operation,
 						journeyId: detail.revision.journeyId,
 						proposedSlug: detail.revision.proposedSnapshot.slug,
+						sourceUpdatedAt: detail.revision.sourceUpdatedAt,
+						sourceTimestampMatches: detail.sourceTimestampMatches,
 						changeSummary: detail.revision.changeSummary,
 						validation: detail.revision.validationReport,
 						allowedActions: detail.allowedActions,

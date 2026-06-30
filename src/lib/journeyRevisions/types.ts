@@ -138,6 +138,7 @@ export type JourneyRevisionDetail = {
 	revision: JourneyRevisionRecord;
 	allowedActions: string[];
 	hasSourceConflict: boolean;
+	sourceTimestampMatches: boolean;
 	sourceConflictMessage?: string;
 };
 
@@ -155,6 +156,7 @@ export type JourneyRevisionListItem = {
 	updatedAt: string;
 	changeSummary: string[];
 	hasSourceConflict: boolean;
+	sourceTimestampMatches: boolean;
 	sourceConflictMessage?: string;
 	previewPath: string;
 };

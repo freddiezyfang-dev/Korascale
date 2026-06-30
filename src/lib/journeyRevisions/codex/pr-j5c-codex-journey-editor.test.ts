@@ -63,7 +63,7 @@ const OTHER_JOURNEY_ID = '44444444-4444-4444-8444-444444444444';
 const ARTICLE_ID = '22222222-2222-4222-8222-222222222222';
 
 function sampleJourneyRow(overrides: Record<string, unknown> = {}) {
-	return {
+	const base = {
 		id: JOURNEY_ID,
 		slug: 'sample-journey',
 		status: 'active',
@@ -87,10 +87,22 @@ function sampleJourneyRow(overrides: Record<string, unknown> = {}) {
 			faqs: [{ question: 'Q', answer: 'A' }],
 			customField: 'preserve-me',
 		},
-		updated_at: '2026-06-29T10:00:00.000Z',
+		updated_at: '2026-06-29 10:00:00.000',
 		created_at: '2026-06-01T10:00:00.000Z',
-		...overrides,
 	};
+	const row = { ...base, ...overrides } as Record<string, unknown>;
+	if (row.journey_revision_source_updated_at == null && row.updated_at != null) {
+		const updatedAt = row.updated_at;
+		if (typeof updatedAt === 'string' && /^\d{4}-\d{2}-\d{2} \d/.test(updatedAt)) {
+			const [date, timePart] = updatedAt.split(' ');
+			const [time, frac = ''] = timePart.split('.');
+			const ms = frac.padEnd(3, '0').slice(0, 3);
+			row.journey_revision_source_updated_at = `${date}T${time}.${ms}Z`;
+		} else if (typeof updatedAt === 'string' && updatedAt.endsWith('Z')) {
+			row.journey_revision_source_updated_at = updatedAt;
+		}
+	}
+	return row;
 }
 
 describe('PR-J5C Codex Journey Editor', () => {

@@ -221,6 +221,7 @@ describe('journey-revisions admin API auth', () => {
 				revision: { id: 'x' },
 				allowedActions: ['read'],
 				hasSourceConflict: false,
+				sourceTimestampMatches: true,
 			} as never);
 			const response = await getRoute(
 				new NextRequest('http://localhost:3001/api/admin/journey-revisions/x'),
@@ -261,6 +262,7 @@ describe('journey-revisions admin API auth', () => {
 				revision: { id: 'x' },
 				allowedActions: ['read'],
 				hasSourceConflict: false,
+				sourceTimestampMatches: true,
 			} as never);
 			const response = await publishRoute(
 				writeRequest('POST', 'http://localhost:3001/api/admin/journey-revisions/x/publish'),
@@ -301,6 +303,7 @@ describe('journey-revisions admin API auth', () => {
 				revision: { id: 'x' },
 				allowedActions: ['read'],
 				hasSourceConflict: false,
+				sourceTimestampMatches: true,
 			} as never);
 			const response = await rejectRoute(
 				writeRequest('POST', 'http://localhost:3001/api/admin/journey-revisions/x/reject'),

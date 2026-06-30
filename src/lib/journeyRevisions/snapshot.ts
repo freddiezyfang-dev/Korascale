@@ -2,6 +2,8 @@ import { JOURNEY_TYPE_LABELS } from '@/lib/journeyNormalization/constants';
 import { journeyTypeLabelToSlug } from '@/lib/journeyNormalization/write';
 
 import { sanitizeClientChanges } from './allowlist';
+import { readCanonicalJourneyUpdatedAt } from './concurrencyTimestamp';
+import { serializeTimestamp } from './timestamps';
 import type { JourneyRevisionRelationships, JourneyRevisionSnapshot } from './types';
 import { LOCKED_PRICE_SNAPSHOT_KEYS } from './types';
 
@@ -26,9 +28,11 @@ function pickBool(val: unknown, fallback = false): boolean {
 }
 
 function toIso(val: unknown): string | null {
-	if (val == null) return null;
-	const d = val instanceof Date ? val : new Date(String(val));
-	return Number.isNaN(d.getTime()) ? null : d.toISOString();
+	try {
+		return serializeTimestamp(val as Date | string | null | undefined);
+	} catch {
+		return null;
+	}
 }
 
 export function deepCloneJson<T>(value: T): T {
@@ -116,7 +120,7 @@ export function rowToJourneyRevisionSnapshot(row: DbRow): JourneyRevisionSnapsho
 		rating: pickNum(row.rating),
 		review_count: pickNum(row.review_count),
 		created_at: toIso(row.created_at),
-		updated_at: toIso(row.updated_at),
+		updated_at: readCanonicalJourneyUpdatedAt(row) ?? toIso(row.updated_at),
 	};
 }
 
@@ -309,7 +313,9 @@ export function snapshotToMutationBody(snapshot: JourneyRevisionSnapshot): Recor
 }
 
 export function serializeJourneyUpdatedAt(value: Date | string): string {
-	return new Date(value).toISOString();
+	const serialized = serializeTimestamp(value, 'journey.updated_at');
+	if (!serialized) throw new Error('journey.updated_at is required.');
+	return serialized;
 }
 
 export function computeChangeSummary(

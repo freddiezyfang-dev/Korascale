@@ -14,6 +14,7 @@ type RevisionDetailResponse = {
 	revision: JourneyRevisionRecord;
 	allowedActions: string[];
 	hasSourceConflict: boolean;
+	sourceTimestampMatches: boolean;
 	sourceConflictMessage?: string;
 };
 
@@ -166,9 +167,15 @@ export default function JourneyRevisionPreviewPanel({ revisionId }: Props) {
 							Journey ID: {revision.journeyId}
 						</Text>
 					) : null}
-					{detail.hasSourceConflict ? (
+					{revision.sourceUpdatedAt ? (
+						<Text size="sm" className="text-gray-600">
+							Source token: {revision.sourceUpdatedAt}
+						</Text>
+					) : null}
+					{detail.sourceTimestampMatches === false ? (
 						<Text size="sm" className="text-amber-700">
-							{detail.sourceConflictMessage}
+							{detail.sourceConflictMessage ??
+								'Source timestamp mismatch. Recreate this revision from the latest Journey version after deployment.'}
 						</Text>
 					) : null}
 				</div>
