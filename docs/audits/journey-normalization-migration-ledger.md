@@ -2,7 +2,7 @@
 
 Production database: `neondb` (`ep-red-sunset-adgu8hlv-pooler`)
 
-Last updated: 2026-06-26 (027 prepared, not executed)
+Last updated: 2026-06-26 (027 Production executed)
 
 ## Journey status pipeline (closed)
 
@@ -23,7 +23,7 @@ Last updated: 2026-06-26 (027 prepared, not executed)
 | 025B4 | **executed** |
 | 025C1 | **executed** |
 | 025C2 | **not prepared / not executed** |
-| 027 | **prepared / not executed** |
+| 027 | **executed** |
 
 **Price normalization:** frozen pending business review — see `pr-j2-price-normalization-frozen.md`.
 
@@ -158,8 +158,19 @@ Optional field constraints (`journey_type_slug`, `currency`, `price_basis`) — 
   - `database/migrations/pending/027_journey_revisions.sql`
   - `database/migrations/pending/027_journey_revisions.rollback.sql`
 - **Scope:** `journey_revisions` table for admin/Codex proposed Journey changes; publish applies to `journeys` in a single transaction
-- **Status:** **prepared / not executed**
-- **Preflight:** `scripts/migrations/pr-j5a-journey-revision-preflight.ts` (`ready=true` when table absent)
+- **Status:** **executed** on Production
+- **Executed:** Production 2026-06-26 (authorized post PR #29 merge)
+- **Main commit (app):** `6c40b6d` (PR #29 — Journey revision infrastructure)
+- **Execution report:** `docs/audits/pr-j5a-production-execution-report.md`
+- **Pre-execution preflight:** `ready=true`, `journeyRevisionTableExists=false`
+- **Post-execution verification:**
+  - `journey_revisions` table present; row count **0**
+  - constraints: operation/status/journey_id/source/published/rejected CHECKs + FK `ON DELETE RESTRICT`
+  - indexes: status, journey_id (partial), created_at, journey_pending_review (partial)
+  - trigger: `update_journey_revisions_updated_at`
+  - `journeys` row count unchanged: **83** (active 24, archived 59)
+  - J5A preflight post: `alreadyApplied=true`, `noActionRequired=true`
+- **Preflight script:** `scripts/migrations/pr-j5a-journey-revision-preflight.ts`
 - **Audits:** `pr-j5a-inspiration-revision-reuse-audit.md`, `pr-j5a-journey-relationship-schema.md`, `pr-j5a-journey-price-protection.md`
 - **Contract:** `docs/workflows/codex-journey-editor-contract.md`
 - **Does not include:** Preview UI (J5B), Codex Skill (J5C), Production revision rows, price normalization, 025C2
