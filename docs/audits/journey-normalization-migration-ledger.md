@@ -2,7 +2,7 @@
 
 Production database: `neondb` (`ep-red-sunset-adgu8hlv-pooler`)
 
-Last updated: 2026-06-29 (026 Production executed)
+Last updated: 2026-06-26 (027 prepared, not executed)
 
 ## Journey status pipeline (closed)
 
@@ -23,6 +23,7 @@ Last updated: 2026-06-29 (026 Production executed)
 | 025B4 | **executed** |
 | 025C1 | **executed** |
 | 025C2 | **not prepared / not executed** |
+| 027 | **prepared / not executed** |
 
 **Price normalization:** frozen pending business review — see `pr-j2-price-normalization-frozen.md`.
 
@@ -150,3 +151,16 @@ Optional field constraints (`journey_type_slug`, `currency`, `price_basis`) — 
   - **no Journey row UPDATE/DELETE** (index-only migration)
 - **Rollback:** not executed
 - **Does not include:** slug NOT NULL changes, canonical CHECK, DROP `journeys_slug_key`, slug data cleanup
+
+## 027 — Journey Revision Infrastructure
+
+- **Files:**
+  - `database/migrations/pending/027_journey_revisions.sql`
+  - `database/migrations/pending/027_journey_revisions.rollback.sql`
+- **Scope:** `journey_revisions` table for admin/Codex proposed Journey changes; publish applies to `journeys` in a single transaction
+- **Status:** **prepared / not executed**
+- **Preflight:** `scripts/migrations/pr-j5a-journey-revision-preflight.ts` (`ready=true` when table absent)
+- **Audits:** `pr-j5a-inspiration-revision-reuse-audit.md`, `pr-j5a-journey-relationship-schema.md`, `pr-j5a-journey-price-protection.md`
+- **Contract:** `docs/workflows/codex-journey-editor-contract.md`
+- **Does not include:** Preview UI (J5B), Codex Skill (J5C), Production revision rows, price normalization, 025C2
+- **Rollback:** aborts if any `journey_revisions` row exists; no CASCADE
