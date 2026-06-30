@@ -324,6 +324,13 @@ export default function AdminJourneysPage() {
                 </Text>
               </div>
               <div className="flex gap-4">
+                <Button
+                  onClick={() => router.push('/admin/journey-revisions')}
+                  variant="secondary"
+                >
+                  <FileText className="w-4 h-4 mr-1" />
+                  Revisions
+                </Button>
                 <Button 
                   onClick={() => router.push('/admin/journeys/add')}
                   variant="primary"

@@ -9,6 +9,7 @@ import type {
 	JourneyRevisionSnapshot,
 	JourneyRevisionStatus,
 	JourneyRevisionValidationReport,
+	ListJourneyRevisionsParams,
 } from './types';
 
 export type JourneyRevisionRow = {
@@ -96,6 +97,60 @@ export async function getJourneyRevisionById(
 		: (await query<JourneyRevisionRow>(sql, [id])).rows;
 	if (rows.length === 0) return null;
 	return mapJourneyRevisionRow(rows[0]);
+}
+
+export async function listJourneyRevisions(
+	params: ListJourneyRevisionsParams = {},
+	client?: PoolClient
+): Promise<
+	Array<
+		JourneyRevisionRow & {
+			journey_title: string | null;
+			journey_slug: string | null;
+			journey_updated_at: Date | string | null;
+		}
+	>
+> {
+	const status = params.status ?? 'pending_review';
+	const conditions = ['jr.status = $1'];
+	const values: unknown[] = [status];
+	let paramIndex = 2;
+
+	if (params.journeyId) {
+		conditions.push(`jr.journey_id = $${paramIndex++}`);
+		values.push(params.journeyId);
+	}
+
+	if (params.slug?.trim()) {
+		conditions.push(
+			`(LOWER(BTRIM(j.slug)) = LOWER(BTRIM($${paramIndex})) OR LOWER(BTRIM(jr.proposed_snapshot->>'slug')) = LOWER(BTRIM($${paramIndex})))`
+		);
+		values.push(params.slug.trim());
+		paramIndex++;
+	}
+
+	const order =
+		params.sort === 'createdAtDesc' ? 'jr.created_at DESC' : 'jr.created_at ASC';
+
+	const sql = `
+    SELECT jr.*, j.title AS journey_title, j.slug AS journey_slug, j.updated_at AS journey_updated_at
+    FROM journey_revisions jr
+    LEFT JOIN journeys j ON j.id = jr.journey_id
+    WHERE ${conditions.join(' AND ')}
+    ORDER BY ${order}
+  `;
+
+	const rows = client
+		? (await client.query(sql, values)).rows
+		: (await query(sql, values)).rows;
+
+	return rows as Array<
+		JourneyRevisionRow & {
+			journey_title: string | null;
+			journey_slug: string | null;
+			journey_updated_at: Date | string | null;
+		}
+	>;
 }
 
 export async function supersedePendingJourneyRevisions(

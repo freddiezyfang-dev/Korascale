@@ -11,6 +11,7 @@ vi.mock('@/lib/journeyRevisions/dryRun.server', () => ({
 	createJourneyRevision: vi.fn(),
 	getJourneyRevisionDetail: vi.fn(),
 	rejectJourneyRevision: vi.fn(),
+	listJourneyRevisionsForAdmin: vi.fn(),
 }));
 
 vi.mock('@/lib/journeyRevisions/publish.server', () => ({
@@ -22,12 +23,13 @@ import {
 	createJourneyRevision,
 	dryRunJourneyRevision,
 	getJourneyRevisionDetail,
+	listJourneyRevisionsForAdmin,
 	rejectJourneyRevision,
 } from '@/lib/journeyRevisions/dryRun.server';
 import { publishJourneyRevision } from '@/lib/journeyRevisions/publish.server';
 
 import { POST as dryRunRoute } from './dry-run/route';
-import { POST as createRoute } from './route';
+import { GET as listRevisions, POST as createRoute } from './route';
 import { GET as getRoute } from './[id]/route';
 import { POST as publishRoute } from './[id]/publish/route';
 import { POST as rejectRoute } from './[id]/reject/route';
@@ -104,6 +106,39 @@ describe('journey-revisions admin API auth', () => {
 			);
 			expect(response.status).toBe(200);
 			expect(dryRunJourneyRevision).toHaveBeenCalled();
+		});
+	});
+
+	describe('GET /api/admin/journey-revisions', () => {
+		it('anonymous returns 401', async () => {
+			vi.mocked(enforceAdminRead).mockResolvedValue({ ok: false, response: unauth(401) });
+			const response = await listRevisions(
+				new NextRequest('http://localhost:3001/api/admin/journey-revisions')
+			);
+			expect(response.status).toBe(401);
+			expect(listJourneyRevisionsForAdmin).not.toHaveBeenCalled();
+		});
+
+		it('non-admin returns 403', async () => {
+			vi.mocked(enforceAdminRead).mockResolvedValue({ ok: false, response: unauth(403) });
+			const response = await listRevisions(
+				new NextRequest('http://localhost:3001/api/admin/journey-revisions')
+			);
+			expect(response.status).toBe(403);
+			expect(listJourneyRevisionsForAdmin).not.toHaveBeenCalled();
+		});
+
+		it('admin enters handler', async () => {
+			vi.mocked(enforceAdminRead).mockResolvedValue({
+				ok: true,
+				user: { id: '1', email: 'a@b.com', name: 'A', role: 'admin', isAdmin: true },
+			});
+			vi.mocked(listJourneyRevisionsForAdmin).mockResolvedValue([]);
+			const response = await listRevisions(
+				new NextRequest('http://localhost:3001/api/admin/journey-revisions?status=pending_review')
+			);
+			expect(response.status).toBe(200);
+			expect(listJourneyRevisionsForAdmin).toHaveBeenCalled();
 		});
 	});
 

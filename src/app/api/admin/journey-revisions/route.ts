@@ -1,14 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { enforceAdminWrite } from '@/lib/auth/requireAdmin.server';
-import { createJourneyRevision } from '@/lib/journeyRevisions/dryRun.server';
-import { isValidRevisionOperation } from '@/lib/journeyRevisions/stateMachine';
-import type { JourneyRevisionDryRunRequest } from '@/lib/journeyRevisions/types';
+import { enforceAdminRead, enforceAdminWrite } from '@/lib/auth/requireAdmin.server';
+import { createJourneyRevision, listJourneyRevisionsForAdmin } from '@/lib/journeyRevisions/dryRun.server';
+import { isValidRevisionOperation, isValidRevisionStatus } from '@/lib/journeyRevisions/stateMachine';
+import type { JourneyRevisionDryRunRequest, JourneyRevisionStatus } from '@/lib/journeyRevisions/types';
 
 import { journeyRevisionErrorResponse } from './_lib/responses';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+const LIST_STATUSES = new Set<JourneyRevisionStatus>([
+	'draft',
+	'pending_review',
+	'published',
+	'rejected',
+	'superseded',
+]);
+
+export async function GET(request: NextRequest) {
+	const guard = await enforceAdminRead();
+	if (!guard.ok) return guard.response;
+
+	try {
+		const { searchParams } = new URL(request.url);
+		const statusParam = searchParams.get('status') ?? 'pending_review';
+		const status = LIST_STATUSES.has(statusParam as JourneyRevisionStatus)
+			? (statusParam as JourneyRevisionStatus)
+			: 'pending_review';
+		const journeyId = searchParams.get('journeyId') ?? undefined;
+		const slug = searchParams.get('slug') ?? undefined;
+		const sort = searchParams.get('sort') === 'createdAtDesc' ? 'createdAtDesc' : 'createdAt';
+
+		const revisions = await listJourneyRevisionsForAdmin({ status, journeyId, slug, sort });
+		return NextResponse.json({ ok: true, revisions });
+	} catch (error) {
+		return journeyRevisionErrorResponse(error);
+	}
+}
 
 export async function POST(request: NextRequest) {
 	const guard = await enforceAdminWrite(request);
