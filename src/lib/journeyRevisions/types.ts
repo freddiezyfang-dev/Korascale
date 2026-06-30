@@ -141,6 +141,31 @@ export type JourneyRevisionDetail = {
 	sourceConflictMessage?: string;
 };
 
+export type JourneyRevisionListItem = {
+	id: string;
+	journeyId: string | null;
+	operation: JourneyRevisionOperation;
+	status: JourneyRevisionStatus;
+	proposedTitle: string;
+	proposedSlug: string;
+	journeyTitle: string | null;
+	journeySlug: string | null;
+	createdBy: string;
+	createdAt: string;
+	updatedAt: string;
+	changeSummary: string[];
+	hasSourceConflict: boolean;
+	sourceConflictMessage?: string;
+	previewPath: string;
+};
+
+export type ListJourneyRevisionsParams = {
+	status?: JourneyRevisionStatus;
+	journeyId?: string;
+	slug?: string;
+	sort?: 'createdAt' | 'createdAtDesc';
+};
+
 export const LOCKED_PRICE_SNAPSHOT_KEYS = [
 	'price',
 	'original_price',

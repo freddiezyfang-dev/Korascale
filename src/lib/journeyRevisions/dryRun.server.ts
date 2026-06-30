@@ -5,6 +5,8 @@ import {
 	getJourneyRowById,
 	insertJourneyRevision,
 	journeyRevisionsTableExists,
+	listJourneyRevisions,
+	mapJourneyRevisionRow,
 	supersedePendingJourneyRevisions,
 } from './repository.server';
 import { rowToJourneyRevisionSnapshot, serializeJourneyUpdatedAt } from './snapshot';
@@ -14,7 +16,9 @@ import type {
 	JourneyRevisionDetail,
 	JourneyRevisionDryRunRequest,
 	JourneyRevisionDryRunResult,
+	JourneyRevisionListItem,
 	JourneyRevisionReviewMetadata,
+	ListJourneyRevisionsParams,
 } from './types';
 import { runJourneyRevisionValidation } from './validation';
 
@@ -121,17 +125,13 @@ export async function getJourneyRevisionDetail(id: string): Promise<JourneyRevis
 
 	if (revision.journeyId && revision.sourceUpdatedAt) {
 		const journey = await getJourneyRowById(revision.journeyId);
-		if (!journey) {
-			hasSourceConflict = true;
-			sourceConflictMessage = 'Source Journey no longer exists.';
-		} else {
-			const live = serializeJourneyUpdatedAt(journey.updated_at as string | Date);
-			hasSourceConflict = live !== revision.sourceUpdatedAt;
-			if (hasSourceConflict) {
-				sourceConflictMessage =
-					'The Journey changed after this revision was created. Create a new revision from the latest version.';
-			}
-		}
+		const conflict = buildSourceConflict(
+			revision.journeyId,
+			revision.sourceUpdatedAt,
+			journey?.updated_at as string | Date | null | undefined
+		);
+		hasSourceConflict = conflict.hasSourceConflict;
+		sourceConflictMessage = conflict.sourceConflictMessage;
 	}
 
 	return {
@@ -179,4 +179,60 @@ export async function rejectJourneyRevision(params: {
 		);
 	}
 	return detail;
+}
+
+function buildSourceConflict(
+	journeyId: string | null,
+	sourceUpdatedAt: string | null,
+	journeyUpdatedAt: Date | string | null | undefined
+): { hasSourceConflict: boolean; sourceConflictMessage?: string } {
+	if (!journeyId || !sourceUpdatedAt) {
+		return { hasSourceConflict: false };
+	}
+	if (!journeyUpdatedAt) {
+		return {
+			hasSourceConflict: true,
+			sourceConflictMessage: 'Source Journey no longer exists.',
+		};
+	}
+	const live = serializeJourneyUpdatedAt(journeyUpdatedAt as string | Date);
+	const hasSourceConflict = live !== sourceUpdatedAt;
+	return {
+		hasSourceConflict,
+		sourceConflictMessage: hasSourceConflict
+			? 'The Journey changed after this revision was created. Create a new revision from the latest version.'
+			: undefined,
+	};
+}
+
+export async function listJourneyRevisionsForAdmin(
+	params: ListJourneyRevisionsParams = {}
+): Promise<JourneyRevisionListItem[]> {
+	await ensureRevisionInfrastructure();
+	const rows = await listJourneyRevisions(params);
+	return rows.map((row) => {
+		const revision = mapJourneyRevisionRow(row);
+		const conflict = buildSourceConflict(
+			revision.journeyId,
+			revision.sourceUpdatedAt,
+			row.journey_updated_at
+		);
+		return {
+			id: revision.id,
+			journeyId: revision.journeyId,
+			operation: revision.operation,
+			status: revision.status,
+			proposedTitle: revision.proposedSnapshot.title,
+			proposedSlug: revision.proposedSnapshot.slug,
+			journeyTitle: row.journey_title ? String(row.journey_title) : null,
+			journeySlug: row.journey_slug ? String(row.journey_slug) : null,
+			createdBy: revision.createdBy,
+			createdAt: revision.createdAt,
+			updatedAt: revision.updatedAt,
+			changeSummary: revision.changeSummary,
+			hasSourceConflict: conflict.hasSourceConflict,
+			sourceConflictMessage: conflict.sourceConflictMessage,
+			previewPath: `/admin/journey-revisions/${revision.id}/preview`,
+		};
+	});
 }

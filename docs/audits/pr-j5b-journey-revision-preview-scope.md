@@ -1,44 +1,45 @@
-# PR-J5B Journey Revision Preview / Diff UI — Scope
+# PR-J5B Journey Revision Admin UI — Scope
 
 ## Goal
 
-Admin UI to review pending Journey revisions before publish, mirroring `ArticleRevisionPanel` patterns from PR-J4 SEO revisions.
+Admin UI for reviewing Journey revisions: **List → Preview / Diff → Publish / Reject**.
+
+Mirrors Article revision admin patterns; does not write `journeys` directly.
 
 ## In scope (J5B)
 
 | Deliverable | Path |
 |-------------|------|
+| List API | `GET /api/admin/journey-revisions` |
+| List service | `listJourneyRevisionsForAdmin` |
 | Field diff utility | `src/lib/journeyRevisions/revisionDiff.ts` |
-| Preview panel | `src/components/admin/JourneyRevisionPreviewPanel.tsx` |
-| Admin route | `/admin/journey-revisions/[id]/preview` |
-| Unit tests | `src/lib/journeyRevisions/revisionDiff.test.ts` |
+| List page | `/admin/journey-revisions` |
+| Preview / diff panel | `src/components/admin/JourneyRevisionPreviewPanel.tsx` |
+| Preview route | `/admin/journey-revisions/[id]/preview` |
+| Journeys nav link | `/admin/journeys` → Revisions button |
+| Auth tests | list + existing J5A routes |
 
-## Views
+## User flow
 
-1. **Source snapshot** — baseline at revision creation (NULL for create)
-2. **Proposed snapshot** — merged state to apply on publish
-3. **Compare** — scalar + selected JSONB field diffs
-
-## Actions (admin only)
-
-- Publish (blocked on source conflict)
-- Reject
-- Link back to Journey edit when `journeyId` present
+1. **List** — filter by status (`pending_review` default), see operation, proposed title/slug, conflict badge
+2. **Preview / Diff** — source / proposed / compare views; field-level diff summary
+3. **Publish / Reject** — from preview page (blocked when source conflict)
 
 ## Out of scope (J5B)
 
 - Codex Skill (J5C)
-- Inline editing of pending revision fields
-- Public Journey page visual diff
-- Journey row direct writes
+- J4 Batch 0 / Batch 1 content edits
+- Inline edit of pending revision JSON
+- Public Journey visual diff
 - Price field editing
+- Journey row direct writes
 
 ## Prerequisites
 
-- Migration **027 executed** (`journey_revisions` table exists)
+- Migration **027 executed** — `journey_revisions` exists, **row count 0** at cutover; **no Journey row changes**
 - PR-J5A APIs deployed
 
 ## Follow-up
 
-- Embed panel in `/admin/journeys/edit/[id]` when pending revision exists
-- Rich itinerary / gallery diff rendering
+- Embed pending-revision banner on `/admin/journeys/edit/[id]`
+- Rich itinerary / gallery side-by-side diff
