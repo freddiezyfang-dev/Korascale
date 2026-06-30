@@ -1,15 +1,20 @@
-import { query } from '@/lib/db';
+import { withTransaction } from '@/lib/db';
 
 import { JourneyRevisionError, JOURNEY_REVISION_ERROR_CODES } from './errors';
 import {
 	getJourneyRowById,
+	getRevisionSourceTimestampMatch,
 	insertJourneyRevision,
+	insertJourneyRevisionFromLockedJourney,
 	journeyRevisionsTableExists,
 	listJourneyRevisions,
+	lockJourneyForUpdate,
 	mapJourneyRevisionRow,
 	supersedePendingJourneyRevisions,
 } from './repository.server';
-import { rowToJourneyRevisionSnapshot, serializeJourneyUpdatedAt } from './snapshot';
+import { readCanonicalJourneyUpdatedAt } from './concurrencyTimestamp';
+import { rowToJourneyRevisionSnapshot } from './snapshot';
+import { serializeSourceTimestamp } from './timestamps';
 import { allowedActionsForStatus } from './stateMachine';
 import type {
 	JourneyRevisionCreateResult,
@@ -46,6 +51,7 @@ export async function dryRunJourneyRevision(
 	const result = await runJourneyRevisionValidation(request, {
 		journeyRow,
 		runQuery: async (text, params = []) => {
+			const { query } = await import('@/lib/db');
 			const res = await query(text, params);
 			return { rows: res.rows as Record<string, unknown>[] };
 		},
@@ -81,27 +87,81 @@ export async function createJourneyRevision(params: {
 	}
 
 	const journeyId = dryRun.journeyId;
-	if (journeyId) {
-		await supersedePendingJourneyRevisions(journeyId);
-	}
-
-	const sourceSnapshot =
-		journeyId && params.request.operation !== 'create'
-			? rowToJourneyRevisionSnapshot((await getJourneyRowById(journeyId))!)
-			: null;
-
 	const reviewMetadata: JourneyRevisionReviewMetadata = params.request.reviewMetadata ?? {};
 
-	const revisionId = await insertJourneyRevision({
-		journeyId,
-		operation: params.request.operation,
-		sourceUpdatedAt: params.request.sourceUpdatedAt ?? null,
-		sourceSnapshot,
-		proposedSnapshot: dryRun.resolvedSnapshot,
-		changeSummary: dryRun.changeSummary,
-		validationReport: dryRun.validationReport,
-		reviewMetadata,
-		createdBy: params.createdBy,
+	const revisionId = await withTransaction(async (client) => {
+		if (journeyId) {
+			await supersedePendingJourneyRevisions(journeyId, client);
+		}
+
+		if (journeyId && params.request.operation !== 'create') {
+			const lockedJourney = await lockJourneyForUpdate(journeyId, client);
+			if (!lockedJourney) {
+				throw new JourneyRevisionError(
+					'Source Journey no longer exists.',
+					JOURNEY_REVISION_ERROR_CODES.JOURNEY_NOT_FOUND,
+					404
+				);
+			}
+
+			const dbCanonical = readCanonicalJourneyUpdatedAt(lockedJourney);
+			if (!dbCanonical) {
+				throw new JourneyRevisionError(
+					'Unable to resolve Journey concurrency token.',
+					JOURNEY_REVISION_ERROR_CODES.SOURCE_CHANGED,
+					409
+				);
+			}
+
+			if (params.request.sourceUpdatedAt) {
+				const requestToken = serializeSourceTimestamp(
+					params.request.sourceUpdatedAt,
+					'sourceUpdatedAt'
+				);
+				if (requestToken !== dbCanonical) {
+					throw new JourneyRevisionError(
+						'The Journey changed after this revision baseline. Re-read the Journey and dry-run again.',
+						JOURNEY_REVISION_ERROR_CODES.SOURCE_CHANGED,
+						409
+					);
+				}
+			}
+
+			if (dryRun.resolvedSnapshot.updated_at !== dbCanonical) {
+				throw new JourneyRevisionError(
+					'The Journey changed after validation. Re-read the Journey and dry-run again.',
+					JOURNEY_REVISION_ERROR_CODES.SOURCE_CHANGED,
+					409
+				);
+			}
+
+			const sourceSnapshot = rowToJourneyRevisionSnapshot(lockedJourney);
+
+			return insertJourneyRevisionFromLockedJourney({
+				journeyId,
+				operation: params.request.operation,
+				sourceSnapshot,
+				proposedSnapshot: dryRun.resolvedSnapshot,
+				changeSummary: dryRun.changeSummary,
+				validationReport: dryRun.validationReport,
+				reviewMetadata,
+				createdBy: params.createdBy,
+				client,
+			});
+		}
+
+		return insertJourneyRevision({
+			journeyId,
+			operation: params.request.operation,
+			sourceUpdatedAt: null,
+			sourceSnapshot: null,
+			proposedSnapshot: dryRun.resolvedSnapshot,
+			changeSummary: dryRun.changeSummary,
+			validationReport: dryRun.validationReport,
+			reviewMetadata,
+			createdBy: params.createdBy,
+			client,
+		});
 	});
 
 	return {
@@ -122,22 +182,30 @@ export async function getJourneyRevisionDetail(id: string): Promise<JourneyRevis
 
 	let hasSourceConflict = false;
 	let sourceConflictMessage: string | undefined;
+	let sourceTimestampMatches = true;
 
 	if (revision.journeyId && revision.sourceUpdatedAt) {
-		const journey = await getJourneyRowById(revision.journeyId);
-		const conflict = buildSourceConflict(
-			revision.journeyId,
-			revision.sourceUpdatedAt,
-			journey?.updated_at as string | Date | null | undefined
-		);
-		hasSourceConflict = conflict.hasSourceConflict;
-		sourceConflictMessage = conflict.sourceConflictMessage;
+		const match = await getRevisionSourceTimestampMatch(id);
+		if (match === false) {
+			hasSourceConflict = true;
+			sourceTimestampMatches = false;
+			sourceConflictMessage =
+				'The Journey changed after this revision was created. Create a new revision from the latest version.';
+		} else if (match === null) {
+			const journey = await getJourneyRowById(revision.journeyId);
+			if (!journey) {
+				hasSourceConflict = true;
+				sourceTimestampMatches = false;
+				sourceConflictMessage = 'Source Journey no longer exists.';
+			}
+		}
 	}
 
 	return {
 		revision,
 		allowedActions: allowedActionsForStatus(revision.status),
 		hasSourceConflict,
+		sourceTimestampMatches,
 		sourceConflictMessage,
 	};
 }
@@ -181,30 +249,6 @@ export async function rejectJourneyRevision(params: {
 	return detail;
 }
 
-function buildSourceConflict(
-	journeyId: string | null,
-	sourceUpdatedAt: string | null,
-	journeyUpdatedAt: Date | string | null | undefined
-): { hasSourceConflict: boolean; sourceConflictMessage?: string } {
-	if (!journeyId || !sourceUpdatedAt) {
-		return { hasSourceConflict: false };
-	}
-	if (!journeyUpdatedAt) {
-		return {
-			hasSourceConflict: true,
-			sourceConflictMessage: 'Source Journey no longer exists.',
-		};
-	}
-	const live = serializeJourneyUpdatedAt(journeyUpdatedAt as string | Date);
-	const hasSourceConflict = live !== sourceUpdatedAt;
-	return {
-		hasSourceConflict,
-		sourceConflictMessage: hasSourceConflict
-			? 'The Journey changed after this revision was created. Create a new revision from the latest version.'
-			: undefined,
-	};
-}
-
 export async function listJourneyRevisionsForAdmin(
 	params: ListJourneyRevisionsParams = {}
 ): Promise<JourneyRevisionListItem[]> {
@@ -212,11 +256,11 @@ export async function listJourneyRevisionsForAdmin(
 	const rows = await listJourneyRevisions(params);
 	return rows.map((row) => {
 		const revision = mapJourneyRevisionRow(row);
-		const conflict = buildSourceConflict(
-			revision.journeyId,
-			revision.sourceUpdatedAt,
-			row.journey_updated_at
-		);
+		const sourceTimestampMatches =
+			typeof row.source_timestamp_matches === 'boolean'
+				? row.source_timestamp_matches
+				: true;
+		const hasSourceConflict = !sourceTimestampMatches;
 		return {
 			id: revision.id,
 			journeyId: revision.journeyId,
@@ -230,8 +274,11 @@ export async function listJourneyRevisionsForAdmin(
 			createdAt: revision.createdAt,
 			updatedAt: revision.updatedAt,
 			changeSummary: revision.changeSummary,
-			hasSourceConflict: conflict.hasSourceConflict,
-			sourceConflictMessage: conflict.sourceConflictMessage,
+			hasSourceConflict,
+			sourceTimestampMatches,
+			sourceConflictMessage: hasSourceConflict
+				? 'The Journey changed after this revision was created. Create a new revision from the latest version.'
+				: undefined,
 			previewPath: `/admin/journey-revisions/${revision.id}/preview`,
 		};
 	});

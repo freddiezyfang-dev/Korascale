@@ -19,8 +19,9 @@ import {
 	computeChangeSummary,
 	mergeChangesIntoProposedSnapshot,
 	rowToJourneyRevisionSnapshot,
-	serializeJourneyUpdatedAt,
 } from './snapshot';
+import { readCanonicalJourneyUpdatedAt } from './concurrencyTimestamp';
+import { serializeSourceTimestamp } from './timestamps';
 import type {
 	JourneyRevisionDryRunRequest,
 	JourneyRevisionFieldError,
@@ -365,8 +366,38 @@ export function validateSourceUpdatedAt(
 	if (!journeyRow?.updated_at) {
 		return { matched: false, errors: [] };
 	}
-	const live = serializeJourneyUpdatedAt(journeyRow.updated_at as string | Date);
-	const matched = live === new Date(sourceUpdatedAt).toISOString();
+	let source: string;
+	try {
+		const serialized = serializeSourceTimestamp(sourceUpdatedAt, 'sourceUpdatedAt');
+		if (!serialized) throw new Error('sourceUpdatedAt is required.');
+		source = serialized;
+	} catch {
+		return {
+			matched: false,
+			errors: [
+				{
+					field: 'sourceUpdatedAt',
+					code: JOURNEY_REVISION_ERROR_CODES.VALIDATION_FAILED,
+					message: 'sourceUpdatedAt must be a full ISO timestamp with timezone.',
+				},
+			],
+		};
+	}
+	const live = readCanonicalJourneyUpdatedAt(journeyRow);
+	if (!live) {
+		return {
+			matched: false,
+			errors: [
+				{
+					field: 'sourceUpdatedAt',
+					code: JOURNEY_REVISION_ERROR_CODES.SOURCE_CHANGED,
+					message:
+						'Unable to resolve Journey concurrency token. Re-read the Journey and dry-run again.',
+				},
+			],
+		};
+	}
+	const matched = live === source;
 	if (!matched) {
 		return {
 			matched: false,

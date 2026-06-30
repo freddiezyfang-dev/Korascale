@@ -2,6 +2,13 @@ import type { PoolClient } from 'pg';
 
 import { query } from '@/lib/db';
 
+import {
+	journeyRevisionSourceMatchSql,
+	journeySourceUpdatedAtTimestamptzSql,
+	journeyUpdatedAtTokenSql,
+	revisionSourceUpdatedAtTokenSql,
+} from './concurrencyTimestamp';
+import { serializeSourceTimestamp, serializeTimestamp } from './timestamps';
 import type {
 	JourneyRevisionOperation,
 	JourneyRevisionRecord,
@@ -11,6 +18,8 @@ import type {
 	JourneyRevisionValidationReport,
 	ListJourneyRevisionsParams,
 } from './types';
+
+const JOURNEY_ROW_SELECT = `*, ${journeyUpdatedAtTokenSql('updated_at')} AS journey_revision_source_updated_at`;
 
 export type JourneyRevisionRow = {
 	id: string;
@@ -30,6 +39,7 @@ export type JourneyRevisionRow = {
 	updated_at: Date | string;
 	published_at: Date | string | null;
 	rejected_at: Date | string | null;
+	source_updated_at_token?: string | null;
 };
 
 export function mapJourneyRevisionRow(row: JourneyRevisionRow): JourneyRevisionRecord {
@@ -39,9 +49,10 @@ export function mapJourneyRevisionRow(row: JourneyRevisionRow): JourneyRevisionR
 		operation: row.operation,
 		status: row.status,
 		schemaVersion: Number(row.schema_version ?? 1),
-		sourceUpdatedAt: row.source_updated_at
-			? new Date(String(row.source_updated_at)).toISOString()
-			: null,
+		sourceUpdatedAt: serializeSourceTimestamp(
+			row.source_updated_at_token ?? row.source_updated_at,
+			'source_updated_at'
+		),
 		sourceSnapshot: row.source_snapshot ?? null,
 		proposedSnapshot: row.proposed_snapshot,
 		changeSummary: Array.isArray(row.change_summary) ? (row.change_summary as string[]) : [],
@@ -52,10 +63,10 @@ export function mapJourneyRevisionRow(row: JourneyRevisionRow): JourneyRevisionR
 		reviewMetadata: (row.review_metadata as JourneyRevisionReviewMetadata) ?? {},
 		createdBy: String(row.created_by),
 		publishedBy: row.published_by ? String(row.published_by) : null,
-		createdAt: new Date(String(row.created_at)).toISOString(),
-		updatedAt: new Date(String(row.updated_at)).toISOString(),
-		publishedAt: row.published_at ? new Date(String(row.published_at)).toISOString() : null,
-		rejectedAt: row.rejected_at ? new Date(String(row.rejected_at)).toISOString() : null,
+		createdAt: serializeTimestamp(row.created_at, 'created_at') ?? '',
+		updatedAt: serializeTimestamp(row.updated_at, 'updated_at') ?? '',
+		publishedAt: serializeTimestamp(row.published_at, 'published_at'),
+		rejectedAt: serializeTimestamp(row.rejected_at, 'rejected_at'),
 	};
 }
 
@@ -78,7 +89,7 @@ export async function getJourneyRowById(
 	id: string,
 	client?: PoolClient
 ): Promise<Record<string, unknown> | null> {
-	const sql = `SELECT * FROM journeys WHERE id = $1 LIMIT 1`;
+	const sql = `SELECT ${JOURNEY_ROW_SELECT} FROM journeys WHERE id = $1 LIMIT 1`;
 	if (client) {
 		const { rows } = await client.query(sql, [id]);
 		return rows[0] ?? null;
@@ -94,7 +105,7 @@ export async function findJourneyRowByNormalizedSlug(
 	const { normalizeJourneySlugForComparison } = await import('@/lib/journeyNormalization/slug');
 	const normalized = normalizeJourneySlugForComparison(slug);
 	if (!normalized) return null;
-	const sql = `SELECT * FROM journeys`;
+	const sql = `SELECT ${JOURNEY_ROW_SELECT} FROM journeys`;
 	const rows = client ? (await client.query(sql)).rows : (await query(sql)).rows;
 	return (
 		rows.find(
@@ -107,7 +118,7 @@ export async function getJourneyRevisionById(
 	id: string,
 	client?: PoolClient
 ): Promise<JourneyRevisionRecord | null> {
-	const sql = `SELECT * FROM journey_revisions WHERE id = $1 LIMIT 1`;
+	const sql = `SELECT *, ${revisionSourceUpdatedAtTokenSql('source_updated_at')} AS source_updated_at_token FROM journey_revisions WHERE id = $1 LIMIT 1`;
 	const rows = client
 		? (await client.query<JourneyRevisionRow>(sql, [id])).rows
 		: (await query<JourneyRevisionRow>(sql, [id])).rows;
@@ -123,7 +134,8 @@ export async function listJourneyRevisions(
 		JourneyRevisionRow & {
 			journey_title: string | null;
 			journey_slug: string | null;
-			journey_updated_at: Date | string | null;
+			journey_updated_at: string | null;
+			source_timestamp_matches: boolean | null;
 		}
 	>
 > {
@@ -149,7 +161,16 @@ export async function listJourneyRevisions(
 		params.sort === 'createdAtDesc' ? 'jr.created_at DESC' : 'jr.created_at ASC';
 
 	const sql = `
-    SELECT jr.*, j.title AS journey_title, j.slug AS journey_slug, j.updated_at AS journey_updated_at
+    SELECT
+      jr.*,
+      ${revisionSourceUpdatedAtTokenSql('jr.source_updated_at')} AS source_updated_at_token,
+      j.title AS journey_title,
+      j.slug AS journey_slug,
+      ${journeyUpdatedAtTokenSql('j.updated_at')} AS journey_updated_at,
+      CASE
+        WHEN jr.source_updated_at IS NULL OR j.updated_at IS NULL THEN NULL
+        ELSE ${journeyRevisionSourceMatchSql('j.updated_at', 'jr.source_updated_at')}
+      END AS source_timestamp_matches
     FROM journey_revisions jr
     LEFT JOIN journeys j ON j.id = jr.journey_id
     WHERE ${conditions.join(' AND ')}
@@ -164,7 +185,8 @@ export async function listJourneyRevisions(
 		JourneyRevisionRow & {
 			journey_title: string | null;
 			journey_slug: string | null;
-			journey_updated_at: Date | string | null;
+			journey_updated_at: string | null;
+			source_timestamp_matches: boolean | null;
 		}
 	>;
 }
@@ -191,6 +213,27 @@ export async function supersedePendingJourneyRevisions(
 	if (client) await client.query(updateSql, [journeyId]);
 	else await query(updateSql, [journeyId]);
 	return ids;
+}
+
+export async function getRevisionSourceTimestampMatch(
+	revisionId: string,
+	client?: PoolClient
+): Promise<boolean | null> {
+	const sql = `
+    SELECT CASE
+      WHEN jr.source_updated_at IS NULL OR j.updated_at IS NULL THEN NULL
+      ELSE ${journeyRevisionSourceMatchSql('j.updated_at', 'jr.source_updated_at')}
+    END AS source_timestamp_matches
+    FROM journey_revisions jr
+    LEFT JOIN journeys j ON j.id = jr.journey_id
+    WHERE jr.id = $1
+    LIMIT 1
+  `;
+	const rows = client
+		? (await client.query<{ source_timestamp_matches: boolean | null }>(sql, [revisionId])).rows
+		: (await query<{ source_timestamp_matches: boolean | null }>(sql, [revisionId])).rows;
+	const value = rows[0]?.source_timestamp_matches;
+	return typeof value === 'boolean' ? value : null;
 }
 
 export async function insertJourneyRevision(params: {
@@ -220,7 +263,9 @@ export async function insertJourneyRevision(params: {
 	const values = [
 		params.journeyId,
 		params.operation,
-		params.sourceUpdatedAt ? new Date(params.sourceUpdatedAt) : null,
+		params.sourceUpdatedAt
+			? serializeSourceTimestamp(params.sourceUpdatedAt, 'sourceUpdatedAt')
+			: null,
 		params.sourceSnapshot ? JSON.stringify(params.sourceSnapshot) : null,
 		JSON.stringify(params.proposedSnapshot),
 		JSON.stringify(params.changeSummary),
@@ -235,6 +280,49 @@ export async function insertJourneyRevision(params: {
 	}
 	const { rows } = await query<{ id: string }>(sql, values);
 	return String(rows[0]?.id ?? '');
+}
+
+export async function insertJourneyRevisionFromLockedJourney(params: {
+	journeyId: string;
+	operation: JourneyRevisionOperation;
+	sourceSnapshot: JourneyRevisionSnapshot;
+	proposedSnapshot: JourneyRevisionSnapshot;
+	changeSummary: string[];
+	validationReport: JourneyRevisionValidationReport;
+	reviewMetadata: JourneyRevisionReviewMetadata;
+	createdBy: string;
+	client: PoolClient;
+}): Promise<string> {
+	const sql = `
+    INSERT INTO journey_revisions (
+      journey_id, operation, status, schema_version,
+      source_updated_at, source_snapshot, proposed_snapshot,
+      change_summary, validation_report, review_metadata, created_by
+    )
+    SELECT
+      $1, $2, 'pending_review', 1,
+      ${journeySourceUpdatedAtTimestamptzSql('j.updated_at')},
+      $3::jsonb, $4::jsonb, $5::jsonb, $6::jsonb, $7::jsonb, $8
+    FROM journeys j
+    WHERE j.id = $1
+    RETURNING id
+  `;
+	const values = [
+		params.journeyId,
+		params.operation,
+		JSON.stringify(params.sourceSnapshot),
+		JSON.stringify(params.proposedSnapshot),
+		JSON.stringify(params.changeSummary),
+		JSON.stringify(params.validationReport),
+		JSON.stringify(params.reviewMetadata),
+		params.createdBy,
+	];
+	const { rows } = await params.client.query<{ id: string }>(sql, values);
+	const id = String(rows[0]?.id ?? '');
+	if (!id) {
+		throw new Error('Failed to insert Journey revision from locked Journey row.');
+	}
+	return id;
 }
 
 export async function markJourneyRevisionPublished(params: {
@@ -285,7 +373,12 @@ export async function lockJourneyRevisionForUpdate(
 	client: PoolClient
 ): Promise<JourneyRevisionRecord | null> {
 	const { rows } = await client.query<JourneyRevisionRow>(
-		`SELECT * FROM journey_revisions WHERE id = $1 FOR UPDATE`,
+		`
+      SELECT *, ${revisionSourceUpdatedAtTokenSql('source_updated_at')} AS source_updated_at_token
+      FROM journey_revisions
+      WHERE id = $1
+      FOR UPDATE
+    `,
 		[id]
 	);
 	if (rows.length === 0) return null;
@@ -296,6 +389,9 @@ export async function lockJourneyForUpdate(
 	id: string,
 	client: PoolClient
 ): Promise<Record<string, unknown> | null> {
-	const { rows } = await client.query(`SELECT * FROM journeys WHERE id = $1 FOR UPDATE`, [id]);
+	const { rows } = await client.query(
+		`SELECT ${JOURNEY_ROW_SELECT} FROM journeys WHERE id = $1 FOR UPDATE`,
+		[id]
+	);
 	return rows[0] ?? null;
 }
