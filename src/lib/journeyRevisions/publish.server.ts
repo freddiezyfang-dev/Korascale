@@ -11,6 +11,7 @@ import { JourneyRevisionError, JOURNEY_REVISION_ERROR_CODES } from './errors';
 import {
 	getJourneyRevisionDetail,
 } from './dryRun.server';
+import { detectRevisionSnapshotCompatibilityMismatches } from './compatibilityMapping';
 import { journeyRevisionSourceMatchSql } from './concurrencyTimestamp';
 import { verifyRevisionPublishPostWriteIntegrity } from './postWriteIntegrity.server';
 import {
@@ -98,11 +99,27 @@ export async function publishJourneyRevision(params: {
 			}
 		}
 
+		const proposed = locked.proposedSnapshot;
+		const proposedCompatibilityMismatches =
+			detectRevisionSnapshotCompatibilityMismatches(proposed);
+		if (proposedCompatibilityMismatches.length > 0) {
+			throw new JourneyRevisionError(
+				'Revision proposed snapshot compatibility values are not canonical. Recreate the revision from the latest Journey.',
+				JOURNEY_REVISION_ERROR_CODES.PROPOSED_SNAPSHOT_INTEGRITY_FAILED,
+				409,
+				proposedCompatibilityMismatches.map((failure) => ({
+					field: failure.field,
+					code: 'PROPOSED_SNAPSHOT_COMPATIBILITY_MISMATCH',
+					message: `Expected ${failure.field} to match normalized proposed value.`,
+				}))
+			);
+		}
+
 		const validation = await validateResolvedProposedSnapshot({
 			operation: locked.operation,
 			journeyRow,
 			sourceUpdatedAt: locked.sourceUpdatedAt,
-			proposed: locked.proposedSnapshot,
+			proposed,
 			runQuery: (text, params = []) => withClientQuery(client, text, params),
 		});
 
@@ -115,7 +132,6 @@ export async function publishJourneyRevision(params: {
 			);
 		}
 
-		const proposed = locked.proposedSnapshot;
 		const mutationBody = snapshotToMutationBody(proposed);
 		const gate = await runJourneyPublishIntegrityGate({
 			id: locked.journeyId ?? undefined,

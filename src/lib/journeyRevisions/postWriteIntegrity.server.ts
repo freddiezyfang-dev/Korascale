@@ -1,4 +1,5 @@
 import { normalizeJourneyStatusForRead } from '@/lib/journeyNormalization/write';
+import { buildRevisionJsonbCompatibilityMap } from '@/lib/journeyRevisions/compatibilityMapping';
 import { compareProtectedPriceValues } from '@/lib/journeyRevisions/priceProtection';
 import { rowToJourneyRevisionSnapshot } from '@/lib/journeyRevisions/snapshot';
 import type { JourneyRevisionOperation, JourneyRevisionSnapshot } from '@/lib/journeyRevisions/types';
@@ -65,14 +66,7 @@ export function buildRevisionNormalizedColumnExpectations(
 export function buildRevisionJsonbCompatibilityExpectations(
 	proposed: JourneyRevisionSnapshot
 ): Record<string, string> {
-	return {
-		pageTitle: proposed.page_title,
-		metaDescription: proposed.meta_description,
-		heroImage: proposed.hero_image_url,
-		heroAlt: proposed.hero_image_alt,
-		heroImageAlt: proposed.hero_image_alt,
-		journeyType: proposed.journey_type,
-	};
+	return buildRevisionJsonbCompatibilityMap(proposed);
 }
 
 function verifyNormalizedColumns(
