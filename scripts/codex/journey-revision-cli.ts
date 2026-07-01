@@ -44,7 +44,8 @@ function usage(): void {
   npm run journey:revision -- reject --revision <id> --confirm <same-id> [--environment production] [--confirm-production]
 
 Write commands require CODEX_JOURNEY_REVISION_WRITE_ENABLED=true.
-Production write commands require --environment production --confirm-production and JOURNEY_REVISION_ACTOR.`);
+Production write commands require --environment production --confirm-production and JOURNEY_REVISION_ACTOR.
+Publish always writes normalized columns authoritatively (no JOURNEY_NORMALIZATION_COLUMNS required).`);
 }
 
 async function main() {

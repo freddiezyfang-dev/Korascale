@@ -8,6 +8,7 @@ import {
 	mergeExpandedColumnSql,
 	normalizeJourneyStatusForWrite,
 	type JourneyWriteStatus,
+	type NormalizedColumnWritePolicy,
 } from './write';
 import {
 	mergePublishCandidateWithUpdates,
@@ -54,6 +55,7 @@ const JOURNEY_CREATE_SCALAR_KEYS = [
 	'heroImage',
 	'heroAlt',
 	'heroImageAlt',
+	'displayOrder',
 ] as const;
 
 const JOURNEY_JSONB_KEYS = [
@@ -94,6 +96,10 @@ export type JourneySanitizedCreateBody = Partial<Journey> &
 	};
 
 export type JourneySanitizedUpdateBody = Partial<Journey> & Record<string, unknown>;
+
+export type JourneyMutationOptions = {
+	normalizedColumnWritePolicy?: NormalizedColumnWritePolicy;
+};
 
 export type JourneyCreateMutation = {
 	publishCandidate: JourneyPublishCandidate;
@@ -216,8 +222,10 @@ function buildCreateJsonbData(body: JourneySanitizedCreateBody): Record<string, 
 
 export function buildJourneyCreateMutation(
 	body: JourneySanitizedCreateBody,
-	seoComplete: boolean
+	seoComplete: boolean,
+	options: JourneyMutationOptions = {}
 ): JourneyCreateMutation {
+	const columnPolicy = options.normalizedColumnWritePolicy ?? 'env-flag';
 	const dualWrite = buildJourneyDualWritePayload({
 		pageTitle: body.pageTitle as string | undefined,
 		metaDescription: body.metaDescription as string | undefined,
@@ -234,13 +242,17 @@ export function buildJourneyCreateMutation(
 		expandedColumns: {
 			...dualWrite.expandedColumns,
 			seo_complete: seoComplete,
+			...(body.displayOrder !== undefined ? { display_order: body.displayOrder } : {}),
 		},
 	};
 
 	const { sql: insertSql, expandedValues } = buildJourneyInsertSql(
-		dualWriteWithSeo.expandedColumns
+		dualWriteWithSeo.expandedColumns,
+		columnPolicy
 	);
-	assertJourneySqlSafeForCurrentSchema(insertSql);
+	if (columnPolicy === 'env-flag') {
+		assertJourneySqlSafeForCurrentSchema(insertSql);
+	}
 
 	const insertParams = [
 		JSON.stringify(jsonbData),
@@ -279,8 +291,10 @@ export async function buildJourneyUpdateMutation(
 	journeyId: string,
 	existingRow: JourneyDbRow,
 	body: JourneySanitizedUpdateBody,
-	seoComplete: boolean
+	seoComplete: boolean,
+	options: JourneyMutationOptions = {}
 ): Promise<JourneyUpdateMutation> {
+	const columnPolicy = options.normalizedColumnWritePolicy ?? 'env-flag';
 	const updateFields: string[] = [];
 	const updateValues: unknown[] = [];
 	let paramIndex = 1;
@@ -463,8 +477,13 @@ export async function buildJourneyUpdateMutation(
 	}
 
 	const expandedMerge = mergeExpandedColumnSql(
-		{ ...dualWrite.expandedColumns, seo_complete: seoComplete },
-		paramIndex
+		{
+			...dualWrite.expandedColumns,
+			seo_complete: seoComplete,
+			...(body.displayOrder !== undefined ? { display_order: body.displayOrder } : {}),
+		},
+		paramIndex,
+		columnPolicy
 	);
 	updateFields.push(...expandedMerge.fields);
 	updateValues.push(...expandedMerge.values);
@@ -483,6 +502,10 @@ export async function buildJourneyUpdateMutation(
       RETURNING id, updated_at
     `
 		: '';
+
+	if (columnPolicy === 'env-flag' && updateSql) {
+		assertJourneySqlSafeForCurrentSchema(updateSql);
+	}
 
 	return {
 		publishCandidate: buildUpdatePublishCandidate(existingRow, body),

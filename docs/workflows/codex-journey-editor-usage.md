@@ -86,6 +86,8 @@ npm run journey:revision -- publish \
   --confirm-production
 ```
 
+Publish always dual-writes normalized columns and compatibility JSONB. The legacy `JOURNEY_NORMALIZATION_COLUMNS` env var is **not** required for revision publish (Admin API only).
+
 ## 9. Reject
 
 ```bash
@@ -125,3 +127,5 @@ Choose different slug or resolve conflicting Journey.
 | `CODEX_JOURNEY_ENVIRONMENT` | Default CLI environment: `local` \| `preview` \| `production` |
 | `JOURNEY_REVISION_ACTOR` | **Required** for Production writes (`created_by` / `published_by`) |
 | `JOURNEY_REVISION_API_BASE_URL` | Preview URL host (default `http://localhost:3001`) |
+
+Journey Revision publish always writes normalized columns authoritatively. `JOURNEY_NORMALIZATION_COLUMNS` is **not** required for Codex revision commands.

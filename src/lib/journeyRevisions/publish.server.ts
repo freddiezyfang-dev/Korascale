@@ -12,13 +12,16 @@ import {
 	getJourneyRevisionDetail,
 } from './dryRun.server';
 import { journeyRevisionSourceMatchSql } from './concurrencyTimestamp';
+import { verifyRevisionPublishPostWriteIntegrity } from './postWriteIntegrity.server';
 import {
 	journeyRevisionsTableExists,
 	lockJourneyForUpdate,
 	lockJourneyRevisionForUpdate,
 	markJourneyRevisionPublished,
+	readJourneyRowById,
 } from './repository.server';
-import { snapshotToMutationBody } from './snapshot';
+import { REVISION_PUBLISH_MUTATION_OPTIONS } from './revisionPublishMutation.server';
+import { deepCloneJson, snapshotToMutationBody } from './snapshot';
 import { assertRevisionPublishable } from './stateMachine';
 import { validateResolvedProposedSnapshot, withClientQuery } from './validation';
 
@@ -63,6 +66,7 @@ export async function publishJourneyRevision(params: {
 		}
 
 		let journeyRow: Record<string, unknown> | null = null;
+		let preWriteRow: Record<string, unknown> | null = null;
 		if (locked.journeyId) {
 			journeyRow = await lockJourneyForUpdate(locked.journeyId, client);
 			if (!journeyRow) {
@@ -72,6 +76,7 @@ export async function publishJourneyRevision(params: {
 					404
 				);
 			}
+			preWriteRow = deepCloneJson(journeyRow);
 
 			const matchRes = await client.query<{ source_timestamp_matches: boolean }>(
 				`
@@ -139,7 +144,11 @@ export async function publishJourneyRevision(params: {
 
 		if (locked.operation === 'create') {
 			const body = sanitizeJourneyCreateBody(mutationBody);
-			const mutation = buildJourneyCreateMutation(body, seoComplete);
+			const mutation = buildJourneyCreateMutation(
+				body,
+				seoComplete,
+				REVISION_PUBLISH_MUTATION_OPTIONS
+			);
 			const insertResult = await client.query(mutation.insertSql, mutation.insertParams);
 			const newId = insertResult.rows[0]?.id;
 			if (!newId) {
@@ -156,11 +165,49 @@ export async function publishJourneyRevision(params: {
 				locked.journeyId,
 				journeyRow,
 				body,
-				seoComplete
+				seoComplete,
+				REVISION_PUBLISH_MUTATION_OPTIONS
 			);
 			if (mutation.hasUpdates) {
 				await client.query(mutation.updateSql, mutation.updateValues);
 			}
+		}
+
+		if (!publishedJourneyId) {
+			throw new JourneyRevisionError(
+				'Publish did not resolve a Journey id.',
+				JOURNEY_REVISION_ERROR_CODES.VALIDATION_FAILED,
+				500
+			);
+		}
+
+		const postWriteRow = await readJourneyRowById(publishedJourneyId, client);
+		if (!postWriteRow) {
+			throw new JourneyRevisionError(
+				'Journey row missing after publish write.',
+				JOURNEY_REVISION_ERROR_CODES.POST_WRITE_INTEGRITY_FAILED,
+				500
+			);
+		}
+
+		const integrityFailures = verifyRevisionPublishPostWriteIntegrity({
+			operation: locked.operation,
+			preWriteRow,
+			postWriteRow,
+			proposed,
+			seoComplete,
+		});
+		if (integrityFailures.length > 0) {
+			throw new JourneyRevisionError(
+				'Journey revision publish failed post-write integrity verification.',
+				JOURNEY_REVISION_ERROR_CODES.POST_WRITE_INTEGRITY_FAILED,
+				500,
+				integrityFailures.map((failure) => ({
+					field: failure.field,
+					code: failure.code,
+					message: failure.message,
+				}))
+			);
 		}
 
 		await markJourneyRevisionPublished({

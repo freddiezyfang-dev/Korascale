@@ -55,6 +55,8 @@ npm run journey:revision -- reject --revision <id> --confirm <same-id> [--enviro
 JOURNEY_REVISION_ACTOR=<human-reviewer>
 ```
 
+Journey Revision publish **always writes normalized columns authoritatively** (column + compatibility JSONB). Operators do **not** need the `JOURNEY_NORMALIZATION_COLUMNS` env var on the CLI.
+
 Database identity must match declared environment. Codex must **never** set environment variables to bypass guards.
 
 ## Request JSON shape
