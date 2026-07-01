@@ -104,3 +104,11 @@ Migration `027` is applied in Production. Revision APIs require `journey_revisio
 - No-op updates (`JOURNEY_REVISION_NO_CHANGES`) must not create pending revisions.
 - Database identity output is masked (host/db only, no credentials).
 - Legacy `CODEX_JOURNEY_REVISION_PREP` is not supported.
+
+## J5C2 normalized dual-write
+
+Journey Revision publish **always writes normalized columns authoritatively** (column + compatibility JSONB). Post-write integrity verification runs in the same transaction before a revision is marked `published`.
+
+- Operators do **not** need the `JOURNEY_NORMALIZATION_COLUMNS` env var on the CLI.
+- Legacy Admin API writes may still use `JOURNEY_NORMALIZATION_COLUMNS` (unchanged).
+- On integrity failure: `JOURNEY_REVISION_POST_WRITE_INTEGRITY_FAILED` (HTTP 500), transaction rollback, revision stays `pending_review`.

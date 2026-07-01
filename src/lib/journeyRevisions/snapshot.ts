@@ -306,6 +306,7 @@ export function snapshotToMutationBody(snapshot: JourneyRevisionSnapshot): Recor
 		featured: snapshot.featured,
 		rating: snapshot.rating,
 		reviewCount: snapshot.review_count,
+		displayOrder: snapshot.display_order,
 		price: snapshot.price ?? 0,
 		originalPrice: snapshot.original_price,
 		...snapshot.data,

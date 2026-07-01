@@ -395,3 +395,14 @@ export async function lockJourneyForUpdate(
 	);
 	return rows[0] ?? null;
 }
+
+export async function readJourneyRowById(
+	id: string,
+	client: PoolClient
+): Promise<Record<string, unknown> | null> {
+	const { rows } = await client.query(
+		`SELECT ${JOURNEY_ROW_SELECT} FROM journeys WHERE id = $1`,
+		[id]
+	);
+	return rows[0] ?? null;
+}

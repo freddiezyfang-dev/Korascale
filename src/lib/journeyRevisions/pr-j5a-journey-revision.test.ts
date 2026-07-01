@@ -113,6 +113,52 @@ function sampleJourneyRow(overrides: Record<string, unknown> = {}) {
 	return row;
 }
 
+function journeyRowFromProposedSnapshot(
+	proposed: ReturnType<typeof rowToJourneyRevisionSnapshot>,
+	seoComplete = true,
+	overrides: Record<string, unknown> = {}
+) {
+	return {
+		...sampleJourneyRow(),
+		id: proposed.id ?? JOURNEY_ID,
+		title: proposed.title,
+		slug: proposed.slug,
+		status: proposed.status,
+		short_description: proposed.short_description,
+		description: proposed.description,
+		page_title: proposed.page_title,
+		meta_description: proposed.meta_description,
+		hero_image_url: proposed.hero_image_url,
+		hero_image_alt: proposed.hero_image_alt,
+		journey_type_slug: proposed.journey_type_slug,
+		journey_type: proposed.journey_type,
+		display_order: proposed.display_order,
+		seo_complete: seoComplete,
+		price: proposed.price,
+		original_price: proposed.original_price,
+		currency: proposed.currency,
+		price_from: proposed.price_from,
+		price_basis: proposed.price_basis,
+		data: journeyRowDataFromProposed(proposed),
+		...overrides,
+	};
+}
+
+function journeyRowDataFromProposed(
+	proposed: ReturnType<typeof rowToJourneyRevisionSnapshot>
+): Record<string, unknown> {
+	return {
+		...(sampleJourneyRow().data as Record<string, unknown>),
+		...proposed.data,
+		pageTitle: proposed.page_title,
+		metaDescription: proposed.meta_description,
+		heroImage: proposed.hero_image_url,
+		heroAlt: proposed.hero_image_alt,
+		heroImageAlt: proposed.hero_image_alt,
+		journeyType: proposed.journey_type,
+	};
+}
+
 describe('PR-J5A inspiration reuse audit artifact', () => {
 	it('1. inspiration reuse audit references real article revision modules', () => {
 		const audit = fs.readFileSync(
@@ -592,6 +638,7 @@ describe('PR-J5A dry-run and create (mocked DB)', () => {
 describe('PR-J5A publish transaction (mocked)', () => {
 	beforeEach(() => {
 		vi.mocked(withTransaction).mockReset();
+		vi.mocked(findJourneySlugConflict).mockResolvedValue(false);
 		vi.mocked(runJourneyPublishIntegrityGate).mockResolvedValue({
 			ok: true,
 			contentComplete: true,
@@ -606,6 +653,11 @@ describe('PR-J5A publish transaction (mocked)', () => {
 	});
 
 	it('32-34. publish uses transaction and marks revision published', async () => {
+		const proposed = mergeChangesIntoProposedSnapshot({
+			operation: 'update',
+			source: rowToJourneyRevisionSnapshot(sampleJourneyRow()),
+			changes: { title: 'Published title' },
+		});
 		const clientQuery = vi.fn(async (text: string) => {
 			if (text.includes('source_timestamp_matches')) {
 				return { rows: [{ source_timestamp_matches: true }] };
@@ -621,11 +673,7 @@ describe('PR-J5A publish transaction (mocked)', () => {
 							schema_version: 1,
 							source_updated_at: '2026-06-29T10:00:00.000Z',
 							source_snapshot: rowToJourneyRevisionSnapshot(sampleJourneyRow()),
-							proposed_snapshot: mergeChangesIntoProposedSnapshot({
-								operation: 'update',
-								source: rowToJourneyRevisionSnapshot(sampleJourneyRow()),
-								changes: { title: 'Published title' },
-							}),
+							proposed_snapshot: proposed,
 							change_summary: [],
 							validation_report: { errors: [], warnings: [] },
 							review_metadata: {},
@@ -641,6 +689,9 @@ describe('PR-J5A publish transaction (mocked)', () => {
 			}
 			if (text.includes('FOR UPDATE') && text.includes('journeys')) {
 				return { rows: [sampleJourneyRow()] };
+			}
+			if (text.includes('FROM journeys WHERE id = $1') && !text.includes('FOR UPDATE')) {
+				return { rows: [journeyRowFromProposedSnapshot(proposed)] };
 			}
 			if (text.includes('UPDATE journeys')) return { rows: [{ id: JOURNEY_ID }] };
 			if (text.includes('UPDATE journey_revisions') && text.includes('published')) {
@@ -742,6 +793,13 @@ describe('PR-J5A publish transaction (mocked)', () => {
 	});
 
 	it('J5C1. publish accepts exact millisecond source_updated_at match', async () => {
+		const proposed = mergeChangesIntoProposedSnapshot({
+			operation: 'update',
+			source: rowToJourneyRevisionSnapshot(
+				sampleJourneyRow({ updated_at: new Date('2026-06-29T10:00:00.919Z') })
+			),
+			changes: { meta_description: 'New meta' },
+		});
 		const clientQuery = vi.fn(async (text: string) => {
 			if (text.includes('source_timestamp_matches')) {
 				return { rows: [{ source_timestamp_matches: true }] };
@@ -759,13 +817,7 @@ describe('PR-J5A publish transaction (mocked)', () => {
 							source_snapshot: rowToJourneyRevisionSnapshot(
 								sampleJourneyRow({ updated_at: new Date('2026-06-29T10:00:00.919Z') })
 							),
-							proposed_snapshot: mergeChangesIntoProposedSnapshot({
-								operation: 'update',
-								source: rowToJourneyRevisionSnapshot(
-									sampleJourneyRow({ updated_at: new Date('2026-06-29T10:00:00.919Z') })
-								),
-								changes: { meta_description: 'New meta' },
-							}),
+							proposed_snapshot: proposed,
 							change_summary: [],
 							validation_report: { errors: [], warnings: [] },
 							review_metadata: {},
@@ -782,6 +834,15 @@ describe('PR-J5A publish transaction (mocked)', () => {
 			if (text.includes('FOR UPDATE') && text.includes('journeys')) {
 				return {
 					rows: [sampleJourneyRow({ updated_at: new Date('2026-06-29T10:00:00.919Z') })],
+				};
+			}
+			if (text.includes('FROM journeys WHERE id = $1') && !text.includes('FOR UPDATE')) {
+				return {
+					rows: [
+						journeyRowFromProposedSnapshot(proposed, true, {
+							updated_at: new Date('2026-06-29T10:00:00.919Z'),
+						}),
+					],
 				};
 			}
 			if (text.includes('UPDATE journeys')) return { rows: [{ id: JOURNEY_ID }] };
@@ -979,6 +1040,20 @@ describe('PR-J5A create revision lifecycle', () => {
 	it('3-5. create publish links journey_id in single published UPDATE', async () => {
 		const NEW_JOURNEY_ID = '99999999-9999-4999-8999-999999999999';
 		const publishUpdates: string[] = [];
+		const proposed = mergeChangesIntoProposedSnapshot({
+			operation: 'create',
+			source: null,
+			changes: { slug: 'brand-new', title: 'Brand New' },
+		});
+
+		vi.mocked(findJourneySlugConflict).mockResolvedValue(false);
+		vi.mocked(runJourneyPublishIntegrityGate).mockResolvedValue({
+			ok: true,
+			contentComplete: true,
+			publishReady: false,
+			errors: [],
+			seoComplete: false,
+		});
 
 		vi.mocked(withTransaction).mockImplementation(async (fn) => {
 			await fn({
@@ -993,11 +1068,7 @@ describe('PR-J5A create revision lifecycle', () => {
 									status: 'pending_review',
 									source_updated_at: null,
 									source_snapshot: null,
-									proposed_snapshot: mergeChangesIntoProposedSnapshot({
-										operation: 'create',
-										source: null,
-										changes: { slug: 'brand-new', title: 'Brand New' },
-									}),
+									proposed_snapshot: proposed,
 									change_summary: [],
 									validation_report: { errors: [], warnings: [] },
 									review_metadata: {},
@@ -1014,6 +1085,13 @@ describe('PR-J5A create revision lifecycle', () => {
 					}
 					if (text.includes('INSERT INTO journeys')) {
 						return { rows: [{ id: NEW_JOURNEY_ID }] };
+					}
+					if (text.includes('FROM journeys WHERE id = $1') && !text.includes('FOR UPDATE')) {
+						return {
+							rows: [
+								journeyRowFromProposedSnapshot(proposed, false, { id: NEW_JOURNEY_ID }),
+							],
+						};
 					}
 					if (text.includes('UPDATE journey_revisions') && text.includes('published')) {
 						publishUpdates.push(String(text));
@@ -1061,7 +1139,12 @@ describe('PR-J5A create revision lifecycle', () => {
 			}
 			if (text.includes('FROM journeys WHERE id')) {
 				return {
-					rows: [sampleJourneyRow({ id: NEW_JOURNEY_ID, slug: 'brand-new' })],
+					rows: [
+						journeyRowFromProposedSnapshot(proposed, false, {
+							id: NEW_JOURNEY_ID,
+							slug: 'brand-new',
+						}),
+					],
 				} as never;
 			}
 			return { rows: [] } as never;

@@ -124,10 +124,20 @@ export function isJourneyExpandedColumnsEnabled(): boolean {
 	return process.env.JOURNEY_NORMALIZATION_COLUMNS === '1';
 }
 
+/** `env-flag` — legacy Admin path; `always` — Journey Revision publish (J5C2). */
+export type NormalizedColumnWritePolicy = 'env-flag' | 'always';
+
+export function shouldWriteNormalizedColumns(
+	policy: NormalizedColumnWritePolicy = 'env-flag'
+): boolean {
+	return policy === 'always' || isJourneyExpandedColumnsEnabled();
+}
+
 export function getExpandedColumnEntries(
-	expandedColumns: Record<string, unknown>
+	expandedColumns: Record<string, unknown>,
+	policy: NormalizedColumnWritePolicy = 'env-flag'
 ): Array<[string, unknown]> {
-	if (!isJourneyExpandedColumnsEnabled()) return [];
+	if (!shouldWriteNormalizedColumns(policy)) return [];
 	return Object.entries(expandedColumns).filter(([, value]) => value !== undefined);
 }
 
@@ -152,12 +162,13 @@ export function assertJourneySqlSafeForCurrentSchema(sql: string): void {
 
 export function mergeExpandedColumnSql(
 	expandedColumns: Record<string, unknown>,
-	startIndex: number
+	startIndex: number,
+	policy: NormalizedColumnWritePolicy = 'env-flag'
 ): { fields: string[]; values: unknown[]; nextIndex: number } {
 	const fields: string[] = [];
 	const values: unknown[] = [];
 	let paramIndex = startIndex;
-	for (const [column, value] of getExpandedColumnEntries(expandedColumns)) {
+	for (const [column, value] of getExpandedColumnEntries(expandedColumns, policy)) {
 		fields.push(`${column} = $${paramIndex++}`);
 		values.push(value);
 	}
@@ -165,11 +176,14 @@ export function mergeExpandedColumnSql(
 }
 
 /** Single-statement INSERT: base columns + optional expanded columns + JSONB. */
-export function buildJourneyInsertSql(expandedColumns: Record<string, unknown>): {
+export function buildJourneyInsertSql(
+	expandedColumns: Record<string, unknown>,
+	policy: NormalizedColumnWritePolicy = 'env-flag'
+): {
 	sql: string;
 	expandedValues: unknown[];
 } {
-	const expandedEntries = getExpandedColumnEntries(expandedColumns);
+	const expandedEntries = getExpandedColumnEntries(expandedColumns, policy);
 	const expandedColumnNames = expandedEntries.map(([name]) => name);
 	const expandedValues = expandedEntries.map(([, value]) => value);
 
