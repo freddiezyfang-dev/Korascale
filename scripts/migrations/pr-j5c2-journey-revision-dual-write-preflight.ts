@@ -93,12 +93,14 @@ function priceProtectionPresent(): boolean {
 
 function revisionPublishWritesCompatibilityJson(): boolean {
 	const snapshot = readSource('src/lib/journeyRevisions/snapshot.ts');
+	const compatibility = readSource('src/lib/journeyRevisions/compatibilityMapping.ts');
 	const adminMutation = readSource('src/lib/journeyNormalization/journeyAdminMutation.server.ts');
 	const integrity = readSource('src/lib/journeyRevisions/postWriteIntegrity.server.ts');
 	return (
-		snapshot.includes('metaDescription: snapshot.meta_description') &&
+		snapshot.includes('buildRevisionJsonbCompatibilityMap(snapshot)') &&
+		compatibility.includes('metaDescription: snapshot.meta_description') &&
 		adminMutation.includes('jsonbUpdates.metaDescription') &&
-		integrity.includes('JSONB_COMPATIBILITY_KEYS')
+		integrity.includes('buildRevisionJsonbCompatibilityMap(proposed)')
 	);
 }
 

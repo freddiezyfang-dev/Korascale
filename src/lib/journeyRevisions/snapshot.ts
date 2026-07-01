@@ -2,6 +2,10 @@ import { JOURNEY_TYPE_LABELS } from '@/lib/journeyNormalization/constants';
 import { journeyTypeLabelToSlug } from '@/lib/journeyNormalization/write';
 
 import { sanitizeClientChanges } from './allowlist';
+import {
+	buildRevisionJsonbCompatibilityMap,
+	canonicalizeJourneyRevisionProposedSnapshot,
+} from './compatibilityMapping';
 import { readCanonicalJourneyUpdatedAt } from './concurrencyTimestamp';
 import { serializeTimestamp } from './timestamps';
 import type { JourneyRevisionRelationships, JourneyRevisionSnapshot } from './types';
@@ -81,7 +85,7 @@ export function rowToJourneyRevisionSnapshot(row: DbRow): JourneyRevisionSnapsho
 
 	const id = row.id != null ? String(row.id) : null;
 
-	return {
+	return canonicalizeJourneyRevisionProposedSnapshot({
 		id,
 		title: pickStr(row.title, data.title),
 		slug: pickStr(row.slug, data.slug),
@@ -121,7 +125,7 @@ export function rowToJourneyRevisionSnapshot(row: DbRow): JourneyRevisionSnapsho
 		review_count: pickNum(row.review_count),
 		created_at: toIso(row.created_at),
 		updated_at: readCanonicalJourneyUpdatedAt(row) ?? toIso(row.updated_at),
-	};
+	});
 }
 
 export function emptyCreateSnapshot(): JourneyRevisionSnapshot {
@@ -242,13 +246,13 @@ export function mergeChangesIntoProposedSnapshot(input: {
 	merged.data = applyRelationshipsToData(merged.data, merged.relationships, syncRelationshipIds);
 
 	if (operation === 'archive' && source) {
-		return {
+		return canonicalizeJourneyRevisionProposedSnapshot({
 			...deepCloneJson(source),
 			status: 'archived',
 			data: deepCloneJson(source.data),
 			relationships: deepCloneJson(source.relationships),
 			seo_complete: false,
-		};
+		});
 	}
 
 	if (operation === 'restore' && source) {
@@ -256,13 +260,13 @@ export function mergeChangesIntoProposedSnapshot(input: {
 			typeof changes.status === 'string' && changes.status.trim()
 				? String(changes.status).trim()
 				: 'draft';
-		return {
+		return canonicalizeJourneyRevisionProposedSnapshot({
 			...deepCloneJson(source),
 			status: requestedStatus === 'active' ? 'active' : 'draft',
 			data: deepCloneJson(source.data),
 			relationships: deepCloneJson(source.relationships),
 			seo_complete: false,
-		};
+		});
 	}
 
 	if (operation === 'create') {
@@ -277,7 +281,7 @@ export function mergeChangesIntoProposedSnapshot(input: {
 	}
 
 	merged.seo_complete = false;
-	return merged;
+	return canonicalizeJourneyRevisionProposedSnapshot(merged);
 }
 
 export function snapshotToMutationBody(snapshot: JourneyRevisionSnapshot): Record<string, unknown> {
@@ -286,12 +290,7 @@ export function snapshotToMutationBody(snapshot: JourneyRevisionSnapshot): Recor
 		slug: snapshot.slug,
 		description: snapshot.description,
 		shortDescription: snapshot.short_description,
-		pageTitle: snapshot.page_title,
-		metaDescription: snapshot.meta_description,
-		heroImage: snapshot.hero_image_url,
-		heroAlt: snapshot.hero_image_alt,
-		heroImageAlt: snapshot.hero_image_alt,
-		journeyType: snapshot.journey_type,
+		...buildRevisionJsonbCompatibilityMap(snapshot),
 		status: snapshot.status,
 		category: snapshot.category,
 		region: snapshot.region,
